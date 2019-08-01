@@ -5,6 +5,7 @@ const orderOverview = require('./order_overview')(db, DataTypes)
 const orderDetails = require('./order_detail')(db, DataTypes)
 
 module.exports = {
+  db,
   orderOverview,
   orderDetails
 }

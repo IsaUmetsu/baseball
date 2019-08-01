@@ -4,9 +4,13 @@
   "description": "",
   "main": "process.js",
   "scripts": {
+    "start": "nodemon process.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
+  "nodemonConfig": {
+    "ignore": ["./data/"]
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -15,5 +19,10 @@
     "mysql2": "^1.6.5",
     "sequelize": "^5.10.0",
     "sequelize-auto": "^0.4.29"
+  },
+  "devDependencies": {
+    "log4js": "^4.5.1",
+    "moment": "^2.24.0",
+    "nodemon": "^1.19.1"
   }
 }

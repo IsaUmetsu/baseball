@@ -11,6 +11,10 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
+    pitch_count: {
+      type: DataTypes.INTEGER(11),
+      allowNull: false
+    },
     batting_order: {
       type: DataTypes.INTEGER(4),
       allowNull: false
