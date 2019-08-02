@@ -188,7 +188,7 @@ const check_player_change = async (now_pitch_count, order_overview_id, top_botto
       // create game conditions
       const { ining, top_bottom, strike, ball, out, runner_1b, runner_2b, runner_3b } = game_info[0]
       const inint_string = `${ining}回${TOP_BOTTOM[top_bottom]}`
-      const out_string = `${out > 0 ? out : '無'}死`
+      const out_string = `${out > 0 ? out == 1 ? '一' : "二" : '無'}死`
       let runner_info = ""
       if (runner_1b && runner_2b && runner_3b) { runner_info = "満" }
       else {
