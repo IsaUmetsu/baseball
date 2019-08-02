@@ -6,7 +6,8 @@ const db = new Sequelize({
   logging: false,
   host: "localhost",
   username: "root",
-  password: "root"
+  // password: "root"
+  password: ""
 })
 
 db.authenticate()

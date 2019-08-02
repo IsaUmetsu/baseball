@@ -11,19 +11,26 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
+    top_bottom: {
+      type: DataTypes.INTEGER(2),
+      allowNull: false,
+      primaryKey: true
+    },
     pitch_count: {
       type: DataTypes.INTEGER(11),
-      allowNull: false
+      allowNull: false,
+      primaryKey: true
     },
     batting_order: {
       type: DataTypes.INTEGER(4),
-      allowNull: false
+      allowNull: false,
+      primaryKey: true
     },
-    player_id: {
+    player: {
       type: DataTypes.INTEGER(11),
       allowNull: false
     },
-    pos_id: {
+    pos: {
       type: DataTypes.INTEGER(4),
       allowNull: false
     },
@@ -36,6 +43,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     }
   }, {
-    tableName: 'order_detail'
+    tableName: 'order_detail',
+    underscored: true
   });
 };

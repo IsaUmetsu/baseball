@@ -12,11 +12,18 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(10),
       allowNull: false
     },
-    team: {
+    visitor_team: {
       type: DataTypes.STRING(2),
-      allowNull: false
+      allowNull: false,
+      unique: true
+    },
+    home_team: {
+      type: DataTypes.STRING(2),
+      allowNull: false,
+      unique: true
     }
   }, {
-    tableName: 'order_overview'
+    tableName: 'order_overview',
+    underscored: true
   });
 };
