@@ -24,24 +24,19 @@ DROP TABLE IF EXISTS `order_detail`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `order_detail` (
   `order_overview_id` int(11) NOT NULL,
+  `pitch_count` int(11) NOT NULL,
   `batting_order` tinyint(4) NOT NULL,
   `player_id` int(11) NOT NULL,
   `pos_id` tinyint(4) NOT NULL,
   `profile_number` tinyint(4) NOT NULL,
   `player_name` varchar(20) NOT NULL,
-  PRIMARY KEY (`order_overview_id`),
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  KEY `fk_order_detail_1_idx` (`order_overview_id`),
+  KEY `order_idx` (`order_overview_id`,`pitch_count`,`batting_order`),
   CONSTRAINT `fk_order_detail_1` FOREIGN KEY (`order_overview_id`) REFERENCES `order_overview` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `order_detail`
---
-
-LOCK TABLES `order_detail` WRITE;
-/*!40000 ALTER TABLE `order_detail` DISABLE KEYS */;
-/*!40000 ALTER TABLE `order_detail` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `order_overview`
@@ -54,18 +49,13 @@ CREATE TABLE `order_overview` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` varchar(10) NOT NULL COMMENT 'YYYYMMDD',
   `team` varchar(2) NOT NULL COMMENT 'チーム頭文字',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `date_UNIQUE` (`date`,`team`),
+  UNIQUE KEY `team_UNIQUE` (`team`)
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `order_overview`
---
-
-LOCK TABLES `order_overview` WRITE;
-/*!40000 ALTER TABLE `order_overview` DISABLE KEYS */;
-/*!40000 ALTER TABLE `order_overview` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -76,4 +66,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-01  9:57:17
+-- Dump completed on 2019-08-02  9:33:09
