@@ -234,10 +234,6 @@ const check_player_change = async (now_pitch_count, order_overview_id, top_botto
       // 試合情報(3) 走者情報
       const runner_string = `${on_base_info} ${runner_info}`
 
-      // console.log(game_info[0])
-      // console.log(record)
-      // console.log(record_after)
-
       let changed_position = ""
       let changed_content = ""
       let changed = true
