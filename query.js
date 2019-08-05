@@ -90,7 +90,7 @@ query.checkPlayerChange = (order_overview_id, now_pitch_count, top_bottom) => `
 /**
  * 選手変更時の試合情報（イニング、カウント、ランナー状況）取得
  */
-query.getGameInfoWhenChange = (order_overview_id, pitch_count) => `
+query.getGameInfoWhenChange = (order_overview_id, before_pitch_count, after_pitch_count) => `
     SELECT
         g.ining,
         g.top_bottom,
@@ -105,5 +105,5 @@ query.getGameInfoWhenChange = (order_overview_id, pitch_count) => `
     LEFT JOIN baseball.player p1 ON g.runner_1b = p1.id
     LEFT JOIN baseball.player p2 ON g.runner_2b = p2.id
     LEFT JOIN baseball.player p3 ON g.runner_3b = p3.id
-    WHERE g.order_overview_id = ${order_overview_id} AND g.pitch_count = ${pitch_count}
+    WHERE g.order_overview_id = ${order_overview_id} AND g.pitch_count IN (${before_pitch_count}, ${after_pitch_count})
 `

@@ -10,26 +10,42 @@ const { P, RF, D, PH, PR } = POSITIONS
 const { checkPlayerChange, getGameInfoWhenChange } = require('./query')
 
 const raw = true
+const { SELECT: type } = db.QueryTypes // decide type as SELECT
 
 /**
  * １球ごとの試合データ取得、jsonファイル保存
  * @param {*} pitch_count 
  */
 const getData = async pitch_count => {
-  const date_string = '20190804'
+  const date_string = '20190710'
   const game_no = '06'
+  const path_file = await checkAndCreateDir(date_string, game_no).then(rst => rst).catch(err => { throw err })
 
   // const url = `https://baseball.news.biglobe.ne.jp/npb/html5/json/${date_string}${game_no}/${pitch_count}.json`
   // const { data } = await axios.get(url).then(rst => rst).catch(e => { throw e })
+  // // save as json 
   // fs.writeFile(
-  //   `./data/${date_string}${game_no}_${pitch_count}.json`,
+  //   `${path_file}/${pitch_count}.json`,
   //   JSON.stringify(data, null, '  '),
   //   (err) => { if (err) logger.error(err) }
   // )
 
-  const data = require(`./data/${date_string}${game_no}_${pitch_count}`)
+  const data = require(`${path_file}/${pitch_count}.json`)
 
   return data
+}
+
+/**
+ * 
+ */
+const checkAndCreateDir = async (date_string, game_no) => {
+  const path_date = `./data/${date_string}`
+  const path_file = `./data/${date_string}/${game_no}`
+  // 日付ディレクトリがない場合、作成作成
+  if (!fs.existsSync(path_date)) { fs.mkdirSync(path_date) }
+  // ゲーム番号ディレクトリがない場合、作成
+  if (!fs.existsSync(path_file)) { fs.mkdirSync(path_file) }
+  return path_file
 }
 
 /**
@@ -174,7 +190,7 @@ const check_player_change = async (now_pitch_count, order_overview_id, top_botto
   // 1球目は処理終了
   if (now_pitch_count == 1) return
   // 2球目以降
-  const records = await db.query(checkPlayerChange(order_overview_id, now_pitch_count, top_bottom), { type: db.QueryTypes.SELECT })
+  const records = await db.query(checkPlayerChange(order_overview_id, now_pitch_count, top_bottom), { type })
     .then(rst => rst)
     .catch(err => { throw err })
   // 選手交代がある場合
@@ -189,12 +205,22 @@ const check_player_change = async (now_pitch_count, order_overview_id, top_botto
       const { after_pitch_count, after_batting_order, after_player, after_pos, after_profile_number, after_player_name } = record_after
 
       // 交代時のゲーム情報を取得
-      const game_info = await db.query(getGameInfoWhenChange(order_overview_id, after_pitch_count), { type: db.QueryTypes.SELECT })
+      const game_info = await db.query(getGameInfoWhenChange(order_overview_id, before_pitch_count, after_pitch_count), { type })
         .then(rst => rst)
         .catch(err => { throw err })
       // create game conditions
-      const { ining, top_bottom, strike, ball, out, runner_1b, runner_2b, runner_3b } = game_info[0]
+      let isPR = after_pos == PR, changed_base = "" // 代走起用であるかを事前に定義
+      
+      let { ining, top_bottom, strike, ball, out, runner_1b, runner_2b, runner_3b } = game_info[1] // 0: 変更前情報, 1: 変更後情報
+      // 選手起用が代走の場合、既に選手が入れ替わった状態であるため、意図的に選手起用を元に戻す
+      if (isPR) {
+        if (runner_1b == after_player_name) { runner_1b = before_player_name; changed_base = "一塁走者" }
+        if (runner_2b == after_player_name) { runner_2b = before_player_name; changed_base = "二塁走者" }
+        if (runner_3b == after_player_name) { runner_3b = before_player_name; changed_base = "三塁走者" }
+      }
+      // 試合情報(1) イニング
       const ining_string = `${ining}回${TOP_BOTTOM[top_bottom]}`
+      // 試合情報(2) アウトカウント
       const out_string = `${out > 0 ? out == 1 ? '一' : "二" : '無'}死`
       let on_base_info = "", runner_info = ""
       if (runner_1b && runner_2b && runner_3b) { on_base_info = "満" }
@@ -205,6 +231,7 @@ const check_player_change = async (now_pitch_count, order_overview_id, top_botto
       }
       on_base_info ? on_base_info += "塁" : on_base_info = "走者なし"
       if (runner_info) runner_info = `(${runner_info.slice(0, -1)})` 
+      // 試合情報(3) 走者情報
       const runner_string = `${on_base_info} ${runner_info}`
 
       // console.log(game_info[0])
@@ -214,15 +241,18 @@ const check_player_change = async (now_pitch_count, order_overview_id, top_botto
       let changed_position = ""
       let changed_content = ""
       let changed = true
+      // パリーグの投手変更の場合
       if (before_batting_order == ORDER_PITCHER && before_pos == P) {
         changed_position = "投手"
         changed_content = `${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
+      // 代打
       } else if (after_pos == PH) {
         changed_position = "代打"
         changed_content = `${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
-      } else if (after_pos == PR) {
+      // 代走
+      } else if (isPR) {
         changed_position = "代走"
-        changed_content = `${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
+        changed_content = `${changed_base} ${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
       // 代打・代走から、そのまま守備に就く場合
       } else if (fromPHPRtoField(before_pos, after_pos, before_player, after_player)) {
         changed_position = "守備"
