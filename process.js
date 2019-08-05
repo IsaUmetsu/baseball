@@ -6,23 +6,27 @@ const fs = require('fs')
 const logger = require('./logger')
 const { db, orderOverview, orderDetails, gameInfo, player } = require('./model')
 const { ORDER_PITCHER, POSITIONS, POSITIONS_NAME, VISITOR_TEAM, HOME_TEAM, TOP_BOTTOM } = require('./constants')
+const { P, RF, D, PH, PR } = POSITIONS
 const { checkPlayerChange, getGameInfoWhenChange } = require('./query')
+
+const raw = true
 
 /**
  * １球ごとの試合データ取得、jsonファイル保存
  * @param {*} pitch_count 
  */
 const getData = async pitch_count => {
-  const date_string = '20190710'
+  const date_string = '20190804'
   const game_no = '06'
 
   // const url = `https://baseball.news.biglobe.ne.jp/npb/html5/json/${date_string}${game_no}/${pitch_count}.json`
-  // const { data } = await axios.get(url)
+  // const { data } = await axios.get(url).then(rst => rst).catch(e => { throw e })
   // fs.writeFile(
   //   `./data/${date_string}${game_no}_${pitch_count}.json`,
   //   JSON.stringify(data, null, '  '),
   //   (err) => { if (err) logger.error(err) }
   // )
+
   const data = require(`./data/${date_string}${game_no}_${pitch_count}`)
 
   return data
@@ -48,7 +52,7 @@ const save_data = async pitch_count => {
       // insert order_overview of game
       const { id: order_id } = await insert_order_overview(date_string, visitor_tm.split(',')[1], home_tm.split(',')[1])
         .then(id => id)
-        .catch(err => { console.log(err) })
+        .catch(err => { throw err })
 
       await insert_order_detail(order_id, home_odr, pitch_count, HOME_TEAM)
       logger.info(`finished save data of home team. pitch: [${pitch_count}]`)
@@ -67,15 +71,18 @@ const save_data = async pitch_count => {
         .then(rst => rst)
         .catch(err => { throw err })
     })
-    .catch(e => { console.log(e) })
+    .catch(e => { throw e })
 }
 
 // Execute
 (async () => {
-  for (let cnt = 1; cnt <= 325 ; cnt++) {
+  let stopped = false
+  for (let cnt = 1; cnt <= 400 ; cnt++) {
      await save_data(cnt)
       .then(rst => rst)
-      .catch(err => { throw err })
+      .catch(err => { stopped = true; console.log("----- finished -----") })
+    
+    if (stopped) break
   }
 })()
 
@@ -89,7 +96,7 @@ const save_data = async pitch_count => {
 const insert_order_overview = async (date_string, visitor_team, home_team) => {
   // select
   let target_record = await orderOverview
-    .findOne({ where: { date: date_string, visitor_team, home_team }, raw: true})
+    .findOne({ where: { date: date_string, visitor_team, home_team }, raw })
     .then(rst => rst)
     .catch(err => { throw err })
   // if not exist, create new record
@@ -187,51 +194,91 @@ const check_player_change = async (now_pitch_count, order_overview_id, top_botto
         .catch(err => { throw err })
       // create game conditions
       const { ining, top_bottom, strike, ball, out, runner_1b, runner_2b, runner_3b } = game_info[0]
-      const inint_string = `${ining}回${TOP_BOTTOM[top_bottom]}`
+      const ining_string = `${ining}回${TOP_BOTTOM[top_bottom]}`
       const out_string = `${out > 0 ? out == 1 ? '一' : "二" : '無'}死`
-      let runner_info = ""
-      if (runner_1b && runner_2b && runner_3b) { runner_info = "満" }
+      let on_base_info = "", runner_info = ""
+      if (runner_1b && runner_2b && runner_3b) { on_base_info = "満" }
       else {
-        if (runner_1b) runner_info += "一"
-        if (runner_2b) runner_info += "二"
-        if (runner_3b) runner_info += "三"
+        if (runner_1b) { on_base_info += "一"; runner_info += `一塁走者：${runner_1b}、` }
+        if (runner_2b) { on_base_info += "二"; runner_info += `二塁走者：${runner_2b}、` }
+        if (runner_3b) { on_base_info += "三"; runner_info += `三塁走者：${runner_3b}、` }
       }
-      runner_info ? runner_info += "塁" : runner_info = "走者なし"
-      const runner_string = `${runner_info}`
+      on_base_info ? on_base_info += "塁" : on_base_info = "走者なし"
+      if (runner_info) runner_info = `(${runner_info.slice(0, -1)})` 
+      const runner_string = `${on_base_info} ${runner_info}`
+
+      // console.log(game_info[0])
+      // console.log(record)
+      // console.log(record_after)
 
       let changed_position = ""
       let changed_content = ""
-      if (before_batting_order == ORDER_PITCHER && before_pos == POSITIONS.P) {
+      let changed = true
+      if (before_batting_order == ORDER_PITCHER && before_pos == P) {
         changed_position = "投手"
         changed_content = `${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
-      } else if (after_pos == POSITIONS.PH) {
+      } else if (after_pos == PH) {
         changed_position = "代打"
         changed_content = `${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
-      } else if (after_pos == POSITIONS.PR) {
+      } else if (after_pos == PR) {
         changed_position = "代走"
         changed_content = `${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
       // 代打・代走から、そのまま守備に就く場合
-      } else if (before_pos !== after_pos && before_player == after_player) {
+      } else if (fromPHPRtoField(before_pos, after_pos, before_player, after_player)) {
         changed_position = "守備"
+        changed = false
         changed_content = `${before_player_name}(${before_profile_number}) → ${POSITIONS_NAME[after_pos]}`
       // チームが守備の際、同一ポジションで交代する場合
-      } else if (before_pos == after_pos && before_player !== after_player) {
-        changed_position = "守備"
-        changed_content = `${POSITIONS_NAME[before_pos]} ${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
+      } else if (changePlayerSamePosition(before_pos, after_pos, before_player, after_player)) {
+        changed_position = after_pos == P ? "投手" : "守備"
+        // output_position = 
+        changed_content = `${after_pos == P ? '' : `${POSITIONS_NAME[before_pos]} `}${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
+      // チームが守備の際、同じ選手の守備位置が変わる場合（守備位置の数字が1〜9）
+      } else if (changePositionSamePlayer(before_pos, after_pos, before_player, after_player)) {
+        changed_position = after_pos == P ? "投手" : "守備"
+        changed = false
+        changed_content = `${before_player_name}(${before_profile_number}) ${POSITIONS_NAME[before_pos]} → ${POSITIONS_NAME[after_pos]}`
       // チームが守備の際、異なるポジションで交代する場合
       } else {
-        changed_position = "守備"
+        changed_position = after_pos == P ? "投手" : "守備"
         changed_content = `${POSITIONS_NAME[before_pos]} ${before_player_name}(${before_profile_number}) → ${POSITIONS_NAME[after_pos]} ${after_player_name}(${after_profile_number})`
       }
-      console.log(`${inint_string}${out_string}${runner_string} ${game_score}`)
-      console.log(`  【${team_name}】選手交代`)
+      console.log(`${ining_string} ${out_string}${runner_string}`)
+      console.log(`   ${game_score}【${team_name}】${ changed ? "選手交代" : "守備変更" }`)
       console.log(`   ${changed_position}: ${changed_content}`)
     }
   }
 }
 
-const saveGameInfo = async (St, order_overview_id, pitch_count) => {
+/**
+ * 
+ */
+const fromPHPRtoField = (before_pos, after_pos, before_player, after_player) => (
+  (before_pos == POSITIONS_NAME[PH] || before_pos == POSITIONS_NAME[PR]) && // 代打 or 代走
+  (after_pos >= POSITIONS_NAME[P] && after_pos <= POSITIONS_NAME[RF])      && // 9つの守備位置のいずれか
+  before_player == after_player // 選手が同じ
+)
 
+/**
+ * 
+ */
+const changePlayerSamePosition = (before_pos, after_pos, before_player, after_player) => (
+  before_pos == after_pos &&     // 同一ポジション
+  before_player !== after_player // 異なる選手
+)
+
+/**
+ * 
+ */
+const changePositionSamePlayer = (before_pos, after_pos, before_player, after_player) => (
+  before_pos !== after_pos &&   // 異なるポジション
+  before_player == after_player // 同一選手
+)
+
+/**
+ * 
+ */
+const saveGameInfo = async (St, order_overview_id, pitch_count) => {
   const record = await gameInfo
     .findOne({ where: { order_overview_id, pitch_count } })
     .then(rst => rst)
@@ -255,6 +302,7 @@ const saveGameInfo = async (St, order_overview_id, pitch_count) => {
       19: "runner_3b",
       20: "next_3b_go"
     }
+    // json の `St` キーのカンマ区切り文字列を配列に分割
     const arrSt = St.split(',')
 
     const insertGameInfo = { order_overview_id, pitch_count }
