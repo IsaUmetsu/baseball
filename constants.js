@@ -8,11 +8,17 @@ constants.POSITIONS = {
   SS: 6, LF: 7, CF: 8, RF: 9, D: 10,
   PH: 11, PR: 12
 }
+
 constants.POSITIONS_NAME = {
   1: "ピッチャー", 2: "キャッチャー", 3: "ファースト", 4: "セカンド", 5: "サード",
   6: "ショート", 7: "レフト", 8: "センター", 9: "ライト", 10: "指名打者",
   11: "代打", 12: "代走"
 }
+
 constants.VISITOR_TEAM = 1
 constants.HOME_TEAM = 2
 constants.TOP_BOTTOM = { 1: '表', 2: '裏' }
+
+constants.FIRST_BASE = 1
+constants.SECOND_BASE = 2
+constants.THIRD_BASE = 3

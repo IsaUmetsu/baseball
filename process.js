@@ -5,7 +5,11 @@ const fs = require('fs')
 
 const logger = require('./logger')
 const { db, orderOverview, orderDetails, gameInfo, player } = require('./model')
-const { ORDER_PITCHER, POSITIONS, POSITIONS_NAME, VISITOR_TEAM, HOME_TEAM, TOP_BOTTOM } = require('./constants')
+const {
+  ORDER_PITCHER, POSITIONS, POSITIONS_NAME,
+  VISITOR_TEAM, HOME_TEAM,
+  TOP_BOTTOM, FIRST_BASE, SECOND_BASE, THIRD_BASE
+} = require('./constants')
 const { P, RF, D, PH, PR } = POSITIONS
 const { checkPlayerChange, getGameInfoWhenChange } = require('./query')
 
@@ -17,7 +21,7 @@ const { SELECT: type } = db.QueryTypes // decide type as SELECT
  * @param {*} pitch_count 
  */
 const getData = async pitch_count => {
-  const date_string = '20190710'
+  const date_string = '20190801'
   const game_no = '06'
   const path_file = await checkAndCreateDir(date_string, game_no).then(rst => rst).catch(err => { throw err })
 
@@ -209,15 +213,37 @@ const check_player_change = async (now_pitch_count, order_overview_id, top_botto
         .then(rst => rst)
         .catch(err => { throw err })
       // create game conditions
-      let isPR = after_pos == PR, changed_base = "" // 代走起用であるかを事前に定義
+      let isPR = after_pos == PR, changed_base = "", changed_base_no = 0 // 代走起用であるか、代走のためにランナー情報を書き換えたかを保持
       
-      let { ining, top_bottom, strike, ball, out, runner_1b, runner_2b, runner_3b } = game_info[1] // 0: 変更前情報, 1: 変更後情報
-      // 選手起用が代走の場合、既に選手が入れ替わった状態であるため、意図的に選手起用を元に戻す
+      let {
+        ining, top_bottom, pitcher, p_pn, batter, b_pn,
+        strike, ball, out, runner_1b, runner_1b_pn,
+        runner_2b, runner_2b_pn, runner_3b, runner_3b_pn
+      } = game_info[1] // 0: 変更前情報, 1: 変更後情報
+
+      // 代走起用で、各ベースのランナーが起用後の選手の場合、起用前の選手に一時的に置換（変更走者情報、変更塁情報も同時に変更）
       if (isPR) {
-        if (runner_1b == after_player_name) { runner_1b = before_player_name; changed_base = "一塁走者" }
-        if (runner_2b == after_player_name) { runner_2b = before_player_name; changed_base = "二塁走者" }
-        if (runner_3b == after_player_name) { runner_3b = before_player_name; changed_base = "三塁走者" }
+        if (runner_1b == after_player_name) {
+          runner_1b = `${before_player_name}(${before_profile_number})`
+          changed_base = "一塁走者"
+          changed_base_no = FIRST_BASE
+        }
+        if (runner_2b == after_player_name) {
+          runner_2b = `${before_player_name}(${before_profile_number})`
+          changed_base = "二塁走者"
+          changed_base_no = SECOND_BASE
+        }
+        if (runner_3b == after_player_name) {
+          runner_3b = `${before_player_name}(${before_profile_number})`
+          changed_base = "三塁走者"
+          changed_base_no = THIRD_BASE
+        }
       }
+      // 選手起用が代走の場合、既に選手が入れ替わった状態であるため、意図的に選手起用を元に戻す
+      if (runner_1b && changed_base_no != FIRST_BASE) runner_1b = `${runner_1b}(${runner_1b_pn})`
+      if (runner_2b && changed_base_no != SECOND_BASE) runner_2b = `${runner_2b}(${runner_2b_pn})`
+      if (runner_3b && changed_base_no != THIRD_BASE) runner_3b = `${runner_3b}(${runner_3b_pn})`
+
       // 試合情報(1) イニング
       const ining_string = `${ining}回${TOP_BOTTOM[top_bottom]}`
       // 試合情報(2) アウトカウント
@@ -237,13 +263,16 @@ const check_player_change = async (now_pitch_count, order_overview_id, top_botto
       let changed_position = ""
       let changed_content = ""
       let changed = true
+      let opponent = ""
       // パリーグの投手変更の場合
       if (before_batting_order == ORDER_PITCHER && before_pos == P) {
         changed_position = "投手"
+        opponent = `対戦打者：${batter}(${b_pn})`
         changed_content = `${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
       // 代打
       } else if (after_pos == PH) {
         changed_position = "代打"
+        opponent = `対戦投手：${pitcher}(${p_pn})`
         changed_content = `${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
       // 代走
       } else if (isPR) {
@@ -257,20 +286,24 @@ const check_player_change = async (now_pitch_count, order_overview_id, top_botto
       // チームが守備の際、同一ポジションで交代する場合
       } else if (changePlayerSamePosition(before_pos, after_pos, before_player, after_player)) {
         changed_position = after_pos == P ? "投手" : "守備"
+        if (after_pos == P) opponent = `対戦打者：${batter}(${b_pn})`
         // output_position = 
         changed_content = `${after_pos == P ? '' : `${POSITIONS_NAME[before_pos]} `}${before_player_name}(${before_profile_number}) → ${after_player_name}(${after_profile_number})`
       // チームが守備の際、同じ選手の守備位置が変わる場合（守備位置の数字が1〜9）
       } else if (changePositionSamePlayer(before_pos, after_pos, before_player, after_player)) {
         changed_position = after_pos == P ? "投手" : "守備"
+        if (after_pos == P) opponent = `対戦打者：${batter}(${b_pn})`
         changed = false
         changed_content = `${before_player_name}(${before_profile_number}) ${POSITIONS_NAME[before_pos]} → ${POSITIONS_NAME[after_pos]}`
       // チームが守備の際、異なるポジションで交代する場合
       } else {
         changed_position = after_pos == P ? "投手" : "守備"
+        if (after_pos == P) opponent = `対戦打者：${batter}(${b_pn})`
         changed_content = `${POSITIONS_NAME[before_pos]} ${before_player_name}(${before_profile_number}) → ${POSITIONS_NAME[after_pos]} ${after_player_name}(${after_profile_number})`
       }
       console.log(`${ining_string} ${out_string}${runner_string}`)
-      console.log(`   ${game_score}【${team_name}】${ changed ? "選手交代" : "守備変更" }`)
+      console.log(`${game_score} ${opponent}`)
+      console.log(`   【${team_name}】${ changed ? "選手交代" : "守備変更" }`)
       console.log(`   ${changed_position}: ${changed_content}`)
     }
   }

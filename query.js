@@ -94,16 +94,25 @@ query.getGameInfoWhenChange = (order_overview_id, before_pitch_count, after_pitc
     SELECT
         g.ining,
         g.top_bottom,
+        pp.name AS pitcher,
+        pp.profile_number AS p_pn,
+        pb.name AS batter,
+        pb.profile_number AS b_pn,
         g.strike,
         g.ball,
         g.out,
         p1.name AS runner_1b,
+        p1.profile_number AS runner_1b_pn,
         p2.name AS runner_2b,
-        p3.name AS runner_3b
+        p2.profile_number AS runner_2b_pn,
+        p3.name AS runner_3b,
+        p3.profile_number AS runner_3b_pn
     FROM
         baseball.game_info AS g
     LEFT JOIN baseball.player p1 ON g.runner_1b = p1.id
     LEFT JOIN baseball.player p2 ON g.runner_2b = p2.id
     LEFT JOIN baseball.player p3 ON g.runner_3b = p3.id
+    LEFT JOIN baseball.player pp ON g.pitcher = pp.id
+    LEFT JOIN baseball.player pb ON g.batter = pb.id
     WHERE g.order_overview_id = ${order_overview_id} AND g.pitch_count IN (${before_pitch_count}, ${after_pitch_count})
 `
