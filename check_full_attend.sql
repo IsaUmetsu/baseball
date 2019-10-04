@@ -97,6 +97,8 @@ SELECT
     count(C.player_name) as count
 FROM
 (
+    -- abount visitor
+    -- ビジター試合での選手交代がなかった試合の指定打順の選手を取得
 	SELECT
 	   order_overview_id,
 	   player_name 
@@ -108,15 +110,18 @@ FROM
 	   AND top_bottom = 1 
 		   AND order_overview_id IN 
 		   (
+               -- 選手交代なしだった試合のIDを取得
 			  SELECT
 				 B.order_overview_id 
 			  FROM
 				 (
+                     -- 試合単位で、指定の打順が何人変わったか計算
 					SELECT
 					   A.order_overview_id,
 					   Count(A.order_overview_id) AS count 
 					FROM
 					   (
+                          -- 選手ごとの最後の試合全体球数を計算 
 						  SELECT
 							 order_overview_id,
 							 top_bottom,
@@ -158,6 +163,7 @@ FROM
 				 B.count = 1
 		)
 	union 
+    -- abount home
 	SELECT
 	   order_overview_id,
 	   player_name 
