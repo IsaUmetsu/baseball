@@ -2,6 +2,7 @@
 
 const axios = require('axios')
 const fs = require('fs')
+const moment = require('moment');
 
 const logger = require('./logger')
 const { db, orderOverview, orderDetails, gameInfo, player } = require('./model')
@@ -11,30 +12,36 @@ const {
   TOP_BOTTOM, FIRST_BASE, SECOND_BASE, THIRD_BASE
 } = require('./constants')
 const { P, RF, D, PH, PR } = POSITIONS
-const { checkPlayerChange, getGameInfoWhenChange } = require('./query')
+const { checkPlayerChange, getGameInfoWhenChange, getStartingMenberSpecifyOrder, getOverviewIds } = require('./query')
 
 const raw = true
 const { SELECT: type } = db.QueryTypes // decide type as SELECT
 
 /**
  * １球ごとの試合データ取得、jsonファイル保存
- * @param {*} pitch_count 
+ * @param {string} pitch_count 
+ * @param {string} date_str
+ * @param {string} game_no
  */
-const getData = async pitch_count => {
-  const date_string = '20190801'
-  const game_no = '06'
-  const path_file = await checkAndCreateDir(date_string, game_no).then(rst => rst).catch(err => { throw err })
+const getData = async (pitch_count, date_string, game_no) => {
+  // specify for read json and get from biglobe
+  // const date_string = '20190329'
+  // const game_no = '06'
 
+  // read from json file
+  const path_file = await checkAndCreateDir(date_string, game_no).then(rst => rst).catch(err => { throw err })
+  const data = require(`${path_file}/${pitch_count}.json`)
+
+  // // execute get from biglobe page
   // const url = `https://baseball.news.biglobe.ne.jp/npb/html5/json/${date_string}${game_no}/${pitch_count}.json`
   // const { data } = await axios.get(url).then(rst => rst).catch(e => { throw e })
+
   // // save as json 
   // fs.writeFile(
   //   `${path_file}/${pitch_count}.json`,
   //   JSON.stringify(data, null, '  '),
   //   (err) => { if (err) logger.error(err) }
   // )
-
-  const data = require(`${path_file}/${pitch_count}.json`)
 
   return data
 }
@@ -54,10 +61,12 @@ const checkAndCreateDir = async (date_string, game_no) => {
 
 /**
  * DB保存実行処理
- * @param {*} pitch_count 
+ * @param {string} pitch_count
+ * @param {string} date_str
+ * @param {string} game_no
  */
-const save_data = async pitch_count => {
-  await getData(pitch_count)
+const save_data = async (pitch_count, date_str, game_no) => {
+  await getData(pitch_count, date_str, game_no)
     .then(async data => {
       if (data === undefined) return
       // get info
@@ -75,17 +84,18 @@ const save_data = async pitch_count => {
         .catch(err => { throw err })
 
       await insert_order_detail(order_id, home_odr, pitch_count, HOME_TEAM)
-      logger.info(`finished save data of home team. pitch: [${pitch_count}]`)
+      logger.info(`finished save data of home team.    date: [${date_str}], game_no: [${game_no}] pitch: [${pitch_count}]`)
       await insert_order_detail(order_id, visitor_odr, pitch_count, VISITOR_TEAM)
-      logger.info(`finished save data of visitor team. pitch: [${pitch_count}]`)
+      logger.info(`finished save data of visitor team. date: [${date_str}], game_no: [${game_no}] pitch: [${pitch_count}]`)
       // update player data
       await insert_player(home_odr.concat(visitor_odr))
       // 得点計算
       const { H: { R: h_score }, V: { R: v_score } } = SI
       const game_score = `${visitor_tm.split(',')[0].slice(0, 1)}${v_score.split(',')[0]} - ${h_score.split(',')[0]}${home_tm.split(',')[0].slice(0, 1)}`
       // 選手交代判定
-      check_player_change(pitch_count, order_id, HOME_TEAM, home_tm.split(',')[0], game_score)
-      check_player_change(pitch_count, order_id, VISITOR_TEAM, visitor_tm.split(',')[0], game_score)
+      // check_player_change(pitch_count, order_id, HOME_TEAM, home_tm.split(',')[0], game_score)
+      // check_player_change(pitch_count, order_id, VISITOR_TEAM, visitor_tm.split(',')[0], game_score)
+
       // 試合情報保存
       await saveGameInfo(St, order_id, pitch_count)
         .then(rst => rst)
@@ -96,13 +106,67 @@ const save_data = async pitch_count => {
 
 // Execute
 (async () => {
+
+  // define sleep function
+  const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
+  /**
+
   let stopped = false
-  for (let cnt = 1; cnt <= 400 ; cnt++) {
-     await save_data(cnt)
+  const day = moment('2019-04-04');
+  const season_start = moment('2019-03-29');
+  const season_end = moment('2019-09-30');
+
+  while(1) {
+    if (day.isSameOrAfter(season_start) && day.isSameOrBefore(season_end)) {
+      // define game date
+      const date_str = day.format('YYYYMMDD');
+      for (let game_no = 1; game_no <= 6; game_no++) {
+        // reset flag
+        stopped = false;
+        // define game no
+        const tgt_game_no = "0" + game_no;
+        // define pitch count
+        for (let cnt = 1; cnt <= 500; cnt++) {
+          await save_data(cnt, date_str, tgt_game_no)
+            .then(rst => rst)
+            .catch(err => {
+              stopped = true;
+              console.log(`----- finished: date: [${date_str}], game_no: [${tgt_game_no}] -----`)
+            })
+          // sleep 0.5 sec
+          sleep(500);
+          // break loop
+          if (stopped) break
+        }
+      }
+      day.add(1, 'days');
+    } else {
+      break;
+    }
+  }
+
+  */
+
+  await sleep(1000);
+
+  // get overviewIds of top, bottom
+  const overviewIdsTop = await db.query(getOverviewIds('H', 1), { type }).then(r => r).catch(e => e);
+  const overviewIdsBtm = await db.query(getOverviewIds('H', 2), { type }).then(r => r).catch(e => e);
+  // create array
+  const idsTop = overviewIdsTop.map(({id}) => id);
+  const idsBtm = overviewIdsBtm.map(({id}) => id);
+
+  // get order
+  for (let order_no = 1; order_no <= 9; order_no++) {
+    const records = await db.query(getStartingMenberSpecifyOrder('H', order_no, idsTop, idsBtm), { type })
       .then(rst => rst)
-      .catch(err => { stopped = true; console.log("----- finished -----") })
-    
-    if (stopped) break
+      .catch(err => { console.log(err) })
+
+    console.log(`----- Order No: [${order_no}] -----`)
+    records.map(({ count, player_name }) => {
+      console.log(`${count} ${player_name}`)
+    })
+    console.log(``)
   }
 })()
 

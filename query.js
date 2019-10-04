@@ -116,3 +116,49 @@ query.getGameInfoWhenChange = (order_overview_id, before_pitch_count, after_pitc
     LEFT JOIN baseball.player pb ON g.batter = pb.id
     WHERE g.order_overview_id = ${order_overview_id} AND g.pitch_count IN (${before_pitch_count}, ${after_pitch_count})
 `
+
+/**
+ * 打順ごとのスタメン回数取得
+ */
+query.getStartingMenberSpecifyOrder = (team, order, idsTop, idsBtm) => `
+    SELECT 
+        count(player_name) as count,
+        player_name
+    FROM
+        baseball.order_detail
+    where
+        ((
+            order_overview_id in (
+                ${idsTop}
+                -- SELECT 
+                --     id
+                -- FROM
+                --     baseball.order_overview
+                -- where
+                --     visitor_team = '${team}'
+            ) and top_bottom = 1
+        ) or (
+            order_overview_id in (
+                ${idsBtm}
+                -- SELECT 
+                --     id
+                -- FROM
+                --     baseball.order_overview
+                -- where
+                --     home_team = '${team}'
+            ) and top_bottom = 2
+        ))
+        and pitch_count = 1
+        and batting_order = ${order}
+    group by player_name
+    order by count desc
+`
+
+query.getOverviewIds = (team, top_bottom) => `
+    SELECT 
+        id
+    FROM
+        baseball.order_overview
+    where
+        ${top_bottom == 1 ? 'visitor_team' : top_bottom == 2 ? 'home_team' : ''} = '${team}'
+`
