@@ -2,5 +2,8 @@
 *.vscode
 system*.log
 *data/
+*data1_p/
+*data2_p/
+*data3_p/
 *record/
 .DS_Store
