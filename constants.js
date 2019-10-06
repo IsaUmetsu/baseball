@@ -22,3 +22,6 @@ constants.TOP_BOTTOM = { 1: '表', 2: '裏' }
 constants.FIRST_BASE = 1
 constants.SECOND_BASE = 2
 constants.THIRD_BASE = 3
+
+constants.DATA_TYPE_URL = 'url'
+constants.DATA_TYPE_JSON = 'json'

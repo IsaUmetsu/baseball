@@ -1,21 +1,81 @@
-'use strict'
+"use strict"
 
 const axios = require('axios')
 const fs = require('fs')
-const moment = require('moment');
+const moment = require('moment')
 
-const logger = require('./logger')
-const { db, orderOverview, orderDetails, gameInfo, player } = require('./model')
 const {
   ORDER_PITCHER, POSITIONS, POSITIONS_NAME,
   VISITOR_TEAM, HOME_TEAM,
-  TOP_BOTTOM, FIRST_BASE, SECOND_BASE, THIRD_BASE
+  TOP_BOTTOM, FIRST_BASE, SECOND_BASE, THIRD_BASE,
+  DATA_TYPE_URL, DATA_TYPE_JSON
 } = require('./constants')
 const { P, RF, D, PH, PR } = POSITIONS
-const { checkPlayerChange, getGameInfoWhenChange, getStartingMenberSpecifyOrder, getOverviewIds } = require('./query')
+
+const { db, orderOverview, orderDetails, gameInfo, player } = require('./model')
+const { checkPlayerChange, getGameInfoWhenChange } = require('./query')
+const { checkAndCreateDir } = require('./func')
+const logger = require('./logger')
 
 const raw = true
-const { SELECT: type } = db.QueryTypes // decide type as SELECT
+const { SELECT: type } = db.QueryTypes
+
+// define sleep function
+const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
+
+// execute params
+const data_type = DATA_TYPE_URL
+const require_get_and_save_data = false
+
+const day = moment('2019-04-04');
+const season_start = moment('2019-03-29');
+const season_end = moment('2019-09-30');
+
+// Execute
+(async () => {
+  // when require data
+  if (require_get_and_save_data) {
+    await get_data_and_save()
+      .then(rst => rst)
+      .catch(err => err)
+  }
+})()
+
+/**
+ * 
+ */
+const get_data_and_save = async () => {
+  let stopped = false
+
+  while(1) {
+    if (day.isSameOrAfter(season_start) && day.isSameOrBefore(season_end)) {
+      // define game date
+      const date_str = day.format('YYYYMMDD');
+      for (let game_no = 1; game_no <= 6; game_no++) {
+        // reset flag
+        stopped = false;
+        // define game no
+        const tgt_game_no = "0" + game_no;
+        // define pitch count
+        for (let cnt = 1; cnt <= 500; cnt++) {
+          await save_data(cnt, date_str, tgt_game_no)
+            .then(rst => rst)
+            .catch(err => {
+              stopped = true;
+              console.log(`----- finished: date: [${date_str}], game_no: [${tgt_game_no}] -----`)
+            })
+          // sleep 0.5 sec
+          sleep(500);
+          // break loop
+          if (stopped) break
+        }
+      }
+      day.add(1, 'days');
+    } else {
+      break;
+    }
+  }
+}
 
 /**
  * １球ごとの試合データ取得、jsonファイル保存
@@ -25,38 +85,32 @@ const { SELECT: type } = db.QueryTypes // decide type as SELECT
  */
 const getData = async (pitch_count, date_string, game_no) => {
   // specify for read json and get from biglobe
-  // const date_string = '20190329'
-  // const game_no = '06'
+  if (date_string == "" || game_no == "") {
+    date_string = '20190329'
+    game_no = '06'
+  }
+
+  // return value
+  let tgt_data;
+  const path_file = await checkAndCreateDir(date_string, game_no).then(rst => rst).catch(err => { throw err })
 
   // read from json file
-  const path_file = await checkAndCreateDir(date_string, game_no).then(rst => rst).catch(err => { throw err })
-  const data = require(`${path_file}/${pitch_count}.json`)
+  if (data_type == DATA_TYPE_JSON) {
+    tgt_data = require(`${path_file}/${pitch_count}.json`)
+  // execute get from biglobe page
+  } else if (data_type == DATA_TYPE_URL) {
+    const url = `https://baseball.news.biglobe.ne.jp/npb/html5/json/${date_string}${game_no}/${pitch_count}.json`
+    const { data } = await axios.get(url).then(rst => rst).catch(e => { throw e })
+    tgt_data = data
+    // save as json 
+    fs.writeFile(
+      `${path_file}/${pitch_count}.json`,
+      JSON.stringify(data, null, '  '),
+      (err) => { if (err) logger.error(err) }
+    )
+  }
 
-  // // execute get from biglobe page
-  // const url = `https://baseball.news.biglobe.ne.jp/npb/html5/json/${date_string}${game_no}/${pitch_count}.json`
-  // const { data } = await axios.get(url).then(rst => rst).catch(e => { throw e })
-
-  // // save as json 
-  // fs.writeFile(
-  //   `${path_file}/${pitch_count}.json`,
-  //   JSON.stringify(data, null, '  '),
-  //   (err) => { if (err) logger.error(err) }
-  // )
-
-  return data
-}
-
-/**
- * 
- */
-const checkAndCreateDir = async (date_string, game_no) => {
-  const path_date = `./data/${date_string}`
-  const path_file = `./data/${date_string}/${game_no}`
-  // 日付ディレクトリがない場合、作成作成
-  if (!fs.existsSync(path_date)) { fs.mkdirSync(path_date) }
-  // ゲーム番号ディレクトリがない場合、作成
-  if (!fs.existsSync(path_file)) { fs.mkdirSync(path_file) }
-  return path_file
+  return tgt_data
 }
 
 /**
@@ -103,73 +157,6 @@ const save_data = async (pitch_count, date_str, game_no) => {
     })
     .catch(e => { throw e })
 }
-
-// Execute
-(async () => {
-
-  // define sleep function
-  const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
-  /**
-
-  let stopped = false
-  const day = moment('2019-04-04');
-  const season_start = moment('2019-03-29');
-  const season_end = moment('2019-09-30');
-
-  while(1) {
-    if (day.isSameOrAfter(season_start) && day.isSameOrBefore(season_end)) {
-      // define game date
-      const date_str = day.format('YYYYMMDD');
-      for (let game_no = 1; game_no <= 6; game_no++) {
-        // reset flag
-        stopped = false;
-        // define game no
-        const tgt_game_no = "0" + game_no;
-        // define pitch count
-        for (let cnt = 1; cnt <= 500; cnt++) {
-          await save_data(cnt, date_str, tgt_game_no)
-            .then(rst => rst)
-            .catch(err => {
-              stopped = true;
-              console.log(`----- finished: date: [${date_str}], game_no: [${tgt_game_no}] -----`)
-            })
-          // sleep 0.5 sec
-          sleep(500);
-          // break loop
-          if (stopped) break
-        }
-      }
-      day.add(1, 'days');
-    } else {
-      break;
-    }
-  }
-
-  */
-
-  await sleep(1000);
-
-  // get overviewIds of top, bottom
-  const overviewIdsTop = await db.query(getOverviewIds('H', 1), { type }).then(r => r).catch(e => e);
-  const overviewIdsBtm = await db.query(getOverviewIds('H', 2), { type }).then(r => r).catch(e => e);
-  // create array
-  const idsTop = overviewIdsTop.map(({id}) => id);
-  const idsBtm = overviewIdsBtm.map(({id}) => id);
-
-  // get order
-  for (let order_no = 1; order_no <= 9; order_no++) {
-    const records = await db.query(getStartingMenberSpecifyOrder('H', order_no, idsTop, idsBtm), { type })
-      .then(rst => rst)
-      .catch(err => { console.log(err) })
-
-    console.log(`----- Order No: [${order_no}] -----`)
-    records.map(({ count, player_name }) => {
-      console.log(`${count} ${player_name}`)
-    })
-    console.log(``)
-  }
-})()
-
 
 /**
  * オーダー概要テーブルINSERT

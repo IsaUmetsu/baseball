@@ -162,3 +162,75 @@ query.getOverviewIds = (team, top_bottom) => `
     where
         ${top_bottom == 1 ? 'visitor_team' : top_bottom == 2 ? 'home_team' : ''} = '${team}'
 `
+
+/**
+ * フル出場取得
+ */
+query.getFullParticipation = (idsTop, idsBtm, order) => `
+    SELECT
+        C.player_name,
+        count(C.player_name) as count
+    FROM (
+        ${getFullParticipationBySide(1, order, idsTop)}
+        union
+        ${getFullParticipationBySide(2, order, idsBtm)}
+    ) AS C
+    group by
+        C.player_name
+    order by
+        count desc
+`
+
+const getFullParticipationBySide = (top_bottom, order, ids) => `
+    SELECT
+        order_overview_id,
+        player_name 
+    FROM
+        baseball.order_detail 
+    WHERE
+        pitch_count = 1 
+    AND batting_order = ${order} 
+    AND top_bottom = ${top_bottom}
+        AND order_overview_id IN 
+        (
+            SELECT
+                B.order_overview_id 
+            FROM
+                (
+                    SELECT
+                        A.order_overview_id,
+                        Count(A.order_overview_id) AS count 
+                    FROM
+                    (
+                        SELECT
+                            order_overview_id,
+                            top_bottom,
+                            batting_order,
+                            Max(pitch_count) AS max_pitch_count,
+                            player_name 
+                        FROM
+                            baseball.order_detail 
+                        WHERE
+                            order_overview_id IN (${ids})
+                            AND top_bottom = ${top_bottom} 
+                            AND batting_order = ${order} 
+                        GROUP BY
+                            order_overview_id,
+                            top_bottom,
+                            batting_order,
+                            player_name 
+                        ORDER BY
+                            order_overview_id,
+                            top_bottom,
+                            max_pitch_count
+                    ) AS A 
+                    GROUP BY
+                    A.order_overview_id 
+                    ORDER BY
+                    count
+                )
+                AS B 
+            WHERE
+                B.count = 1
+        )
+`
