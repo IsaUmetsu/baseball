@@ -5,7 +5,7 @@ const query = module.exports = {}
 /**
  * 選手起用に変更があるか判定
  */
-query.checkPlayerChange = (order_overview_id, now_pitch_count, top_bottom) => `
+query.judgePlayerChange = (order_overview_id, now_pitch_count, top_bottom) => `
   SELECT
   *
   FROM

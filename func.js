@@ -2,6 +2,8 @@
 
 const func = module.exports = {}
 
+const fs = require('fs')
+
 /**
  * 
  */
