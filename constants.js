@@ -18,6 +18,8 @@ constants.POSITIONS_NAME = {
 constants.VISITOR_TEAM = 1
 constants.HOME_TEAM = 2
 constants.TOP_BOTTOM = { 1: '表', 2: '裏' }
+constants.TOP = 1
+constants.BOTTOM = 2
 
 constants.FIRST_BASE = 1
 constants.SECOND_BASE = 2

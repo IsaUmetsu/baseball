@@ -1,28 +1,20 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('order_overview', {
+  return sequelize.define('TR_info', {
     id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
     },
-    date: {
-      type: DataTypes.STRING(10),
+    game_info_id: {
+      type: DataTypes.INTEGER(11),
       allowNull: false
     },
-    visitor_team: {
-      type: DataTypes.STRING(2),
+    order_overview_id: {
+      type: DataTypes.INTEGER(11),
       allowNull: false
-    },
-    home_team: {
-      type: DataTypes.STRING(2),
-      allowNull: false
-    },
-    game_no: {
-      type: DataTypes.STRING(2),
-      allowNull: true
     },
     col_1: {
       type: DataTypes.STRING(10),
@@ -36,16 +28,27 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(10),
       allowNull: true
     },
+    col_4: {
+      type: DataTypes.STRING(10),
+      allowNull: true
+    },
+    col_5: {
+      type: DataTypes.STRING(10),
+      allowNull: true
+    },
+    col_6: {
+      type: DataTypes.STRING(10),
+      allowNull: true
+    },
     createdAt: {
       type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+      allowNull: false
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: true
     }
   }, {
-    tableName: 'order_overview'
+    tableName: 'TR_info'
   });
 };

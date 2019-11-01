@@ -10,11 +10,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     order_overview_id: {
       type: DataTypes.INTEGER(11),
-      allowNull: false,
-      references: {
-        model: 'order_overview',
-        key: 'id'
-      }
+      allowNull: false
     },
     pitch_count: {
       type: DataTypes.INTEGER(11),
@@ -107,9 +103,20 @@ module.exports = function(sequelize, DataTypes) {
     unkcol_21: {
       type: DataTypes.STRING(45),
       allowNull: true
+    },
+    game_datetime: {
+      type: DataTypes.STRING(10),
+      allowNull: true
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
-    tableName: 'game_info',
-    underscored: true
+    tableName: 'game_info'
   });
 };
