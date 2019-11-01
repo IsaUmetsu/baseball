@@ -5,6 +5,7 @@ const { P, RF, D, PH, PR } = POSITIONS
 
 const { db } = require('../model')
 const { getFullParticipation, getOverviewIds } = require('../query')
+const { createListByPlayer } = require('../func')
 const logger = require('../logger')
 
 const { SELECT: type } = db.QueryTypes
@@ -20,6 +21,8 @@ const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
   const idsTop = overviewIdsTop.map(({id}) => id);
   const idsBtm = overviewIdsBtm.map(({id}) => id);
 
+  const rstByPly = {}
+
   // get order
   for (let order_no = 1; order_no <= 9; order_no++) {
     const records = await db.query(getFullParticipation(idsTop, idsBtm, order_no), { type })
@@ -31,9 +34,13 @@ const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
     records.map(({ count, player_name }) => {
       console.log(`${count} ${player_name}`)
       total_count += count
+
+      createListByPlayer(rstByPly, order_no, count, player_name)
     })
     console.log(``)
     console.log(`total: ${total_count}試合`)
     console.log(``)
   }
+
+  console.log(rstByPly)
 })()

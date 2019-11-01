@@ -14,3 +14,15 @@ func.checkAndCreateDir = async (date_string, game_no) => {
   if (!fs.existsSync(path_file)) { fs.mkdirSync(path_file) }
   return path_file
 }
+
+/**
+ * 選手の打順ごとのスタメン回数リスト作成
+ */
+func.createListByPlayer = async (rstByPly, order_no, count, player_name) => {
+  // 選手情報がある場合、抽出
+  if (Object.keys(rstByPly).filter(ply => ply == player_name).length) {
+    rstByPly[player_name][order_no] = count
+  } else {
+    rstByPly[player_name] = { [order_no]: count }
+  }
+}

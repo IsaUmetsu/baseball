@@ -8,7 +8,7 @@ const {
   ORDER_PITCHER, POSITIONS, POSITIONS_NAME,
   VISITOR_TEAM, HOME_TEAM,
   TOP_BOTTOM, FIRST_BASE, SECOND_BASE, THIRD_BASE,
-  DATA_TYPE_URL, DATA_TYPE_JSON
+  dataType_URL, dataType_JSON
 } = require('./constants')
 const { P, RF, D, PH, PR } = POSITIONS
 
@@ -24,18 +24,18 @@ const { SELECT: type } = db.QueryTypes
 const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
 
 // execute params
-const data_type = DATA_TYPE_URL
-const require_get_and_save_data = false
+const dataType = dataType_URL
+const requireGetAndSaveData = false
 
 const day = moment('2019-04-04');
-const season_start = moment('2019-03-29');
-const season_end = moment('2019-09-30');
+const seasonStart = moment('2019-03-29');
+const seasonEnd = moment('2019-09-30');
 
 // Execute
 (async () => {
   // when require data
-  if (require_get_and_save_data) {
-    await get_data_and_save()
+  if (requireGetAndSaveData) {
+    await getDataAndSave()
       .then(rst => rst)
       .catch(err => err)
   }
@@ -44,13 +44,13 @@ const season_end = moment('2019-09-30');
 /**
  * 
  */
-const get_data_and_save = async () => {
+const getDataAndSave = async () => {
   let stopped = false
 
   while(1) {
-    if (day.isSameOrAfter(season_start) && day.isSameOrBefore(season_end)) {
+    if (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
       // define game date
-      const date_str = day.format('YYYYMMDD');
+      const dateStr = day.format('YYYYMMDD');
       for (let game_no = 1; game_no <= 6; game_no++) {
         // reset flag
         stopped = false;
@@ -58,11 +58,11 @@ const get_data_and_save = async () => {
         const tgt_game_no = "0" + game_no;
         // define pitch count
         for (let cnt = 1; cnt <= 500; cnt++) {
-          await save_data(cnt, date_str, tgt_game_no)
+          await saveData(cnt, dateStr, tgt_game_no)
             .then(rst => rst)
             .catch(err => {
               stopped = true;
-              console.log(`----- finished: date: [${date_str}], game_no: [${tgt_game_no}] -----`)
+              console.log(`----- finished: date: [${dateStr}], game_no: [${tgt_game_no}] -----`)
             })
           // sleep 0.5 sec
           sleep(500);
@@ -80,26 +80,26 @@ const get_data_and_save = async () => {
 /**
  * １球ごとの試合データ取得、jsonファイル保存
  * @param {string} pitch_count 
- * @param {string} date_str
+ * @param {string} dateStr
  * @param {string} game_no
  */
-const getData = async (pitch_count, date_string, game_no) => {
+const getData = async (pitch_count, dateString, game_no) => {
   // specify for read json and get from biglobe
-  if (date_string == "" || game_no == "") {
-    date_string = '20190329'
+  if (dateString == "" || game_no == "") {
+    dateString = '20190329'
     game_no = '06'
   }
 
   // return value
   let tgt_data;
-  const path_file = await checkAndCreateDir(date_string, game_no).then(rst => rst).catch(err => { throw err })
+  const path_file = await checkAndCreateDir(dateString, game_no).then(rst => rst).catch(err => { throw err })
 
   // read from json file
-  if (data_type == DATA_TYPE_JSON) {
+  if (dataType == dataType_JSON) {
     tgt_data = require(`${path_file}/${pitch_count}.json`)
   // execute get from biglobe page
-  } else if (data_type == DATA_TYPE_URL) {
-    const url = `https://baseball.news.biglobe.ne.jp/npb/html5/json/${date_string}${game_no}/${pitch_count}.json`
+  } else if (dataType == dataType_URL) {
+    const url = `https://baseball.news.biglobe.ne.jp/npb/html5/json/${dateString}${game_no}/${pitch_count}.json`
     const { data } = await axios.get(url).then(rst => rst).catch(e => { throw e })
     tgt_data = data
     // save as json 
@@ -116,39 +116,39 @@ const getData = async (pitch_count, date_string, game_no) => {
 /**
  * DB保存実行処理
  * @param {string} pitch_count
- * @param {string} date_str
+ * @param {string} dateStr
  * @param {string} game_no
  */
-const save_data = async (pitch_count, date_str, game_no) => {
-  await getData(pitch_count, date_str, game_no)
+const saveData = async (pitch_count, dateStr, game_no) => {
+  await getData(pitch_count, dateStr, game_no)
     .then(async data => {
       if (data === undefined) return
       // get info
       const { GI, TO, SI, St, PI, RI, TR } = data
       // create `date` of game
-      const date_string = GI.split(",")[0].slice(0, -2)
+      const dateString = GI.split(",")[0].slice(0, -2)
       // get order info
       const {
         H: { T: home_tm, O: home_odr },
         V: { T: visitor_tm, O: visitor_odr }
       } = TO
       // insert order_overview of game
-      const { id: order_id } = await insert_order_overview(date_string, visitor_tm.split(',')[1], home_tm.split(',')[1])
+      const { id: order_id } = await insertOrderOverview(dateString, visitor_tm.split(',')[1], home_tm.split(',')[1])
         .then(id => id)
         .catch(err => { throw err })
 
-      await insert_order_detail(order_id, home_odr, pitch_count, HOME_TEAM)
-      logger.info(`finished save data of home team.    date: [${date_str}], game_no: [${game_no}] pitch: [${pitch_count}]`)
-      await insert_order_detail(order_id, visitor_odr, pitch_count, VISITOR_TEAM)
-      logger.info(`finished save data of visitor team. date: [${date_str}], game_no: [${game_no}] pitch: [${pitch_count}]`)
+      await insertOrderDetail(order_id, home_odr, pitch_count, HOME_TEAM)
+      logger.info(`finished save data of home team.    date: [${dateStr}], game_no: [${game_no}] pitch: [${pitch_count}]`)
+      await insertOrderDetail(order_id, visitor_odr, pitch_count, VISITOR_TEAM)
+      logger.info(`finished save data of visitor team. date: [${dateStr}], game_no: [${game_no}] pitch: [${pitch_count}]`)
       // update player data
-      await insert_player(home_odr.concat(visitor_odr))
+      await insertPlayer(home_odr.concat(visitor_odr))
       // 得点計算
       const { H: { R: h_score }, V: { R: v_score } } = SI
       const game_score = `${visitor_tm.split(',')[0].slice(0, 1)}${v_score.split(',')[0]} - ${h_score.split(',')[0]}${home_tm.split(',')[0].slice(0, 1)}`
       // 選手交代判定
-      // check_player_change(pitch_count, order_id, HOME_TEAM, home_tm.split(',')[0], game_score)
-      // check_player_change(pitch_count, order_id, VISITOR_TEAM, visitor_tm.split(',')[0], game_score)
+      // checkPlayerChange(pitch_count, order_id, HOME_TEAM, home_tm.split(',')[0], game_score)
+      // checkPlayerChange(pitch_count, order_id, VISITOR_TEAM, visitor_tm.split(',')[0], game_score)
 
       // 試合情報保存
       await saveGameInfo(St, order_id, pitch_count)
@@ -164,16 +164,16 @@ const save_data = async (pitch_count, date_str, game_no) => {
  * @param {*} team 
  * @return id of a new record
  */
-const insert_order_overview = async (date_string, visitor_team, home_team) => {
+const insertOrderOverview = async (dateString, visitor_team, home_team) => {
   // select
   let target_record = await orderOverview
-    .findOne({ where: { date: date_string, visitor_team, home_team }, raw })
+    .findOne({ where: { date: dateString, visitor_team, home_team }, raw })
     .then(rst => rst)
     .catch(err => { throw err })
   // if not exist, create new record
   if (! target_record) {
     target_record = await orderOverview
-      .create({ date: date_string, visitor_team, home_team })
+      .create({ date: dateString, visitor_team, home_team })
       .then(rsl => rsl)
       .catch(err => { throw err })
   }
@@ -187,7 +187,7 @@ const insert_order_overview = async (date_string, visitor_team, home_team) => {
  * @param {*} data 
  * @param {*} pitch_count
  */
-const insert_order_detail = async (order_overview_id, data, pitch_count, top_bottom) => {
+const insertOrderDetail = async (order_overview_id, data, pitch_count, top_bottom) => {
   // select
   const records = await orderDetails
     .findAll({ where: { order_overview_id, top_bottom, pitch_count } })
@@ -218,7 +218,7 @@ const insert_order_detail = async (order_overview_id, data, pitch_count, top_bot
 /**
  * 選手情報更新
  */
-const insert_player = async data => {
+const insertPlayer = async data => {
   const player_data = []
   await data.map(d => {
     const split_d = d.split(',')
@@ -241,7 +241,7 @@ const insert_player = async data => {
  * @param {*} now_pitch_count 
  * @param {*} order_overview_id 
  */
-const check_player_change = async (now_pitch_count, order_overview_id, top_bottom, team_name, game_score) => {
+const checkPlayerChange = async (now_pitch_count, order_overview_id, top_bottom, team_name, game_score) => {
   // 1球目は処理終了
   if (now_pitch_count == 1) return
   // 2球目以降
