@@ -27,7 +27,7 @@ const requireGetAndSaveData = true
 
 const day = moment('2019-03-29');
 const seasonStart = moment('2019-03-29');
-const seasonEnd = moment('2019-03-29');
+const seasonEnd = moment('2019-09-30');
 
 /**
  * １球ごとの試合データ取得、jsonファイル保存
@@ -98,7 +98,7 @@ const saveData = async (pitch_count, dateStr, gameNo) => {
       await insertOrderDetail(orderId, visitorOdr, pitch_count, VISITOR_TEAM)
       logger.info(`finished save data of visitor team. date: [${dateStr}], gameNo: [${gameNo}] pitch: [${pitch_count}]`)
       // update player data
-      await insertPlayer(homeOdr.concat(visitorOdr))
+      await insertPlayer(visitorOdr, homeOdr, visitorTm.split(',')[1], homeTm.split(',')[1])
 
       // 3. St
       // 試合情報保存
@@ -346,7 +346,7 @@ const getDataAndSave = async () => {
             .catch(err => {
               stopped = true;
               console.log(`----- finished: date: [${dateStr}], gameNo: [${tgt_gameNo}] -----`)
-              throw err
+              // throw err
             })
           // sleep 0.5 sec
           sleep(500);
@@ -375,8 +375,9 @@ const getDataAndSave = async () => {
 
 /**
  * オーダー概要テーブルINSERT
- * @param {*} date 
- * @param {*} team 
+ * @param {string} date 
+ * @param {string} visitor_team (initial)
+ * @param {string} home_team (initial)
  * @return id of a new record
  */
 const insertOrderOverview = async (GI, visitor_team, home_team) => {
@@ -441,16 +442,33 @@ const insertOrderDetail = async (order_overview_id, data, pitch_count, top_botto
 
 /**
  * 選手情報更新
+ * @param {object} visitorOdr
+ * @param {object} homeOdr
+ * @param {string} visitorTmInitial
+ * @param {string} homeTmInitial
  */
-const insertPlayer = async data => {
+const insertPlayer = async (visitorOdr, homeOdr, visitorTmInitial, homeTmInitial) => {
   const player_data = []
-  await data.map(d => {
+  // about visitor_team
+  await visitorOdr.map(d => {
     const split_d = d.split(',')
 
     player_data.push({
-      id            : Number(split_d[1]),
-      profile_number: Number(split_d[3]),
-      name          : String(split_d[4])
+      id             : Number(split_d[1]),
+      profile_number : Number(split_d[3]),
+      name           : String(split_d[4]),
+      team           : visitorTmInitial
+    })
+  })
+  // about home_team
+  await homeOdr.map(d => {
+    const split_d = d.split(',')
+
+    player_data.push({
+      id             : Number(split_d[1]),
+      profile_number : Number(split_d[3]),
+      name           : String(split_d[4]),
+      team           : homeTmInitial
     })
   })
 

@@ -18,7 +18,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     batter_pitch_count: {
       type: DataTypes.INTEGER(4),
-      allowNull: false
+      allowNull: true
     },
     col_1: {
       type: DataTypes.INTEGER(6),
@@ -58,7 +58,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     total_batter_count: {
       type: DataTypes.INTEGER(6),
-      allowNull: true
+      allowNull: false
     },
     createdAt: {
       type: DataTypes.DATE,

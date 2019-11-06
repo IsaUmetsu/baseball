@@ -15,6 +15,10 @@ module.exports = function(sequelize, DataTypes) {
     name: {
       type: DataTypes.STRING(20),
       allowNull: false
+    },
+    team: {
+      type: DataTypes.STRING(3),
+      allowNull: false
     }
   }, {
     tableName: 'player',

@@ -53,63 +53,63 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     s_col_1: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     s_col_2: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     s_col_3: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     s_col_4: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     s_col_5: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     o_col_1: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     o_col_2: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     o_col_3: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     o_col_4: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     o_col_5: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     ps_col_1: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     ps_col_2: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     ps_col_3: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     ps_col_4: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     ps_col_5: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     createdAt: {

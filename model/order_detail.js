@@ -5,11 +5,7 @@ module.exports = function(sequelize, DataTypes) {
     order_overview_id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
-      primaryKey: true,
-      references: {
-        model: 'order_overview',
-        key: 'id'
-      }
+      primaryKey: true
     },
     top_bottom: {
       type: DataTypes.INTEGER(2),
