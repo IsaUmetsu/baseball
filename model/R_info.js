@@ -45,7 +45,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     col_8: {
-      type: DataTypes.STRING(10),
+      type: DataTypes.STRING(20),
       allowNull: true
     },
     col_9: {

@@ -24,6 +24,9 @@ const day = moment('2019-06-06');
 const seasonStart = moment('2019-06-06');
 const seasonEnd = moment('2019-06-06');
 
+const startGameNo = 1
+const endGameNo = 6
+
 /**
  * １球ごとの試合データ取得、jsonファイル保存
  * @param {string} pitch_count 
@@ -122,7 +125,7 @@ const getDataAndSave = async () => {
     if (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
       // define game date
       const dateStr = day.format('YYYYMMDD');
-      for (let gameNo = 4; gameNo <= 4; gameNo++) {
+      for (let gameNo = startGameNo; gameNo <= endGameNo; gameNo++) {
         // reset flag
         stopped = false;
         // define game no
