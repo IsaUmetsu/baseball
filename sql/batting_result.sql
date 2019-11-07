@@ -38,6 +38,9 @@ FROM
         LEFT JOIN
     order_overview oo ON g.order_overview_id = oo.id
 WHERE
-    pb.name = '外崎'
+    pb.name = 'ソト'
+    and pi.col_8 = '本塁打'
 GROUP BY oo.date , g.ining , g.top_bottom , pp.name , p_no , pb.name , b_no , g.strike , g.ball , g.out , pi.col_8 , g.on_all_base , g.runner_1b , '一塁走者' , g.next_1b_go , g.runner_2b , '二塁走者' , g.next_2b_go , g.runner_3b , '三塁走者' , g.next_3b_go , g.game_datetime
 ;
+
+-- ソト: 9/19 のサヨナラ打で重複

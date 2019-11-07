@@ -20,13 +20,14 @@ const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
 const dataType = DATA_TYPE_URL
 const requireGetAndSaveData = true  
 
-const targetGame = '2019-09-03'
-const startGameNo = 3
-const endGameNo = 3
+const targetGame = '2019-09-27'
+const startGameNo = 1
+const endGameNo = 6
+const startBallCnt = 1
 
-const day = moment(targetGame);
-const seasonStart = moment(targetGame);
-const seasonEnd = moment(targetGame);
+const day = moment('2019-03-29');
+const seasonStart = moment('2019-03-29');
+const seasonEnd = moment('2019-09-30');
 
 /**
  * １球ごとの試合データ取得、jsonファイル保存
@@ -117,10 +118,13 @@ const saveData = async (pitch_count, dateStr, gameNo) => {
 }
 
 /**
- * 
+ * 2球連続でボールが取得できなかった場合のみ、取得処理終了
+ * (たまに1球だけ取得できない場合があり、その対策)
  */
 const getDataAndSave = async () => {
-  let stopped = false
+  let noDataCnt = 0
+  // let stoppedReach = false // 連続1球目取得失敗フラグ
+  // let stopped      = false // 連続2球目取得失敗フラグ
 
   while(1) {
     if (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
@@ -128,15 +132,20 @@ const getDataAndSave = async () => {
       const dateStr = day.format('YYYYMMDD');
       for (let gameNo = startGameNo; gameNo <= endGameNo; gameNo++) {
         // reset flag
-        stopped = false;
+        // stopped = false;
         // define game no
         const tgt_gameNo = "0" + gameNo;
         // define pitch count
-        for (let cnt = 1; cnt <= 500; cnt++) {
+        for (let cnt = startBallCnt; cnt <= 500; cnt++) {
           await saveData(cnt, dateStr, tgt_gameNo)
-            .then(rst => rst)
+            .then(rst => {
+              // if (stoppedReach) { stoppedReach = false }
+              return rst
+            })
             .catch(err => {
-              stopped = true;
+              // if (stoppedReach) { stopped = true }
+              // else { stoppedReach = true }
+              noDataCnt++
               console.log(err)
               console.log(`----- finished: date: [${dateStr}], gameNo: [${tgt_gameNo}] -----`)
               // throw err
@@ -144,8 +153,7 @@ const getDataAndSave = async () => {
           // sleep 0.5 sec
           sleep(500);
           // break loop
-          if (stopped && cnt >= 250) { break }
-          else { stopped = false }
+          if (noDataCnt == 5) break
         }
       }
       day.add(1, 'days');

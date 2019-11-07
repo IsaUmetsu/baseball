@@ -1,6 +1,8 @@
 
 "use strict"
-
+/**
+ * `process.js`で使用される関数定義
+ */
 const processFunc = module.exports = {}
 
 const { TOP, BOTTOM } = require('./constants')

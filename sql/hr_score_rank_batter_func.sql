@@ -1,35 +1,123 @@
 SELECT 
-	CASE
-        WHEN pr1b.name IS NULL and pr2b.name IS NULL and pr3b.name IS NULL THEN 'ソロ'
-        WHEN (pr1b.name IS NOT NULL and pr2b.name IS NULL and pr3b.name IS NULL) or (pr1b.name IS NULL and pr2b.name IS NOT NULL and pr3b.name IS NULL) or (pr1b.name IS NULL and pr2b.name IS NULL and pr3b.name IS NOT NULL) THEN '2ラン'
-        WHEN (pr1b.name IS NOT NULL and pr2b.name IS NOT NULL and pr3b.name IS NULL) or (pr1b.name IS NOT NULL and pr2b.name IS NULL and pr3b.name IS NOT NULL) or (pr1b.name IS NULL and pr2b.name IS NOT NULL and pr3b.name IS NOT NULL) THEN '3ラン'
-        WHEN pr1b.name IS NOT NULL and pr2b.name IS NOT NULL and pr3b.name IS NOT NULL  THEN '満塁'
+    CASE
+        WHEN
+            pr1b.name IS NULL AND pr2b.name IS NULL
+                AND pr3b.name IS NULL
+        THEN
+            'ソロ'
+        WHEN
+            (pr1b.name IS NOT NULL
+                AND pr2b.name IS NULL
+                AND pr3b.name IS NULL)
+                OR (pr1b.name IS NULL
+                AND pr2b.name IS NOT NULL
+                AND pr3b.name IS NULL)
+                OR (pr1b.name IS NULL AND pr2b.name IS NULL
+                AND pr3b.name IS NOT NULL)
+        THEN
+            '2ラン'
+        WHEN
+            (pr1b.name IS NOT NULL
+                AND pr2b.name IS NOT NULL
+                AND pr3b.name IS NULL)
+                OR (pr1b.name IS NOT NULL
+                AND pr2b.name IS NULL
+                AND pr3b.name IS NOT NULL)
+                OR (pr1b.name IS NULL
+                AND pr2b.name IS NOT NULL
+                AND pr3b.name IS NOT NULL)
+        THEN
+            '3ラン'
+        WHEN
+            pr1b.name IS NOT NULL
+                AND pr2b.name IS NOT NULL
+                AND pr3b.name IS NOT NULL
+        THEN
+            '満塁'
         ELSE 'その他'
     END AS homerun_score,
--- 	pr1b.name AS '一塁走者',
---     pr2b.name AS '二塁走者',
---     pr3b.name AS '三塁走者',
     pb.name,
     pb.team,
     COUNT(CASE
-        WHEN pr1b.name IS NULL and pr2b.name IS NULL and pr3b.name IS NULL THEN 'ソロ'
-        WHEN (pr1b.name IS NOT NULL and pr2b.name IS NULL and pr3b.name IS NULL) or (pr1b.name IS NULL and pr2b.name IS NOT NULL and pr3b.name IS NULL) or (pr1b.name IS NULL and pr2b.name IS NULL and pr3b.name IS NOT NULL) THEN '2ラン'
-        WHEN (pr1b.name IS NOT NULL and pr2b.name IS NOT NULL and pr3b.name IS NULL) or (pr1b.name IS NOT NULL and pr2b.name IS NULL and pr3b.name IS NOT NULL) or (pr1b.name IS NULL and pr2b.name IS NOT NULL and pr3b.name IS NOT NULL) THEN '3ラン'
-        WHEN pr1b.name IS NOT NULL and pr2b.name IS NOT NULL and pr3b.name IS NOT NULL  THEN '満塁'
+        WHEN
+            pr1b.name IS NULL AND pr2b.name IS NULL
+                AND pr3b.name IS NULL
+        THEN
+            'ソロ'
+        WHEN
+            (pr1b.name IS NOT NULL
+                AND pr2b.name IS NULL
+                AND pr3b.name IS NULL)
+                OR (pr1b.name IS NULL
+                AND pr2b.name IS NOT NULL
+                AND pr3b.name IS NULL)
+                OR (pr1b.name IS NULL AND pr2b.name IS NULL
+                AND pr3b.name IS NOT NULL)
+        THEN
+            '2ラン'
+        WHEN
+            (pr1b.name IS NOT NULL
+                AND pr2b.name IS NOT NULL
+                AND pr3b.name IS NULL)
+                OR (pr1b.name IS NOT NULL
+                AND pr2b.name IS NULL
+                AND pr3b.name IS NOT NULL)
+                OR (pr1b.name IS NULL
+                AND pr2b.name IS NOT NULL
+                AND pr3b.name IS NOT NULL)
+        THEN
+            '3ラン'
+        WHEN
+            pr1b.name IS NOT NULL
+                AND pr2b.name IS NOT NULL
+                AND pr3b.name IS NOT NULL
+        THEN
+            '満塁'
         ELSE 'その他'
     END) AS homerun_score_count,
+    CONCAT(pb.name, '(', pb.team, ')') AS summary,
     CONCAT(COUNT(CASE
-        WHEN pr1b.name IS NULL and pr2b.name IS NULL and pr3b.name IS NULL THEN 'ソロ'
-        WHEN (pr1b.name IS NOT NULL and pr2b.name IS NULL and pr3b.name IS NULL) or (pr1b.name IS NULL and pr2b.name IS NOT NULL and pr3b.name IS NULL) or (pr1b.name IS NULL and pr2b.name IS NULL and pr3b.name IS NOT NULL) THEN '2ラン'
-        WHEN (pr1b.name IS NOT NULL and pr2b.name IS NOT NULL and pr3b.name IS NULL) or (pr1b.name IS NOT NULL and pr2b.name IS NULL and pr3b.name IS NOT NULL) or (pr1b.name IS NULL and pr2b.name IS NOT NULL and pr3b.name IS NOT NULL) THEN '3ラン'
-        WHEN pr1b.name IS NOT NULL and pr2b.name IS NOT NULL and pr3b.name IS NOT NULL  THEN '満塁'
-        ELSE 'その他'
-    END),
+                WHEN
+                    pr1b.name IS NULL AND pr2b.name IS NULL
+                        AND pr3b.name IS NULL
+                THEN
+                    'ソロ'
+                WHEN
+                    (pr1b.name IS NOT NULL
+                        AND pr2b.name IS NULL
+                        AND pr3b.name IS NULL)
+                        OR (pr1b.name IS NULL
+                        AND pr2b.name IS NOT NULL
+                        AND pr3b.name IS NULL)
+                        OR (pr1b.name IS NULL AND pr2b.name IS NULL
+                        AND pr3b.name IS NOT NULL)
+                THEN
+                    '2ラン'
+                WHEN
+                    (pr1b.name IS NOT NULL
+                        AND pr2b.name IS NOT NULL
+                        AND pr3b.name IS NULL)
+                        OR (pr1b.name IS NOT NULL
+                        AND pr2b.name IS NULL
+                        AND pr3b.name IS NOT NULL)
+                        OR (pr1b.name IS NULL
+                        AND pr2b.name IS NOT NULL
+                        AND pr3b.name IS NOT NULL)
+                THEN
+                    '3ラン'
+                WHEN
+                    pr1b.name IS NOT NULL
+                        AND pr2b.name IS NOT NULL
+                        AND pr3b.name IS NOT NULL
+                THEN
+                    '満塁'
+                ELSE 'その他'
+            END),
             ' ',
             pb.name,
             '(',
             pb.team,
-            ')') AS summary
+            ')') AS summary_all
 FROM
     baseball.game_info g
         LEFT JOIN
@@ -46,10 +134,10 @@ FROM
     baseball.pitch_info pi ON g.id = pi.game_info_id
         LEFT JOIN
     order_overview oo ON g.order_overview_id = oo.id
+        LEFT JOIN
+    no_game_info ng ON g.order_overview_id = ng.order_overview_id
 WHERE
     pi.col_8 = '本塁打'
-        AND NOT (pb.team = 'EL' OR pb.team = 'WL')
-GROUP BY homerun_score ,
--- pr1b.name, pr2b.name, pr3b.name, 
-pb.name , pb.team
+        AND ng.remarks IS NULL
+GROUP BY homerun_score , pb.name , pb.team
 ORDER BY homerun_score DESC , homerun_score_count DESC , name DESC
