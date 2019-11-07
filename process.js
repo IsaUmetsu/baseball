@@ -17,15 +17,16 @@ const logger = require('./logger')
 const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
 
 // execute params
-const dataType = DATA_TYPE_JSON
-const requireGetAndSaveData = true
+const dataType = DATA_TYPE_URL
+const requireGetAndSaveData = true  
 
-const day = moment('2019-06-06');
-const seasonStart = moment('2019-06-06');
-const seasonEnd = moment('2019-06-06');
+const targetGame = '2019-09-03'
+const startGameNo = 3
+const endGameNo = 3
 
-const startGameNo = 1
-const endGameNo = 6
+const day = moment(targetGame);
+const seasonStart = moment(targetGame);
+const seasonEnd = moment(targetGame);
 
 /**
  * １球ごとの試合データ取得、jsonファイル保存
