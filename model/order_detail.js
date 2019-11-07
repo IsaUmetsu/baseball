@@ -37,9 +37,16 @@ module.exports = function(sequelize, DataTypes) {
     player_name: {
       type: DataTypes.STRING(20),
       allowNull: false
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
-    tableName: 'order_detail',
-    underscored: true
+    tableName: 'order_detail'
   });
 };

@@ -19,9 +19,16 @@ module.exports = function(sequelize, DataTypes) {
     team: {
       type: DataTypes.STRING(3),
       allowNull: false
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
-    tableName: 'player',
-    underscored: true
+    tableName: 'player'
   });
 };
