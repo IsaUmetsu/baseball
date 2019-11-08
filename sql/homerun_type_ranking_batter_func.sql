@@ -1,15 +1,16 @@
 -- insert into homerun_type_batter (`homerun_type`,`name`,`team`,`cnt`,`summary`,`summary_all`,`total_cnt`,`percent`)
 
+-- create table tmp_homerun_type_rank
 SELECT 
--- 	g.order_overview_id,
---     g.pitch_count,
+    g.order_overview_id,
+    g.pitch_count,
     CASE
-		WHEN
-			GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-				AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
-		THEN
-			'サヨナラ'
+        WHEN
+            GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
+        THEN
+            'サヨナラ'
         WHEN
             GET_OPPONENT_SCORE(g.id, g.top_bottom) = 0
                 AND GET_OWN_PREV_SCORE(g.id, g.top_bottom) = 0
@@ -45,12 +46,12 @@ SELECT
     pb.name,
     pb.team,
     COUNT(CASE
-		WHEN
-			GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-				AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
-		THEN
-			'サヨナラ'
+        WHEN
+            GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
+        THEN
+            'サヨナラ'
         WHEN
             GET_OPPONENT_SCORE(g.id, g.top_bottom) = 0
                 AND GET_OWN_PREV_SCORE(g.id, g.top_bottom) = 0
@@ -85,43 +86,43 @@ SELECT
     END) AS cnt,
     CONCAT(pb.name, '(', pb.team, ')') AS summary,
     CONCAT(COUNT(CASE
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-						AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
-				THEN
-					'サヨナラ'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) = 0
-						AND GET_OWN_PREV_SCORE(g.id, g.top_bottom) = 0
-				THEN
-					'先制'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				THEN
-					'追い上げ'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				THEN
-					'同点'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				THEN
-					'逆転'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				THEN
-					'勝ち越し'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				THEN
-					'追加点'
-				ELSE 'その他'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                        AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
+                THEN
+                    'サヨナラ'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) = 0
+                        AND GET_OWN_PREV_SCORE(g.id, g.top_bottom) = 0
+                THEN
+                    '先制'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                THEN
+                    '追い上げ'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                THEN
+                    '同点'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                THEN
+                    '逆転'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                THEN
+                    '勝ち越し'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                THEN
+                    '追加点'
+                ELSE 'その他'
             END),
             ' ',
             pb.name,
@@ -130,43 +131,43 @@ SELECT
             ')') AS summary_all,
     k.cnt AS total_cnt,
     ROUND(COUNT(CASE
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-						AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
-				THEN
-					'サヨナラ'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) = 0
-						AND GET_OWN_PREV_SCORE(g.id, g.top_bottom) = 0
-				THEN
-					'先制'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				THEN
-					'追い上げ'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				THEN
-					'同点'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				THEN
-					'逆転'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				THEN
-					'勝ち越し'
-				WHEN
-					GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_PREV_SCORE(g.id, g.top_bottom)
-						AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
-				THEN
-					'追加点'
-				ELSE 'その他'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                        AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
+                THEN
+                    'サヨナラ'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) = 0
+                        AND GET_OWN_PREV_SCORE(g.id, g.top_bottom) = 0
+                THEN
+                    '先制'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                THEN
+                    '追い上げ'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                THEN
+                    '同点'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) > GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                THEN
+                    '逆転'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                THEN
+                    '勝ち越し'
+                WHEN
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                        AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
+                THEN
+                    '追加点'
+                ELSE 'その他'
             END) / k.cnt * 100,
             1) AS percent
 FROM
@@ -192,7 +193,5 @@ FROM
 WHERE
     pi.col_8 = '本塁打'
         AND ng.remarks IS NULL
---         AND pb.name = '伊藤裕'
--- GROUP BY homerun_type , pb.name , pb.team , k.cnt, g.order_overview_id, g.pitch_count
-GROUP BY homerun_type , pb.name , pb.team , k.cnt
+GROUP BY homerun_type , pb.name , pb.team , k.cnt , g.order_overview_id , g.pitch_count
 ORDER BY homerun_type DESC , cnt DESC , name DESC
