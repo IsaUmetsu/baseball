@@ -155,7 +155,8 @@ SELECT
         THEN
             '追加点'
         ELSE 'その他'
-    END), ' ', pb.team) as summary_2
+    END), ' ', pb.team) as summary_2,
+    team_hr.team_cnt
 FROM
     baseball.game_info g
         LEFT JOIN
@@ -176,13 +177,15 @@ FROM
 --     game_score_info gs ON g.id = gs.game_info_id and g.top_bottom = gs.top_bottom
         LEFT JOIN
     no_game_info ng ON g.order_overview_id = ng.order_overview_id
+		left join ( SELECT team, sum(cnt) as team_cnt FROM baseball.homerun_king group by team ) as team_hr on team_hr.team = pb.team
 WHERE
     -- pb.name = 'デスパイネ' AND
     pi.col_8 = '本塁打'
             AND ng.remarks IS NULL
 group by
 	homerun_type,
-    pb.team
+    pb.team,
+    team_cnt
 order by
 	homerun_type desc,
     homerun_type_count desc,

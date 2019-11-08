@@ -234,3 +234,38 @@ const getFullParticipationBySide = (top_bottom, order, ids) => `
                 B.count = 1
         )
 `
+
+query.homerunTypeRank = homerun_type => `
+    SELECT 
+        h.id, h.summary, h.cnt, h.total_cnt, h.percent, rank.rank
+    FROM
+        baseball.homerun_type_batter h
+            LEFT JOIN
+        (SELECT 
+            id, score, rank
+        FROM
+            (SELECT 
+            score, @rank AS rank, cnt, @rank:=@rank + cnt
+        FROM
+            (SELECT @rank:=1) AS Dummy, (SELECT 
+            cnt AS score, COUNT(*) AS cnt
+        FROM
+            (SELECT 
+            *
+        FROM
+            homerun_type_batter
+        WHERE
+            homerun_type = '${homerun_type}') AS htb
+        GROUP BY score
+        ORDER BY score DESC) AS GroupBy) AS Ranking
+        JOIN (SELECT 
+            *
+        FROM
+            homerun_type_batter
+        WHERE
+            homerun_type = '${homerun_type}') AS htb ON htb.cnt = Ranking.score
+        ORDER BY rank ASC) AS rank ON rank.id = h.id
+    WHERE
+        h.homerun_type = '${homerun_type}'
+    ORDER BY h.cnt ASC;
+`

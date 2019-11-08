@@ -9,6 +9,7 @@ const player = require('./player')(db, DataTypes)
 const pitchInfo = require('./pitch_info')(db, DataTypes)
 const RInfo = require('./R_info')(db, DataTypes)
 const TRInfo = require('./TR_info')(db, DataTypes)
+const homerunTypeB = require('./homerun_type_batter')(db, DataTypes)
 
 module.exports = {
   db,
@@ -19,5 +20,6 @@ module.exports = {
   player,
   pitchInfo,
   RInfo,
-  TRInfo
+  TRInfo,
+  homerunTypeB
 }

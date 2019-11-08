@@ -1,3 +1,5 @@
+-- insert into homerun_type_batter (`homerun_type`,`name`,`team`,`cnt`,`summary`,`summary_all`,`total_cnt`,`percent`)
+
 SELECT 
 -- 	g.order_overview_id,
 --     g.pitch_count,
@@ -190,7 +192,7 @@ FROM
 WHERE
     pi.col_8 = '本塁打'
         AND ng.remarks IS NULL
-        -- AND pb.name = 'ソト'
+--         AND pb.name = '伊藤裕'
 -- GROUP BY homerun_type , pb.name , pb.team , k.cnt, g.order_overview_id, g.pitch_count
 GROUP BY homerun_type , pb.name , pb.team , k.cnt
 ORDER BY homerun_type DESC , cnt DESC , name DESC
