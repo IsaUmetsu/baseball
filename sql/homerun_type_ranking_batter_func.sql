@@ -1,12 +1,15 @@
+-- for insert homerun_type_batter
 -- insert into homerun_type_batter (`homerun_type`,`name`,`team`,`cnt`,`summary`,`summary_all`,`total_cnt`,`percent`)
 
+-- for create temporary table
 -- create table tmp_homerun_type_rank
 SELECT 
-    g.order_overview_id,
-    g.pitch_count,
+--     g.order_overview_id,
+--     oo.date,
+--     g.pitch_count,
     CASE
         WHEN
-            GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+            GET_OPPONENT_SCORE(g.id, g.top_bottom) >= GET_OWN_PREV_SCORE(g.id, g.top_bottom)
                 AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
                 AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
         THEN
@@ -47,7 +50,7 @@ SELECT
     pb.team,
     COUNT(CASE
         WHEN
-            GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+            GET_OPPONENT_SCORE(g.id, g.top_bottom) >= GET_OWN_PREV_SCORE(g.id, g.top_bottom)
                 AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
                 AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
         THEN
@@ -87,7 +90,7 @@ SELECT
     CONCAT(pb.name, '(', pb.team, ')') AS summary,
     CONCAT(COUNT(CASE
                 WHEN
-                    GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) >= GET_OWN_PREV_SCORE(g.id, g.top_bottom)
                         AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
                         AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
                 THEN
@@ -132,7 +135,7 @@ SELECT
     k.cnt AS total_cnt,
     ROUND(COUNT(CASE
                 WHEN
-                    GET_OPPONENT_SCORE(g.id, g.top_bottom) = GET_OWN_PREV_SCORE(g.id, g.top_bottom)
+                    GET_OPPONENT_SCORE(g.id, g.top_bottom) >= GET_OWN_PREV_SCORE(g.id, g.top_bottom)
                         AND GET_OPPONENT_SCORE(g.id, g.top_bottom) < GET_OWN_AFTER_SCORE(g.id, g.top_bottom)
                         AND JUDGE_GOODBYE(g.order_overview_id, g.pitch_count + 1)
                 THEN
@@ -193,5 +196,7 @@ FROM
 WHERE
     pi.col_8 = '本塁打'
         AND ng.remarks IS NULL
-GROUP BY homerun_type , pb.name , pb.team , k.cnt , g.order_overview_id , g.pitch_count
+-- GROUP BY homerun_type , oo.date , pb.name , pb.team , k.cnt , g.order_overview_id , g.pitch_count
+GROUP BY homerun_type, pb.name , pb.team , k.cnt
 ORDER BY homerun_type DESC , cnt DESC , name DESC
+;
