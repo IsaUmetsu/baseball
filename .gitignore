@@ -7,3 +7,4 @@ system*.log
 *data3_p/
 *record/
 .DS_Store
+*for_tweet/
