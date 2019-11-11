@@ -82,7 +82,7 @@ elseif tb = 2 then set opponent_top_bottom = 1;
 end if;
 
 
--- /**
+/**
 SELECT 
     CASE
         WHEN inning = 1 THEN CASE
@@ -241,8 +241,8 @@ FROM
 
 
 RETURN  gyakuten;
--- */
--- RETURN  inning;
+*/
+RETURN  inning;
 END //
 
 delimiter ;

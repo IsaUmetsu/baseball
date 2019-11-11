@@ -235,7 +235,7 @@ const getFullParticipationBySide = (top_bottom, order, ids) => `
         )
 `
 
-query.homerunTypeRank = homerun_type => `
+query.homerunTypeRank = (homerun_type, is_devide) => `
     SELECT 
         h.id, h.summary, h.cnt, h.total_cnt, h.percent, rank.rank
     FROM
@@ -267,5 +267,5 @@ query.homerunTypeRank = homerun_type => `
         ORDER BY rank ASC) AS rank ON rank.id = h.id
     WHERE
         h.homerun_type = '${homerun_type}'
-    ORDER BY h.cnt ASC;
+    ORDER BY h.cnt ${is_devide ? `ASC` : `DESC`};
 `

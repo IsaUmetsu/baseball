@@ -15,18 +15,20 @@ const twitter = require('twitter-text')
 const { db } = require('./model')
 const { homerunTypeRank } = require('./query')
 
-const homerun_type = '追い上げ'
+const homerun_type = '同点'
+const homerun_type_other = '' // 反撃の一打
+const devide_cnt = true
 const { SELECT: type } = db.QueryTypes
 
 // test
 // let tweet = "鶴岡(F) (1/1) 100%\n高橋(D) (1/7) 14.3%\n頓宮(B) (1/3) 33.3%\n長谷川勇(H) (1/3) 33.3%\n長坂(T) (1/1) 100%\n釜元(H) (1/4) 25%\n遠藤(D) (1/2) 50%\n近藤(F) (1/2) 50%\n西村(B) (1/2) 50%\n藤岡(M) (1/2) 50%\n荒木(S) (1/2) 50%"
 // const result = twitter.parseTweet(tweet)
 
-db.query(homerunTypeRank(homerun_type), { type })
+db.query(homerunTypeRank(homerun_type, devide_cnt), { type })
   .then(async results => {
     let contents = ''       // whole
     let header = ''         // rank, number of homerun, tie
-    let footer = "\n #npb"  // hashtag
+    let footer = "\n #npb "  // hashtag
     let currentCnt = 0      // current number of homerun
 
     results.map(result => {
@@ -80,5 +82,5 @@ db.query(homerunTypeRank(homerun_type), { type })
  */
 const createHeader = (rank, cnt, results) => {
   let sameRankCnt = results.filter(r => r.rank == rank).length
-  return `第${rank}位 ${cnt}本 ${sameRankCnt > 1 ? `(${sameRankCnt}名)` : ``}\n\n`
+  return `2019年 '${homerun_type_other ? homerun_type_other : homerun_type}' 本塁打ランキング\n第${rank}位 ${cnt}本 ${sameRankCnt > 1 ? `(${sameRankCnt}名)` : ``}\n\n`
 }
