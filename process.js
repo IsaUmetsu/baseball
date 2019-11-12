@@ -21,7 +21,7 @@ const dataType = DATA_TYPE_URL
 const requireGetAndSaveData = true  
 
 const targetGame = '2019-09-27'
-const startGameNo = 1
+const startGameNo = 4
 const endGameNo = 6
 const startBallCnt = 1
 
@@ -139,12 +139,9 @@ const getDataAndSave = async () => {
         for (let cnt = startBallCnt; cnt <= 500; cnt++) {
           await saveData(cnt, dateStr, tgt_gameNo)
             .then(rst => {
-              // if (stoppedReach) { stoppedReach = false }
               return rst
             })
             .catch(err => {
-              // if (stoppedReach) { stopped = true }
-              // else { stoppedReach = true }
               noDataCnt++
               console.log(err)
               console.log(`----- finished: date: [${dateStr}], gameNo: [${tgt_gameNo}] -----`)
@@ -153,7 +150,7 @@ const getDataAndSave = async () => {
           // sleep 0.5 sec
           sleep(500);
           // break loop
-          if (noDataCnt == 5) break
+          if (noDataCnt >= 5) { noDataCnt = 0; break; }
         }
       }
       day.add(1, 'days');

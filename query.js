@@ -235,37 +235,96 @@ const getFullParticipationBySide = (top_bottom, order, ids) => `
         )
 `
 
-query.homerunTypeRank = (homerun_type, is_devide) => `
-    SELECT 
-        h.id, h.summary, h.cnt, h.total_cnt, h.percent, rank.rank
-    FROM
-        baseball.homerun_type_batter h
-            LEFT JOIN
+/**
+ * 
+ * @param {string} homerun_type
+ * @param {boolean} is_devide
+ */
+query.homerunTypeRankBatter = (homerun_type, is_devide) => `
+  SELECT 
+    h.id, h.summary, h.cnt, h.total_cnt, h.percent, rank.rank
+  FROM
+    baseball.homerun_type_batter h
+      LEFT JOIN
         (SELECT 
-            id, score, rank
-        FROM
-            (SELECT 
+          id, score, rank
+        FROM 
+          (SELECT 
             score, @rank AS rank, cnt, @rank:=@rank + cnt
-        FROM
-            (SELECT @rank:=1) AS Dummy, (SELECT 
-            cnt AS score, COUNT(*) AS cnt
-        FROM
+          FROM
+            (SELECT @rank:=1) AS Dummy,
             (SELECT 
+              cnt AS score, COUNT(*) AS cnt
+            FROM
+              (SELECT 
+                *
+              FROM
+                homerun_type_batter
+              WHERE
+                homerun_type = '${homerun_type}'
+              ) AS htb
+            GROUP BY score
+            ORDER BY score DESC
+            ) AS GroupBy
+          ) AS Ranking
+        JOIN
+          (SELECT 
             *
-        FROM
+          FROM
             homerun_type_batter
-        WHERE
-            homerun_type = '${homerun_type}') AS htb
-        GROUP BY score
-        ORDER BY score DESC) AS GroupBy) AS Ranking
-        JOIN (SELECT 
-            *
-        FROM
-            homerun_type_batter
-        WHERE
-            homerun_type = '${homerun_type}') AS htb ON htb.cnt = Ranking.score
-        ORDER BY rank ASC) AS rank ON rank.id = h.id
+          WHERE
+            homerun_type = '${homerun_type}'
+          ) AS htb ON htb.cnt = Ranking.score
+        ORDER BY rank ASC
+        ) AS rank
+      ON rank.id = h.id
     WHERE
-        h.homerun_type = '${homerun_type}'
+      h.homerun_type = '${homerun_type}'
     ORDER BY h.cnt ${is_devide ? `ASC` : `DESC`};
+`
+
+/**
+ * 
+ * @param {string} homerun_type
+ */
+query.homerunTypeRankTeam = homerun_type => `
+  SELECT
+    h.id, h.team, h.cnt, h.team_cnt AS total_cnt, h.percent, rank.rank 
+  FROM
+    baseball.homerun_type_team h 
+  LEFT JOIN
+    (SELECT
+      id, score, rank 
+    FROM
+      (SELECT
+        score, percent, @rank AS rank, cnt, @rank := @rank + cnt 
+      FROM
+        (SELECT @rank := 1) AS Dummy, 
+        (SELECT
+          cnt AS score, percent, Count(*) AS cnt 
+        FROM
+          (SELECT
+            * 
+          FROM
+            homerun_type_team 
+          WHERE 
+            homerun_type = '${homerun_type}'
+          ) AS htb 
+        GROUP  BY score, percent 
+        ORDER  BY score DESC, percent DESC
+        ) AS GroupBy
+      ) AS Ranking 
+    JOIN
+      (SELECT
+        * 
+      FROM
+        homerun_type_team 
+      WHERE
+        homerun_type = '${homerun_type}'
+      ) AS htb 
+    ON htb.cnt = Ranking.score AND htb.percent = Ranking.percent 
+    ORDER  BY rank ASC
+  ) AS rank ON rank.id = h.id 
+  WHERE  h.homerun_type = '${homerun_type}' 
+  ORDER  BY h.cnt DESC, h.percent DESC; 
 `

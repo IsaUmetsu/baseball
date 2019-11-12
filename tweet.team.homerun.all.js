@@ -13,9 +13,9 @@
 
 const twitter = require('twitter-text')
 const { db } = require('./model')
-const { homerunTypeRank } = require('./query')
+const { homerunTypeRankTeam } = require('./query')
 
-const homerun_type = '先制'
+const homerun_type = '追加点'
 const homerun_type_other = '' // 反撃の一打
 const devide_cnt = false
 const { SELECT: type } = db.QueryTypes
@@ -24,7 +24,7 @@ const { SELECT: type } = db.QueryTypes
 // let tweet = "鶴岡(F) (1/1) 100%\n高橋(D) (1/7) 14.3%\n頓宮(B) (1/3) 33.3%\n長谷川勇(H) (1/3) 33.3%\n長坂(T) (1/1) 100%\n釜元(H) (1/4) 25%\n遠藤(D) (1/2) 50%\n近藤(F) (1/2) 50%\n西村(B) (1/2) 50%\n藤岡(M) (1/2) 50%\n荒木(S) (1/2) 50%"
 // const result = twitter.parseTweet(tweet)
 
-db.query(homerunTypeRank(homerun_type, devide_cnt), { type })
+db.query(homerunTypeRankTeam(homerun_type), { type })
   .then(async results => {
     let contents = ''       // whole
     let header = ''         // rank, number of homerun, tie
@@ -33,7 +33,7 @@ db.query(homerunTypeRank(homerun_type, devide_cnt), { type })
     let currentRank = 0
 
     results.map(result => {
-      const { summary, cnt, total_cnt, percent, rank }= result
+      const { team, cnt, total_cnt, percent, rank }= result
 
       if (currentCnt == 0) currentCnt = cnt
 
@@ -46,10 +46,9 @@ db.query(homerunTypeRank(homerun_type, devide_cnt), { type })
       if (currentRank == rank && currentRank != 0) {
         // rankPart += rank < 10 ? ' ' : '  '
       } else {
-        rankPart = `- ${rank}位 ${cnt}本 -\n`
         currentRank = rank
       }
-      let row = `${summary} (${cnt}本/${total_cnt}本) ${percent}%\n`
+      let row = `${rank}位 ${team} (${cnt}本/${total_cnt}本) ${percent}%\n`
 
       // 次の内容を足してもツイート可能な場合
       if (twitter.parseTweet(contents + (rankPart + row) + footer).valid) {
@@ -60,7 +59,6 @@ db.query(homerunTypeRank(homerun_type, devide_cnt), { type })
         console.log("----------")
         console.log(contents += footer)
 
-        rankPart = `- ${rank}位 ${cnt}本 -\n`
         contents = header + (rankPart + row)
       }
     })
