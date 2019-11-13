@@ -28,7 +28,7 @@ db.query(homerunTypeRankBatter(homerun_type, devide_cnt), { type })
   .then(async results => {
     let contents = ''       // whole
     let header = ''         // rank, number of homerun, tie
-    let footer = "\n #npb " // hashtag
+    let footer = "\n#npb #侍ジャパン " // hashtag
     let currentCnt = 0      // current number of homerun
 
     results.map(result => {
@@ -41,7 +41,7 @@ db.query(homerunTypeRankBatter(homerun_type, devide_cnt), { type })
         contents += header
       }
 
-      let row = `${summary} (${cnt}本/${total_cnt}本) ${percent}%\n`
+      let row = `${summary} (${cnt}本/全${total_cnt}本) ${percent}%\n`
 
       // 次の内容を足してもツイート可能な場合
       if (twitter.parseTweet(contents + row + footer).valid) {
