@@ -1,9 +1,11 @@
+-- create table _situation_gyakuten_all
 SELECT
     oo.date,
     g.location,
     g.ining,
     g.top_bottom,
     pb.name,
+    pb.team,
     g.strike,
     g.ball,
     g.out,
@@ -37,8 +39,8 @@ FROM
             gs1.top_bottom = 1
     ) AS gs ON g.id = gs.giid
 WHERE
-    pb.name = 'ウィーラー'
-    AND g.on_all_base IN (
+    -- pb.name = 'ウィーラー' AND
+    g.on_all_base IN (
         SELECT
             on_all_base
         FROM

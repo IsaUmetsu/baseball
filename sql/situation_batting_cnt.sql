@@ -15,7 +15,8 @@ FROM
             t_total,
             b_total
         FROM
-            baseball._situation_douten_all s
+            -- baseball._situation_douten_all s
+            baseball._situation_gyakuten_all s
             LEFT JOIN baseball.exclude_batting_info eb ON s.result = eb.name
         WHERE
             eb.name IS NULL

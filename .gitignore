@@ -1,6 +1,7 @@
 *node_modules/
 *.vscode
 system*.log
+system*.gz
 *data/
 *data1_p/
 *data2_p/
