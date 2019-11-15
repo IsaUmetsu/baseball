@@ -9,3 +9,5 @@ system*.gz
 *record/
 .DS_Store
 *for_tweet/
+scraping/html/*
+scraping/screenshot/*

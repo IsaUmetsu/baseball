@@ -115,7 +115,7 @@ WHERE
     pi.col_8 = '本塁打'
     AND ng.remarks IS NULL
     AND t.player_id is null
-    AND pb.name = '山田哲'
+    AND pb.name = 'ウィーラー'
 GROUP BY
     homerun_type,
     oo.date,
@@ -127,4 +127,4 @@ GROUP BY
     t.player_id -- GROUP BY homerun_type, pb.name , pb.team , k.cnt, t.player_id
     -- ORDER BY homerun_type DESC , cnt DESC , name DESC
 ORDER BY
-    oo.date;
+    homerun_type DESC, oo.date ASC;

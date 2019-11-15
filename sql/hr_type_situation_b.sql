@@ -1,6 +1,6 @@
 -- create table hr_type_situation_b 
 SELECT
-    '同点' AS homerun_type,
+    '逆転' AS homerun_type,
     hr_cnt.*,
     situ_bat.batting_cnt,
     ROUND(hr_cnt.cnt / situ_bat.batting_cnt * 100, 1) AS percent

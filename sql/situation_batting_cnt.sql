@@ -32,4 +32,6 @@ FROM
     ) AS A
 GROUP BY
     name,
-    team;
+    team
+-- order by batting_cnt DESC
+;

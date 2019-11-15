@@ -70,8 +70,8 @@ WHERE
                             WHEN 2 THEN t_total - b_total
                         END
                     ) -- WHEN 0 THEN '[01]{1,}'
-                    WHEN 1 THEN '1{1}'
-                    WHEN 2 THEN '0{1}'
+                    WHEN 1 THEN '1{1}' -- 走者なしのケースを除外
+                    WHEN 2 THEN '0{1}' -- 満塁のケースを除外
                     WHEN 3 THEN '1{3}'
                     ELSE '1+'
                 END
