@@ -44,7 +44,8 @@ const getData = async (pitch_count, dateString, gameNo) => {
 
   // return value
   let tgt_data;
-  const pathFile = await checkAndCreateDir(dateString, gameNo).then(rst => rst).catch(err => { throw err })
+  let prevPath = './data'
+  const pathFile = await checkAndCreateDir(prevPath, dateString, gameNo).then(rst => rst).catch(err => { throw err })
 
   // read from json file
   if (dataType == DATA_TYPE_JSON) {
