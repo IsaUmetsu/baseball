@@ -1,6 +1,8 @@
 -- create table hr_type_situation_b 
+
+-- insert into  baseball.hr_type_situation_b (homerun_type, name, team, cnt, batting_cnt, percent)
 SELECT
-    '逆転' AS homerun_type,
+    'サヨナラ' AS homerun_type,
     hr_cnt.*,
     situ_bat.batting_cnt,
     ROUND(hr_cnt.cnt / situ_bat.batting_cnt * 100, 1) AS percent
@@ -18,7 +20,7 @@ FROM
                     all_bat.name,
                     all_bat.team
                 FROM
-                    baseball._situation_gyakuten_all AS all_bat
+                    baseball._situation_sayonara_all AS all_bat
                     -- 各打席の最終投球の情報を取得
                     LEFT JOIN (
                         SELECT
@@ -32,7 +34,7 @@ FROM
                             t_total,
                             b_total
                         FROM
-                            baseball._situation_gyakuten_all
+                            baseball._situation_sayonara_all
                         GROUP BY
                             date,
                             location,
@@ -81,7 +83,7 @@ FROM
                     t_total,
                     b_total
                 FROM
-                    baseball._situation_gyakuten_all s
+                    baseball._situation_sayonara_all s
                     -- 四球などは除外
                     LEFT JOIN baseball.exclude_batting_info eb ON s.result = eb.name
                 WHERE
@@ -104,3 +106,5 @@ FROM
 ORDER BY
     hr_cnt.cnt DESC,
     percent DESC;
+
+-- 村上, ソラーテ, 大山

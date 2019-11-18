@@ -38,6 +38,7 @@ FROM
         WHERE
             gs1.top_bottom = 1
     ) AS gs ON g.id = gs.giid
+    LEFT JOIN no_game_info ng ON g.order_overview_id = ng.order_overview_id
 WHERE
     -- pb.name = 'ウィーラー' AND
     g.on_all_base IN (
@@ -55,27 +56,29 @@ WHERE
                             WHEN 2 THEN t_total - b_total
                         END
                     ) -- WHEN 0 THEN '[01]{1,}'
-                    WHEN 1 THEN '0{2}|0[1]0'
-                    WHEN 2 THEN '1{2}|1[0]1'
+--                     WHEN 1 THEN '0{2}|0[1]0'
+--                     WHEN 2 THEN '1{2}|1[0]1'
+                    WHEN 1 THEN '1{1,}' -- ランナーが1人以上出ていれば逆転可能
+                    WHEN 2 THEN '1{2,}|101' -- ランナーが2人以上出ていれば逆転可能
                     WHEN 3 THEN '1{3}'
                     ELSE '1+'
                 END
             )
-            AND on_all_base REGEXP (
-                CASE
-                    (
-                        CASE
-                            g.top_bottom
-                            WHEN 1 THEN b_total - t_total
-                            WHEN 2 THEN t_total - b_total
-                        END
-                    ) -- WHEN 0 THEN '[01]{1,}'
-                    WHEN 1 THEN '1{1}' -- 走者なしのケースを除外
-                    WHEN 2 THEN '0{1}' -- 満塁のケースを除外
-                    WHEN 3 THEN '1{3}'
-                    ELSE '1+'
-                END
-            )
+--             AND on_all_base REGEXP (
+--                 CASE
+--                     (
+--                         CASE
+--                             g.top_bottom
+--                             WHEN 1 THEN b_total - t_total
+--                             WHEN 2 THEN t_total - b_total
+--                         END
+--                     ) -- WHEN 0 THEN '[01]{1,}'
+--                     WHEN 1 THEN '1{1}' -- 走者なしのケースを除外
+--                     WHEN 2 THEN '0{1}' -- 満塁のケースを除外
+--                     WHEN 3 THEN '1{3}'
+--                     ELSE '1+'
+--                 END
+--             )
     )
     AND (
         CASE
@@ -91,5 +94,6 @@ WHERE
             WHEN 2 THEN b_total - t_total
         END
     ) < 0
+    AND ng.remarks IS NULL -- オールスターやノーゲームを除外
 ORDER BY
     g.id;

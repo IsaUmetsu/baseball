@@ -33,5 +33,5 @@ FROM
 GROUP BY
     name,
     team
--- order by batting_cnt DESC
+order by batting_cnt DESC
 ;

@@ -115,7 +115,7 @@ WHERE
     pi.col_8 = '本塁打'
     AND ng.remarks IS NULL
     AND t.player_id is null
-    AND pb.name = 'ウィーラー'
+    AND pb.name = '大山'
 GROUP BY
     homerun_type,
     oo.date,
