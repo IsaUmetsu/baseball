@@ -12,12 +12,12 @@
  */
 
 const twitter = require('twitter-text')
-const { db } = require('./model')
-const { homerunTypeRankBatter } = require('./query')
+const { db } = require('../model')
+const { homerunTypeRankBatter } = require('../query')
 
-const homerun_type = '逆転'
+const homerun_type = '先制'
 const homerun_type_other = '' // 反撃の一打
-const devide_cnt = true
+const devide_cnt = false
 const { SELECT: type } = db.QueryTypes
 
 // test
@@ -28,8 +28,9 @@ db.query(homerunTypeRankBatter(homerun_type, devide_cnt), { type })
   .then(async results => {
     let contents = ''       // whole
     let header = ''         // rank, number of homerun, tie
-    let footer = "\n#npb #侍ジャパン " // hashtag
+    let footer = "\n #npb "  // hashtag
     let currentCnt = 0      // current number of homerun
+    let currentRank = 0
 
     results.map(result => {
       const { summary, cnt, total_cnt, percent, rank }= result
@@ -37,50 +38,40 @@ db.query(homerunTypeRankBatter(homerun_type, devide_cnt), { type })
       if (currentCnt == 0) currentCnt = cnt
 
       if (! header) {
-        header = createHeader(rank, cnt, results)
+        header = createHeader()
         contents += header
       }
 
-      let row = `${summary} (${cnt}本/全${total_cnt}本) ${percent}%\n`
+      let rankPart = ''
+      if (currentRank == rank && currentRank != 0) {
+        // rankPart += rank < 10 ? ' ' : '  '
+      } else {
+        rankPart = `- ${rank}位 ${cnt}本 -\n`
+        currentRank = rank
+      }
+      let row = `${summary} (${cnt}本/${total_cnt}本) ${percent}%\n`
 
       // 次の内容を足してもツイート可能な場合
-      if (twitter.parseTweet(contents + row + footer).valid) {
-        // ホームラン本数が変わる場合は、次の内容を足す前の内容で確定
-        if (currentCnt != cnt) {
-          // finalize content
-          console.log("----------")
-          console.log(contents += footer)
-          // 次の内容については新しく作ったheaderに足す
-          header = createHeader(rank, cnt, results)
-          currentCnt = cnt
-          // reset content
-          contents = header + row
-        // ホームラン本数に変更がない場合はそのまま足す
-        } else { contents += row }
+      if (twitter.parseTweet(contents + (rankPart + row) + footer).valid) {
+        contents += (rankPart + row)
       // 次の内容を足すとツイート不可である場合（文字数超過)
       } else {
         // finalize content (足す前の内容で確定)
         console.log("----------")
         console.log(contents += footer)
-        // ホームラン本数がちょうど変わる場合はヘッダから作り直す
-        if (currentCnt != cnt) {
-          header = createHeader(rank, cnt, results)
-          currentCnt = cnt
-          // reset content
-          contents = header + row
-        // 変更がない場合、次のツイートにはヘッダなし
-        } else { contents = '' }
+
+        rankPart = `- ${rank}位 ${cnt}本 -\n`
+        contents = header + (rankPart + row)
       }
     })
     // 最終ツイート内容出力
-    console.log("---------")
+    console.log("---------\n")
     console.log(contents += footer)
   })
 
 /**
  * ヘッダ作成 (rank, number of homerun, tie)
  */
-const createHeader = (rank, cnt, results) => {
-  let sameRankCnt = results.filter(r => r.rank == rank).length
-  return `2019年 '${homerun_type_other ? homerun_type_other : homerun_type}' 本塁打ランキング\n第${rank}位 ${cnt}本 ${sameRankCnt > 1 ? `(${sameRankCnt}名)` : ``}\n\n`
+const createHeader = () => {
+  return `2019年 '${homerun_type_other ? homerun_type_other : homerun_type}' 本塁打ランキング\n\n`
 }

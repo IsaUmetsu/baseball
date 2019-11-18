@@ -328,3 +328,50 @@ query.homerunTypeRankTeam = homerun_type => `
   WHERE  h.homerun_type = '${homerun_type}' 
   ORDER  BY h.cnt DESC, h.percent DESC; 
 `
+
+/**
+ * 
+ * @param {string} homerun_type
+ */
+query.homerunTypeRankSituationBatter = homerun_type => `
+  SELECT 
+    hb.*, rank.rank
+  FROM
+    hr_type_situation_b hb
+  LEFT JOIN
+    (SELECT
+      id, score, rank 
+    FROM
+      (SELECT
+        score, percent, @rank AS rank, cnt, @rank := @rank + cnt 
+      FROM
+        (SELECT @rank := 1) AS Dummy, 
+        (SELECT
+          cnt AS score, percent, Count(*) AS cnt 
+        FROM
+          (SELECT
+            * 
+          FROM
+            hr_type_situation_b 
+          WHERE 
+            homerun_type = '${homerun_type}'
+          ) AS htb 
+        GROUP  BY score, percent 
+        ORDER  BY score DESC, percent DESC
+        ) AS GroupBy
+      ) AS Ranking 
+    JOIN
+      (SELECT
+        * 
+      FROM
+        hr_type_situation_b 
+      WHERE
+        homerun_type = '${homerun_type}'
+      ) AS htb 
+    ON htb.cnt = Ranking.score AND htb.percent = Ranking.percent 
+    ORDER  BY rank ASC
+  ) AS rank ON rank.id = hb.id 
+  WHERE
+    hb.homerun_type = '${homerun_type}'
+  ORDER  BY hb.cnt DESC, hb.percent DESC
+`
