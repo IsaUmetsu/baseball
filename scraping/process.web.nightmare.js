@@ -21,7 +21,7 @@ const { getAndSaveData } = require('./func.web.nightmare')
 /**
  * 指定日時・指定試合のデータ取得
  */
-const run = function * () {
+vo(function * () {
   if (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     const dateString = day.format('YYYYMMDD')
     const document = fs.readFileSync(`${htmlBasePath}/top.html`, 'utf8')
@@ -51,12 +51,7 @@ const run = function * () {
     day.add(1, 'days')
   }
   yield nightmare.end()
-}
-
-/**
- * メイン処理実行
- */
-vo(run)(function(err) {
+})(function(err) {
   if (err) console.dir(err.message)
   console.log('done')
 })

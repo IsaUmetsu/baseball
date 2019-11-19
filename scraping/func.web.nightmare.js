@@ -288,11 +288,10 @@ funcWebNightmare.getAndSaveData = function * (nightmare, targetDate, targetGameN
     if (! isTest) {
       while (1) {
         //「次の球」ボタン押下
-        yield nightmare
+        let document = yield nightmare
           .click(nxtBallBtnSelect)
           .wait(waitSelect)
-
-        let document = yield nightmare.evaluate(() => document.body.innerHTML)
+          .evaluate(() => document.body.innerHTML)
 
         yield saveAsFile(nightmare, document, ballCnt, jsonPath, htmlPath, screenshotPath)
 
