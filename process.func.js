@@ -98,7 +98,7 @@ processFunc.savePitchInfo = async(PI, game_info_id, order_overview_id) => {
         game_info_id,
         order_overview_id,
         batter_pitch_count: batterResultArray[0],
-        col_1: batterResultArray[1],
+        ball_type_id: batterResultArray[1],
         col_2: batterResultArray[2],
         col_3: batterResultArray[3],
         col_4: batterResultArray[4],
@@ -141,14 +141,14 @@ processFunc.saveRI = async(RI, game_info_id, order_overview_id) => {
       // merge part of `R`
       Object.assign(insertRInfo, {
         col_1: partR[0],
-        col_2: partR[1],
-        col_3: partR[2],
-        col_4: partR[3],
+        rst_id: partR[1],
+        result: partR[2],
+        direction: partR[3],
         col_5: partR[4],
         col_6: partR[5],
         col_7: partR[6],
         col_8: partR[7],
-        col_9: partR[8],
+        ball_flow: partR[8],
       })
     }
 

@@ -20,11 +20,11 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(4),
       allowNull: true
     },
-    col_2: {
+    rst_id: {
       type: DataTypes.INTEGER(4),
       allowNull: true
     },
-    col_3: {
+    result: {
       type: DataTypes.STRING(10),
       allowNull: true
     },
@@ -45,11 +45,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     col_8: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
-    col_9: {
-      type: DataTypes.STRING(10),
+    direction: {
+      type: DataTypes.STRING(20),
       allowNull: true
     },
     s_col_1: {

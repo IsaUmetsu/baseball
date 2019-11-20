@@ -20,8 +20,8 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(4),
       allowNull: true
     },
-    col_1: {
-      type: DataTypes.INTEGER(6),
+    ball_type_id: {
+      type: DataTypes.INTEGER(4),
       allowNull: true
     },
     col_2: {
