@@ -232,7 +232,7 @@ FROM
     GROUP BY team) AS team_hr ON team_hr.team = pb.team
     left join team_info t on pb.team = t.team_initial
 WHERE
-    pi.col_8 = '本塁打'
+    pi.result = '本塁打'
         AND ng.remarks IS NULL
 GROUP BY homerun_type , t.team_short_name , team_cnt
 ORDER BY homerun_type DESC , cnt DESC , percent DESC

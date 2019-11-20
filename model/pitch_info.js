@@ -48,7 +48,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(6),
       allowNull: true
     },
-    col_8: {
+    result: {
       type: DataTypes.STRING(10),
       allowNull: true
     },

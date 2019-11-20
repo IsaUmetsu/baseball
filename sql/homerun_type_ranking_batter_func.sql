@@ -112,7 +112,7 @@ FROM
     left join trade_info t on g.batter = t.player_id
     and oo.date <= t.startdate
 WHERE
-    pi.col_8 = '本塁打'
+    pi.result = '本塁打'
     AND ng.remarks IS NULL
     AND t.player_id is null
     AND pb.name = '大山'

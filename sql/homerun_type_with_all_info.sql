@@ -346,7 +346,7 @@ SELECT
     g.strike,
     g.ball,
     g.out,
-    pi.col_8,
+    pi.result,
     g.on_all_base,
     g.runner_1b,
     pr1b.name AS '一塁走者',
@@ -378,7 +378,7 @@ FROM
 --     game_score_info gs ON g.id = gs.game_info_id and g.top_bottom = gs.top_bottom
 WHERE
     pb.name = 'デスパイネ' AND
-    pi.col_8 = '本塁打'
+    pi.result = '本塁打'
 
 /*
 Error Code: 1064. You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INT)l                         FROM                             game_score_info  ' at line 113

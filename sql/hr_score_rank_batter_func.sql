@@ -137,7 +137,7 @@ FROM
         LEFT JOIN
     no_game_info ng ON g.order_overview_id = ng.order_overview_id
 WHERE
-    pi.col_8 = '本塁打'
+    pi.result = '本塁打'
         AND ng.remarks IS NULL
 GROUP BY homerun_score , pb.name , pb.team
 ORDER BY homerun_score DESC , homerun_score_count DESC , name DESC

@@ -17,7 +17,7 @@ SELECT
     g.runner_3b,
     g.next_3b_go,
     p.batter_pitch_count AS bp_count,
-    p.col_8 AS result,
+    p.result AS result,
     gs.t_total,
     gs.b_total
 FROM
@@ -43,7 +43,7 @@ FROM
         gs1.top_bottom = 1) AS gs ON g.id = gs.giid
 WHERE
 --     pb.name = '吉田正' AND
---     p.col_8 = '本塁打' AND
+--     p.result = '本塁打' AND
 -- 	g.on_all_base IN (
 --                         SELECT
 --                             on_all_base

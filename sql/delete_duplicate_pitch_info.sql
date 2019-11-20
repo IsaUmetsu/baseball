@@ -31,7 +31,7 @@ SELECT
             min_id
         FROM
             (SELECT 
-                MIN(id) AS min_id, order_overview_id, speed, col_8
+                MIN(id) AS min_id, order_overview_id, speed, result
             FROM
                 pitch_info
             
@@ -44,6 +44,6 @@ SELECT
                 WHERE
                     (order_overview_id , pitch_count) IN (SELECT * FROM baseball.tmp_max_pitch_cnt )
 				OR (order_overview_id , pitch_count) IN (SELECT * FROM baseball.tmp_max_prev_pitch_cnt))
-            GROUP BY order_overview_id , speed , col_8) AS C)
+            GROUP BY order_overview_id , speed , result) AS C)
 */
 ;

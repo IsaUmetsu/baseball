@@ -473,7 +473,7 @@ FROM
 --     game_score_info gs ON g.id = gs.game_info_id and g.top_bottom = gs.top_bottom
 WHERE
     -- pb.name = 'デスパイネ' AND
-    pi.col_8 = '本塁打'
+    pi.result = '本塁打'
 group by
 	homerun_type,
     pb.name,

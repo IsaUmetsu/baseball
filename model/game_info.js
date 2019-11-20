@@ -44,8 +44,8 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(15),
       allowNull: true
     },
-    unkcol_7: {
-      type: DataTypes.STRING(45),
+    LR: {
+      type: DataTypes.INTEGER(2),
       allowNull: true
     },
     strike: {
@@ -60,16 +60,16 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(2),
       allowNull: true
     },
-    unkcol_11: {
-      type: DataTypes.STRING(45),
+    aft_s: {
+      type: DataTypes.INTEGER(2),
       allowNull: true
     },
-    unkcol_12: {
-      type: DataTypes.STRING(45),
+    aft_b: {
+      type: DataTypes.INTEGER(2),
       allowNull: true
     },
-    unkcol_13: {
-      type: DataTypes.STRING(45),
+    aft_o: {
+      type: DataTypes.INTEGER(2),
       allowNull: true
     },
     on_all_base: {

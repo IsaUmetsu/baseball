@@ -8,10 +8,10 @@ SELECT
 	'ラッキー7' AS season,
     pb.name,
     pb.team,
-    COUNT(pi.col_8) AS cnt,
+    COUNT(pi.result) AS cnt,
     CONCAT(pb.name, '(', pb.team, ')') AS summary_all,
     k.cnt AS total_cnt,
-    ROUND(COUNT(pi.col_8) / k.cnt * 100, 1) AS percent FROM
+    ROUND(COUNT(pi.result) / k.cnt * 100, 1) AS percent FROM
     baseball.game_info g
         LEFT JOIN
     baseball.player pp ON g.pitcher = pp.id
@@ -32,7 +32,7 @@ SELECT
         LEFT JOIN
     homerun_king k ON g.batter = k.player_id
 WHERE
-    pi.col_8 = '本塁打'
+    pi.result = '本塁打'
         AND ng.remarks IS NULL
         AND g.ining = 7
 GROUP BY pb.name , pb.team , k.cnt
