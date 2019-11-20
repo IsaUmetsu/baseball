@@ -104,8 +104,8 @@ processFunc.savePitchInfo = async(PI, game_info_id, order_overview_id) => {
         col_4: batterResultArray[4],
         col_5: batterResultArray[5],
         speed: batterResultArray[6],
-        col_7: batterResultArray[7],
-        col_8: batterResultArray[8],
+        rst_id: batterResultArray[7],
+        result: batterResultArray[8],
         col_9: batterResultArray[9],
         total_batter_count
       }

@@ -44,7 +44,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(6),
       allowNull: true
     },
-    col_7: {
+    rst_id: {
       type: DataTypes.INTEGER(6),
       allowNull: true
     },
