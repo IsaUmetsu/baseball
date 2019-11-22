@@ -13,3 +13,4 @@
 scraping/json/*
 scraping/html/*
 scraping/screenshot/*
+tweet/config.js
