@@ -146,8 +146,8 @@ processFunc.saveRI = async(RI, game_info_id, order_overview_id) => {
         direction: partR[3],
         col_5: partR[4],
         col_6: partR[5],
-        col_7: partR[6],
-        col_8: partR[7],
+        pickoff_base: partR[6],
+        pickoff: partR[7],
         ball_flow: partR[8],
       })
     }

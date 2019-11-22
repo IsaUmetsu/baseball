@@ -28,8 +28,8 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(10),
       allowNull: true
     },
-    col_4: {
-      type: DataTypes.STRING(10),
+    direction: {
+      type: DataTypes.STRING(2),
       allowNull: true
     },
     col_5: {
@@ -40,15 +40,15 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(10),
       allowNull: true
     },
-    col_7: {
-      type: DataTypes.STRING(10),
+    pickoff_base: {
+      type: DataTypes.STRING(2),
       allowNull: true
     },
-    col_8: {
-      type: DataTypes.STRING(10),
+    pickoff: {
+      type: DataTypes.STRING(2),
       allowNull: true
     },
-    direction: {
+    ball_flow: {
       type: DataTypes.STRING(20),
       allowNull: true
     },
