@@ -1,21 +1,6 @@
 "use strict";
 
-const Twitter = require("twitter");
-const moment = require('moment')
-
-const {
-  consumer_key,
-  consumer_secret,
-  access_token_key,
-  access_token_secret
-} = require("../config");
-
-const twClient = new Twitter({
-  consumer_key,
-  consumer_secret,
-  access_token_key,
-  access_token_secret
-});
+const twClient = require("../twitter")
 
 (async () => {
   const tweets = await twClient
@@ -25,7 +10,7 @@ const twClient = new Twitter({
     });
 
   tweets
-    .filter(tweet => tweet.text.indexOf("Test tweet") > -1)
+    .filter(tweet => tweet.text.indexOf("追い上げ") > -1)
     .map(async tweet => {
       await twClient
         .post(`statuses/destroy/${tweet.id_str}`, {
