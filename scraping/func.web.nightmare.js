@@ -93,11 +93,13 @@ funcWebNightmare.getAndSaveData = function*(
         .catch(e => {
           throw e;
         });
+      /**
       htmlPath = yield checkAndCreateDir(htmlBasePath, targetDate, targetGameNo)
         .then(r => r)
         .catch(e => {
           throw e;
         });
+      */
     } else if (saveMode == SAVE_MODE_HTML) {
       screenshotPath = yield checkAndCreateDir(
         screeshotBasePath,
