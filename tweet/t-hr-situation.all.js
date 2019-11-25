@@ -14,11 +14,11 @@
 const twText = require("twitter-text");
 
 const { db } = require("../model");
-const { homerunTypeRankSituationBatter } = require("../query");
-const { INNINGS } = require('../constants')
+const { homerunTypeRankSituationTeam } = require("../query");
+const { INNINGS, HASHTAGS } = require('../constants')
 const { executeRound, tweetResult } = require("./util");
 
-const homerun_type = "序盤";
+const homerun_type = "逆転";
 const homerun_type_other = ""; // 反撃の一打
 const { SELECT: type } = db.QueryTypes;
 
@@ -31,7 +31,7 @@ let prevTweetId = "";
 (async () => {
   // get target records
   const results = await db
-    .query(homerunTypeRankSituationBatter(homerun_type), { type })
+    .query(homerunTypeRankSituationTeam(homerun_type), { type })
     .then(r => r)
     .catch(e => {
       console.log(e);
@@ -47,7 +47,7 @@ let prevTweetId = "";
   let round3rdDecimal = false;
 
   for (let idx in results) {
-    const { name, team, cnt, batting_cnt, rank } = results[idx];
+    const { team, cnt, batting_cnt, rank, team_kana } = results[idx];
 
     if (!header) {
       header = createHeader();
@@ -72,7 +72,7 @@ let prevTweetId = "";
     round2ndDecimal = flag2;
     round3rdDecimal = flag3;
     // create display info
-    let row = `${name}(${team}) (${cnt}本/${batting_cnt}打数) ${roundedPercent}%\n`;
+    let row = `${team_kana} (${cnt}本/チーム合計${batting_cnt}打数) ${roundedPercent}% #${HASHTAGS[team]}\n`;
 
     // 次の内容を足してもツイート可能な場合
     if (twText.parseTweet(contents + (rankPart + row) + footer).valid) {
@@ -111,7 +111,7 @@ const createHeader = () => {
   // 表示対象のイニングがある場合のみ、表示する
   const dispIning = Object.keys(INNINGS).indexOf(dispHomerunType) > -1 ? `(${INNINGS[dispHomerunType]})` : ''
   // 各種ヘッダ作成
-  const header1 = `2019年 ${dispHomerunType}${dispIning}HRランキング\n`;
+  const header1 = `2019年 チーム別${dispHomerunType}${dispIning}HRランキング\n`;
   const header2 = `(本/${dispHomerunType}打数)\n`;
   // 連結して返却
   return `${header1}${header2}※同数の場合は率が高い順に順位付け\n\n`;
