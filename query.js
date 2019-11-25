@@ -1,6 +1,6 @@
-"use strict"
+"use strict";
 
-const query = module.exports = {}
+const query = (module.exports = {});
 
 /**
  * 選手起用に変更があるか判定
@@ -26,7 +26,8 @@ query.judgePlayerChange = (order_overview_id, now_pitch_count, top_bottom) => `
             FROM
                 baseball.order_detail
             WHERE
-                order_overview_id = ${order_overview_id} AND pitch_count = ${now_pitch_count - 1} AND top_bottom = ${top_bottom}
+                order_overview_id = ${order_overview_id} AND pitch_count = ${now_pitch_count -
+  1} AND top_bottom = ${top_bottom}
         ) AS A
         LEFT OUTER JOIN
             (
@@ -62,7 +63,8 @@ query.judgePlayerChange = (order_overview_id, now_pitch_count, top_bottom) => `
             FROM
                 baseball.order_detail
             WHERE
-                order_overview_id = ${order_overview_id} AND pitch_count = ${now_pitch_count - 1} AND top_bottom = ${top_bottom}
+                order_overview_id = ${order_overview_id} AND pitch_count = ${now_pitch_count -
+  1} AND top_bottom = ${top_bottom}
         ) AS A
         RIGHT OUTER JOIN
     (
@@ -85,12 +87,16 @@ query.judgePlayerChange = (order_overview_id, now_pitch_count, top_bottom) => `
   WHERE
   before_batting_order IS NULL OR
     after_player IS NULL
-`
+`;
 
 /**
  * 選手変更時の試合情報（イニング、カウント、ランナー状況）取得
  */
-query.getGameInfoWhenChange = (order_overview_id, before_pitch_count, after_pitch_count) => `
+query.getGameInfoWhenChange = (
+  order_overview_id,
+  before_pitch_count,
+  after_pitch_count
+) => `
     SELECT
         g.ining,
         g.top_bottom,
@@ -115,7 +121,7 @@ query.getGameInfoWhenChange = (order_overview_id, before_pitch_count, after_pitc
     LEFT JOIN baseball.player pp ON g.pitcher = pp.id
     LEFT JOIN baseball.player pb ON g.batter = pb.id
     WHERE g.order_overview_id = ${order_overview_id} AND g.pitch_count IN (${before_pitch_count}, ${after_pitch_count})
-`
+`;
 
 /**
  * 打順ごとのスタメン回数取得
@@ -152,7 +158,7 @@ query.getStartingMenberSpecifyOrder = (team, order, idsTop, idsBtm) => `
         and batting_order = ${order}
     group by player_name
     order by count desc
-`
+`;
 
 query.getOverviewIds = (team, top_bottom) => `
     SELECT 
@@ -160,83 +166,83 @@ query.getOverviewIds = (team, top_bottom) => `
     FROM
         baseball.order_overview
     where
-        ${top_bottom == 1 ? 'visitor_team' : top_bottom == 2 ? 'home_team' : ''} = '${team}'
-`
+        ${
+          top_bottom == 1 ? "visitor_team" : top_bottom == 2 ? "home_team" : ""
+        } = '${team}'
+`;
 
 /**
  * フル出場取得
  */
 query.getFullParticipation = (idsTop, idsBtm, order) => `
-    SELECT
-        C.player_name,
-        count(C.player_name) as count
-    FROM (
-        ${getFullParticipationBySide(1, order, idsTop)}
-        union
-        ${getFullParticipationBySide(2, order, idsBtm)}
-    ) AS C
-    group by
-        C.player_name
-    order by
-        count desc
-`
+  SELECT
+    C.player_name,
+    count(C.player_name) as count
+  FROM (
+    ${getFullParticipationBySide(1, order, idsTop)}
+    union
+    ${getFullParticipationBySide(2, order, idsBtm)}
+  ) AS C
+  group by
+    C.player_name
+  order by
+    count desc
+`;
 
 const getFullParticipationBySide = (top_bottom, order, ids) => `
-    SELECT
-        order_overview_id,
-        player_name 
-    FROM
-        baseball.order_detail 
-    WHERE
-        pitch_count = 1 
-    AND batting_order = ${order} 
-    AND top_bottom = ${top_bottom}
-        AND order_overview_id IN 
+  SELECT
+    order_overview_id,
+    player_name
+  FROM
+    baseball.order_detail
+  WHERE
+    pitch_count = 1
+    AND batting_order = $ { order }
+    AND top_bottom = $ { top_bottom }
+    AND order_overview_id IN (
+      SELECT
+        B.order_overview_id
+      FROM
         (
-            SELECT
-                B.order_overview_id 
-            FROM
-                (
-                    SELECT
-                        A.order_overview_id,
-                        Count(A.order_overview_id) AS count 
-                    FROM
-                    (
-                        SELECT
-                            order_overview_id,
-                            top_bottom,
-                            batting_order,
-                            Max(pitch_count) AS max_pitch_count,
-                            player_name 
-                        FROM
-                            baseball.order_detail 
-                        WHERE
-                            order_overview_id IN (${ids})
-                            AND top_bottom = ${top_bottom} 
-                            AND batting_order = ${order} 
-                        GROUP BY
-                            order_overview_id,
-                            top_bottom,
-                            batting_order,
-                            player_name 
-                        ORDER BY
-                            order_overview_id,
-                            top_bottom,
-                            max_pitch_count
-                    ) AS A 
-                    GROUP BY
-                    A.order_overview_id 
-                    ORDER BY
-                    count
-                )
-                AS B 
-            WHERE
-                B.count = 1
-        )
-`
+          SELECT
+            A.order_overview_id,
+            Count(A.order_overview_id) AS count
+          FROM
+            (
+              SELECT
+                order_overview_id,
+                top_bottom,
+                batting_order,
+                Max(pitch_count) AS max_pitch_count,
+                player_name
+              FROM
+                baseball.order_detail
+              WHERE
+                order_overview_id IN ($ { ids })
+                AND top_bottom = $ { top_bottom }
+                AND batting_order = $ { order }
+              GROUP BY
+                order_overview_id,
+                top_bottom,
+                batting_order,
+                player_name
+              ORDER BY
+                order_overview_id,
+                top_bottom,
+                max_pitch_count
+            ) AS A
+          GROUP BY
+            A.order_overview_id
+          ORDER BY
+            count
+        ) AS B
+      WHERE
+        B.count = 1
+    )
+`;
 
 /**
- * 
+ * 選手別ホームランタイプ取得（通算本塁打数比較）
  * @param {string} homerun_type
  * @param {boolean} is_devide
  */
@@ -281,15 +287,15 @@ query.homerunTypeRankBatter = (homerun_type, is_devide) => `
     WHERE
       h.homerun_type = '${homerun_type}' 
     ORDER BY h.cnt ${is_devide ? `ASC` : `DESC`}, h.percent DESC;
-`
+`;
 
 /**
- * 
+ * チーム別ホームランタイプ取得（通算本塁打数比較）
  * @param {string} homerun_type
  */
 query.homerunTypeRankTeam = homerun_type => `
   SELECT
-    h.id, h.team, h.cnt, h.team_cnt AS total_cnt, h.percent, rank.rank 
+    h.id, h.team, h.cnt, h.team_cnt AS total_cnt, h.percent, rank.rank, T.team_initial
   FROM
     baseball.homerun_type_team h 
   LEFT JOIN
@@ -325,53 +331,96 @@ query.homerunTypeRankTeam = homerun_type => `
     ON htb.cnt = Ranking.score AND htb.percent = Ranking.percent 
     ORDER  BY rank ASC
   ) AS rank ON rank.id = h.id 
+  LEFT JOIN team_info T ON h.team = T.team_short_name
   WHERE  h.homerun_type = '${homerun_type}' 
   ORDER  BY h.cnt DESC, h.percent DESC; 
-`
+`;
 
 /**
- * 
+ * 選手別シチュエーションHRランキング（通算打席数比較）
  * @param {string} homerun_type
+ * @return {string} query
  */
-query.homerunTypeRankSituationBatter = homerun_type => `
-  SELECT 
-    hb.*, rank.rank
+query.homerunTypeRankSituationBatter = homerun_type =>
+  homerunTypeRankSituation(homerun_type, "hr_type_situation_b");
+
+/**
+ * チーム別シチュエーションHRランキング（通算打席数比較）
+ * @param {string} homerun_type
+ * @return {string} query
+ */
+query.homerunTypeRankSituationTeam = homerun_type =>
+  homerunTypeRankSituation(homerun_type, "hr_type_situation_t");
+
+/**
+ * シチュエーションHRランキング取得
+ * @param {string} homerun_type
+ * @param {string} table_name
+ * @return {string} query
+ */
+const homerunTypeRankSituation = (homerun_type, table_name) => `
+  SELECT
+    hb.*,
+    rank.rank,
+    T.team_initial_kana AS team_kana
   FROM
-    hr_type_situation_b hb
-  LEFT JOIN
-    (SELECT
-      id, score, rank 
-    FROM
-      (SELECT
-        score, percent, @rank AS rank, cnt, @rank := @rank + cnt 
+    ${table_name} hb
+    LEFT JOIN (
+      SELECT
+        id,
+        score,
+        rank
       FROM
-        (SELECT @rank := 1) AS Dummy, 
-        (SELECT
-          cnt AS score, percent, Count(*) AS cnt 
-        FROM
-          (SELECT
-            * 
+        (
+          SELECT
+            score,
+            percent,
+            @rank AS rank,
+            cnt,
+            @rank := @rank + cnt
           FROM
-            hr_type_situation_b 
-          WHERE 
+            (
+              SELECT
+                @rank := 1
+            ) AS Dummy,
+            (
+              SELECT
+                cnt AS score,
+                percent,
+                Count(*) AS cnt
+              FROM
+                (
+                  SELECT
+                    *
+                  FROM
+                    ${table_name}
+                  WHERE
+                    homerun_type = '${homerun_type}'
+                ) AS htb
+              GROUP BY
+                score,
+                percent
+              ORDER BY
+                score DESC,
+                percent DESC
+            ) AS GroupBy
+        ) AS Ranking
+        JOIN (
+          SELECT
+            *
+          FROM
+            ${table_name}
+          WHERE
             homerun_type = '${homerun_type}'
-          ) AS htb 
-        GROUP  BY score, percent 
-        ORDER  BY score DESC, percent DESC
-        ) AS GroupBy
-      ) AS Ranking 
-    JOIN
-      (SELECT
-        * 
-      FROM
-        hr_type_situation_b 
-      WHERE
-        homerun_type = '${homerun_type}'
-      ) AS htb 
-    ON htb.cnt = Ranking.score AND htb.percent = Ranking.percent 
-    ORDER  BY rank ASC
-  ) AS rank ON rank.id = hb.id 
+        ) AS htb ON htb.cnt = Ranking.score
+        AND htb.percent = Ranking.percent
+      ORDER BY
+        rank ASC
+    ) AS rank ON rank.id = hb.id
+    LEFT JOIN team_info T ON hb.team = T.team_initial
   WHERE
     hb.homerun_type = '${homerun_type}'
-  ORDER  BY hb.cnt DESC, hb.percent DESC
-`
+  ORDER BY
+    hb.cnt DESC,
+    hb.percent DESC
+`;

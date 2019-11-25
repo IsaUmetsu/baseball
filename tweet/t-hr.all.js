@@ -14,11 +14,16 @@
 const twitter = require("twitter-text");
 const { db } = require("../model");
 const { homerunTypeRankTeam } = require("../query");
+const { HASHTAGS } = require('../constants')
+const { tweetResult } = require("./util");
 
-const homerun_type = "逆転";
+const homerun_type = "決勝";
 const homerun_type_other = ""; // 反撃の一打
 const devide_cnt = false;
 const { SELECT: type } = db.QueryTypes;
+
+const tweet = true;
+let prevTweetId = "";
 
 // test
 // let tweet = "鶴岡(F) (1/1) 100%\n高橋(D) (1/7) 14.3%\n頓宮(B) (1/3) 33.3%\n長谷川勇(H) (1/3) 33.3%\n長坂(T) (1/1) 100%\n釜元(H) (1/4) 25%\n遠藤(D) (1/2) 50%\n近藤(F) (1/2) 50%\n西村(B) (1/2) 50%\n藤岡(M) (1/2) 50%\n荒木(S) (1/2) 50%"
@@ -27,12 +32,12 @@ const { SELECT: type } = db.QueryTypes;
 db.query(homerunTypeRankTeam(homerun_type), { type }).then(async results => {
   let contents = ""; // whole
   let header = ""; // rank, number of homerun, tie
-  let footer = "\n #npb "; // hashtag
+  let footer = "\n#侍ジャパン #プレミア12 #npb "; // hashtag
   let currentCnt = 0; // current number of homerun
   let currentRank = 0;
 
-  results.map(result => {
-    const { team, cnt, total_cnt, percent, rank } = result;
+  for (let idx in results) {
+    const { team, cnt, total_cnt, percent, rank, team_initial } = results[idx];
 
     if (currentCnt == 0) currentCnt = cnt;
 
@@ -47,7 +52,8 @@ db.query(homerunTypeRankTeam(homerun_type), { type }).then(async results => {
     } else {
       currentRank = rank;
     }
-    let row = `${rank}位 ${team} (${cnt}本/${total_cnt}本) ${percent}%\n`;
+    // let row = `${rank}位 ${team} (${cnt}本/${total_cnt}本) ${percent}%\n`;
+    let row = `${rank}位 ${team} (${cnt}本) #${HASHTAGS[team_initial]}\n`;
 
     // 次の内容を足してもツイート可能な場合
     if (twitter.parseTweet(contents + (rankPart + row) + footer).valid) {
@@ -55,22 +61,27 @@ db.query(homerunTypeRankTeam(homerun_type), { type }).then(async results => {
       // 次の内容を足すとツイート不可である場合（文字数超過)
     } else {
       // finalize content (足す前の内容で確定)
-      console.log("----------");
-      console.log((contents += footer));
-
+      let dispContent = contents + footer
       contents = header + (rankPart + row);
+      console.log("----------");
+      console.log(dispContent);
+
+      prevTweetId = await tweetResult(tweet, dispContent, prevTweetId)
     }
-  });
+  }
   // 最終ツイート内容出力
+  let lastDispContent = contents + footer
   console.log("---------");
-  console.log((contents += footer));
+  console.log(lastDispContent);
+
+  await tweetResult(tweet, lastDispContent, prevTweetId)
 });
 
 /**
  * ヘッダ作成 (rank, number of homerun, tie)
  */
 const createHeader = () => {
-  return `2019年 '${
+  return `2019年 チーム別${
     homerun_type_other ? homerun_type_other : homerun_type
-  }' 本塁打ランキング\n\n`;
+  }本塁打ランキング\n\n`;
 };

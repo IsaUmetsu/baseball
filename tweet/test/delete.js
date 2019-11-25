@@ -1,6 +1,6 @@
 "use strict";
 
-const twClient = require("../twitter")
+const twClient = require("../twitter");
 
 (async () => {
   const tweets = await twClient
