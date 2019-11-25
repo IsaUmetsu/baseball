@@ -250,11 +250,11 @@ query.homerunTypeRankBatter = (homerun_type, is_devide) => `
           id, score, rank
         FROM 
           (SELECT 
-            score, @rank AS rank, cnt, @rank:=@rank + cnt
+            score, percent, @rank AS rank, cnt, @rank:=@rank + cnt
           FROM
             (SELECT @rank:=1) AS Dummy,
             (SELECT 
-              cnt AS score, COUNT(*) AS cnt
+              cnt AS score, percent, COUNT(*) AS cnt
             FROM
               (SELECT 
                 *
@@ -263,8 +263,8 @@ query.homerunTypeRankBatter = (homerun_type, is_devide) => `
               WHERE
                 homerun_type = '${homerun_type}'
               ) AS htb
-            GROUP BY score
-            ORDER BY score DESC
+            GROUP BY score, percent
+            ORDER BY score DESC, percent DESC
             ) AS GroupBy
           ) AS Ranking
         JOIN
@@ -274,13 +274,13 @@ query.homerunTypeRankBatter = (homerun_type, is_devide) => `
             homerun_type_batter
           WHERE
             homerun_type = '${homerun_type}'
-          ) AS htb ON htb.cnt = Ranking.score
+          ) AS htb ON htb.cnt = Ranking.score AND htb.percent = Ranking.percent 
         ORDER BY rank ASC
         ) AS rank
       ON rank.id = h.id
     WHERE
-      h.homerun_type = '${homerun_type}'
-    ORDER BY h.cnt ${is_devide ? `ASC` : `DESC`};
+      h.homerun_type = '${homerun_type}' 
+    ORDER BY h.cnt ${is_devide ? `ASC` : `DESC`}, h.percent DESC;
 `
 
 /**

@@ -12,17 +12,26 @@
  */
 
 const twText = require("twitter-text");
-const twitter = require("./twitter")
 
 const { db } = require("../model");
 const { homerunTypeRankSituationBatter } = require("../query");
 const { executeRound, tweetResult } = require("./util");
 
-const homerun_type = "追加点";
+const homerun_type = "最終回";
+const innings = {
+  初回: "1回",
+  序盤: "1〜3回",
+  中盤: "4〜6回",
+  // ラッキー７: "7回",
+  終盤: "7〜9回",
+  最終回: "9回",
+  延長: "10回〜"
+};
 const homerun_type_other = ""; // 反撃の一打
 const { SELECT: type } = db.QueryTypes;
 
 const tweet = false;
+let prevTweetId = "";
 
 // test
 // let tweet = "鶴岡(F) (1/1) 100%\n高橋(D) (1/7) 14.3%\n頓宮(B) (1/3) 33.3%\n長谷川勇(H) (1/3) 33.3%\n長坂(T) (1/1) 100%\n釜元(H) (1/4) 25%\n遠藤(D) (1/2) 50%\n近藤(F) (1/2) 50%\n西村(B) (1/2) 50%\n藤岡(M) (1/2) 50%\n荒木(S) (1/2) 50%"
@@ -47,7 +56,7 @@ const tweet = false;
   let currentRank = 0;
 
   let round2ndDecimal = false;
-  let prevTweetId = "";
+  let round3rdDecimal = false;
 
   for (let idx in results) {
     const { name, team, cnt, batting_cnt, rank } = results[idx];
@@ -65,9 +74,15 @@ const tweet = false;
       currentRank = rank;
     }
 
-    let { roundedPercent, flag } = executeRound(results, idx, round2ndDecimal);
+    let { roundedPercent, flag2, flag3 } = executeRound(
+      results,
+      idx,
+      round2ndDecimal,
+      round3rdDecimal
+    );
     // update flag
-    round2ndDecimal = flag;
+    round2ndDecimal = flag2;
+    round3rdDecimal = flag3;
     // create display info
     let row = `${name}(${team}) (${cnt}本/${batting_cnt}打数) ${roundedPercent}%\n`;
 
@@ -85,7 +100,7 @@ const tweet = false;
       console.log("----------");
       console.log(displayContent);
       // tweet
-      prevTweetId = await tweetResult(tweet, twitter, displayContent, prevTweetId)
+      prevTweetId = await tweetResult(tweet, displayContent, prevTweetId);
     }
   }
 
@@ -94,7 +109,7 @@ const tweet = false;
   console.log("----------");
   console.log(lastDisplayContent);
   // tweet
-  await tweetResult(tweet, twitter, lastDisplayContent, prevTweetId)
+  await tweetResult(tweet, lastDisplayContent, prevTweetId);
 })();
 
 /**
@@ -104,5 +119,12 @@ const createHeader = () => {
   const dispHomerunType = homerun_type_other
     ? homerun_type_other
     : homerun_type;
-  return `2019年 ${dispHomerunType}HRランキング\n(本/HRシチュエーション打数)\n※同数の場合は率が高い順に順位付け\n\n`;
+
+  // 表示対象のイニングがある場合のみ、表示する
+  const dispIning = Object.keys(innings).indexOf(dispHomerunType) > -1 ? `(${innings[dispHomerunType]})` : ''
+  // 各種ヘッダ作成
+  const header1 = `2019年 ${dispHomerunType}${dispIning}HRランキング\n`;
+  const header2 = `(本/${dispHomerunType}打数)\n`;
+  // 連結して返却
+  return `${header1}${header2}※同数の場合は率が高い順に順位付け\n\n`;
 };

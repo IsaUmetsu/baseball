@@ -2,14 +2,17 @@
 
 const util = module.exports = {};
 
+const client = require("./twitter")
+
 /**
  *
  * @param {array} results
  * @param {string} idx
  * @param {boolean} round2ndDecimal
+ * @param {boolean} round3rdDecimal
  * @return {object} roundedPercent, flag
  */
-util.executeRound = (results, idx, round2ndDecimal) => {
+util.executeRound = (results, idx, round2ndDecimal, round3rdDecimal) => {
   const { cnt, batting_cnt, percent } = results[idx];
   idx = Number(idx)
 
@@ -25,8 +28,24 @@ util.executeRound = (results, idx, round2ndDecimal) => {
     ) {
       round2ndDecimal = false;
     }
-    // 小数点第2位での四捨五入
-    roundedPercent = Math.round(Number(percent) * 100) / 100;
+
+    if (round3rdDecimal) {
+      roundedPercent = Math.round(Number(percent) * 1000) / 1000;
+      round3rdDecimal = false;
+    } else {
+      // 小数点第2位での四捨五入
+      roundedPercent = Math.round(Number(percent) * 100) / 100;
+      round3rdDecimal = false;
+
+      if (
+        roundedPercent ==
+        Math.round(Number(results[nextIdx].percent) * 100) / 100 && batting_cnt != results[nextIdx].batting_cnt
+      ) {
+        round3rdDecimal = true;
+        // 小数点第3位での四捨五入
+        roundedPercent = Math.round(Number(percent) * 1000) / 1000;
+      }
+    }
   } else {
     // 次の打者のpercentと小数点1位を四捨五入した値が同じ場合
     if (
@@ -66,7 +85,7 @@ util.executeRound = (results, idx, round2ndDecimal) => {
       }
     }
   }
-  return { roundedPercent, flag: round2ndDecimal };
+  return { roundedPercent, flag2: round2ndDecimal, flag3: round3rdDecimal };
 };
 
 /**
@@ -77,7 +96,7 @@ util.executeRound = (results, idx, round2ndDecimal) => {
  * @param {string} in_reply_to_status_id
  * @return {string} tweet_id
  */
-util.tweetResult = async (tweet, client, status, in_reply_to_status_id) => {
+util.tweetResult = async (tweet, status, in_reply_to_status_id) => {
   let res = "";
   if (tweet) {
     let { id_str } = await client.post("statuses/update", {
