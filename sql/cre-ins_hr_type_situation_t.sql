@@ -1,6 +1,6 @@
--- create table hr_type_situation_b 
+-- create table hr_type_situation_t 
 
--- insert into  baseball.hr_type_situation_b (homerun_type, name, team, cnt, batting_cnt, percent)
+-- insert into baseball.hr_type_situation_t (homerun_type, team, cnt, batting_cnt, percent)
 SELECT
     '逆転' AS homerun_type,
     hr_cnt.*,
@@ -10,7 +10,7 @@ FROM
     (
         -- 選手(and 球団)ごとの本塁打数算出
         SELECT
-            name,
+            -- name,
             team,
             COUNT(name) AS cnt
         FROM
@@ -20,7 +20,7 @@ FROM
                     all_bat.name,
                     all_bat.team
                 FROM
-                    baseball._situation_gyakuten_all AS all_bat
+                    baseball._situation_gyakuten_all AS all_bat 
                     -- 各打席の最終投球の情報を取得
                     LEFT JOIN (
                         SELECT
@@ -59,7 +59,7 @@ FROM
                     AND all_bat.result = '本塁打'
             ) AS all_hr
         GROUP BY
-            name,
+            -- name,
             team
         ORDER BY
             cnt DESC
@@ -67,7 +67,7 @@ FROM
     -- 指定の本塁打が発生する打数を算出
     LEFT JOIN (
         SELECT
-            name,
+            -- name,
             team,
             COUNT(name) AS batting_cnt
         FROM -- 指定の本塁打が発生する全打席リストアップ
@@ -99,10 +99,11 @@ FROM
                     b_total
             ) AS situ_bat_all
         GROUP BY
-            name,
+            -- name,
             team
-    ) AS situ_bat ON hr_cnt.name = situ_bat.name
-    AND hr_cnt.team = situ_bat.team
+    ) AS situ_bat ON
+    -- hr_cnt.name = situ_bat.name AND
+    hr_cnt.team = situ_bat.team
 ORDER BY
     hr_cnt.cnt DESC,
     percent DESC;
