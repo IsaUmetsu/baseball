@@ -424,3 +424,51 @@ const homerunTypeRankSituation = (homerun_type, table_name) => `
     hb.cnt DESC,
     hb.percent DESC
 `;
+
+/**
+ * 第１打席 打率取得
+ * 
+ * @param {number} targetBat 第何打席か
+ */
+query.firstBat = targetBat => `
+  SELECT 
+    h.id, h.name, h.team, h.bat_cnt, h.hit_cnt, h.average, rank.rank
+  FROM
+    baseball.average_bat h
+  LEFT JOIN
+    (SELECT 
+      id, score, rank
+    FROM 
+      (SELECT 
+        score, @rank AS rank, cnt, @rank:=@rank + cnt
+      FROM
+        (SELECT @rank:=1) AS Dummy,
+        (SELECT 
+          average AS score, COUNT(*) AS cnt
+        FROM
+          (SELECT 
+            *
+          FROM
+            average_bat
+          WHERE
+            what_bat = '${targetBat}'
+          ) AS htb
+        GROUP BY score
+        ORDER BY score DESC
+        ) AS GroupBy
+      ) AS Ranking
+    JOIN
+      (SELECT 
+        *
+      FROM
+        average_bat
+      WHERE
+        what_bat = '${targetBat}'
+      ) AS htb ON htb.average = Ranking.score
+    ORDER BY rank ASC
+    ) AS rank
+  ON rank.id = h.id
+  WHERE
+    h.what_bat = '${targetBat}' 
+  ORDER BY h.average DESC
+`

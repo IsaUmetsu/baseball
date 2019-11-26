@@ -4,9 +4,9 @@
  * Twitter 文字数制限を満たす範囲で順位を作成
  *
  * 基本的に書くツイートに以下の内容を持つ
- *   header: 順位、本数、同率順位人数
- *   content: 選手名・球団 対象本塁打数/全本塁打数 対象本塁打割合
- *   footer: ハッシュタグ (暫定で #npb)))
+ *   header: タイトル
+ *   content: 順位・選手名・球団 打率 打数・安打数
+ *   footer: ハッシュタグ
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
@@ -14,16 +14,17 @@
 const twText = require("twitter-text");
 
 const { db } = require("../model");
-const { homerunTypeRankSituationTeam } = require("../query");
-const { INNINGS, HASHTAGS } = require('../constants')
-const { executeRound, tweetResult } = require("./util");
+const { firstBat } = require("../query");
+const { executeRoundAverage, tweetResult } = require("./util");
 
-const homerun_type = "逆転";
-const homerun_type_other = ""; // 反撃の一打
 const { SELECT: type } = db.QueryTypes;
 
 const tweet = false;
 let prevTweetId = "";
+
+const targetBat = 5;
+const targetBatType = `第${targetBat}打席`;
+const battingCnt = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
 
 /**
  * Execute
@@ -31,7 +32,7 @@ let prevTweetId = "";
 (async () => {
   // get target records
   const results = await db
-    .query(homerunTypeRankSituationTeam(homerun_type), { type })
+    .query(firstBat(targetBat), { type })
     .then(r => r)
     .catch(e => {
       console.log(e);
@@ -40,14 +41,14 @@ let prevTweetId = "";
 
   let contents = ""; // whole
   let header = ""; // rank, number of homerun, tie
-  let footer = "\n#侍ジャパン #プレミア12 #npb "; // hashtag
+  let footer = "\n#npb "; // hashtag
   let currentRank = 0;
 
   let round2ndDecimal = false;
   let round3rdDecimal = false;
 
   for (let idx in results) {
-    const { team, cnt, batting_cnt, rank, team_kana } = results[idx];
+    const { name, team, bat_cnt, hit_cnt, rank } = results[idx];
 
     if (!header) {
       header = createHeader();
@@ -62,7 +63,7 @@ let prevTweetId = "";
       currentRank = rank;
     }
 
-    let { rounded, flag2, flag3 } = executeRound(
+    let { rounded, flag2, flag3 } = executeRoundAverage(
       results,
       idx,
       round2ndDecimal,
@@ -72,7 +73,7 @@ let prevTweetId = "";
     round2ndDecimal = flag2;
     round3rdDecimal = flag3;
     // create display info
-    let row = `${team_kana} (${cnt}本/チーム合計${batting_cnt}打数) ${rounded}% #${HASHTAGS[team]}\n`;
+    let row = `${name}(${team}) ${String(rounded).slice(1)} (${bat_cnt}-${hit_cnt})\n`;
 
     // 次の内容を足してもツイート可能な場合
     if (twText.parseTweet(contents + (rankPart + row) + footer).valid) {
@@ -103,16 +104,4 @@ let prevTweetId = "";
 /**
  * ヘッダ作成 (rank, number of homerun, tie)
  */
-const createHeader = () => {
-  const dispHomerunType = homerun_type_other
-    ? homerun_type_other
-    : homerun_type;
-
-  // 表示対象のイニングがある場合のみ、表示する
-  const dispIning = Object.keys(INNINGS).indexOf(dispHomerunType) > -1 ? `(${INNINGS[dispHomerunType]})` : ''
-  // 各種ヘッダ作成
-  const header1 = `2019年 チーム別${dispHomerunType}${dispIning}HRランキング\n`;
-  const header2 = `(本/${dispHomerunType}打数)\n`;
-  // 連結して返却
-  return `${header1}${header2}※同数の場合は率が高い順に順位付け\n\n`;
-};
+const createHeader = () => `2019年 ${targetBatType} 打率ランキング\n※該当打席数が${battingCnt[targetBat]}以上の打者のみ\n\n`

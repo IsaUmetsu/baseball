@@ -62,7 +62,7 @@ let prevTweetId = "";
       currentRank = rank;
     }
 
-    let { roundedPercent, flag2, flag3 } = executeRound(
+    let { rounded, flag2, flag3 } = executeRound(
       results,
       idx,
       round2ndDecimal,
@@ -72,7 +72,7 @@ let prevTweetId = "";
     round2ndDecimal = flag2;
     round3rdDecimal = flag3;
     // create display info
-    let row = `${name}(${team}) (${cnt}本/${batting_cnt}打数) ${roundedPercent}%\n`;
+    let row = `${name}(${team}) (${cnt}本/${batting_cnt}打数) ${rounded}%\n`;
 
     // 次の内容を足してもツイート可能な場合
     if (twText.parseTweet(contents + (rankPart + row) + footer).valid) {
