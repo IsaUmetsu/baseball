@@ -13,9 +13,9 @@
 
 const twText = require("twitter-text");
 
-const { db } = require("../model");
+const { db } = require("../../model");
 const { SELECT: type } = db.QueryTypes;
-const { executeRoundAverage, tweetResult } = require("./util");
+const { executeRoundAverage, tweetResult } = require("../util");
 
 let prevTweetId = "";
 
@@ -23,7 +23,6 @@ let prevTweetId = "";
  * Execute
  */
 module.exports = async (execQuery, tweet, headerBase) => {
-
   // get target records
   const results = await db
     .query(execQuery, { type })
@@ -67,7 +66,8 @@ module.exports = async (execQuery, tweet, headerBase) => {
     round2ndDecimal = flag2;
     round3rdDecimal = flag3;
     // create display info
-    let row = `${name}(${team}) ${String(rounded).slice(1)} (${bat_cnt}-${target_cnt})\n`;
+    let average = String(rounded).slice(1);
+    let row = `${name}(${team}) ${average} (${bat_cnt}-${target_cnt})\n`;
 
     // 次の内容を足してもツイート可能な場合
     if (twText.parseTweet(contents + (rankPart + row) + footer).valid) {

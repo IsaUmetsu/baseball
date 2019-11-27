@@ -12,7 +12,7 @@
  */
 
 const { averageHitByBat } = require("../query");
-const getAndTweetAverage = require("./b-ave");
+const getAndTweetAverage = require("./average/b-ave");
 
 const tweet = false;
 const targetBat = 1;
