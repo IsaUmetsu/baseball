@@ -11,23 +11,23 @@
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
 
-const { averageHitByBat } = require("../query");
+const { averageOnBaseByBat } = require("../query");
 const getAndTweetAverage = require("./b-ave");
 
 const tweet = false;
 const targetBat = 1;
-const battingCnt = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
+const battingCnt = { 1: 100, 2: 90, 3: 90, 4: 90, 5: 35 };
 
 /**
- * ヘッダ作成 (rank, number of homerun, tie)
+ * header
  */
-const header = `2019年 第${targetBat}打席 打率ランキング\n※該当打席数が${battingCnt[targetBat]}以上の打者のみ\n\n`;
+const header = `2019年 第${targetBat}打席 出塁率ランキング\n※該当打席数が${battingCnt[targetBat]}以上の打者のみ\n\n`;
 
 /**
  * Execute
  */
 (async () => {
-  await getAndTweetAverage(averageHitByBat(targetBat), tweet, header)
+  await getAndTweetAverage(averageOnBaseByBat(targetBat), tweet, header)
     .then(r => r)
     .catch(e => {
       console.log(e);

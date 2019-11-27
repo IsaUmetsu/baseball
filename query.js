@@ -426,15 +426,26 @@ const homerunTypeRankSituation = (homerun_type, table_name) => `
 `;
 
 /**
- * 第１打席 打率取得
+ * 打席ごと打率取得
  * 
  * @param {number} targetBat 第何打席か
+ * @return {string} query
  */
-query.firstBat = targetBat => `
+query.averageHitByBat = targetBat => averageByBat(targetBat, 'average_bat', 'hit_cnt')
+
+/**
+ * 打席ことの率取得
+ * 
+ * @param {number} targetBat
+ * @param {string} tableName
+ * @param {string} targetCol
+ * @return {string} query
+ */
+const averageByBat = (targetBat, tableName, targetCol) => `
   SELECT 
-    h.id, h.name, h.team, h.bat_cnt, h.hit_cnt, h.average, rank.rank
+    h.id, h.name, h.team, h.bat_cnt, h.${targetCol} AS target_cnt, h.average, rank.rank
   FROM
-    baseball.average_bat h
+    baseball.${tableName} h
   LEFT JOIN
     (SELECT 
       id, score, rank
@@ -449,7 +460,7 @@ query.firstBat = targetBat => `
           (SELECT 
             *
           FROM
-            average_bat
+            ${tableName}
           WHERE
             what_bat = '${targetBat}'
           ) AS htb
@@ -461,7 +472,7 @@ query.firstBat = targetBat => `
       (SELECT 
         *
       FROM
-        average_bat
+        ${tableName}
       WHERE
         what_bat = '${targetBat}'
       ) AS htb ON htb.average = Ranking.score
@@ -472,3 +483,11 @@ query.firstBat = targetBat => `
     h.what_bat = '${targetBat}' 
   ORDER BY h.average DESC
 `
+
+/**
+ * 打席ごと打率取得
+ * 
+ * @param {number} targetBat 第何打席か
+ * @return {string} query
+ */
+query.averageOnBaseByBat = targetBat => averageByBat(targetBat, 'average_onbase', 'onbase_cnt')
