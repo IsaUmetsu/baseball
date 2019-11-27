@@ -16,7 +16,7 @@ const getAndTweetAverage = require("./b-ave");
 
 const tweet = false;
 const targetBat = 1;
-const battingCnt = { 1: 100, 2: 90, 3: 90, 4: 90, 5: 35 };
+const battingCnt = { 1: 100, 2: 100, 3: 100, 4: 95, 5: 30 };
 
 /**
  * header
