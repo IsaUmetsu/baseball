@@ -10,26 +10,15 @@ SELECT
   --   pb.team,
   g.batter,
   p.rst_id,
-  p.result
+  p.result,
+  first_bat_inf.*
+  -- first_bat_inf.result
+  -- ,second_bat_inf.result
 FROM
-  (
-    -- 全試合における打者の全打席の最終球を表すID取得
-    SELECT
-      MAX(id) AS last_count,
-      order_overview_id,
-      ining,
-      top_bottom,
-      batter
-    FROM
-      baseball.game_info
-    GROUP BY
-      batter,
-      ining,
-      top_bottom,
-      order_overview_id
-  ) AS g
+  -- 全試合における打者の全打席の最終球を表すID取得
+  _bat_last_id_info g
+  -- 第1打席情報抽出
   LEFT JOIN (
-    -- 第１打席情報抽出
     SELECT
       g.order_overview_id,
       g.ining,
@@ -48,7 +37,7 @@ FROM
               bai2.*
             FROM
               baseball._bat_all_info bai1
-              LEFT JOIN baseball._bat_all_info bai2 ON bai1.id + 0 = bai2.id
+              LEFT JOIN baseball._bat_all_info bai2 ON bai1.id + 5 = bai2.id
               AND bai1.batter = bai2.batter
             WHERE
               bai2.batter IS NOT NULL
@@ -61,13 +50,14 @@ FROM
           bat_info.batter,
           bat_info.order_overview_id
       ) AS g
-  ) AS first_batting_info ON g.order_overview_id = first_batting_info.order_overview_id
-  and g.ining = first_batting_info.ining
-  and g.top_bottom = first_batting_info.top_bottom
-  and g.batter = first_batting_info.batter -- LEFT JOIN player pb ON pb.id = g.batter -- 選手名表示用
+  ) AS first_bat_inf ON g.order_overview_id = first_bat_inf.order_overview_id
+  and g.ining = first_bat_inf.ining
+  and g.top_bottom = first_bat_inf.top_bottom
+  and g.batter = first_bat_inf.batter
+  -- LEFT JOIN player pb ON pb.id = g.batter -- 選手名表示用
   left join pitch_info p on g.last_count = p.game_info_id
 where
-  first_batting_info.batter is not null -- 第１打席のみ抽出
+  first_bat_inf.batter is not null-- 第１打席のみ抽出
 order by
   g.batter,
   g.order_overview_id,
