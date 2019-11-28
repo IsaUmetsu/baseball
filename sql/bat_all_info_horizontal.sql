@@ -1,4 +1,5 @@
 -- create table _bat_all_info_horizontal
+-- insert into _bat_all_info_horizontal (`order_overview_id`, `top_bottom`, `batter`, `1_ining`, `1_result`, `1_rst_id`, `1_cnt`, `2_ining`, `2_result`, `2_rst_id`, `2_cnt`, `3_ining`, `3_result`, `3_rst_id`, `3_cnt`, `4_ining`, `4_result`, `4_rst_id`, `4_cnt`, `5_ining`, `5_result`, `5_rst_id`, `5_cnt`, `6_ining`, `6_result`, `6_rst_id`, `6_cnt`, `7_ining`, `7_result`, `7_rst_id`, `7_cnt`)
 
 SELECT
   b1.order_overview_id,
@@ -64,7 +65,8 @@ FROM
       order_overview_id,
       MIN(ining) AS ining,
       top_bottom,
-      batter
+      batter,
+      MIN(batter_cnt) AS batter_cnt
     FROM
       baseball._bat_last_id_info
     GROUP BY
@@ -78,10 +80,13 @@ FROM
   AND b1.top_bottom = first_bat_info.top_bottom
   AND b1.ining = first_bat_info.ining
   AND b1.batter = first_bat_info.batter
+  AND b1.batter_cnt = first_bat_info.batter_cnt -- 初回１巡した際に対応するため、打者カウントも結合条件とする
 WHERE
   first_bat_info.batter IS NOT NULL
+  -- and b1.order_overview_id = 89
 ORDER BY
-  b1.order_overview_id,
-  b1.top_bottom,
-  b1.ining,
-  b1.last_count;
+  b1.order_overview_id ASC,
+  b1.top_bottom ASC,
+  b1.ining ASC,
+  b1.last_count ASC
+;
