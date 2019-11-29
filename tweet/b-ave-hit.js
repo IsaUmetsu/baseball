@@ -14,7 +14,7 @@ const argv = require('./average/yargs').argv;
 
 const { averageHitByBat } = require("../query");
 const { isValidBat } = require("./util");
-const getAndTweetAverage = require("./average/b-ave");
+const { execute } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
 const basePA = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
@@ -33,7 +33,7 @@ const header = `2019年 第${bat}打席 打率ランキング\n※該当打席�
  * Execute
  */
 (async () => {
-  await getAndTweetAverage(averageHitByBat(bat, basePA[bat]), tweet, header)
+  await execute(averageHitByBat(bat, basePA[bat]), tweet, header)
     .then(r => r)
     .catch(e => {
       console.log(e);

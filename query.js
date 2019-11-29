@@ -505,3 +505,52 @@ query.averageOnBaseByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average
  * @return {string} query
  */
 query.averageSluggingByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_slugging_horizontal')
+
+query.averageOpsBat = (bat, limitPA) => {
+  const rate = `rate${bat}`
+  const pa = `pa${bat}`
+  return `
+    SELECT 
+      o.id, o.name, o.team, o.rate + s.rate AS rate_sum, o.${rate} + s.${rate} AS rate, o.${rate} AS onbase, s.${rate} AS slugging, o.${pa} AS pa, rank.rank
+    FROM
+      baseball.average_onbase_horizontal o
+    LEFT JOIN baseball.average_slugging_horizontal s ON o.batter = s.batter
+    LEFT JOIN
+      (SELECT 
+        id, score, rank
+      FROM 
+        (SELECT 
+          score, @rank AS rank, cnt, @rank:=@rank + cnt
+        FROM
+          (SELECT @rank:=1) AS Dummy,
+          (SELECT 
+            rate AS score, COUNT(*) AS cnt
+          FROM
+            (SELECT 
+              o.id, o.name, o.team, o.rate + s.rate AS rate_sum, o.${rate} + s.${rate} AS rate, o.${rate} AS onbase, s.${rate} AS slugging, o.${pa} AS pa
+            FROM
+              baseball.average_onbase_horizontal o
+            LEFT JOIN baseball.average_slugging_horizontal s ON o.batter = s.batter
+            WHERE
+              o.${pa} >= ${limitPA}
+            ) AS htb
+          GROUP BY score
+          ORDER BY score DESC
+          ) AS GroupBy
+        ) AS Ranking
+      JOIN
+        (SELECT 
+          o.id, o.name, o.team, o.rate + s.rate AS rate_sum, o.${rate} + s.${rate} AS rate, o.${rate} AS onbase, s.${rate} AS slugging, o.${pa} AS pa
+        FROM
+          baseball.average_onbase_horizontal o
+        LEFT JOIN baseball.average_slugging_horizontal s ON o.batter = s.batter
+        WHERE
+          o.${pa} >= ${limitPA}
+        ) AS htb ON htb.rate = Ranking.score
+      ORDER BY rank ASC
+      ) AS rank
+    ON rank.id = o.id
+    WHERE
+      o.${pa} >= ${limitPA}
+    ORDER BY rate DESC
+`}

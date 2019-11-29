@@ -11,6 +11,14 @@ const client = require("./twitter");
  * @param {string | number} target
  * @param {number} decimal
  */
+util.round = (target, decimal) =>
+  addedZero(customRound(target, decimal), decimal);
+
+/**
+ * 指定桁数四捨五入
+ * @param {string | number} target
+ * @param {number} decimal
+ */
 const customRound = (target, decimal) =>
   Math.round(Number(target) * Math.pow(10, decimal)) / Math.pow(10, decimal);
 
@@ -81,13 +89,13 @@ util.tweetResult = async (tweet, status, in_reply_to_status_id) => {
 util.executeRoundAverage = (results, idx, round2ndDecimal, round3rdDecimal) => {
   const {
     bat_cnt: batCntVal,
-    hit_cnt: hitCntVal,
+    target_cnt: hitCntVal,
     average: targetVal
   } = results[idx];
 
   let baseDecimal = 3;
   let target = "average";
-  let hitCnt = "hit_cnt";
+  let hitCnt = "target_cnt";
   let batCnt = "bat_cnt";
 
   return doRoundDecimal(
@@ -156,11 +164,17 @@ const doRoundDecimal = (
   } else {
     // 次の打者の値と小数点3位を四捨五入した値が同じ場合
     if (rounded == customRound(results[nextIdx][target], baseDecimal)) {
-      // 本数・打数のどちらかが違う場合、小数点第2位で四捨五入させ、次の順位も同様に四捨五入させるフラグをtrue
+      // 本数・打数のどちらかが違う and 約分したら同じ比率にならない場合、小数点第2位で四捨五入させ、次の順位も同様に四捨五入させるフラグをtrue
       if (
         !(
-          results[nextIdx][hitCnt] == hitCntVal &&
-          results[nextIdx][batCnt] == batCntVal
+          (results[nextIdx][hitCnt] == hitCntVal &&
+            results[nextIdx][batCnt] == batCntVal) ||
+          sameAsDevide(
+            hitCntVal,
+            batCntVal,
+            results[nextIdx][hitCnt],
+            results[nextIdx][batCnt]
+          )
         )
       ) {
         rounded = customRound(targetVal, baseDecimal + 1);
@@ -172,8 +186,14 @@ const doRoundDecimal = (
           // 本数・打席数が異なる選手がある場合
           if (
             !(
-              results[idxNext][hitCnt] == hitCntVal &&
-              results[idxNext][batCnt] == batCntVal
+              (results[idxNext][hitCnt] == hitCntVal &&
+                results[idxNext][batCnt] == batCntVal) ||
+              sameAsDevide(
+                hitCntVal,
+                batCntVal,
+                results[nextIdx][hitCnt],
+                results[nextIdx][batCnt]
+              )
             )
           ) {
             // 小数点3位で四捨五入した結果を比較し、同じ場合、小数点4位にしてフラグtrue
@@ -189,7 +209,21 @@ const doRoundDecimal = (
     }
   }
 
-  // 0パディング処理
+  return {
+    rounded: addedZero(rounded, roudedDecimal),
+    flag2: round2ndDecimal,
+    flag3: round3rdDecimal
+  };
+};
+
+/**
+ * 0パディング処理実行
+ *
+ * @param {number} target
+ * @param {number} roundedDecimal
+ */
+const addedZero = (target, roudedDecimal) => {
+  let rounded = target;
   let decimalPart = String(rounded).split(".")[1]; // 小数点で分割
   // 小数点パートがある場合
   if (decimalPart) {
@@ -201,17 +235,12 @@ const doRoundDecimal = (
   } else {
     rounded = rounded + ".0";
   }
-
-  return {
-    rounded,
-    flag2: round2ndDecimal,
-    flag3: round3rdDecimal
-  };
+  return rounded;
 };
 
 /**
  * 取得対象打席数 バリデーション
- * 
+ *
  * @param {number} bat
  * @param {array} validList
  * @return {boolean}
@@ -229,4 +258,33 @@ util.isValidBat = (bat, validList) => {
     valid = false;
   }
   return valid;
+};
+
+/**
+ *
+ * @param {number} hitCntVal
+ * @param {number} batCntVal
+ * @param {number} nextHitCntVal
+ * @param {number} nextBatCntVal
+ * @return {boolean}
+ */
+const sameAsDevide = (hitCntVal, batCntVal, nextHitCntVal, nextBatCntVal) => {
+  let currentGcd = gcd(hitCntVal, batCntVal);
+  let nextGcd = gcd(nextHitCntVal, nextBatCntVal);
+
+  return (
+    hitCntVal / currentGcd == nextHitCntVal / nextGcd &&
+    batCntVal / currentGcd == nextBatCntVal / nextGcd
+  );
+};
+
+/**
+ * 最大公約数計算
+ *
+ * @param {number} a 比較対象1
+ * @param {number} b 比較対象2
+ */
+const gcd = (a, b) => {
+  if (b == 0) return a;
+  return gcd(b, a % b);
 };

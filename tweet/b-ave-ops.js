@@ -10,15 +10,14 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
-
 const argv = require('./average/yargs').argv;
 
-const { averageSluggingByBat } = require("../query");
+const { averageOpsBat } = require("../query");
 const { isValidBat } = require("./util");
-const { execute } = require("./average/b-ave");
+const { executeOPS } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
-const basePA = { 1: 100, 2: 100, 3: 100, 4: 95, 5: 30, 6: 5, 7: 1 };
+const basePA = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
 
 // validated
 if (!isValidBat(argv.bat, Object.keys(basePA))) process.exit();
@@ -26,15 +25,15 @@ if (!isValidBat(argv.bat, Object.keys(basePA))) process.exit();
 const bat = argv.bat;
 
 /**
- * header
+ * ヘッダ作成 (rank, number of homerun, tie)
  */
-const header = `2019年 第${bat}打席 長打率ランキング\n※該当打席数が${basePA[bat]}以上の打者のみ 打数-塁打数\n\n`;
+const header = `2019年 第${bat}打席 OPSランキング\n※該当打席数が${basePA[bat]}以上の打者のみ\n\n`;
 
 /**
  * Execute
  */
 (async () => {
-  await execute(averageSluggingByBat(bat, basePA[bat]), tweet, header)
+  await executeOPS(averageOpsBat(bat, basePA[bat]), tweet, header)
     .then(r => r)
     .catch(e => {
       console.log(e);
