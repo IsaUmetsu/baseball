@@ -496,3 +496,12 @@ const averageByBat = (bat, limitPA, tableName) => {
  * @return {string} query
  */
 query.averageOnBaseByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_onbase_horizontal')
+
+/**
+ * 打席ごと長打率取得
+ * 
+ * @param {number} bat 第何打席か
+ * @param {number} limitPA 打席数上限
+ * @return {string} query
+ */
+query.averageSluggingByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_slugging_horizontal')

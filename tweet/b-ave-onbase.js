@@ -28,7 +28,7 @@ const bat = argv.bat;
 /**
  * header
  */
-const header = `2019年 第${bat}打席 出塁率ランキング\n※該当打席数が${basePA[bat]}以上の打者のみ\n\n`;
+const header = `2019年 第${bat}打席 出塁率ランキング\n※該当打席数が${basePA[bat]}以上の打者のみ 打数-出塁数\n\n`;
 
 /**
  * Execute
