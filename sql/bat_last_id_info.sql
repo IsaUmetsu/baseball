@@ -1,6 +1,31 @@
 -- CREATE TABLE _bat_last_id_info 
 -- insert into _bat_last_id_info (last_count, order_overview_id, ining, top_bottom, batter, batter_cnt) 
 
+-- /*
+
+-- 改良案
+SELECT
+  g.id AS last_count,
+  g.order_overview_id,
+  ining,
+  top_bottom,
+  batter,
+  batter_cnt
+FROM
+  baseball._game_info_specific g
+  LEFT JOIN R_info r ON g.id = r.game_info_id
+WHERE
+  r.is_commit = 1
+ORDER BY
+  order_overview_id,
+  batter,
+  ining,
+  top_bottom,
+  batter_cnt;
+
+-- */
+
+/*
 SELECT
   MAX(id) AS last_count,
   order_overview_id,
@@ -23,3 +48,5 @@ ORDER BY
   ining,
   top_bottom,
   batter_cnt
+;
+*/
