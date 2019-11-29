@@ -16,7 +16,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(11),
       allowNull: false
     },
-    col_1: {
+    is_commit: {
       type: DataTypes.INTEGER(4),
       allowNull: true
     },
