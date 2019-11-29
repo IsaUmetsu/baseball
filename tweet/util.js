@@ -208,3 +208,25 @@ const doRoundDecimal = (
     flag3: round3rdDecimal
   };
 };
+
+/**
+ * 取得対象打席数 バリデーション
+ * 
+ * @param {number} bat
+ * @param {array} validList
+ * @return {boolean}
+ */
+util.isValidBat = (bat, validList) => {
+  let valid = true;
+  // 入力有無
+  if (!bat) {
+    console.log("please input `--bat` option");
+    valid = false;
+  }
+  // 範囲内判定
+  if (valid && validList.indexOf(String(bat)) == -1) {
+    console.log("please input valid `--bat` option");
+    valid = false;
+  }
+  return valid;
+};

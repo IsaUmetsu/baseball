@@ -431,63 +431,68 @@ const homerunTypeRankSituation = (homerun_type, table_name) => `
  * @param {number} targetBat 第何打席か
  * @return {string} query
  */
-query.averageHitByBat = targetBat => averageByBat(targetBat, 'average_bat', 'hit_cnt')
+query.averageHitByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_hit_horizontal')
 
 /**
- * 打席ことの率取得
+ * 打席ごと率取得
  * 
- * @param {number} targetBat
- * @param {string} tableName
- * @param {string} targetCol
+ * @param {number} bat 第何打席か
+ * @param {number} limitPA 打席数上限
+ * @param {string} tableName テーブル名
  * @return {string} query
  */
-const averageByBat = (targetBat, tableName, targetCol) => `
-  SELECT 
-    h.id, h.name, h.team, h.bat_cnt, h.${targetCol} AS target_cnt, h.average, rank.rank
-  FROM
-    baseball.${tableName} h
-  LEFT JOIN
-    (SELECT 
-      id, score, rank
-    FROM 
+const averageByBat = (bat, limitPA, tableName) => {
+  const colPA = `pa${bat}`, colAB = `ab${bat}`, colCnt = `cnt${bat}`, colRate = `rate${bat}`;
+
+  return `
+    SELECT 
+      h.id, h.name, h.team, h.${colAB} AS bat_cnt, h.${colCnt} AS target_cnt, h.${colRate} AS average, rank.rank
+    FROM
+      baseball.${tableName} h
+    LEFT JOIN
       (SELECT 
-        score, @rank AS rank, cnt, @rank:=@rank + cnt
-      FROM
-        (SELECT @rank:=1) AS Dummy,
+        id, score, rank
+      FROM 
         (SELECT 
-          average AS score, COUNT(*) AS cnt
+          score, @rank AS rank, cnt, @rank:=@rank + cnt
         FROM
+          (SELECT @rank:=1) AS Dummy,
           (SELECT 
-            *
+            ${colRate} AS score, COUNT(*) AS cnt
           FROM
-            ${tableName}
-          WHERE
-            what_bat = '${targetBat}'
-          ) AS htb
-        GROUP BY score
-        ORDER BY score DESC
-        ) AS GroupBy
-      ) AS Ranking
-    JOIN
-      (SELECT 
-        *
-      FROM
-        ${tableName}
-      WHERE
-        what_bat = '${targetBat}'
-      ) AS htb ON htb.average = Ranking.score
-    ORDER BY rank ASC
-    ) AS rank
-  ON rank.id = h.id
-  WHERE
-    h.what_bat = '${targetBat}' 
-  ORDER BY h.average DESC
-`
+            (SELECT 
+              id, name, team, ${colAB}, ${colCnt}, ${colRate}
+            FROM
+              ${tableName}
+            WHERE
+              ${colPA} >= ${limitPA}
+            ) AS htb
+          GROUP BY score
+          ORDER BY score DESC
+          ) AS GroupBy
+        ) AS Ranking
+      JOIN
+        (SELECT 
+          id, name, team, ${colAB}, ${colCnt}, ${colRate}
+        FROM
+          ${tableName}
+        WHERE
+          ${colPA} >= ${limitPA}
+        ) AS htb ON htb.${colRate} = Ranking.score
+      ORDER BY rank ASC
+      ) AS rank
+    ON rank.id = h.id
+    WHERE
+      h.${colPA} >= ${limitPA}
+    ORDER BY h.${colRate} DESC
+  `
+}
 
 /**
- * 打席ごと打率取得
+ * 打席ごと出塁率取得
  * 
- * @param {number} targetBat 第何打席か
+ * @param {number} bat 第何打席か
+ * @param {number} limitPA 打席数上限
  * @return {string} query
  */
-query.averageOnBaseByBat = targetBat => averageByBat(targetBat, 'average_onbase', 'onbase_cnt')
+query.averageOnBaseByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_onbase_horizontal')

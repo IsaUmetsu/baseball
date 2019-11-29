@@ -10,24 +10,30 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
+const argv = require('./average/yargs').argv;
 
 const { averageHitByBat } = require("../query");
+const { isValidBat } = require("./util");
 const getAndTweetAverage = require("./average/b-ave");
 
-const tweet = false;
-const targetBat = 1;
-const battingCnt = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
+const tweet = argv.tweet > 0;
+const basePA = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
+
+// validated
+if (!isValidBat(argv.bat, Object.keys(basePA))) process.exit();
+// set bat
+const bat = argv.bat;
 
 /**
  * ヘッダ作成 (rank, number of homerun, tie)
  */
-const header = `2019年 第${targetBat}打席 打率ランキング\n※該当打席数が${battingCnt[targetBat]}以上の打者のみ\n\n`;
+const header = `2019年 第${bat}打席 打率ランキング\n※該当打席数が${basePA[bat]}以上の打者のみ\n\n`;
 
 /**
  * Execute
  */
 (async () => {
-  await getAndTweetAverage(averageHitByBat(targetBat), tweet, header)
+  await getAndTweetAverage(averageHitByBat(bat, basePA[bat]), tweet, header)
     .then(r => r)
     .catch(e => {
       console.log(e);
