@@ -4,6 +4,7 @@ const moment = require("moment");
 moment.locale("ja");
 
 const twClient = require("../twitter");
+const argv = require("../average/yargs").search.argv;
 
 (async () => {
   const tweets = await twClient
@@ -13,7 +14,7 @@ const twClient = require("../twitter");
     });
 
   tweets
-    // .filter(tweet => tweet.text.indexOf("追い上げ") > -1)
+    .filter(tweet => tweet.text.indexOf(`${argv.word}`) > -1)
     .map(async tweet => {
       console.log(tweet.text);
       // console.log(tweet.created_at)

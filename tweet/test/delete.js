@@ -1,6 +1,7 @@
 "use strict";
 
 const twClient = require("../twitter");
+const argv = require("../average/yargs").search.argv;
 
 (async () => {
   const tweets = await twClient
@@ -10,7 +11,7 @@ const twClient = require("../twitter");
     });
 
   tweets
-    .filter(tweet => tweet.text.indexOf("追い上げ") > -1)
+    .filter(tweet => tweet.text.indexOf(argv.word) > -1)
     .map(async tweet => {
       await twClient
         .post(`statuses/destroy/${tweet.id_str}`, {
