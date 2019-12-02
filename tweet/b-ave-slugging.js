@@ -11,7 +11,7 @@
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
 
-const argv = require('./average/yargs').argv;
+const argv = require('./average/yargs').batter.argv;
 
 const { averageSluggingByBat } = require("../query");
 const { isValidBat } = require("./util");
