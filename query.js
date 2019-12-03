@@ -693,46 +693,53 @@ query.speed = (ballType, limitPitches, limit) => `
     LIMIT ${limit}
 `
 
+/**
+ * 
+ * @param {number} ballType
+ * @param {number} limitSO 下限奪三振数
+ * @param {number} limitSORate 下限奪三振率
+ * @param {number} 
+ */
 query.strikeout = (ballType, limitSO, limitSORate, limit) => `
-SELECT   
-  h.id, h.lr, h.name, h.team, h.all AS all_cnt, h.swing, h.swg_rate, h.look, h.look_rate, h.avg_cnt, h.b${ballType} AS b_cnt, h.b${ballType}_rate AS b_rate, rank.rank
-FROM
-  baseball.strikeout_info h
-    LEFT JOIN
-      (SELECT 
-        id, score, rank
-      FROM 
+  SELECT   
+    h.id, h.lr, h.name, h.team, h.all AS all_cnt, h.swing, h.swg_rate, h.look, h.look_rate, h.avg_cnt, h.b${ballType} AS b_cnt, h.b${ballType}_rate AS b_rate, rank.rank
+  FROM
+    baseball.strikeout_info h
+      LEFT JOIN
         (SELECT 
-          score, @rank AS rank, cnt, @rank:=@rank + cnt
-        FROM
-          (SELECT @rank:=1) AS Dummy,
+          id, score, rank
+        FROM 
           (SELECT 
-            b${ballType}_rate AS score, COUNT(*) AS cnt
+            score, @rank AS rank, cnt, @rank:=@rank + cnt
           FROM
+            (SELECT @rank:=1) AS Dummy,
             (SELECT 
-              *
+              b${ballType}_rate AS score, COUNT(*) AS cnt
             FROM
-              baseball.strikeout_info
-            WHERE
-              b${ballType} >= ${limitSO} OR (b${ballType} >= ${limitSO} AND b${ballType}_rate >= ${limitSORate})
-            ) AS htb
-          GROUP BY score
-          ORDER BY score DESC
-          ) AS GroupBy
-        ) AS Ranking
-      JOIN
-        (SELECT 
-          *
-        FROM
-          baseball.strikeout_info
-        WHERE
-          b${ballType} >= ${limitSO} OR (b${ballType} >= ${limitSO} AND b${ballType}_rate >= ${limitSORate})
-        ) AS htb ON b${ballType}_rate = Ranking.score
-      ORDER BY rank ASC
-      ) AS rank
-    ON rank.id = h.id
-  WHERE
-    h.b${ballType} >= ${limitSO} OR (h.b${ballType} >= ${limitSO} AND h.b${ballType}_rate >= ${limitSORate})
-  ORDER BY h.b${ballType}_rate DESC
-  LIMIT ${limit}
+              (SELECT 
+                *
+              FROM
+                baseball.strikeout_info
+              WHERE
+                b${ballType} >= ${limitSO} OR (b${ballType} >= ${limitSO} AND b${ballType}_rate >= ${limitSORate})
+              ) AS htb
+            GROUP BY score
+            ORDER BY score DESC
+            ) AS GroupBy
+          ) AS Ranking
+        JOIN
+          (SELECT 
+            *
+          FROM
+            baseball.strikeout_info
+          WHERE
+            b${ballType} >= ${limitSO} OR (b${ballType} >= ${limitSO} AND b${ballType}_rate >= ${limitSORate})
+          ) AS htb ON b${ballType}_rate = Ranking.score
+        ORDER BY rank ASC
+        ) AS rank
+      ON rank.id = h.id
+    WHERE
+      h.b${ballType} >= ${limitSO} OR (h.b${ballType} >= ${limitSO} AND h.b${ballType}_rate >= ${limitSORate})
+    ORDER BY h.b${ballType}_rate DESC
+    LIMIT ${limit}
 `
