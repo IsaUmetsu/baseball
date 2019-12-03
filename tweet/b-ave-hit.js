@@ -10,11 +10,11 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
-const argv = require('./average/yargs').batter.argv;
+const argv = require("./average/yargs").batter.argv;
 
 const { averageHitByBat } = require("../query");
-const { isValidBat } = require("./util");
-const { execute } = require("./average/b-ave");
+const { isValidBat, createRoundedRow } = require("./util");
+const { executeWithRound } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
 const basePA = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
@@ -33,7 +33,12 @@ const header = `2019年 第${bat}打席 打率ランキング\n※該当打席�
  * Execute
  */
 (async () => {
-  await execute(averageHitByBat(bat, basePA[bat]), tweet, header)
+  await executeWithRound(
+    averageHitByBat(bat, basePA[bat]),
+    tweet,
+    header,
+    createRoundedRow
+  )
     .then(r => r)
     .catch(e => {
       console.log(e);

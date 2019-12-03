@@ -10,11 +10,11 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
-const argv = require('./average/yargs').batter.argv;
+const argv = require("./average/yargs").batter.argv;
 
 const { averageOpsBat } = require("../query");
-const { isValidBat } = require("./util");
-const { executeOPS } = require("./average/b-ave");
+const { isValidBat, round } = require("./util");
+const { executeWithCb } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
 const basePA = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
@@ -29,11 +29,21 @@ const bat = argv.bat;
  */
 const header = `2019年 第${bat}打席 OPSランキング\n※該当打席数が${basePA[bat]}以上の打者のみ\n\n`;
 
+const createRow = result => {
+  let { name, team, rate_sum, rate, onbase, slugging, rank } = result;
+
+  // create display info
+  rate = round(rate, 4);
+  onbase = String(round(onbase, 3)).slice(1);
+  slugging = String(round(slugging, 3)).slice(1);
+  return `${rank}位: ${name}(${team}) ${rate} (出${onbase}, 長${slugging})\n`;
+};
+
 /**
  * Execute
  */
 (async () => {
-  await executeOPS(averageOpsBat(bat, basePA[bat]), tweet, header)
+  await executeWithCb(averageOpsBat(bat, basePA[bat]), tweet, header, createRow)
     .then(r => r)
     .catch(e => {
       console.log(e);

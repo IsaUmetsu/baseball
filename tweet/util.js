@@ -79,6 +79,25 @@ util.tweetResult = async (tweet, status, in_reply_to_status_id) => {
 };
 
 /**
+ * 
+ */
+util.createRoundedRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
+  const { name, team, bat_cnt, target_cnt, rank } = results[idx];
+
+  let { rounded, flag2, flag3 } = executeRoundAverage(
+    results,
+    idx,
+    round2ndDecimal,
+    round3rdDecimal
+  );
+  // create display info
+  let average = String(rounded).slice(1);
+  let row = `${rank}位: ${name}(${team}) ${average} (${bat_cnt}-${target_cnt})\n`;
+
+  return [row, flag2, flag3];
+};
+
+/**
  * 打率四捨五入
  * @param {array} results
  * @param {string} idx
@@ -86,7 +105,7 @@ util.tweetResult = async (tweet, status, in_reply_to_status_id) => {
  * @param {boolean} round3rdDecimal
  * @return {object} rounded, flag
  */
-util.executeRoundAverage = (results, idx, round2ndDecimal, round3rdDecimal) => {
+const executeRoundAverage = (results, idx, round2ndDecimal, round3rdDecimal) => {
   const {
     bat_cnt: batCntVal,
     target_cnt: hitCntVal,
@@ -245,16 +264,34 @@ const addedZero = (target, roudedDecimal) => {
  * @param {array} validList
  * @return {boolean}
  */
-util.isValidBat = (bat, validList) => {
+util.isValidBat = (bat, validList) => isValid(bat, validList, "bat");
+
+/**
+ * 取得対象打席数 バリデーション
+ *
+ * @param {number} bat
+ * @param {array} validList
+ * @return {boolean}
+ */
+util.isValidPitch = (bat, validList) => isValid(bat, validList, "ballType");
+
+/**
+ * 
+ * @param {number} bat
+ * @param {array} validList
+ * @param {string} option
+ * @return {boolean}
+ */
+const isValid = (bat, validList, option) => {
   let valid = true;
   // 入力有無
   if (!bat) {
-    console.log("please input `--bat` option");
+    console.log("please input `--" + option + "` option");
     valid = false;
   }
   // 範囲内判定
   if (valid && validList.indexOf(String(bat)) == -1) {
-    console.log("please input valid `--bat` option");
+    console.log("please input valid `--" + option + "` option");
     valid = false;
   }
   return valid;
