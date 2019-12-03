@@ -8,7 +8,7 @@ const argv = require("../average/yargs").search.argv;
 
 (async () => {
   const tweets = await twClient
-    .get("statuses/home_timeline", { screen_name: "shimamiya6", count: 25 })
+    .get("statuses/home_timeline", { screen_name: "shimamiya6", count: argv.count })
     .catch(e => {
       console.log(e);
     });

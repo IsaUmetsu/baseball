@@ -25,4 +25,7 @@ y.pitcher = require("yargs")
  */
 y.search = require("yargs")
   .alias("w", "word")
-  .default({ word: "ランキング" });
+  .default({ word: "ランキング" })
+  .alias("c", "count")
+  .default({ word: 25 })
+  ;
