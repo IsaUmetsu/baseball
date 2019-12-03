@@ -143,6 +143,45 @@ const executeRoundAverage = (
 };
 
 /**
+ * 
+ * @param {array} results
+ * @param {number} idx
+ * @param {boolean} round2ndDecimal
+ * @param {boolean} round3rdDecimal
+ */
+util.executeRoundAverageStrikeout = (
+  results,
+  idx,
+  round2ndDecimal,
+  round3rdDecimal
+)  => {
+  const {
+    all_cnt: batCntVal,
+    b_cnt: hitCntVal,
+    b_rate: targetVal
+  } = results[idx];
+
+  let baseDecimal = 3;
+  let target = "b_rate";
+  let hitCnt = "b_cnt";
+  let batCnt = "all_cnt";
+
+  return doRoundDecimal(
+    results,
+    idx,
+    round2ndDecimal,
+    round3rdDecimal,
+    batCntVal,
+    hitCntVal,
+    targetVal,
+    baseDecimal,
+    target,
+    hitCnt,
+    batCnt
+  );
+}
+
+/**
  * 小数点四捨五入実行
  */
 const doRoundDecimal = (

@@ -70,4 +70,15 @@ constants.HASHTAGS = {
   C: "carp",
   D: "dragons",
   T: "hanshintigers"
-}
+};
+
+constants.BALL_TYPES = {
+  1: "ストレート",
+  2: "カーブ",
+  3: "シュート(ツーシーム)",
+  4: "スライダー",
+  5: "フォーク",
+  6: "シンカー",
+  7: "チェンジアップ",
+  9: "カットボール"
+};

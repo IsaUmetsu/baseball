@@ -17,8 +17,26 @@ const { isValidPitch, round } = require("./util");
 const { executeWithCb } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
-const bType = { 1: "ストレート", 2: "カーブ" };
-const bPitchCnt = { 1: 150, 2: 10 };
+const bType = {
+  1: "ストレート",
+  2: "カーブ",
+  3: "シュート(ツーシーム)",
+  4: "スライダー",
+  5: "フォーク",
+  6: "シンカー",
+  7: "チェンジアップ",
+  9: "カットボール"
+};
+const bPitchCnt = {
+  1: 150,
+  2: 100,
+  3: 100,
+  4: 100,
+  5: 100,
+  6: 100,
+  7: 50,
+  9: 100
+};
 const resultLimit = 50;
 
 // validated
