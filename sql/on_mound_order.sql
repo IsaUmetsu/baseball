@@ -1,11 +1,12 @@
--- create table _on_mound_order 
--- insert into _on_mound_order (`id`, `order_overview_id`, `top_bottom`, `pitcher`, `name`, `team`)
+-- create table on_mound_order 
+-- insert into on_mound_order (`order_overview_id`, `top_bottom`, `pitcher`, `name`, `team`, `pitch_cnt`)
 SELECT
   A.order_overview_id,
-  top_bottom,
-  pitcher,
+  A.top_bottom,
+  A.pitcher,
   pp.`name`,
-  pp.team
+  pp.team,
+  p.pitch_cnt
 FROM
   (
     SELECT
@@ -26,5 +27,8 @@ FROM
   ) AS A
   LEFT JOIN no_game_info ng ON A.order_overview_id = ng.order_overview_id
   LEFT JOIN player pp on A.pitcher = pp.id
+  LEFT JOIN _on_mound_pitched_count p ON A.order_overview_id = p.order_overview_id
+  AND A.top_bottom = p.top_bottom
+  AND A.pitcher = p.pitcher
 WHERE
   ng.remarks IS NULL;

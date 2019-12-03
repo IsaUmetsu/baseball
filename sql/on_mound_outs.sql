@@ -6,11 +6,12 @@ SELECT
   SUM(outs) AS outs
 FROM
   (
-    SELECTf g.order_overview_id,
-    -- ining,
-    top_bottom,
-    pitcher,
-    aft_o - `out` AS outs
+    SELECT
+      g.order_overview_id,
+      -- ining,
+      top_bottom,
+      pitcher,
+      aft_o - `out` AS outs
     FROM
       game_info g
       LEFT JOIN pitch_info p ON g.id = p.game_info_id
