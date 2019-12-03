@@ -79,7 +79,12 @@ util.tweetResult = async (tweet, status, in_reply_to_status_id) => {
 };
 
 /**
- * 
+ *
+ * @param {array} results
+ * @param {number} idx
+ * @param {boolean} round2ndDecimal
+ * @param {boolean} round3rdDecimal
+ * @return {[string, boolean, boolean]}
  */
 util.createRoundedRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
   const { name, team, bat_cnt, target_cnt, rank } = results[idx];
@@ -105,7 +110,12 @@ util.createRoundedRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
  * @param {boolean} round3rdDecimal
  * @return {object} rounded, flag
  */
-const executeRoundAverage = (results, idx, round2ndDecimal, round3rdDecimal) => {
+const executeRoundAverage = (
+  results,
+  idx,
+  round2ndDecimal,
+  round3rdDecimal
+) => {
   const {
     bat_cnt: batCntVal,
     target_cnt: hitCntVal,
@@ -276,7 +286,7 @@ util.isValidBat = (bat, validList) => isValid(bat, validList, "bat");
 util.isValidPitch = (bat, validList) => isValid(bat, validList, "ballType");
 
 /**
- * 
+ *
  * @param {number} bat
  * @param {array} validList
  * @param {string} option

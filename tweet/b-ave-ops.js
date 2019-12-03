@@ -29,6 +29,11 @@ const bat = argv.bat;
  */
 const header = `2019年 第${bat}打席 OPSランキング\n※該当打席数が${basePA[bat]}以上の打者のみ\n\n`;
 
+/**
+ * 
+ * @param {object} result DB1レコード
+ * @return {string}
+ */
 const createRow = result => {
   let { name, team, rate_sum, rate, onbase, slugging, rank } = result;
 

@@ -19,10 +19,19 @@ const { db } = require("../../model");
 const { SELECT: type } = db.QueryTypes;
 const { tweetResult } = require("../util");
 
+let contents = ""; // whole
+let row = "";
+let header = ""; // rank, number of homerun, tie
+let footer = "\n#npb "; // hashtag
 let prevTweetId = "";
 
 /**
  * Execute
+ *
+ * @param {string} exexQuery
+ * @param {boolean} tweet
+ * @param {string} headerBase
+ * @param {function} createRowCb callback function
  */
 bAve.executeWithRound = async (execQuery, tweet, headerBase, createRowCb) => {
   // get target records
@@ -34,11 +43,6 @@ bAve.executeWithRound = async (execQuery, tweet, headerBase, createRowCb) => {
       throw e;
     });
 
-  let contents = ""; // whole
-  let row = "";
-  let header = ""; // rank, number of homerun, tie
-  let footer = "\n#npb "; // hashtag
-
   let round2ndDecimal = false;
   let round3rdDecimal = false;
 
@@ -48,14 +52,23 @@ bAve.executeWithRound = async (execQuery, tweet, headerBase, createRowCb) => {
       contents += header;
     }
 
-    [ row, round2ndDecimal, round3rdDecimal ] = createRowCb(results, idx, round2ndDecimal, round3rdDecimal)
+    [row, round2ndDecimal, round3rdDecimal] = createRowCb(
+      results,
+      idx,
+      round2ndDecimal,
+      round3rdDecimal
+    );
 
     // 次の内容を足してもツイート可能な場合
     if (twText.parseTweet(contents + row + footer).valid) {
       contents += row;
       // 次の内容を足すとツイート不可である場合（文字数超過)
     } else {
-      prevTweetId = await executeTweet(tweet, contents, footer, prevTweetId);
+      prevTweetId = await executeTweet(tweet, contents, footer, prevTweetId)
+        .then(r => r)
+        .catch(e => {
+          throw e;
+        });
       // reset content
       contents = header + row;
     }
@@ -82,17 +95,13 @@ bAve.executeWithCb = async (execQuery, tweet, headerBase, createRowCb) => {
       throw e;
     });
 
-  let contents = ""; // whole
-  let header = ""; // rank, number of homerun, tie
-  let footer = "\n#npb "; // hashtag
-
   for (let idx in results) {
     if (!header) {
       header = headerBase;
       contents += header;
     }
 
-    let row = createRowCb(results[idx]);
+    row = createRowCb(results[idx]);
 
     // 次の内容を足してもツイート可能な場合
     if (twText.parseTweet(contents + row + footer).valid) {
