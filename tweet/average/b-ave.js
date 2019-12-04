@@ -123,6 +123,81 @@ bAve.executeWithCb = async (execQuery, tweet, headerBase, createRowCb) => {
 };
 
 /**
+ * Execute
+ *
+ * @param {string} exexQuery
+ * @param {boolean} tweet
+ * @param {string} headerBase
+ * @param {function} createRowCb callback function
+ */
+bAve.executeWithRoundDevide = async (execQuery, tweet, createHeader, createRowCb, ) => {
+  // get target records
+  const results = await db
+    .query(execQuery, { type })
+    .then(r => r)
+    .catch(e => {
+      console.log(e);
+      throw e;
+    });
+
+  let round2ndDecimal = false;
+  let round3rdDecimal = false;
+  let currentCnt = 0, cnt = 0, rank = 0;
+
+  for (let idx in results) {
+    [row, cnt, rank, round2ndDecimal, round3rdDecimal] = createRowCb(
+      results,
+      idx,
+      round2ndDecimal,
+      round3rdDecimal
+    );
+
+    if (!header) {
+      header = createHeader(rank, cnt, results);
+      contents += header;
+    }
+
+    if (currentCnt == 0) currentCnt = cnt;
+
+    // 次の内容を足してもツイート可能な場合
+    if (twText.parseTweet(contents + row + footer).valid) {
+      // ホームラン本数が変わる場合は、次の内容を足す前の内容で確定
+      if (currentCnt != cnt) {
+        prevTweetId = await executeTweet(tweet, contents, footer, prevTweetId)
+          .then(r => r)
+          .catch(e => {
+            throw e;
+          });
+        header = createHeader(rank, cnt, results);
+        currentCnt = cnt;
+        // reset content
+        contents = header + row;
+      } else {
+        contents += row;
+      }
+      // 次の内容を足すとツイート不可である場合（文字数超過)
+    } else {
+      prevTweetId = await executeTweet(tweet, contents, footer, prevTweetId)
+        .then(r => r)
+        .catch(e => {
+          throw e;
+        });
+      // ホームラン本数がちょうど変わる場合はヘッダから作り直す
+      if (currentCnt != cnt) {
+        header = createHeader(rank, cnt, results);
+        currentCnt = cnt;
+        // reset content
+        contents = header + row;
+      } else {
+        contents = '';
+      }
+    }
+  }
+
+  await executeTweet(tweet, contents, footer, prevTweetId);
+};
+
+/**
  *
  * @param {boolean} tweet
  * @param {string} contents

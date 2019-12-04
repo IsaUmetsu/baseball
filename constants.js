@@ -82,3 +82,23 @@ constants.BALL_TYPES = {
   7: "チェンジアップ",
   9: "カットボール"
 };
+
+constants.SITUATION = {
+  1: "先制",
+  2: "追い上げ",
+  3: "追加点",
+  4: "同点",
+  5: "勝ち越し",
+  6: "逆転",
+  7: "サヨナラ"
+};
+
+constants.SITUATION_COL_NAME = {
+  1: "sns",
+  2: "oia",
+  3: "tik",
+  4: "dtn",
+  5: "kck",
+  6: "gkt",
+  7: "syn"
+};

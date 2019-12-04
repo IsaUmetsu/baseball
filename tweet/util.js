@@ -182,6 +182,41 @@ util.executeRoundAverageStrikeout = (
 }
 
 /**
+ * 
+ * @param {array} results
+ * @param {number} idx
+ * @param {boolean} round2ndDecimal
+ * @param {boolean} round3rdDecimal
+ */
+util.executeRoundAverageHR = (
+  results,
+  idx,
+  round2ndDecimal,
+  round3rdDecimal
+)  => {
+  const { total: batCntVal, hr: hitCntVal, pct: targetVal } = results[idx];
+
+  let baseDecimal = 3;
+  let batCnt = "total";
+  let hitCnt = "hr";
+  let target = "pct";
+
+  return doRoundDecimal(
+    results,
+    idx,
+    round2ndDecimal,
+    round3rdDecimal,
+    batCntVal,
+    hitCntVal,
+    targetVal,
+    baseDecimal,
+    target,
+    hitCnt,
+    batCnt
+  );
+}
+
+/**
  * 小数点四捨五入実行
  */
 const doRoundDecimal = (
@@ -316,7 +351,16 @@ const addedZero = (target, roudedDecimal) => {
 util.isValidBat = (bat, validList) => isValid(bat, validList, "bat");
 
 /**
- * 取得対象打席数 バリデーション
+ * 取得対象本塁打情報 バリデーション
+ *
+ * @param {number} bat
+ * @param {array} validList
+ * @return {boolean}
+ */
+util.isValidHR = (situation, validList) => isValid(situation, validList, "situation");
+
+/**
+ * 取得対象投球データ バリデーション
  *
  * @param {number} bat
  * @param {array} validList

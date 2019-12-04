@@ -12,6 +12,15 @@ y.batter = require("yargs")
   .default({ bat: 1 });
 
 /**
+ * for homerun situation
+ */
+y.batterHR = require("yargs")
+  .count("tweet")
+  .alias("t", "tweet")
+  .alias("s", "situation")
+  .default({ situation: 1 });
+
+/**
  * for pitching result
  */
 y.pitcher = require("yargs")

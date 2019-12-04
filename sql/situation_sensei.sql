@@ -9,8 +9,10 @@ SELECT
 FROM
     situation_base_commit
 WHERE
-  b_total - t_total = 0
-  AND b_total > 0 AND t_total > 0
-  AND (ining < 9 OR (ining >= 9 and top_bottom = 1)) -- サヨナラシチュエーションは除外
+	b_total = 0 AND t_total = 0
+    AND NOT (
+		ining >= 9
+		AND top_bottom = 2
+	) -- サヨナラシチュエーションは除外
 GROUP BY batter , `name` , team
 ORDER BY hr_cnt DESC, bat_cnt

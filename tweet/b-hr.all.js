@@ -11,88 +11,57 @@
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
 
-const twitter = require("twitter-text");
-const { db } = require("../model");
+const argv = require("./average/yargs").batterHR.argv;
+
+const { isValidHR, executeRoundAverageHR } = require("./util");
+const { executeWithRound } = require("./average/b-ave");
 const { homerunTypeRankBatter } = require("../query");
-const { tweetResult } = require("./util");
+const { SITUATION, SITUATION_COL_NAME } = require("../constants")
 
-const homerun_type = "決勝";
-const homerun_type_other = ""; // 反撃の一打
-const devide_cnt = false;
-const { SELECT: type } = db.QueryTypes;
+const tweet = argv.tweet > 0;
+const homerunTypeId = argv.situation;
 
-const tweet = false;
-let prevTweetId = "";
-
-// test
-// let tweet = "鶴岡(F) (1/1) 100%\n高橋(D) (1/7) 14.3%\n頓宮(B) (1/3) 33.3%\n長谷川勇(H) (1/3) 33.3%\n長坂(T) (1/1) 100%\n釜元(H) (1/4) 25%\n遠藤(D) (1/2) 50%\n近藤(F) (1/2) 50%\n西村(B) (1/2) 50%\n藤岡(M) (1/2) 50%\n荒木(S) (1/2) 50%"
-// const result = twitter.parseTweet(tweet)
+// validate args
+if (!isValidHR(argv.situation, Object.keys(SITUATION))) process.exit();
 
 /**
  * ヘッダ作成 (rank, number of homerun, tie)
  */
-const createHeader = () => {
-  return `2019年 ${
-    homerun_type_other ? homerun_type_other : homerun_type
-  }HRランキング\n(本/全本塁打数)\n\n`;
+const header = `2019年 ${SITUATION[homerunTypeId]}HRランキング\n((本/全本塁打数) 当該本塁打率)\n\n`;
+
+/**
+ * 
+ * @param {array} results
+ * @param {number} idx
+ * @param {boolean} round2ndDecimal
+ * @param {boolean} round3rdDecimal
+ * @return {array}
+ */
+const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
+  const { name, team, hr, total, rank } = results[idx];
+  let { rounded, flag2, flag3 } = executeRoundAverageHR(
+    results,
+    idx,
+    round2ndDecimal,
+    round3rdDecimal
+  );
+  let average = String(rounded).slice(0, 1) == "1" ? "1.000" : String(rounded).slice(1);
+  let row = `${rank}位 ${name}(${team}) (${hr}本/全${total}本) ${average}\n`;
+  return [row, flag2, flag3];
 };
 
 /**
  * Execute
  */
 (async () => {
-  const results = await db
-    .query(homerunTypeRankBatter(homerun_type, devide_cnt), { type })
+  await executeWithRound(
+    homerunTypeRankBatter(SITUATION_COL_NAME[homerunTypeId], false),
+    tweet,
+    header,
+    createRow
+  )
     .then(r => r)
     .catch(e => {
       console.log(e);
     });
-
-  let contents = ""; // whole
-  let header = ""; // rank, number of homerun, tie
-  let footer = "\n#侍ジャパン #プレミア12 #npb "; // hashtag
-  let currentRank = 0;
-
-  for (let idx in results) {
-    const { summary, cnt, total_cnt, percent, rank } = results[idx];
-
-    if (!header) {
-      header = createHeader();
-      contents += header;
-    }
-
-    let rankPart = "";
-    if (currentRank == rank && currentRank != 0) {
-      // rankPart += rank < 10 ? ' ' : '  '
-    } else {
-      // rankPart = `- ${rank}位 ${cnt}本 -\n`;
-      currentRank = rank;
-    }
-    rankPart = `${rank}位 `;
-    let row = `${summary} (${cnt}本/全${total_cnt}本) ${percent}%\n`;
-
-    // 次の内容を足してもツイート可能な場合
-    if (twitter.parseTweet(contents + (rankPart + row) + footer).valid) {
-      contents += rankPart + row;
-      // 次の内容を足すとツイート不可である場合（文字数超過)
-    } else {
-      // finalize content (足す前の内容で確定)
-      let displayContent = contents + footer;
-
-      // rankPart = `- ${rank}位 ${cnt}本 -\n`;
-      rankPart = `${Number(idx) + 1}位 `;
-      contents = header + (rankPart + row);
-
-      console.log("----------");
-      console.log(displayContent);
-
-      prevTweetId = await tweetResult(tweet, displayContent, prevTweetId);
-    }
-  }
-  // 最終ツイート内容出力
-  let lastDisplayContent = contents + footer;
-  console.log("----------");
-  console.log(lastDisplayContent);
-
-  await tweetResult(tweet, lastDisplayContent, prevTweetId);
 })();
