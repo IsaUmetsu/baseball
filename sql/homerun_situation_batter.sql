@@ -5,40 +5,40 @@ SELECT
     pb.id,
     p.name,
     p.team,
-    ifnull(sns.hr_cnt, 0)AS sns_hr,
-    ifnull(oia.hr_cnt, 0) AS oia_hr,
-    ifnull(tik.hr_cnt, 0) AS tik_hr,
-    ifnull(dtn.hr_cnt, 0) AS dtn_hr,
-    ifnull(kck.hr_cnt, 0) AS kck_hr,
-    ifnull(gkt.hr_cnt, 0) AS gkt_hr,
-    ifnull(syn.hr_cnt, 0) AS syn_hr,
-    ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0) AS total_hr,
-    ifnull(sns.bat_cnt, 0) AS sns_bat,
-    ifnull(oia.bat_cnt, 0) AS oia_bat,
-    ifnull(tik.bat_cnt, 0) AS tik_bat,
-    ifnull(dtn.bat_cnt, 0) AS dtn_bat,
-    ifnull(kck.bat_cnt, 0) AS kck_bat,
-    ifnull(gkt.bat_cnt, 0) AS gkt_bat,
-    ifnull(syn.bat_cnt, 0) AS syn_bat,
-    ifnull(sns.bat_cnt, 0) + ifnull(oia.bat_cnt, 0) + ifnull(tik.bat_cnt, 0) + ifnull(dtn.bat_cnt, 0) + ifnull(kck.bat_cnt, 0) + ifnull(gkt.bat_cnt, 0) + ifnull(syn.bat_cnt, 0) AS total_bat,
+    IFNULL(sns.hr_cnt, 0) AS sns_hr,
+    IFNULL(oia.hr_cnt, 0) AS oia_hr,
+    IFNULL(tik.hr_cnt, 0) AS tik_hr,
+    IFNULL(dtn.hr_cnt, 0) AS dtn_hr,
+    IFNULL(kck.hr_cnt, 0) AS kck_hr,
+    IFNULL(gkt.hr_cnt, 0) AS gkt_hr,
+    IFNULL(syn.hr_cnt, 0) AS syn_hr,
+    IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0) AS total_hr,
+    IFNULL(sns.bat_cnt, 0) AS sns_bat,
+    IFNULL(oia.bat_cnt, 0) AS oia_bat,
+    IFNULL(tik.bat_cnt, 0) AS tik_bat,
+    IFNULL(dtn.bat_cnt, 0) AS dtn_bat,
+    IFNULL(kck.bat_cnt, 0) AS kck_bat,
+    IFNULL(gkt.bat_cnt, 0) AS gkt_bat,
+    IFNULL(syn.bat_cnt, 0) AS syn_bat,
+    IFNULL(sns.bat_cnt, 0) + IFNULL(oia.bat_cnt, 0) + IFNULL(tik.bat_cnt, 0) + IFNULL(dtn.bat_cnt, 0) + IFNULL(kck.bat_cnt, 0) + IFNULL(gkt.bat_cnt, 0) + IFNULL(syn.bat_cnt, 0) AS total_bat,
     -- percent of total
-    round(case when ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0) != 0 then sns.hr_cnt / (ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0)) else 0 end, 4) AS sns_ttl_pct,
-    round(case when ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0) != 0 then oia.hr_cnt / (ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0)) else 0 end, 4) AS oia_ttl_pct,
-    round(case when ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0) != 0 then tik.hr_cnt / (ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0)) else 0 end, 4) AS tik_ttl_pct,
-    round(case when ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0) != 0 then dtn.hr_cnt / (ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0)) else 0 end, 4) AS dtn_ttl_pct,
-    round(case when ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0) != 0 then kck.hr_cnt / (ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0)) else 0 end, 4) AS kck_ttl_pct,
-    round(case when ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0) != 0 then gkt.hr_cnt / (ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0)) else 0 end, 4) AS gkt_ttl_pct,
-    round(case when ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0) != 0 then syn.hr_cnt / (ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0)) else 0 end, 4) AS syn_ttl_pct,
+    ROUND(CASE WHEN IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0) != 0 then sns.hr_cnt / (IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0)) ELSE 0 END, 4) AS sns_ttl_pct,
+    ROUND(CASE WHEN IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0) != 0 then oia.hr_cnt / (IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0)) ELSE 0 END, 4) AS oia_ttl_pct,
+    ROUND(CASE WHEN IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0) != 0 then tik.hr_cnt / (IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0)) ELSE 0 END, 4) AS tik_ttl_pct,
+    ROUND(CASE WHEN IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0) != 0 then dtn.hr_cnt / (IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0)) ELSE 0 END, 4) AS dtn_ttl_pct,
+    ROUND(CASE WHEN IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0) != 0 then kck.hr_cnt / (IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0)) ELSE 0 END, 4) AS kck_ttl_pct,
+    ROUND(CASE WHEN IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0) != 0 then gkt.hr_cnt / (IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0)) ELSE 0 END, 4) AS gkt_ttl_pct,
+    ROUND(CASE WHEN IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0) != 0 then syn.hr_cnt / (IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0)) ELSE 0 END, 4) AS syn_ttl_pct,
 	-- percent of situation bat
-    round(case when sns.bat_cnt is not null then sns.hr_cnt / sns.bat_cnt else 0 end, 4) AS sns_situ_pct,
-    round(case when oia.bat_cnt is not null then oia.hr_cnt / oia.bat_cnt else 0 end, 4) AS oia_situ_pct,
-    round(case when tik.bat_cnt is not null then tik.hr_cnt / tik.bat_cnt else 0 end, 4) AS tik_situ_pct,
-    round(case when dtn.bat_cnt is not null then dtn.hr_cnt / dtn.bat_cnt else 0 end, 4) AS dtn_situ_pct,
-    round(case when kck.bat_cnt is not null then kck.hr_cnt / kck.bat_cnt else 0 end, 4) AS kck_situ_pct,
-    round(case when gkt.bat_cnt is not null then gkt.hr_cnt / gkt.bat_cnt else 0 end, 4) AS gkt_situ_pct,
-    round(case when syn.bat_cnt is not null then syn.hr_cnt / syn.bat_cnt else 0 end, 4) AS syn_situ_pct,
+    ROUND(CASE WHEN sns.bat_cnt is not null then sns.hr_cnt / sns.bat_cnt ELSE 0 END, 4) AS sns_situ_pct,
+    ROUND(CASE WHEN oia.bat_cnt is not null then oia.hr_cnt / oia.bat_cnt ELSE 0 END, 4) AS oia_situ_pct,
+    ROUND(CASE WHEN tik.bat_cnt is not null then tik.hr_cnt / tik.bat_cnt ELSE 0 END, 4) AS tik_situ_pct,
+    ROUND(CASE WHEN dtn.bat_cnt is not null then dtn.hr_cnt / dtn.bat_cnt ELSE 0 END, 4) AS dtn_situ_pct,
+    ROUND(CASE WHEN kck.bat_cnt is not null then kck.hr_cnt / kck.bat_cnt ELSE 0 END, 4) AS kck_situ_pct,
+    ROUND(CASE WHEN gkt.bat_cnt is not null then gkt.hr_cnt / gkt.bat_cnt ELSE 0 END, 4) AS gkt_situ_pct,
+    ROUND(CASE WHEN syn.bat_cnt is not null then syn.hr_cnt / syn.bat_cnt ELSE 0 END, 4) AS syn_situ_pct,
     -- percent of homerun par bat
-	round(case when ifnull(sns.bat_cnt, 0) + ifnull(oia.bat_cnt, 0) + ifnull(tik.bat_cnt, 0) + ifnull(dtn.bat_cnt, 0) + ifnull(kck.bat_cnt, 0) + ifnull(gkt.bat_cnt, 0) + ifnull(syn.bat_cnt, 0) = 0 then 0 else (ifnull(sns.hr_cnt, 0) + ifnull(oia.hr_cnt, 0) + ifnull(tik.hr_cnt, 0) + ifnull(dtn.hr_cnt, 0) + ifnull(kck.hr_cnt, 0) + ifnull(gkt.hr_cnt, 0) + ifnull(syn.hr_cnt, 0)) / (ifnull(sns.bat_cnt, 0) + ifnull(oia.bat_cnt, 0) + ifnull(tik.bat_cnt, 0) + ifnull(dtn.bat_cnt, 0) + ifnull(kck.bat_cnt, 0) + ifnull(gkt.bat_cnt, 0) + ifnull(syn.bat_cnt, 0)) end, 4)  AS total_situ_pct
+	ROUND(CASE WHEN IFNULL(sns.bat_cnt, 0) + IFNULL(oia.bat_cnt, 0) + IFNULL(tik.bat_cnt, 0) + IFNULL(dtn.bat_cnt, 0) + IFNULL(kck.bat_cnt, 0) + IFNULL(gkt.bat_cnt, 0) + IFNULL(syn.bat_cnt, 0) = 0 then 0 ELSE (IFNULL(sns.hr_cnt, 0) + IFNULL(oia.hr_cnt, 0) + IFNULL(tik.hr_cnt, 0) + IFNULL(dtn.hr_cnt, 0) + IFNULL(kck.hr_cnt, 0) + IFNULL(gkt.hr_cnt, 0) + IFNULL(syn.hr_cnt, 0)) / (IFNULL(sns.bat_cnt, 0) + IFNULL(oia.bat_cnt, 0) + IFNULL(tik.bat_cnt, 0) + IFNULL(dtn.bat_cnt, 0) + IFNULL(kck.bat_cnt, 0) + IFNULL(gkt.bat_cnt, 0) + IFNULL(syn.bat_cnt, 0)) END, 4)  AS total_situ_pct
 FROM
     baseball._player_batter pb
     LEFT JOIN player p ON pb.id = p.id
@@ -198,8 +198,3 @@ FROM
 		GROUP BY batter) AS syn ON syn.batter = pb.id
 	LEFT JOIN homerun_king hk ON hk.player_id = pb.id
 ;
-
-/*
-Error Code: 1064. You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(`id`,`name`,`team`,`sns_hr`,`oia_hr`,`tik_hr`,`dtn_hr`,`kck_hr`,`gkt_hr`,`syn_h' at line 1
-
-*/

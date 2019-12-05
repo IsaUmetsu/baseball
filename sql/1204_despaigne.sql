@@ -35,7 +35,7 @@ SELECT
     -- r.`rst_id`,
     r.`result` as 結果,
 	case round((select (CHAR_LENGTH(g.`on_all_base`) - CHAR_LENGTH(replace(g.`on_all_base`, '1', ''))) / CHAR_LENGTH('1')), 0) when 1 then '2ラン' when 2 then '3ラン' when 3 then '満塁' else 'ソロ' end as '種別',
-    r.direction as 打球,
+    -- r.direction as 打球,
     d.direction as 打球方向
 --     ,r.`col_5`,
 --     r.`col_6`,
