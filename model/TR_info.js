@@ -16,28 +16,28 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(11),
       allowNull: false
     },
-    col_1: {
-      type: DataTypes.STRING(10),
+    b_bat: {
+      type: DataTypes.INTEGER(4),
       allowNull: true
     },
-    col_2: {
-      type: DataTypes.STRING(10),
+    b_hit: {
+      type: DataTypes.INTEGER(4),
       allowNull: true
     },
-    col_3: {
-      type: DataTypes.STRING(10),
+    b_err: {
+      type: DataTypes.INTEGER(4),
       allowNull: true
     },
-    col_4: {
-      type: DataTypes.STRING(10),
+    t_bat: {
+      type: DataTypes.INTEGER(4),
       allowNull: true
     },
-    col_5: {
-      type: DataTypes.STRING(10),
+    t_hit: {
+      type: DataTypes.INTEGER(4),
       allowNull: true
     },
-    col_6: {
-      type: DataTypes.STRING(10),
+    t_err: {
+      type: DataTypes.INTEGER(4),
       allowNull: true
     },
     createdAt: {

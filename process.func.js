@@ -206,12 +206,12 @@ processFunc.saveTR = async(TR, game_info_id, order_overview_id) => {
       .create({
         game_info_id,
         order_overview_id,
-        col_1: TrArray[0],
-        col_2: TrArray[1],
-        col_3: TrArray[2],
-        col_4: TrArray[3],
-        col_5: TrArray[4],
-        col_6: TrArray[5],
+        b_bat: TrArray[0],
+        b_hit: TrArray[1],
+        b_err: TrArray[2],
+        t_bat: TrArray[3],
+        t_hit: TrArray[4],
+        t_err: TrArray[5],
       })
       .then(rst => rst)
       .catch(err => { throw err })
