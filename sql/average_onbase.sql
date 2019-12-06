@@ -1,5 +1,5 @@
--- create table average_onbase_horizontal
--- insert into average_onbase_horizontal (`batter`,`name`,`team`,`rate1`,`rate2`,`rate3`,`rate4`,`rate5`,`rate6`,`rate7`,`rate`,`pa1`,`ab1`,`cnt1`,`pa2`,`ab2`,`cnt2`,`pa3`,`ab3`,`cnt3`,`pa4`,`ab4`,`cnt4`,`pa5`,`ab5`,`cnt5`,`pa6`,`ab6`,`cnt6`,`pa7`,`ab7`,`cnt7`,`pa`,`ab`,`cnt`)
+-- create table average_onbase
+-- insert into average_onbase (`batter`,`name`,`team`,`rate1`,`rate2`,`rate3`,`rate4`,`rate5`,`rate6`,`rate7`,`rate`,`pa1`,`ab1`,`cnt1`,`pa2`,`ab2`,`cnt2`,`pa3`,`ab3`,`cnt3`,`pa4`,`ab4`,`cnt4`,`pa5`,`ab5`,`cnt5`,`pa6`,`ab6`,`cnt6`,`pa7`,`ab7`,`cnt7`,`pa`,`ab`,`cnt`)
 
 -- select r.* from (
 SELECT 
@@ -49,7 +49,7 @@ FROM
             COUNT(ob.rst_id IS NOT NULL OR NULL) AS cnt1,
             case when COUNT(e.name IS NULL OR NULL) > 0 then ROUND(COUNT(ob.rst_id IS NOT NULL OR NULL) / COUNT(e.name IS NULL OR NULL), 5) else null end AS rate1
     FROM
-        baseball._bat_all_info_horizontal h
+        baseball._bat_all_info h
     LEFT JOIN exclude_onbase_info e ON h.`1_result` = e.name
     LEFT JOIN onbase_id_info ob ON  h.`1_rst_id` = ob.rst_id
     WHERE h.`1_result` IS NOT NULL
@@ -63,7 +63,7 @@ FROM
             COUNT(ob.rst_id IS NOT NULL OR NULL) AS cnt2,
             case when COUNT(e.name IS NULL OR NULL) > 0 then ROUND(COUNT(ob.rst_id IS NOT NULL OR NULL) / COUNT(e.name IS NULL OR NULL), 5) else null end AS rate2
     FROM
-        baseball._bat_all_info_horizontal h
+        baseball._bat_all_info h
     LEFT JOIN exclude_onbase_info e ON h.`2_result` = e.name
     LEFT JOIN onbase_id_info ob ON  h.`2_rst_id` = ob.rst_id
     WHERE h.`2_result` IS NOT NULL
@@ -77,7 +77,7 @@ FROM
             COUNT(ob.rst_id IS NOT NULL OR NULL) AS cnt3,
             case when COUNT(e.name IS NULL OR NULL) > 0 then ROUND(COUNT(ob.rst_id IS NOT NULL OR NULL) / COUNT(e.name IS NULL OR NULL), 5) else null end AS rate3
     FROM
-        baseball._bat_all_info_horizontal h
+        baseball._bat_all_info h
     LEFT JOIN exclude_onbase_info e ON h.`3_result` = e.name
     LEFT JOIN onbase_id_info ob ON  h.`3_rst_id` = ob.rst_id
     WHERE h.`3_result` IS NOT NULL
@@ -91,7 +91,7 @@ FROM
             COUNT(ob.rst_id IS NOT NULL OR NULL) AS cnt4,
             case when COUNT(e.name IS NULL OR NULL) > 0 then ROUND(COUNT(ob.rst_id IS NOT NULL OR NULL) / COUNT(e.name IS NULL OR NULL), 5) else null end AS rate4
     FROM
-        baseball._bat_all_info_horizontal h
+        baseball._bat_all_info h
     LEFT JOIN exclude_onbase_info e ON h.`4_result` = e.name
     LEFT JOIN onbase_id_info ob ON  h.`4_rst_id` = ob.rst_id
     WHERE h.`4_result` IS NOT NULL
@@ -105,7 +105,7 @@ FROM
             COUNT(ob.rst_id IS NOT NULL OR NULL) AS cnt5,
             case when COUNT(e.name IS NULL OR NULL) > 0 then ROUND(COUNT(ob.rst_id IS NOT NULL OR NULL) / COUNT(e.name IS NULL OR NULL), 5) else null end AS rate5
     FROM
-        baseball._bat_all_info_horizontal h
+        baseball._bat_all_info h
     LEFT JOIN exclude_onbase_info e ON h.`5_result` = e.name
     LEFT JOIN onbase_id_info ob ON  h.`5_rst_id` = ob.rst_id
     WHERE h.`5_result` IS NOT NULL
@@ -119,7 +119,7 @@ FROM
             COUNT(ob.rst_id IS NOT NULL OR NULL) AS cnt6,
             case when COUNT(e.name IS NULL OR NULL) > 0 then ROUND(COUNT(ob.rst_id IS NOT NULL OR NULL) / COUNT(e.name IS NULL OR NULL), 5) else null end AS rate6
     FROM
-        baseball._bat_all_info_horizontal h
+        baseball._bat_all_info h
     LEFT JOIN exclude_onbase_info e ON h.`6_result` = e.name
     LEFT JOIN onbase_id_info ob ON  h.`6_rst_id` = ob.rst_id
     WHERE h.`6_result` IS NOT NULL
@@ -133,7 +133,7 @@ FROM
             COUNT(ob.rst_id IS NOT NULL OR NULL) AS cnt7,
             case when COUNT(e.name IS NULL OR NULL) > 0 then ROUND(COUNT(ob.rst_id IS NOT NULL OR NULL) / COUNT(e.name IS NULL OR NULL), 5) else null end AS rate7
     FROM
-        baseball._bat_all_info_horizontal h
+        baseball._bat_all_info h
     LEFT JOIN exclude_onbase_info e ON h.`7_result` = e.name
     LEFT JOIN onbase_id_info ob ON  h.`7_rst_id` = ob.rst_id
     WHERE h.`7_result` IS NOT NULL

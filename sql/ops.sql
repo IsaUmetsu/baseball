@@ -1,5 +1,5 @@
--- create table ops_horizontal 
--- insert into ops_horizontal (`batter`,`name`,`team`,`rate`,`rate1`,`rate2`,`rate3`,`rate4`,`rate5`,`rate6`,`rate7`)
+-- create table ops 
+-- insert into ops (`batter`,`name`,`team`,`rate`,`rate1`,`rate2`,`rate3`,`rate4`,`rate5`,`rate6`,`rate7`)
 
 SELECT 
 	o.batter,
@@ -14,9 +14,9 @@ SELECT
     o.rate6 + s.rate6 AS rate6,
     o.rate7 + s.rate7 AS rate7
 FROM
-    average_onbase_horizontal o
+    average_onbase o
         LEFT JOIN
-    average_slugging_horizontal s ON o.batter = s.batter
+    average_slugging s ON o.batter = s.batter
 -- where
 -- 	o.pa >= 443
 order by rate DESC

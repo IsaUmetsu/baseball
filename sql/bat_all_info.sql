@@ -1,5 +1,5 @@
--- create table _bat_all_info_horizontal
--- insert into _bat_all_info_horizontal (`order_overview_id`, `top_bottom`, `batter`, `1_ining`, `1_result`, `1_rst_id`, `1_cnt`, `2_ining`, `2_result`, `2_rst_id`, `2_cnt`, `3_ining`, `3_result`, `3_rst_id`, `3_cnt`, `4_ining`, `4_result`, `4_rst_id`, `4_cnt`, `5_ining`, `5_result`, `5_rst_id`, `5_cnt`, `6_ining`, `6_result`, `6_rst_id`, `6_cnt`, `7_ining`, `7_result`, `7_rst_id`, `7_cnt`)
+-- create table _bat_all_info
+-- insert into _bat_all_info (`order_overview_id`, `top_bottom`, `batter`, `1_ining`, `1_result`, `1_rst_id`, `1_cnt`, `2_ining`, `2_result`, `2_rst_id`, `2_cnt`, `3_ining`, `3_result`, `3_rst_id`, `3_cnt`, `4_ining`, `4_result`, `4_rst_id`, `4_cnt`, `5_ining`, `5_result`, `5_rst_id`, `5_cnt`, `6_ining`, `6_result`, `6_rst_id`, `6_cnt`, `7_ining`, `7_result`, `7_rst_id`, `7_cnt`)
 
 SELECT
   b1.order_overview_id,
