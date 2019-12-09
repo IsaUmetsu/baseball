@@ -13,7 +13,7 @@
 
 const argv = require("./average/yargs").batterHR.argv;
 
-const { isValidHR, executeRoundAverageHR } = require("./util");
+const { isValidHR, executeRoundSmallNum } = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 const { homerunTypeRankBatter } = require("../query");
 const { SITUATION, SITUATION_COL_NAME } = require("../constants")
@@ -39,11 +39,12 @@ const header = `2019年 ${SITUATION[homerunTypeId]}HRランキング\n((本/全�
  */
 const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
   const { name, team, hr, total, rank } = results[idx];
-  let { rounded, flag2, flag3 } = executeRoundAverageHR(
+  let { rounded, flag2, flag3 } = executeRoundSmallNum(
     results,
     idx,
     round2ndDecimal,
-    round3rdDecimal
+    round3rdDecimal,
+    { cntCol: "hr", allCol: "total", targetCol: "pct" }
   );
   let average = String(rounded).slice(0, 1) == "1" ? "1.000" : String(rounded).slice(1);
   let row = `${rank}位 ${name}(${team}) (${hr}本/全${total}本) ${average}\n`;

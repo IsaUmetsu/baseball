@@ -23,41 +23,6 @@ const customRound = (target, decimal) =>
   Math.round(Number(target) * Math.pow(10, decimal)) / Math.pow(10, decimal);
 
 /**
- * パーセント表示四捨五入
- * @param {array} results
- * @param {string} idx
- * @param {boolean} round2ndDecimal
- * @param {boolean} round3rdDecimal
- * @return {object} rounded, flag
- */
-util.executeRound = (results, idx, round2ndDecimal, round3rdDecimal) => {
-  const {
-    batting_cnt: batCntVal,
-    cnt: hitCntVal,
-    percent: targetVal
-  } = results[idx];
-
-  let baseDecimal = 1;
-  let target = "percent";
-  let hitCnt = "cnt";
-  let batCnt = "batting_cnt";
-
-  return doRoundDecimal(
-    results,
-    idx,
-    round2ndDecimal,
-    round3rdDecimal,
-    batCntVal,
-    hitCntVal,
-    targetVal,
-    baseDecimal,
-    target,
-    hitCnt,
-    batCnt
-  );
-};
-
-/**
  *
  * @param {boolean} tweet
  * @param {object} client twitter client
@@ -89,11 +54,12 @@ util.tweetResult = async (tweet, status, in_reply_to_status_id) => {
 util.createRoundedRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
   const { name, team, bat_cnt, target_cnt, rank } = results[idx];
 
-  let { rounded, flag2, flag3 } = executeRoundAverage(
+  let { rounded, flag2, flag3 } = exeRoundSmallNum(
     results,
     idx,
     round2ndDecimal,
-    round3rdDecimal
+    round3rdDecimal,
+    { cntCol: "target_cnt", allCol: "bat_cnt", targetCol: "average" }
   );
   // create display info
   let average = String(rounded).slice(1);
@@ -103,144 +69,70 @@ util.createRoundedRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
 };
 
 /**
- * 打率四捨五入
+ * 割合小数点第3位四捨五入
  * @param {array} results
  * @param {string} idx
- * @param {boolean} round2ndDecimal
- * @param {boolean} round3rdDecimal
- * @return {object} rounded, flag
+ * @param {boolean} round2ndDcm
+ * @param {boolean} round3rdDcm
+ * @param {object} cols
+ * @return {object} rounded, round2ndFlag, round3rdFlag
  */
-const executeRoundAverage = (
-  results,
-  idx,
-  round2ndDecimal,
-  round3rdDecimal
-) => {
-  const {
-    bat_cnt: batCntVal,
-    target_cnt: hitCntVal,
-    average: targetVal
-  } = results[idx];
-
-  let baseDecimal = 3;
-  let target = "average";
-  let hitCnt = "target_cnt";
-  let batCnt = "bat_cnt";
-
-  return doRoundDecimal(
-    results,
-    idx,
-    round2ndDecimal,
-    round3rdDecimal,
-    batCntVal,
-    hitCntVal,
-    targetVal,
-    baseDecimal,
-    target,
-    hitCnt,
-    batCnt
-  );
-};
+const exeRoundSmallNum = (results, idx, round2ndDcm, round3rdDcm, cols) =>
+  doRoundDecimal(results, idx, round2ndDcm, round3rdDcm, 3, cols);
 
 /**
- * 
- * @param {array} results
- * @param {number} idx
- * @param {boolean} round2ndDecimal
- * @param {boolean} round3rdDecimal
+ * 割合小数点第3位四捨五入
+ *
+ * @param {Save as above}
+ * @return {Save as above}
  */
-util.executeRoundAverageStrikeout = (
-  results,
-  idx,
-  round2ndDecimal,
-  round3rdDecimal
-)  => {
-  const {
-    all_cnt: batCntVal,
-    b_cnt: hitCntVal,
-    b_rate: targetVal
-  } = results[idx];
-
-  let baseDecimal = 3;
-  let target = "b_rate";
-  let hitCnt = "b_cnt";
-  let batCnt = "all_cnt";
-
-  return doRoundDecimal(
-    results,
-    idx,
-    round2ndDecimal,
-    round3rdDecimal,
-    batCntVal,
-    hitCntVal,
-    targetVal,
-    baseDecimal,
-    target,
-    hitCnt,
-    batCnt
-  );
-}
+util.executeRoundSmallNum = (results, idx, round2ndDcm, round3rdDcm, cols) =>
+  doRoundDecimal(results, idx, round2ndDcm, round3rdDcm, 3, cols);
 
 /**
+ * パーセント 四捨五入
  * 
- * @param {array} results
- * @param {number} idx
- * @param {boolean} round2ndDecimal
- * @param {boolean} round3rdDecimal
+ * @param {Save as above}
+ * @return {Save as above}
  */
-util.executeRoundAverageHR = (
-  results,
-  idx,
-  round2ndDecimal,
-  round3rdDecimal
-)  => {
-  const { total: batCntVal, hr: hitCntVal, pct: targetVal } = results[idx];
-
-  let baseDecimal = 3;
-  let batCnt = "total";
-  let hitCnt = "hr";
-  let target = "pct";
-
-  return doRoundDecimal(
-    results,
-    idx,
-    round2ndDecimal,
-    round3rdDecimal,
-    batCntVal,
-    hitCntVal,
-    targetVal,
-    baseDecimal,
-    target,
-    hitCnt,
-    batCnt
-  );
-}
+util.executeRoundPercent = (results, idx, round2ndDcm, round3rdDcm, cols) =>
+  doRoundDecimal(results, idx, round2ndDcm, round3rdDcm, 1, cols);
 
 /**
  * 小数点四捨五入実行
+ *
+ * @param {array} results 全結果格納
+ * @param {number} idx 四捨五入対象要素index
+ * @param {boolean} round2ndDecimal 指定桁の次の桁を四捨五入するか
+ * @param {boolean} round3rdDecimal 指定桁の次の次の桁を四捨五入するか
+ * @param {number} baseDecimal 四捨五入対象の小数点の桁数
+ * @param {object} cols 分子, 分母, 分子を分母で割った値を格納しているカラムの名前
+ * @return {object}
  */
 const doRoundDecimal = (
   results,
   idx,
   round2ndDecimal,
   round3rdDecimal,
-  batCntVal,
-  hitCntVal,
-  targetVal,
   baseDecimal,
-  target,
-  hitCnt,
-  batCnt
+  cols
 ) => {
+  const { cntCol, allCol, targetCol } = cols;
+  const {
+    [cntCol]: cntVal,
+    [allCol]: allVal,
+    [targetCol]: targetVal
+  } = results[idx];
+
   idx = Number(idx);
-  let nextIdx = idx + 1 < results.length ? idx + 1 : idx;
-  let rounded = customRound(targetVal, baseDecimal);
-  let roudedDecimal = baseDecimal;
+  let nextIdx = idx + 1 < results.length ? idx + 1 : idx,
+    rounded = customRound(targetVal, baseDecimal),
+    roudedDecimal = baseDecimal;
 
   // 小数点第4位での四捨五入フラグがONの場合
   if (round2ndDecimal) {
     // 次の打者の値と小数点3位を四捨五入した値が違う場合、フラグをfalseに戻す
-    if (rounded != customRound(results[nextIdx][target], baseDecimal)) {
+    if (rounded != customRound(results[nextIdx][targetCol], baseDecimal)) {
       round2ndDecimal = false;
     }
 
@@ -255,8 +147,8 @@ const doRoundDecimal = (
       round3rdDecimal = false;
 
       if (
-        rounded == customRound(results[nextIdx][target], baseDecimal + 1) &&
-        batCntVal != results[nextIdx][batCnt]
+        rounded == customRound(results[nextIdx][targetCol], baseDecimal + 1) &&
+        allVal != results[nextIdx][allCol]
       ) {
         round3rdDecimal = true;
         // 小数点第3位での四捨五入
@@ -266,17 +158,17 @@ const doRoundDecimal = (
     }
   } else {
     // 次の打者の値と小数点3位を四捨五入した値が同じ場合
-    if (rounded == customRound(results[nextIdx][target], baseDecimal)) {
+    if (rounded == customRound(results[nextIdx][targetCol], baseDecimal)) {
       // 本数・打数のどちらかが違う and 約分したら同じ比率にならない場合、小数点第2位で四捨五入させ、次の順位も同様に四捨五入させるフラグをtrue
       if (
         !(
-          (results[nextIdx][hitCnt] == hitCntVal &&
-            results[nextIdx][batCnt] == batCntVal) ||
+          (results[nextIdx][cntCol] == cntVal &&
+            results[nextIdx][allCol] == allVal) ||
           sameAsDevide(
-            hitCntVal,
-            batCntVal,
-            results[nextIdx][hitCnt],
-            results[nextIdx][batCnt]
+            cntVal,
+            allVal,
+            results[nextIdx][cntCol],
+            results[nextIdx][allCol]
           )
         )
       ) {
@@ -289,18 +181,20 @@ const doRoundDecimal = (
           // 本数・打席数が異なる選手がある場合
           if (
             !(
-              (results[idxNext][hitCnt] == hitCntVal &&
-                results[idxNext][batCnt] == batCntVal) ||
+              (results[idxNext][cntCol] == cntVal &&
+                results[idxNext][allCol] == allVal) ||
               sameAsDevide(
-                hitCntVal,
-                batCntVal,
-                results[nextIdx][hitCnt],
-                results[nextIdx][batCnt]
+                cntVal,
+                allVal,
+                results[nextIdx][cntCol],
+                results[nextIdx][allCol]
               )
             )
           ) {
             // 小数点3位で四捨五入した結果を比較し、同じ場合、小数点4位にしてフラグtrue
-            if (rounded == customRound(results[idxNext][target], baseDecimal)) {
+            if (
+              rounded == customRound(results[idxNext][targetCol], baseDecimal)
+            ) {
               rounded = customRound(targetVal, baseDecimal + 1);
               round2ndDecimal = true;
               roudedDecimal = baseDecimal + 1;
@@ -357,7 +251,8 @@ util.isValidBat = (bat, validList) => isValid(bat, validList, "bat");
  * @param {array} validList
  * @return {boolean}
  */
-util.isValidHR = (situation, validList) => isValid(situation, validList, "situation");
+util.isValidHR = (situation, validList) =>
+  isValid(situation, validList, "situation");
 
 /**
  * 取得対象投球データ バリデーション
@@ -367,6 +262,16 @@ util.isValidHR = (situation, validList) => isValid(situation, validList, "situat
  * @return {boolean}
  */
 util.isValidPitch = (bat, validList) => isValid(bat, validList, "ballType");
+
+/**
+ * 取得対象投球データ バリデーション
+ *
+ * @param {number} bat
+ * @param {array} validList
+ * @return {boolean}
+ */
+util.isValidSituationHitRbi = (bat, validList) =>
+  isValidAllowEmply(bat, validList, "situation");
 
 /**
  *
@@ -384,6 +289,23 @@ const isValid = (bat, validList, option) => {
   }
   // 範囲内判定
   if (valid && validList.indexOf(String(bat)) == -1) {
+    console.log("please input valid `--" + option + "` option");
+    valid = false;
+  }
+  return valid;
+};
+
+/**
+ *
+ * @param {number} bat
+ * @param {array} validList
+ * @param {string} option
+ * @return {boolean}
+ */
+const isValidAllowEmply = (val, validList, option) => {
+  let valid = true;
+  // 範囲内判定
+  if (val && validList.indexOf(String(val)) == -1) {
     console.log("please input valid `--" + option + "` option");
     valid = false;
   }

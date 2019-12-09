@@ -16,7 +16,7 @@ const twText = require("twitter-text");
 const { db } = require("../model");
 const { homerunTypeRankSituationBatter } = require("../query");
 const { INNINGS } = require('../constants')
-const { executeRound, tweetResult } = require("./util");
+const { executeRoundPercent, tweetResult } = require("./util");
 
 const homerun_type = "序盤";
 const homerun_type_other = ""; // 反撃の一打
@@ -62,11 +62,12 @@ let prevTweetId = "";
       currentRank = rank;
     }
 
-    let { rounded, flag2, flag3 } = executeRound(
+    let { rounded, flag2, flag3 } = executeRoundPercent(
       results,
       idx,
       round2ndDecimal,
-      round3rdDecimal
+      round3rdDecimal,
+      { cntCol: "cnt", allCol: "batting_cnt", targetCol: "percent" }
     );
     // update flag
     round2ndDecimal = flag2;

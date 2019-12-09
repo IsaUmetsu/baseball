@@ -14,7 +14,7 @@ const argv = require("./average/yargs").pitcher.argv;
 
 const { strikeout } = require("../query");
 const { BALL_TYPES } = require("../constants");
-const { isValidPitch, executeRoundAverageStrikeout } = require("./util");
+const { isValidPitch, executeRoundSmallNum } = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
@@ -70,11 +70,12 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     rank
   } = results[idx];
 
-  let { rounded, flag2, flag3 } = executeRoundAverageStrikeout(
+  let { rounded, flag2, flag3 } = executeRoundSmallNum(
     results,
     idx,
     round2ndDecimal,
-    round3rdDecimal
+    round3rdDecimal,
+    { cntCol: "b_cnt", allCol: "all_cnt", targetCol: "b_rate" }
   );
   let average = String(rounded).slice(1);
   // create display info
