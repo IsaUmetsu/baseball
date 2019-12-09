@@ -207,8 +207,18 @@ const doRoundDecimal = (
   }
 
   rounded = addedZero(rounded, roudedDecimal);
-  if (baseDecimal == 3)
-    rounded = String(rounded).slice(0, 1) == "1" ? "1.000" : String(rounded).slice(1);
+  if (baseDecimal == 3) {
+    // when rounded = 1. then output as 1.000
+    if (String(rounded).slice(0, 1) == "1") {
+      rounded = "1.000";
+    } else {
+      rounded = String(rounded).slice(1);
+      // when rounded = .0 then output as .000
+      let roundedDecimalPart = rounded.slice(1);
+      if (roundedDecimalPart.length == (roundedDecimalPart.split("0").length - 1))
+        rounded = ".000";
+    }
+  }
 
   return {
     rounded,

@@ -723,3 +723,55 @@ query.hitRbiSituation = (situation, limit) => {
     ) AS rank ON rank.id = h.id 
     WHERE ${hitCol} >= ${limit}
     ORDER BY ${hitCol} DESC, percent DESC, ${runsCol} DESC`};
+
+/**
+ * 塁別打撃成績(規定到達打者)取得
+ * @param {string} base
+ * @return {string}
+ */
+query.resultPerBaseRegulation = base => `
+  SELECT
+    name, team,
+    hit_${base} AS hit, hr_${base} AS hr,
+    rbi_${base} AS rbi, bat_${base} AS bat,
+    rate_${base} AS rate, rank.rank
+  FROM
+    result_per_situation_base_regulation hb
+  LEFT JOIN (
+    SELECT
+      id, score, rank
+    FROM
+      (
+        SELECT
+          score, @rank AS rank, cnt, @rank := @rank + cnt
+        FROM
+          ( SELECT @rank := 1 ) AS Dummy,
+          (
+            SELECT
+              rate AS score, Count(*) AS cnt
+            FROM
+              (
+                SELECT
+                  id, name, team,
+                  hit_${base} AS hit, hr_${base} AS hr,
+                  rbi_${base} AS rbi, bat_${base} AS bat,
+                  rate_${base} AS rate
+                FROM
+                  result_per_situation_base_regulation
+              ) AS htb
+            GROUP BY score
+            ORDER BY score DESC
+          ) AS GroupBy
+      ) AS Ranking
+      JOIN (
+        SELECT
+          id, name, team,
+          hit_${base} AS hit, hr_${base} AS hr,
+          rbi_${base} AS rbi, bat_${base} AS bat,
+          rate_${base} AS rate
+        FROM
+          result_per_situation_base_regulation
+      ) AS htb ON htb.rate = Ranking.score
+    ORDER BY rank ASC) AS rank ON rank.id = hb.id
+  ORDER BY rate_${base} DESC
+`;
