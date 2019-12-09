@@ -11,26 +11,34 @@
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
 
-const argv = require("./average/yargs").batterRbi.argv;
+const argv = require("yargs")
+  .alias("s", "situation")
+  .alias("l", "limit")
+  .default({ limit: 5 })
+  .count("tweet")
+  .alias("t", "tweet").argv;
 
 const { isValidSituationHitRbi, executeRoundSmallNum } = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 const { hitRbiSituation } = require("../query");
-const { SITUATION, SITUATION_COL_NAME } = require("../constants")
+const { SITUATION, SITUATION_COL_NAME } = require("../constants");
 
 const tweet = argv.tweet > 0;
 const situation = argv.situation;
 
 // validate args
-if (!isValidSituationHitRbi(argv.situation, Object.keys(SITUATION))) process.exit();
+if (!isValidSituationHitRbi(argv.situation, Object.keys(SITUATION)))
+  process.exit();
 
 /**
  * ヘッダ作成 (rank, number of homerun, tie)
  */
-const header = `2019年 ${situation ? SITUATION[situation] : '累計'}適時打数ランキング\n(本/適時打状況打数 打点 率)\n\n`;
+const header = `2019年 ${
+  situation ? SITUATION[situation] : "累計"
+}適時打数ランキング\n(本/適時打状況打数 打点 率)\n\n`;
 
 /**
- * 
+ *
  * @param {array} results
  * @param {number} idx
  * @param {boolean} round2ndDecimal

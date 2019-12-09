@@ -38,14 +38,3 @@ y.search = require("yargs")
   .alias("c", "count")
   .default({ word: 25 })
   ;
-
-/**
- * for homerun situation
- */
-y.batterRbi = require("yargs")
-  .alias("s", "situation")
-  .alias("l", "limit")
-  .default({ limit: 5 })
-  .count("tweet")
-  .alias("t", "tweet")
-  ;
