@@ -91,7 +91,7 @@ util.executeRoundSmallNum = (results, idx, round2ndDcm, round3rdDcm, cols) =>
 
 /**
  * パーセント 四捨五入
- * 
+ *
  * @param {Save as above}
  * @return {Save as above}
  */
@@ -206,8 +206,12 @@ const doRoundDecimal = (
     }
   }
 
+  rounded = addedZero(rounded, roudedDecimal);
+  if (baseDecimal == 3)
+    rounded = String(rounded).slice(0, 1) == "1" ? "1.000" : String(rounded).slice(1);
+
   return {
-    rounded: addedZero(rounded, roudedDecimal),
+    rounded,
     flag2: round2ndDecimal,
     flag3: round3rdDecimal
   };

@@ -56,20 +56,6 @@ const header = `2019年 決め球｢${BALL_TYPES[ballType]}｣奪三振率ラン
  * @return {string}
  */
 const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
-  const {
-    name,
-    team,
-    all_cnt,
-    swing,
-    swg_cnt,
-    look,
-    look_rate,
-    avg_cnt,
-    b_cnt,
-    b_rate,
-    rank
-  } = results[idx];
-
   let { rounded, flag2, flag3 } = executeRoundSmallNum(
     results,
     idx,
@@ -77,9 +63,9 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     round3rdDecimal,
     { cntCol: "b_cnt", allCol: "all_cnt", targetCol: "b_rate" }
   );
-  let average = String(rounded).slice(1);
   // create display info
-  let row = `${rank}位: ${name}(${team}) ${average} (${all_cnt}-${b_cnt})\n`;
+  const { name, team, all_cnt, b_cnt, rank } = results[idx];
+  let row = `${rank}位: ${name}(${team}) ${rounded} (${all_cnt}-${b_cnt})\n`;
 
   return [row, flag2, flag3];
 };
