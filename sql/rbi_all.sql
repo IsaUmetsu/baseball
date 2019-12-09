@@ -1,4 +1,5 @@
 -- CREATE TABLE _rbi_all 
+-- insert into _rbi_all (`g_id`,`oo_id`,`date`,`location`,`ining`,`top_bottom`,`batter`,`name`,`team`,`strike`,`ball`,`out`,`on_all_base`,`runner_1b`,`next_1b_go`,`runner_2b`,`next_2b_go`,`runner_3b`,`next_3b_go`,`bp_count`,`is_commit`,`rst_id`,`result`,`t_total`,`b_total`,`ball_flow`,`RBI`) 
 
 -- SELECT
 -- 	-- `mnt`,

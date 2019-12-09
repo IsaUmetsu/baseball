@@ -369,49 +369,31 @@ query.homerunTypeRankSituationTeam = homerun_type =>
  */
 const homerunTypeRankSituation = (homerun_type, table_name) => `
   SELECT
-    hb.*,
-    rank.rank,
-    T.team_initial_kana AS team_kana
+    hb.*, rank.rank, T.team_initial_kana AS team_kana
   FROM
     ${table_name} hb
     LEFT JOIN (
       SELECT
-        id,
-        score,
-        rank
+        id, score, rank
       FROM
         (
           SELECT
-            score,
-            percent,
-            @rank AS rank,
-            cnt,
-            @rank := @rank + cnt
+            score, percent, @rank AS rank, cnt, @rank := @rank + cnt
           FROM
+            ( SELECT @rank := 1 ) AS Dummy,
             (
               SELECT
-                @rank := 1
-            ) AS Dummy,
-            (
-              SELECT
-                cnt AS score,
-                percent,
-                Count(*) AS cnt
+                cnt AS score, percent, Count(*) AS cnt
               FROM
                 (
                   SELECT
                     *
                   FROM
                     ${table_name}
-                  WHERE
-                    homerun_type = '${homerun_type}'
+                  WHERE homerun_type = '${homerun_type}'
                 ) AS htb
-              GROUP BY
-                score,
-                percent
-              ORDER BY
-                score DESC,
-                percent DESC
+              GROUP BY score, percent
+              ORDER BY score DESC, percent DESC
             ) AS GroupBy
         ) AS Ranking
         JOIN (
@@ -423,15 +405,11 @@ const homerunTypeRankSituation = (homerun_type, table_name) => `
             homerun_type = '${homerun_type}'
         ) AS htb ON htb.cnt = Ranking.score
         AND htb.percent = Ranking.percent
-      ORDER BY
-        rank ASC
-    ) AS rank ON rank.id = hb.id
+      ORDER BY rank ASC) AS rank ON rank.id = hb.id
     LEFT JOIN team_info T ON hb.team = T.team_initial
   WHERE
     hb.homerun_type = '${homerun_type}'
-  ORDER BY
-    hb.cnt DESC,
-    hb.percent DESC
+  ORDER BY hb.cnt DESC, hb.percent DESC
 `;
 
 /**
@@ -440,7 +418,7 @@ const homerunTypeRankSituation = (homerun_type, table_name) => `
  * @param {number} targetBat 第何打席か
  * @return {string} query
  */
-query.averageHitByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_hit_horizontal')
+query.averageHitByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_hit')
 
 /**
  * 打席ごと率取得
@@ -455,76 +433,48 @@ const averageByBat = (bat, limitPA, tableName) => {
 
   return `
     SELECT
-      h.id,
-      h.name,
-      h.team,
-      h.${colAB} AS bat_cnt,
-      h.${colCnt} AS target_cnt,
-      h.${colRate} AS average,
+      h.id, h.name, h.team, h.${colAB} AS bat_cnt, h.${colCnt} AS target_cnt, h.${colRate} AS average,
       rank.rank
     FROM
       baseball.${tableName} h
       LEFT JOIN (
         SELECT
-          id,
-          score,
-          rank
+          id, score, rank
         FROM
           (
             SELECT
-              score,
-              @rank AS rank,
-              cnt,
-              @rank := @rank + cnt
+              score, @rank AS rank, cnt, @rank := @rank + cnt
             FROM
+              ( SELECT @rank := 1 ) AS Dummy,
               (
                 SELECT
-                  @rank := 1
-              ) AS Dummy,
-              (
-                SELECT
-                  ${colRate} AS score,
-                  COUNT(*) AS cnt
+                  ${colRate} AS score, COUNT(*) AS cnt
                 FROM
                   (
                     SELECT
-                      id,
-                      name,
-                      team,
-                      ${colAB},
-                      ${colCnt},
-                      ${colRate}
+                      id, name, team, ${colAB}, ${colCnt}, ${colRate}
                     FROM
                       ${tableName}
                     WHERE
                       ${colPA} >= ${limitPA}
                   ) AS htb
-                GROUP BY
-                  score
-                ORDER BY
-                  score DESC
+                GROUP BY score
+                ORDER BY score DESC
               ) AS GroupBy
           ) AS Ranking
           JOIN (
             SELECT
-              id,
-              name,
-              team,
-              ${colAB},
-              ${colCnt},
-              ${colRate}
+              id, name, team, ${colAB}, ${colCnt}, ${colRate}
             FROM
               ${tableName}
             WHERE
               ${colPA} >= ${limitPA}
           ) AS htb ON htb.${colRate} = Ranking.score
-        ORDER BY
-          rank ASC
+        ORDER BY rank ASC
       ) AS rank ON rank.id = h.id
     WHERE
       h.${colPA} >= ${limitPA}
-    ORDER BY
-      h.${colRate} DESC
+    ORDER BY h.${colRate} DESC
   `
 }
 
@@ -535,7 +485,7 @@ const averageByBat = (bat, limitPA, tableName) => {
  * @param {number} limitPA 打席数上限
  * @return {string} query
  */
-query.averageOnBaseByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_onbase_horizontal')
+query.averageOnBaseByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_onbase')
 
 /**
  * 打席ごと長打率取得
@@ -544,7 +494,7 @@ query.averageOnBaseByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average
  * @param {number} limitPA 打席数上限
  * @return {string} query
  */
-query.averageSluggingByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_slugging_horizontal')
+query.averageSluggingByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_slugging')
 
 /**
  * 
@@ -554,87 +504,64 @@ query.averageSluggingByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'avera
 query.averageOpsBat = (bat, limitPA) => {
   const rate = `rate${bat}`
   const pa = `pa${bat}`
+
+  const selectTargetCols = `
+    o.id,
+    o.name,
+    o.team,
+    o.rate + s.rate AS rate_sum,
+    o.${rate} + s.${rate} AS rate,
+    o.${rate} AS onbase,
+    s.${rate} AS slugging,
+    o.${pa} AS pa
+  `
   return `
     SELECT
-      o.id,
-      o.name,
-      o.team,
-      o.rate + s.rate AS rate_sum,
-      o.${rate} + s.${rate} AS rate,
-      o.${rate} AS onbase,
-      s.${rate} AS slugging,
-      o.${pa} AS pa,
+      ${selectTargetCols},
       rank.rank
     FROM
-      baseball.average_onbase_horizontal o
-      LEFT JOIN baseball.average_slugging_horizontal s ON o.batter = s.batter
+      baseball.average_onbase o
+      LEFT JOIN baseball.average_slugging s ON o.batter = s.batter
       LEFT JOIN (
         SELECT
-          id,
-          score,
-          rank
+          id, score, rank
         FROM
           (
             SELECT
-              score,
-              @rank AS rank,
-              cnt,
-              @rank := @rank + cnt
+              score, @rank AS rank, cnt, @rank := @rank + cnt
             FROM
+              ( SELECT @rank := 1 ) AS Dummy,
               (
                 SELECT
-                  @rank := 1
-              ) AS Dummy,
-              (
-                SELECT
-                  rate AS score,
-                  COUNT(*) AS cnt
+                  rate AS score, COUNT(*) AS cnt
                 FROM
                   (
                     SELECT
-                      o.id,
-                      o.name,
-                      o.team,
-                      o.rate + s.rate AS rate_sum,
-                      o.${rate} + s.${rate} AS rate,
-                      o.${rate} AS onbase,
-                      s.${rate} AS slugging,
-                      o.${pa} AS pa
+                      ${selectTargetCols}
                     FROM
-                      baseball.average_onbase_horizontal o
-                      LEFT JOIN baseball.average_slugging_horizontal s ON o.batter = s.batter
+                      baseball.average_onbase o
+                    LEFT JOIN baseball.average_slugging s ON o.batter = s.batter
                     WHERE
                       o.${pa} >= ${limitPA}
                   ) AS htb
-                GROUP BY
-                  score
-                ORDER BY
-                  score DESC
+                GROUP BY score
+                ORDER BY score DESC
               ) AS GroupBy
           ) AS Ranking
           JOIN (
             SELECT
-              o.id,
-              o.name,
-              o.team,
-              o.rate + s.rate AS rate_sum,
-              o.${rate} + s.${rate} AS rate,
-              o.${rate} AS onbase,
-              s.${rate} AS slugging,
-              o.${pa} AS pa
+              ${selectTargetCols}
             FROM
-              baseball.average_onbase_horizontal o
-              LEFT JOIN baseball.average_slugging_horizontal s ON o.batter = s.batter
+              baseball.average_onbase o
+            LEFT JOIN baseball.average_slugging s ON o.batter = s.batter
             WHERE
               o.${pa} >= ${limitPA}
           ) AS htb ON htb.rate = Ranking.score
-        ORDER BY
-          rank ASC
+        ORDER BY rank ASC
       ) AS rank ON rank.id = o.id
     WHERE
       o.${pa} >= ${limitPA}
-    ORDER BY
-      rate DESC
+    ORDER BY rate DESC
 `}
 
 /**
@@ -743,3 +670,56 @@ query.strikeout = (ballType, limitSO, limitSORate, limit) => `
     ORDER BY h.b${ballType}_rate DESC
     LIMIT ${limit}
 `
+
+/**
+ * チーム別ホームランタイプ取得（通算本塁打数比較）
+ * @param {string} homerun_type
+ */
+query.hitRbiSituation = (situation, limit) => {
+  let targetCol = situation ? situation : 'total';
+  let hitCol = `h.${targetCol}_hit`, batCol = `h.${targetCol}_bat`, runsCol = `h.${targetCol}_runs`;
+  let percent = situation ? `${hitCol} / ${batCol}` : `h.total_hit / h.total_bat`;
+
+  return `
+    SELECT
+      h.id, h.name, h.team,
+      ${hitCol} AS hit, ${batCol} AS bat, ${runsCol} AS runs,
+      ${situation ? `h.total_hit, h.total_bat, h.total_runs,` : ``}
+      ROUND(${percent}, 5) AS percent, rank.rank
+    FROM
+      baseball.hit_rbi_situation_batter h 
+    LEFT JOIN
+      (SELECT
+        id, score, rank 
+      FROM
+        (SELECT
+          score, percent, cond, @rank AS rank, cnt, @rank := @rank + cnt 
+        FROM
+          (SELECT @rank := 1) AS Dummy, 
+          (SELECT
+            ${hitCol} AS score, percent, ${runsCol} AS cond, Count(*) AS cnt 
+          FROM
+            (SELECT
+              *, ROUND(${percent}, 5) AS percent 
+            FROM
+              hit_rbi_situation_batter h
+            WHERE 
+              ${hitCol} >= ${limit}
+            ) AS h 
+          GROUP  BY score, percent, cond DESC
+          ORDER  BY score DESC, percent DESC, cond DESC
+          ) AS GroupBy
+        ) AS Ranking 
+      JOIN
+        (SELECT
+          *, ROUND(${percent}, 5) AS percent
+        FROM
+          hit_rbi_situation_batter h
+        WHERE
+          ${hitCol} >= ${limit}
+        ) AS h 
+      ON ${hitCol} = Ranking.score AND h.percent = Ranking.percent AND ${runsCol} = Ranking.cond
+      ORDER  BY rank ASC
+    ) AS rank ON rank.id = h.id 
+    WHERE ${hitCol} >= ${limit}
+    ORDER BY ${hitCol} DESC, percent DESC, ${runsCol} DESC`};
