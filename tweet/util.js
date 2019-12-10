@@ -215,7 +215,7 @@ const doRoundDecimal = (
       rounded = String(rounded).slice(1);
       // when rounded = .0 then output as .000
       let roundedDecimalPart = rounded.slice(1);
-      if (roundedDecimalPart.length == (roundedDecimalPart.split("0").length - 1))
+      if (roundedDecimalPart.length == roundedDecimalPart.split("0").length - 1)
         rounded = ".000";
     }
   }
@@ -251,13 +251,20 @@ const addedZero = (target, roudedDecimal) => {
 
 /**
  * 引数バリデーション
- * 
+ *
  * @param {number} bat
  * @param {array} validList
  * @param {string} option
  * @return {boolean}
  */
-util.isValid = (value, validList, option) => {
+util.isValid = (value, validList, option) =>
+  innerIsValid(value, validList, option);
+
+/**
+ * @param {Save as above}
+ * @return {Save as above}
+ */
+const innerIsValid = (value, validList, option) => {
   let valid = true;
   // 入力有無
   if (!value) {
@@ -274,7 +281,7 @@ util.isValid = (value, validList, option) => {
 
 /**
  * 引数バリデーション (allow empty)
- * 
+ *
  * @param {number} bat
  * @param {array} validList
  * @param {string} option
@@ -289,7 +296,6 @@ util.isValidAllowEmply = (val, validList, option) => {
   }
   return valid;
 };
-
 
 /**
  *
@@ -318,4 +324,44 @@ const sameAsDevide = (hitCntVal, batCntVal, nextHitCntVal, nextBatCntVal) => {
 const gcd = (a, b) => {
   if (b == 0) return a;
   return gcd(b, a % b);
+};
+
+/**
+ * 引数のイニング数とバリデーションエラーによる終了判定を実行
+ * @return {array} number|number|boolean
+ */
+util.putArgvInning = (inningArgv, inningArray, INNINGS_COL) => {
+  let firstArg, secondArg;
+  let willFin = false;
+  // カンマ区切りにで2イニング指定した場合
+  if (inningArray.length == 2) {
+    // 引数の値を代入
+    [firstArg, secondArg] = inningArray;
+    // 最初未指定の場合、初回を自動指定
+    if (!firstArg) firstArg = 1;
+    // 最後未指定の場合、最初が10回以上だったら12回を、9回以下の場合は9回を自動指定
+    if (!secondArg) secondArg = firstArg > 9 ? 12 : 9;
+    // 大小関係を正す
+    if (firstArg > secondArg) [firstArg, secondArg] = [secondArg, firstArg];
+
+    // validated
+    if (!innerIsValid(firstArg, Object.keys(INNINGS_COL), "inning")) willFin = true;
+    if (!willFin && !innerIsValid(secondArg, Object.keys(INNINGS_COL), "inning"))
+      willFin = true;
+
+    // 同じイニングの場合、後半をリセット
+    if (firstArg == secondArg) secondArg = undefined;
+
+    // 1イニング指定した場合
+  } else if (inningArray.length == 1) {
+    if (!innerIsValid(inningArgv, Object.keys(INNINGS_COL), "inning"))
+      willFin = true;
+    firstArg = inningArgv;
+
+    // 指定なし or 3イニング以上指定した場合
+  } else {
+    willFin = true;
+  }
+
+  return [firstArg, secondArg, willFin];
 };

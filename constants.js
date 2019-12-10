@@ -55,6 +55,32 @@ constants.INNINGS = {
   延長: "10回〜"
 };
 
+constants.INNINGS_SET_NAME = {
+  "1": "初回",
+  "1,3": "序盤",
+  "4,6": "中盤",
+  "7,9": "終盤",
+  "9": "最終回",
+  "1,5": "前半イニング",
+  "6,9": "後半イニング",
+  "10,": "延長",
+};
+
+constants.INNINGS_COL = {
+  1: "oen",
+  2: "two",
+  3: "thr",
+  4: "fur",
+  5: "fiv",
+  6: "six",
+  7: "sev",
+  8: "egt",
+  9: "nin",
+  10: "ten",
+  11: "elv",
+  12: "twl"
+}
+
 constants.HASHTAGS = {
   // pacific
   L: "seibulions",

@@ -271,9 +271,7 @@ query.homerunTypeRankBatter = (situation, is_devide) => `
           FROM
             (SELECT @rank:=1) AS Dummy,
             (SELECT 
-              ${situation}_hr AS score, ${
-  is_devide ? `` : `${situation}_ttl_pct AS percent, `
-}COUNT(*) AS cnt
+              ${situation}_hr AS score, ${is_devide ? `` : `${situation}_ttl_pct AS percent, `}COUNT(*) AS cnt
             FROM
               (SELECT 
                 *
@@ -288,9 +286,7 @@ query.homerunTypeRankBatter = (situation, is_devide) => `
           ) AS Ranking
         JOIN
           (SELECT 
-            id, name, team, ${situation}_hr AS cnt, ${situation}_ttl_pct ${
-  is_devide ? `` : `, ${situation}_ttl_pct AS percent`
-}
+            id, name, team, ${situation}_hr AS cnt, ${situation}_ttl_pct ${is_devide ? `` : `, ${situation}_ttl_pct AS percent`}
           FROM
             homerun_situation_batter
           WHERE
@@ -356,12 +352,64 @@ query.homerunTypeRankTeam = homerun_type => `
 `;
 
 /**
- * 選手別シチュエーションHRランキング（通算打席数比較）
- * @param {string} homerun_type
+ * イニング別HRランキング（通算打席数比較）
+ * @param {string} selectHrCols
+ * @param {string} selectBatCols
+ * @param {number} limit
  * @return {string} query
  */
-query.homerunTypeRankSituationBatter = homerun_type =>
-  homerunTypeRankSituation(homerun_type, "hr_type_situation_b");
+query.homerunTypeRankSituationBatter = (selectHrCols, selectBatCols, limit) => `
+  SELECT
+    *
+  FROM (
+    SELECT
+      h.id, h.name, h.team,
+      ${selectHrCols} AS hr,
+      ${selectBatCols} AS bat,
+      ROUND((${selectHrCols})/(${selectBatCols}), 5) * 100 AS percent,
+      rank.rank
+    FROM
+      baseball.homerun_inning_batter h 
+    LEFT JOIN
+      (SELECT
+        id, score, rank 
+      FROM
+        (SELECT
+          score, percent, @rank AS rank, cnt, @rank := @rank + cnt 
+        FROM
+          (SELECT @rank := 1) AS Dummy, 
+          (SELECT
+            hr AS score, percent, Count(*) AS cnt 
+          FROM
+            (SELECT
+              h.id, h.name, h.team,
+              ${selectHrCols} AS hr,
+              ${selectBatCols} AS bat,
+              ROUND((${selectHrCols})/(${selectBatCols}), 5) AS percent
+            FROM
+              homerun_inning_batter h
+            ) AS htb 
+          GROUP  BY score, percent 
+          ORDER  BY score DESC, percent DESC
+          ) AS GroupBy
+        ) AS Ranking 
+      JOIN
+        (SELECT
+          h.id, h.name, h.team,
+          ${selectHrCols} AS hr,
+          ${selectBatCols} AS bat,
+          ROUND((${selectHrCols})/(${selectBatCols}), 5) AS percent
+        FROM
+          homerun_inning_batter h
+        ) AS htb 
+      ON htb.hr = Ranking.score AND htb.percent = Ranking.percent 
+      ORDER  BY rank ASC
+    ) AS rank ON rank.id = h.id 
+    ORDER  BY hr DESC, percent DESC
+  ) AS A
+  WHERE hr > 0
+  LIMIT ${limit};
+`;
 
 /**
  * チーム別シチュエーションHRランキング（通算打席数比較）

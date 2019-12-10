@@ -15,7 +15,7 @@ const twText = require("twitter-text");
 
 const { db } = require("../model");
 const { homerunTypeRankSituationTeam } = require("../query");
-const { INNINGS, HASHTAGS } = require('../constants')
+const { HASHTAGS } = require('../constants')
 const { executeRoundPercent, tweetResult } = require("./util");
 
 const homerun_type = "逆転";
@@ -108,11 +108,8 @@ const createHeader = () => {
   const dispHomerunType = homerun_type_other
     ? homerun_type_other
     : homerun_type;
-
-  // 表示対象のイニングがある場合のみ、表示する
-  const dispIning = Object.keys(INNINGS).indexOf(dispHomerunType) > -1 ? `(${INNINGS[dispHomerunType]})` : ''
   // 各種ヘッダ作成
-  const header1 = `2019年 チーム別${dispHomerunType}${dispIning}HRランキング\n`;
+  const header1 = `2019年 チーム別${dispHomerunType}HRランキング\n`;
   const header2 = `(本/${dispHomerunType}打数)\n`;
   // 連結して返却
   return `${header1}${header2}※同数の場合は率が高い順に順位付け\n\n`;
