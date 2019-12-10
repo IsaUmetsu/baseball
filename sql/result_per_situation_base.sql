@@ -1,5 +1,5 @@
 -- CREATE TABLE result_per_situation_base
--- CREATE TABLE result_per_situation_base_regulation
+-- CREATE TABLE result_per_situation_regulation
 
 SELECT
 	pb.id, p.name, p.team,

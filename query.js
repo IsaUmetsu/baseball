@@ -736,7 +736,7 @@ query.resultPerBaseRegulation = base => `
     rbi_${base} AS rbi, bat_${base} AS bat,
     rate_${base} AS rate, rank.rank
   FROM
-    result_per_situation_base_regulation hb
+    result_per_situation_regulation hb
   LEFT JOIN (
     SELECT
       id, score, rank
@@ -757,7 +757,7 @@ query.resultPerBaseRegulation = base => `
                   rbi_${base} AS rbi, bat_${base} AS bat,
                   rate_${base} AS rate
                 FROM
-                  result_per_situation_base_regulation
+                  result_per_situation_regulation
               ) AS htb
             GROUP BY score
             ORDER BY score DESC
@@ -770,7 +770,7 @@ query.resultPerBaseRegulation = base => `
           rbi_${base} AS rbi, bat_${base} AS bat,
           rate_${base} AS rate
         FROM
-          result_per_situation_base_regulation
+          result_per_situation_regulation
       ) AS htb ON htb.rate = Ranking.score
     ORDER BY rank ASC) AS rank ON rank.id = hb.id
   ORDER BY rate_${base} DESC
