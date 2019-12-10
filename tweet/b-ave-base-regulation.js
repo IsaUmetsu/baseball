@@ -13,11 +13,14 @@
 const argv = require("yargs")
   .count("tweet")
   .alias("t", "tweet")
+  .alias("r", "result")
+  .default({ result: 1 })
   .alias("b", "base")
   .default({ base: 1 }).argv;
 
 const { resultPerBaseRegulation } = require("../query");
-const { isValidBat, executeRoundSmallNum } = require("./util");
+const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME } = require("../constants");
+const { isValid, executeRoundSmallNum } = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
@@ -45,9 +48,10 @@ const baseTypeName = {
 };
 
 // validated
-if (!isValidBat(argv.base, Object.keys(baseType))) process.exit();
+if (!isValid(argv.base, Object.keys(baseType), "base")) process.exit();
 // set bat
 const base = argv.base;
+const rst = argv.result;
 
 /**
  *
@@ -65,7 +69,7 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     round3rdDecimal,
     { cntCol: "hit", allCol: "bat", targetCol: "rate" }
   );
-  const { name, team, hr, rbi, hit, bat, rate, rank } = results[idx];
+  const { name, team, hr, rbi, hit, bat, rank } = results[idx];
   let row = `${rank}位 ${name}(${team}) ${rounded} (${bat}-${hit}) ${hr}本 ${rbi}打点 \n`;
   return [row, flag2, flag3];
 };
@@ -73,14 +77,14 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
 /**
  * ヘッダ作成 (rank, number of homerun, tie)
  */
-const header = `2019年 走者${baseTypeName[base]} 打率ランキング\n※規定打席到達打者のみ\n\n`;
+const header = `2019年 走者${baseTypeName[base]} ${RESULT_PER_TYPE_NAME[rst]}ランキング\n※規定打席到達打者のみ\n\n`;
 
 /**
  * Execute
  */
 (async () => {
   await executeWithRound(
-    resultPerBaseRegulation(baseType[base]),
+    resultPerBaseRegulation(baseType[base], RESULT_PER_TYPE[rst]),
     tweet,
     header,
     createRow

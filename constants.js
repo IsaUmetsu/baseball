@@ -102,3 +102,16 @@ constants.SITUATION_COL_NAME = {
   6: "gkt",
   7: "syn"
 };
+
+// 打撃成績種別カラム名
+constants.RESULT_PER_TYPE = {
+  1: "rate",
+  2: "hr",
+  3: "rbi"
+};
+// 打撃成績種別名称
+constants.RESULT_PER_TYPE_NAME = {
+  1: "打率",
+  2: "本塁打",
+  3: "打点"
+};

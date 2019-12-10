@@ -250,59 +250,22 @@ const addedZero = (target, roudedDecimal) => {
 };
 
 /**
- * 取得対象打席数 バリデーション
- *
- * @param {number} bat
- * @param {array} validList
- * @return {boolean}
- */
-util.isValidBat = (bat, validList) => isValid(bat, validList, "bat");
-
-/**
- * 取得対象本塁打情報 バリデーション
- *
- * @param {number} bat
- * @param {array} validList
- * @return {boolean}
- */
-util.isValidHR = (situation, validList) =>
-  isValid(situation, validList, "situation");
-
-/**
- * 取得対象投球データ バリデーション
- *
- * @param {number} bat
- * @param {array} validList
- * @return {boolean}
- */
-util.isValidPitch = (bat, validList) => isValid(bat, validList, "ballType");
-
-/**
- * 取得対象投球データ バリデーション
- *
- * @param {number} bat
- * @param {array} validList
- * @return {boolean}
- */
-util.isValidSituationHitRbi = (bat, validList) =>
-  isValidAllowEmply(bat, validList, "situation");
-
-/**
- *
+ * 引数バリデーション
+ * 
  * @param {number} bat
  * @param {array} validList
  * @param {string} option
  * @return {boolean}
  */
-const isValid = (bat, validList, option) => {
+util.isValid = (value, validList, option) => {
   let valid = true;
   // 入力有無
-  if (!bat) {
+  if (!value) {
     console.log("please input `--" + option + "` option");
     valid = false;
   }
   // 範囲内判定
-  if (valid && validList.indexOf(String(bat)) == -1) {
+  if (valid && validList.indexOf(String(value)) == -1) {
     console.log("please input valid `--" + option + "` option");
     valid = false;
   }
@@ -310,13 +273,14 @@ const isValid = (bat, validList, option) => {
 };
 
 /**
- *
+ * 引数バリデーション (allow empty)
+ * 
  * @param {number} bat
  * @param {array} validList
  * @param {string} option
  * @return {boolean}
  */
-const isValidAllowEmply = (val, validList, option) => {
+util.isValidAllowEmply = (val, validList, option) => {
   let valid = true;
   // 範囲内判定
   if (val && validList.indexOf(String(val)) == -1) {
@@ -325,6 +289,7 @@ const isValidAllowEmply = (val, validList, option) => {
   }
   return valid;
 };
+
 
 /**
  *

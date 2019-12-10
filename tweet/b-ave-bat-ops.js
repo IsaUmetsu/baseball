@@ -13,14 +13,14 @@
 const argv = require("./average/yargs").batter.argv;
 
 const { averageOpsBat } = require("../query");
-const { isValidBat, round } = require("./util");
+const { isValid, round } = require("./util");
 const { executeWithCb } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
 const basePA = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
 
 // validated
-if (!isValidBat(argv.bat, Object.keys(basePA))) process.exit();
+if (!isValid(argv.bat, Object.keys(basePA), "bat")) process.exit();
 // set bat
 const bat = argv.bat;
 

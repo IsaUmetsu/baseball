@@ -265,11 +265,15 @@ query.homerunTypeRankBatter = (situation, is_devide) => `
           id, score, rank
         FROM 
           (SELECT 
-            score, ${is_devide ? ``: `percent, `}@rank AS rank, cnt, @rank:=@rank + cnt
+            score, ${
+              is_devide ? `` : `percent, `
+            }@rank AS rank, cnt, @rank:=@rank + cnt
           FROM
             (SELECT @rank:=1) AS Dummy,
             (SELECT 
-              ${situation}_hr AS score, ${is_devide ? ``: `${situation}_ttl_pct AS percent, `}COUNT(*) AS cnt
+              ${situation}_hr AS score, ${
+  is_devide ? `` : `${situation}_ttl_pct AS percent, `
+}COUNT(*) AS cnt
             FROM
               (SELECT 
                 *
@@ -278,24 +282,30 @@ query.homerunTypeRankBatter = (situation, is_devide) => `
               WHERE
                 ${situation}_hr > 0
               ) AS htb
-            GROUP BY score ${is_devide ? ``: `, percent`}
-            ORDER BY score DESC ${is_devide ? ``: `, percent DESC`}
+            GROUP BY score ${is_devide ? `` : `, percent`}
+            ORDER BY score DESC ${is_devide ? `` : `, percent DESC`}
             ) AS GroupBy
           ) AS Ranking
         JOIN
           (SELECT 
-            id, name, team, ${situation}_hr AS cnt, ${situation}_ttl_pct ${is_devide ? ``: `, ${situation}_ttl_pct AS percent`}
+            id, name, team, ${situation}_hr AS cnt, ${situation}_ttl_pct ${
+  is_devide ? `` : `, ${situation}_ttl_pct AS percent`
+}
           FROM
             homerun_situation_batter
           WHERE
             ${situation}_hr > 0
-          ) AS htb ON htb.cnt = Ranking.score ${is_devide ? ``: `AND htb.percent = Ranking.percent`}
+          ) AS htb ON htb.cnt = Ranking.score ${
+            is_devide ? `` : `AND htb.percent = Ranking.percent`
+          }
         ORDER BY rank ASC
         ) AS rank
       ON rank.id = h.id
     WHERE
       h.${situation}_hr > 0
-    ORDER BY h.${situation}_hr ${is_devide ? `ASC` : `DESC`}, h.${situation}_ttl_pct ${is_devide ? `ASC` : `DESC`};
+    ORDER BY h.${situation}_hr ${
+  is_devide ? `ASC` : `DESC`
+}, h.${situation}_ttl_pct ${is_devide ? `ASC` : `DESC`};
 `;
 
 /**
@@ -414,22 +424,26 @@ const homerunTypeRankSituation = (homerun_type, table_name) => `
 
 /**
  * 打席ごと打率取得
- * 
+ *
  * @param {number} targetBat 第何打席か
  * @return {string} query
  */
-query.averageHitByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_hit')
+query.averageHitByBat = (bat, limitPA) =>
+  averageByBat(bat, limitPA, "average_hit");
 
 /**
  * 打席ごと率取得
- * 
+ *
  * @param {number} bat 第何打席か
  * @param {number} limitPA 打席数上限
  * @param {string} tableName テーブル名
  * @return {string} query
  */
 const averageByBat = (bat, limitPA, tableName) => {
-  const colPA = `pa${bat}`, colAB = `ab${bat}`, colCnt = `cnt${bat}`, colRate = `rate${bat}`;
+  const colPA = `pa${bat}`,
+    colAB = `ab${bat}`,
+    colCnt = `cnt${bat}`,
+    colRate = `rate${bat}`;
 
   return `
     SELECT
@@ -475,35 +489,37 @@ const averageByBat = (bat, limitPA, tableName) => {
     WHERE
       h.${colPA} >= ${limitPA}
     ORDER BY h.${colRate} DESC
-  `
-}
+  `;
+};
 
 /**
  * 打席ごと出塁率取得
- * 
+ *
  * @param {number} bat 第何打席か
  * @param {number} limitPA 打席数上限
  * @return {string} query
  */
-query.averageOnBaseByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_onbase')
+query.averageOnBaseByBat = (bat, limitPA) =>
+  averageByBat(bat, limitPA, "average_onbase");
 
 /**
  * 打席ごと長打率取得
- * 
+ *
  * @param {number} bat 第何打席か
  * @param {number} limitPA 打席数上限
  * @return {string} query
  */
-query.averageSluggingByBat = (bat, limitPA) => averageByBat(bat, limitPA, 'average_slugging')
+query.averageSluggingByBat = (bat, limitPA) =>
+  averageByBat(bat, limitPA, "average_slugging");
 
 /**
- * 
+ *
  * @param {number} bat
  * @param {number} limitPA
  */
 query.averageOpsBat = (bat, limitPA) => {
-  const rate = `rate${bat}`
-  const pa = `pa${bat}`
+  const rate = `rate${bat}`;
+  const pa = `pa${bat}`;
 
   const selectTargetCols = `
     o.id,
@@ -514,7 +530,7 @@ query.averageOpsBat = (bat, limitPA) => {
     o.${rate} AS onbase,
     s.${rate} AS slugging,
     o.${pa} AS pa
-  `
+  `;
   return `
     SELECT
       ${selectTargetCols},
@@ -562,10 +578,11 @@ query.averageOpsBat = (bat, limitPA) => {
     WHERE
       o.${pa} >= ${limitPA}
     ORDER BY rate DESC
-`}
+`;
+};
 
 /**
- * 
+ *
  * @param {number} ballType 球種ID
  * @param {number} limitPitches 下限投球数
  * @param {number} limit 上限表示ランキング
@@ -618,14 +635,14 @@ query.speed = (ballType, limitPitches, limit) => `
       h.b${ballType}_cnt >= ${limitPitches}
     ORDER BY h.b${ballType}_avg_spd DESC
     LIMIT ${limit}
-`
+`;
 
 /**
- * 
+ *
  * @param {number} ballType
  * @param {number} limitSO 下限奪三振数
  * @param {number} limitSORate 下限奪三振率
- * @param {number} 
+ * @param {number}
  */
 query.strikeout = (ballType, limitSO, limitSORate, limit) => `
   SELECT   
@@ -669,16 +686,20 @@ query.strikeout = (ballType, limitSO, limitSORate, limit) => `
       h.b${ballType} >= ${limitSO} OR (h.b${ballType} >= ${limitSO} AND h.b${ballType}_rate >= ${limitSORate})
     ORDER BY h.b${ballType}_rate DESC
     LIMIT ${limit}
-`
+`;
 
 /**
  * チーム別ホームランタイプ取得（通算本塁打数比較）
  * @param {string} homerun_type
  */
 query.hitRbiSituation = (situation, limit) => {
-  let targetCol = situation ? situation : 'total';
-  let hitCol = `h.${targetCol}_hit`, batCol = `h.${targetCol}_bat`, runsCol = `h.${targetCol}_runs`;
-  let percent = situation ? `${hitCol} / ${batCol}` : `h.total_hit / h.total_bat`;
+  let targetCol = situation ? situation : "total";
+  let hitCol = `h.${targetCol}_hit`,
+    batCol = `h.${targetCol}_bat`,
+    runsCol = `h.${targetCol}_runs`;
+  let percent = situation
+    ? `${hitCol} / ${batCol}`
+    : `h.total_hit / h.total_bat`;
 
   return `
     SELECT
@@ -722,21 +743,42 @@ query.hitRbiSituation = (situation, limit) => {
       ORDER  BY rank ASC
     ) AS rank ON rank.id = h.id 
     WHERE ${hitCol} >= ${limit}
-    ORDER BY ${hitCol} DESC, percent DESC, ${runsCol} DESC`};
+    ORDER BY ${hitCol} DESC, percent DESC, ${runsCol} DESC`;
+};
 
 /**
  * 塁別打撃成績(規定到達打者)取得
  * @param {string} base
+ * @param {string} target 順位付け対象 (rate|hr|rbi)
  * @return {string}
  */
-query.resultPerBaseRegulation = base => `
+query.resultPerBaseRegulation = (base, target) =>
+  resultPerAnyRegulation(base, "result_per_situation_regulation", target);
+
+/**
+ * カウント別打撃成績(規定到達打者)取得
+ * @param {string} count
+ * @param {string} target 順位付け対象 (rate|hr|rbi)
+ * @return {string}
+ */
+query.resultPerCountRegulation = (count, target) =>
+  resultPerAnyRegulation(count, "result_per_count_regulation", target);
+
+/**
+ * 任意項目別打撃成績(規定到達打者限定)取得
+ * @param {string} any base|count
+ * @param {string} tableName
+ * @param {string} target 順位付け対象 (rate|hr|rbi)
+ * @return {string}
+ */
+const resultPerAnyRegulation = (any, tableName, target) => `
   SELECT
     name, team,
-    hit_${base} AS hit, hr_${base} AS hr,
-    rbi_${base} AS rbi, bat_${base} AS bat,
-    rate_${base} AS rate, rank.rank
+    hit_${any} AS hit, hr_${any} AS hr,
+    rbi_${any} AS rbi, bat_${any} AS bat,
+    rate_${any} AS rate, rank.rank
   FROM
-    result_per_situation_regulation hb
+    ${tableName} hb
   LEFT JOIN (
     SELECT
       id, score, rank
@@ -748,16 +790,16 @@ query.resultPerBaseRegulation = base => `
           ( SELECT @rank := 1 ) AS Dummy,
           (
             SELECT
-              rate AS score, Count(*) AS cnt
+              ${target} AS score, Count(*) AS cnt
             FROM
               (
                 SELECT
                   id, name, team,
-                  hit_${base} AS hit, hr_${base} AS hr,
-                  rbi_${base} AS rbi, bat_${base} AS bat,
-                  rate_${base} AS rate
+                  hit_${any} AS hit, hr_${any} AS hr,
+                  rbi_${any} AS rbi, bat_${any} AS bat,
+                  rate_${any} AS rate
                 FROM
-                  result_per_situation_regulation
+                  ${tableName}
               ) AS htb
             GROUP BY score
             ORDER BY score DESC
@@ -766,12 +808,12 @@ query.resultPerBaseRegulation = base => `
       JOIN (
         SELECT
           id, name, team,
-          hit_${base} AS hit, hr_${base} AS hr,
-          rbi_${base} AS rbi, bat_${base} AS bat,
-          rate_${base} AS rate
+          hit_${any} AS hit, hr_${any} AS hr,
+          rbi_${any} AS rbi, bat_${any} AS bat,
+          rate_${any} AS rate
         FROM
-          result_per_situation_regulation
-      ) AS htb ON htb.rate = Ranking.score
+          ${tableName}
+      ) AS htb ON htb.${target} = Ranking.score
     ORDER BY rank ASC) AS rank ON rank.id = hb.id
-  ORDER BY rate_${base} DESC
+  ORDER BY ${target}_${any} DESC
 `;

@@ -18,7 +18,7 @@ const argv = require("yargs")
   .count("tweet")
   .alias("t", "tweet").argv;
 
-const { isValidSituationHitRbi, executeRoundSmallNum } = require("./util");
+const { isValidAllowEmply, executeRoundSmallNum } = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 const { hitRbiSituation } = require("../query");
 const { SITUATION, SITUATION_COL_NAME } = require("../constants");
@@ -27,7 +27,7 @@ const tweet = argv.tweet > 0;
 const situation = argv.situation;
 
 // validate args
-if (!isValidSituationHitRbi(argv.situation, Object.keys(SITUATION)))
+if (!isValidAllowEmply(argv.situation, Object.keys(SITUATION), "situation"))
   process.exit();
 
 /**

@@ -13,7 +13,7 @@
 const argv = require("./average/yargs").pitcher.argv;
 
 const { speed } = require("../query");
-const { isValidPitch, round } = require("./util");
+const { isValid, round } = require("./util");
 const { executeWithCb } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
@@ -40,7 +40,7 @@ const bPitchCnt = {
 const resultLimit = 50;
 
 // validated
-if (!isValidPitch(argv.ballType, Object.keys(bPitchCnt))) process.exit();
+if (!isValid(argv.ballType, Object.keys(bPitchCnt), "ballType")) process.exit();
 // set bat
 const ballType = argv.ballType;
 

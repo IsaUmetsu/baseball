@@ -12,7 +12,7 @@
  */
 const argv = require("./average/yargs").batterHR.argv;
 
-const { isValidHR, executeRoundAverageHR } = require("./util");
+const { isValid, executeRoundAverageHR } = require("./util");
 const { executeWithRoundDevide } = require("./average/b-ave");
 const { homerunTypeRankBatter } = require("../query");
 const { SITUATION, SITUATION_COL_NAME } = require("../constants");
@@ -21,7 +21,7 @@ const tweet = argv.tweet > 0;
 const homerunTypeId = argv.situation;
 
 // validate args
-if (!isValidHR(argv.situation, Object.keys(SITUATION))) process.exit();
+if (!isValid(argv.situation, Object.keys(SITUATION), "situation")) process.exit();
 
 /**
  *
