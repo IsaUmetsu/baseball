@@ -68,7 +68,7 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     { cntCol: "hr", allCol: "bat", targetCol: "percent" }
   );
   const { name, team, hr, bat, rank } = results[idx];
-  let row = `第${rank}位 ${name}(${team}) ${hr}本 (${bat}打数) ${rounded}%\n`;
+  let row = `${rank}位 ${name}(${team}) ${hr}本 (${bat}打数) ${rounded}%\n`;
   return [row, flag2, flag3];
 };
 

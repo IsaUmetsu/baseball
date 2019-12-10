@@ -361,18 +361,15 @@ query.homerunTypeRankTeam = homerun_type => `
 query.homerunTypeRankSituationBatter = (selectHrCols, selectBatCols, limit) => `
   SELECT
     *
-  FROM (${baseInningQuery(selectHrCols, selectBatCols)}) AS A
+  FROM (${baseInningQuery(selectHrCols, selectBatCols, false)}) AS A
   WHERE hr > 0
   LIMIT ${limit};
 `;
 
 /**
- * イニング別ランキング基底クエリ
- * @param {string} selectHrCols
- * @param {string} selectBatCols
- * @return {string}
+ * イニング別ランキング基底クエリ (backup old version)
  */
-const baseInningQuery = (selectHrCols, selectBatCols) => `
+const baseInningQueryBackup = (selectHrCols, selectBatCols) => `
   SELECT
     h.id, h.name, h.team,
     ${selectHrCols} AS hr,
@@ -420,21 +417,83 @@ const baseInningQuery = (selectHrCols, selectBatCols) => `
 `
 
 /**
+ * イニング別ランキング基底クエリ
+ * 
+ * @param {string} selectHrCols
+ * @param {string} selectBatCols
+ * @param {boolean} isTeam チーム単位の集計か
+ * @return {string}
+ */
+const baseInningQuery = (selectHrCols, selectBatCols, isTeam) => {
+  // select target cols
+  const selectCols = isTeam
+    ? `
+      hr, bat,
+      ROUND(hr/bat, 5) * 100 AS percent`
+    : `
+      ${selectHrCols} AS hr, ${selectBatCols} AS bat,
+      ROUND((${selectHrCols})/(${selectBatCols}), 5) * 100 AS percent
+    `;
+  // select target table (チームの場合、先にグループ化したテーブルから取得)
+  const fromTable = isTeam
+    ? `(
+        SELECT
+          MAX(id) AS id, null AS name, team,
+          SUM(${selectHrCols}) AS hr,
+          SUM(${selectBatCols}) AS bat
+        FROM baseball.homerun_inning_batter h
+        GROUP BY team
+        ) AS h`
+    : `baseball.homerun_inning_batter h `;
+  
+  return `
+    SELECT
+      h.id, h.name, h.team, ${selectCols}, rank.rank
+    FROM
+      ${fromTable}
+    LEFT JOIN
+      (SELECT
+        id, score, rank 
+      FROM
+        (SELECT
+          score, percent, @rank AS rank, cnt, @rank := @rank + cnt 
+        FROM
+          (SELECT @rank := 1) AS Dummy, 
+          (SELECT
+            hr AS score, percent, Count(*) AS cnt 
+          FROM
+            (SELECT
+              h.id, h.name, h.team, ${selectCols}
+            FROM
+              ${fromTable}
+            ) AS htb 
+          GROUP  BY score, percent 
+          ORDER  BY score DESC, percent DESC
+          ) AS GroupBy
+        ) AS Ranking 
+      JOIN
+        (SELECT
+          h.id, h.name, h.team, ${selectCols}
+        FROM
+          ${fromTable}
+        ) AS htb 
+      ON htb.hr = Ranking.score AND htb.percent = Ranking.percent 
+      ORDER  BY rank ASC
+    ) AS rank ON rank.id = h.id 
+    ORDER  BY hr DESC, percent DESC
+`};
+
+/**
  * チーム別シチュエーションHRランキング（通算打席数比較）
  * @param {string} homerun_type
  * @return {string} query
  */
 query.homerunTypeRankSituationTeam = (selectHrCols, selectBatCols) => `
   SELECT
-    t.team_short_name AS team, A.hr, A.bat, A.percent
-  FROM (
-    SELECT
-      team, SUM(hr) AS hr, SUM(bat) AS bat, ROUND(SUM(hr)/SUM(bat), 5) * 100 AS percent
-    FROM (${baseInningQuery(selectHrCols, selectBatCols)}) AS B
-    WHERE hr > 0
-    GROUP BY team
-  ) AS A
+    t.team_short_name AS team, A.hr, A.bat, A.percent, A.rank
+  FROM (${baseInningQuery(selectHrCols, selectBatCols, true)}) AS A
   LEFT JOIN team_info t ON t.team_initial = A.team
+  WHERE t.league IN ("C", "P")
   ORDER BY hr DESC, percent DESC;
 `
 
