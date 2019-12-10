@@ -167,6 +167,5 @@ LEFT JOIN (
 	WHERE sb.on_all_base = '111'
 	GROUP BY batter
 ) AS b_111 ON b_111.batter = pb.id
-LEFT JOIN batter_reaching_regulation br ON pb.id = br.batter
-WHERE br.batter IS NOT NULL
+-- LEFT JOIN batter_reaching_regulation br ON pb.id = br.batter WHERE br.batter IS NOT NULL
 ;
