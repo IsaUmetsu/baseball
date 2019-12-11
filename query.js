@@ -250,106 +250,72 @@ const getFullParticipationBySide = (top_bottom, order, ids) => `
     )
 `;
 
-/**
- * 選手別ホームランタイプ取得（通算本塁打数比較）
- * @param {string} situation
- * @param {boolean} is_devide 本数単位でツイート分割するか
- */
-query.homerunTypeRankBatter = (situation, is_devide) => `
-  SELECT 
-    h.id, h.name, h.team, h.${situation}_hr AS hr, h.total_hr AS total, h.${situation}_ttl_pct AS pct, rank.rank
-  FROM
-    baseball.homerun_situation_batter h
-      LEFT JOIN
-        (SELECT 
-          id, score, rank
-        FROM 
-          (SELECT 
-            score, ${
-              is_devide ? `` : `percent, `
-            }@rank AS rank, cnt, @rank:=@rank + cnt
-          FROM
-            (SELECT @rank:=1) AS Dummy,
-            (SELECT 
-              ${situation}_hr AS score, ${is_devide ? `` : `${situation}_ttl_pct AS percent, `}COUNT(*) AS cnt
-            FROM
-              (SELECT 
-                *
-              FROM
-                homerun_situation_batter
-              WHERE
-                ${situation}_hr > 0
-              ) AS htb
-            GROUP BY score ${is_devide ? `` : `, percent`}
-            ORDER BY score DESC ${is_devide ? `` : `, percent DESC`}
-            ) AS GroupBy
-          ) AS Ranking
-        JOIN
-          (SELECT 
-            id, name, team, ${situation}_hr AS cnt, ${situation}_ttl_pct ${is_devide ? `` : `, ${situation}_ttl_pct AS percent`}
-          FROM
-            homerun_situation_batter
-          WHERE
-            ${situation}_hr > 0
-          ) AS htb ON htb.cnt = Ranking.score ${
-            is_devide ? `` : `AND htb.percent = Ranking.percent`
-          }
-        ORDER BY rank ASC
-        ) AS rank
-      ON rank.id = h.id
-    WHERE
-      h.${situation}_hr > 0
-    ORDER BY h.${situation}_hr ${
-  is_devide ? `ASC` : `DESC`
-}, h.${situation}_ttl_pct ${is_devide ? `ASC` : `DESC`};
-`;
 
 /**
  * チーム別ホームランタイプ取得（通算本塁打数比較）
- * @param {string} homerun_type
+ * @param {string} situation
+ * @param {boolean} isDevide
+ * @param {boolean} isTeam
+ * @param {number} limit
+ * @return {string}
  */
-query.homerunTypeRankTeam = homerun_type => `
-  SELECT
-    h.id, h.team, h.cnt, h.team_cnt AS total_cnt, h.percent, rank.rank, T.team_initial
-  FROM
-    baseball.homerun_type_team h 
-  LEFT JOIN
-    (SELECT
-      id, score, rank 
+query.homerunTypeRank = (situation, isDevide, isTeam, limit) => {
+  // part of select cols
+  const selectColsPart = `
+    h.${situation}_hr AS hr,
+    h.total_hr AS total,
+    h.${situation}_ttl_pct AS pct
+  `;
+  // switch select target table (チームの場合は選手をグループ化したテーブルから取得)
+  const selectTable = isTeam ? `(
+      SELECT
+        MAX(id) AS id, null AS name, team,
+        SUM(h.${situation}_hr) AS ${situation}_hr,
+        SUM(h.total_hr) AS total_hr,
+        ROUND(SUM(h.${situation}_hr)/SUM(h.total_hr), 5) AS ${situation}_ttl_pct
+      FROM homerun_situation_batter h GROUP BY team
+    ) AS h
+  ` : `baseball.homerun_situation_batter h`
+  
+  return `
+    SELECT 
+      h.id, h.name, ${isTeam ? `t.team_short_name AS team` : `h.team`}, ${selectColsPart}, rank.rank
     FROM
-      (SELECT
-        score, percent, @rank AS rank, cnt, @rank := @rank + cnt 
-      FROM
-        (SELECT @rank := 1) AS Dummy, 
-        (SELECT
-          cnt AS score, percent, Count(*) AS cnt 
-        FROM
-          (SELECT
-            * 
-          FROM
-            homerun_type_team 
-          WHERE 
-            homerun_type = '${homerun_type}'
-          ) AS htb 
-        GROUP  BY score, percent 
-        ORDER  BY score DESC, percent DESC
-        ) AS GroupBy
-      ) AS Ranking 
-    JOIN
-      (SELECT
-        * 
-      FROM
-        homerun_type_team 
-      WHERE
-        homerun_type = '${homerun_type}'
-      ) AS htb 
-    ON htb.cnt = Ranking.score AND htb.percent = Ranking.percent 
-    ORDER  BY rank ASC
-  ) AS rank ON rank.id = h.id 
-  LEFT JOIN team_info T ON h.team = T.team_short_name
-  WHERE  h.homerun_type = '${homerun_type}' 
-  ORDER  BY h.cnt DESC, h.percent DESC; 
-`;
+      ${selectTable}
+        LEFT JOIN
+          (SELECT 
+            id, score, rank
+          FROM 
+            (SELECT 
+              score, ${isDevide ? `` : `percent,`} @rank AS rank, cnt, @rank:=@rank + cnt
+            FROM
+              (SELECT @rank:=1) AS Dummy,
+              (SELECT 
+                hr AS score, ${isDevide ? `` : `pct AS percent,`} COUNT(*) AS cnt
+              FROM
+                (SELECT 
+                  h.id, h.name, h.team, ${selectColsPart}
+                FROM
+                  ${selectTable}
+                ) AS htb
+              GROUP BY score ${isDevide ? `` : `, percent`}
+              ORDER BY score DESC ${isDevide ? `` : `, percent DESC`}
+              ) AS GroupBy
+            ) AS Ranking
+          JOIN
+            (SELECT 
+              id, name, team, ${selectColsPart}
+            FROM
+              ${selectTable}
+            ) AS htb ON htb.hr = Ranking.score ${isDevide ? `` : `AND htb.pct = Ranking.percent`}
+          ORDER BY rank ASC
+          ) AS rank
+        ON rank.id = h.id
+      LEFT JOIN team_info t ON t.team_initial = h.team
+      WHERE t.league IN ('C', 'P') ${isDevide ? `AND h.${situation}_hr > 0` : ``}
+      ORDER BY h.${situation}_hr ${isDevide ? `ASC` : `DESC`}, h.${situation}_ttl_pct ${isDevide ? `ASC` : `DESC`}
+      ${isDevide ? `` : `LIMIT ${limit}`};
+`};
 
 /**
  * イニング別HRランキング（通算打席数比較）
