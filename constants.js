@@ -63,7 +63,7 @@ constants.INNINGS_SET_NAME = {
   "9": "最終回",
   "1,5": "前半イニング",
   "6,9": "後半イニング",
-  "10,": "延長",
+  "10,": "延長"
 };
 
 constants.INNINGS_COL = {
@@ -79,7 +79,7 @@ constants.INNINGS_COL = {
   10: "ten",
   11: "elv",
   12: "twl"
-}
+};
 
 constants.HASHTAGS = {
   // pacific
@@ -140,4 +140,26 @@ constants.RESULT_PER_TYPE_NAME = {
   1: "打率",
   2: "本塁打",
   3: "打点"
+};
+// 塁状況(1: onbase, 0: not onbase)
+constants.BASE_TYPE = {
+  1: "000",
+  2: "100",
+  3: "110",
+  4: "101",
+  5: "010",
+  6: "011",
+  7: "001",
+  8: "111"
+};
+// 塁状況名
+constants.BASE_TYPE_NAME = {
+  1: "無し",
+  2: "一塁",
+  3: "一二塁",
+  4: "一三塁",
+  5: "二塁",
+  6: "二三塁",
+  7: "三塁",
+  8: "満塁"
 };

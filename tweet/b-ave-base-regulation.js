@@ -19,36 +19,14 @@ const argv = require("yargs")
   .default({ base: 1 }).argv;
 
 const { resultPerBaseRegulation } = require("../query");
-const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME } = require("../constants");
+const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME, BASE_TYPE, BASE_TYPE_NAME } = require("../constants");
 const { isValid, executeRoundSmallNum } = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
 
-const baseType = {
-  1: "000",
-  2: "100",
-  3: "110",
-  4: "101",
-  5: "010",
-  6: "011",
-  7: "001",
-  8: "111"
-};
-
-const baseTypeName = {
-  1: "無し",
-  2: "一塁",
-  3: "一二塁",
-  4: "一三塁",
-  5: "二塁",
-  6: "二三塁",
-  7: "三塁",
-  8: "満塁"
-};
-
 // validated
-if (!isValid(argv.base, Object.keys(baseType), "base")) process.exit();
+if (!isValid(argv.base, Object.keys(BASE_TYPE), "base")) process.exit();
 // set bat
 const base = argv.base;
 const rst = argv.result;
@@ -77,14 +55,14 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
 /**
  * ヘッダ作成 (rank, number of homerun, tie)
  */
-const header = `2019年 走者${baseTypeName[base]} ${RESULT_PER_TYPE_NAME[rst]}ランキング\n※規定打席到達打者のみ\n\n`;
+const header = `2019年 走者${BASE_TYPE_NAME[base]} ${RESULT_PER_TYPE_NAME[rst]}ランキング\n※規定打席到達打者のみ\n\n`;
 
 /**
  * Execute
  */
 (async () => {
   await executeWithRound(
-    resultPerBaseRegulation(baseType[base], RESULT_PER_TYPE[rst]),
+    resultPerBaseRegulation(BASE_TYPE[base], RESULT_PER_TYPE[rst]),
     tweet,
     header,
     createRow
