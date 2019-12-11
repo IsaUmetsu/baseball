@@ -45,8 +45,8 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     round3rdDecimal,
     { cntCol: "hr", allCol: "total", targetCol: "pct" }
   );
-  const { name, team, hr, total, rank } = results[idx];
-  let row = `${rank}位 ${name}(${team}) (${hr}本/全${total}本) ${rounded}\n`;
+  const { team, hr, total, rank } = results[idx];
+  let row = `${rank}位 ${team} ${hr}本 (全${total}本 ${rounded})\n`;
   return [row, flag2, flag3];
 };
 
@@ -55,7 +55,7 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
  */
 (async () => {
   await executeWithRound(
-    homerunTypeRank(SITUATION_COL_NAME[homerunTypeId], false, false, argv.limit),
+    homerunTypeRank(SITUATION_COL_NAME[homerunTypeId], false, true, argv.limit),
     tweet,
     header,
     createRow

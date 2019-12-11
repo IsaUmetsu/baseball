@@ -18,7 +18,9 @@ y.batterHR = require("yargs")
   .count("tweet")
   .alias("t", "tweet")
   .alias("s", "situation")
-  .default({ situation: 1 });
+  .default({ situation: 1 })
+  .alias("l", "limit")
+  .default({ limit: 50 });
 
 /**
  * for pitching result

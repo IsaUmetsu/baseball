@@ -12,9 +12,9 @@
  */
 const argv = require("./average/yargs").batterHR.argv;
 
-const { isValid, executeRoundAverageHR } = require("./util");
+const { isValid, executeRoundSmallNum } = require("./util");
 const { executeWithRoundDevide } = require("./average/b-ave");
-const { homerunTypeRankBatter } = require("../query");
+const { homerunTypeRank } = require("../query");
 const { SITUATION, SITUATION_COL_NAME } = require("../constants");
 
 const tweet = argv.tweet > 0;
@@ -33,14 +33,15 @@ if (!isValid(argv.situation, Object.keys(SITUATION), "situation")) process.exit(
  */
 const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
   const { name, team, hr, total, rank } = results[idx];
-  let { rounded, flag2, flag3 } = executeRoundAverageHR(
+  let { rounded, flag2, flag3 } = executeRoundSmallNum(
     results,
     idx,
     round2ndDecimal,
-    round3rdDecimal
+    round3rdDecimal,
+    { cntCol: "hr", allCol: "total", targetCol: "pct" }
   );
-  let average = String(rounded).slice(0, 1) == "1" ? "1.000" : String(rounded).slice(1);
-  let row = `${rank}位 ${name}(${team}) (${hr}本/全${total}本) ${average}\n`;
+  // let average = String(rounded).slice(0, 1) == "1" ? "1.000" : String(rounded).slice(1);
+  let row = `${rank}位 ${name}(${team}) (${hr}本/全${total}本) ${rounded}\n`;
   return [row, hr, rank, flag2, flag3];
 };
 
@@ -61,7 +62,7 @@ const createHeader = (rank, cnt, results) => {
  */
 (async () => {
   await executeWithRoundDevide(
-    homerunTypeRankBatter(SITUATION_COL_NAME[homerunTypeId], true),
+    homerunTypeRank(SITUATION_COL_NAME[homerunTypeId], true, false, argv.limit),
     tweet,
     createHeader,
     createRow
