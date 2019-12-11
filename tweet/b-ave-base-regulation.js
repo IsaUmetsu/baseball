@@ -27,6 +27,7 @@ const tweet = argv.tweet > 0;
 
 // validated
 if (!isValid(argv.base, Object.keys(BASE_TYPE), "base")) process.exit();
+if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result")) process.exit();
 // set bat
 const base = argv.base;
 const rst = argv.result;

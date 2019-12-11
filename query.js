@@ -450,6 +450,111 @@ const baseInningQuery = (selectHrCols, selectBatCols, isTeam) => {
 `};
 
 /**
+ * イニング別選手成績取得
+ * @param {object} selectColInfo hit&hr&rbi&bat
+ * @param {number} limit
+ * @param {string} target hit|hr|rbi|bat
+ * @return {string} query
+ */
+query.resultPerInningBatter = (selectColInfo, limit, target) => `
+  SELECT
+    *
+  FROM (${resultPerInningBase(selectColInfo, false, target)}) AS A
+  WHERE ${target} > 0
+  LIMIT ${limit};
+`;
+
+/**
+ * イニング別チーム成績取得
+ * @param {object} selectColInfo
+ * @param {string} target
+ * @return {string} query
+ */
+query.resultPerInningTeam = (selectColInfo, target) => `
+  SELECT
+    t.team_short_name AS team, A.hit, A.hr, A.bat, A.rbi, A.rate, A.rank
+  FROM (${resultPerInningBase(selectColInfo, true, target)}) AS A
+  LEFT JOIN team_info t ON t.team_initial = A.team
+  WHERE t.league IN ("C", "P")
+  ORDER  BY ${target} DESC ${target == "rate" ? `` : `, rate DESC`};
+`
+
+/**
+ * 
+ * @param {object} selectColInfo
+ * @param {boolean} isTeam
+ * @param {string} target
+ * @return {string}
+ */
+const resultPerInningBase = (selectColInfo, isTeam, target) => {
+  const { hit, hr, rbi, bat } = selectColInfo;
+  // select target cols
+  const selectCols = isTeam
+    ? `
+      hit, hr, rbi, bat,
+      ROUND(hit/bat, 5) AS rate`
+    : `
+      ${hit} AS hit, ${hr} AS hr, ${rbi} AS rbi, ${bat} AS bat,
+      ROUND((${hit})/(${bat}), 5) AS rate
+    `;
+  // select target table (チームの場合、先にグループ化したテーブルから取得)
+  const fromTable = isTeam
+    ? `(
+        SELECT
+          MAX(id) AS id, null AS name, team,
+          SUM(${hit}) AS hit,
+          SUM(${hr}) AS hr,
+          SUM(${rbi}) AS rbi,
+          SUM(${bat}) AS bat
+        FROM baseball.result_per_inning_base h
+        GROUP BY team
+        ) AS h`
+    : `baseball.result_per_inning_base h `;
+  
+  return `
+    SELECT
+      h.id, h.name, h.team, ${selectCols}, rank.rank
+    FROM
+      ${fromTable}
+    LEFT JOIN
+      (SELECT
+        id, score, rank 
+      FROM
+        (SELECT
+          score, ${target == "rate" ? `` : `rate,`} @rank AS rank, cnt, @rank := @rank + cnt 
+        FROM
+          (SELECT @rank := 1) AS Dummy, 
+          (SELECT
+            ${target} AS score, ${target == "rate" ? `` : `rate,`} Count(*) AS cnt 
+          FROM
+            (SELECT
+              h.id, ${selectCols}
+            FROM
+              ${fromTable}
+            -- 打率のみ規定打席到達者限定(選手別のみ)
+            ${!isTeam && target == "rate" ? `LEFT JOIN batter_reaching_regulation br ON h.id = br.batter WHERE br.batter IS NOT NULL` : ``}
+            ) AS htb 
+          GROUP  BY score ${target == "rate" ? `` : `, rate `} 
+          ORDER  BY score DESC ${target == "rate" ? `` : `, rate DESC `}
+          ) AS GroupBy
+        ) AS Ranking 
+      JOIN
+        (SELECT
+          h.id, ${selectCols}
+        FROM
+          ${fromTable}
+        -- 打率のみ規定打席到達者限定(選手別のみ)
+        ${!isTeam && target == "rate" ? `LEFT JOIN batter_reaching_regulation br ON h.id = br.batter WHERE br.batter IS NOT NULL` : ``}
+        ) AS htb 
+      ON htb.${target} = Ranking.score ${target == "rate" ? `` : ` AND htb.rate = Ranking.rate `}
+      ORDER  BY rank ASC
+    ) AS rank ON rank.id = h.id 
+    -- 打率のみ規定打席到達者限定(選手別のみ)
+    ${!isTeam && target == "rate" ? `LEFT JOIN batter_reaching_regulation br ON h.id = br.batter WHERE br.batter IS NOT NULL` : ``}
+    ORDER  BY ${target} DESC ${target == "rate" ? `` : `, rate DESC`}
+`};
+
+/**
  * チーム別シチュエーションHRランキング（通算打席数比較）
  * @param {string} homerun_type
  * @return {string} query
