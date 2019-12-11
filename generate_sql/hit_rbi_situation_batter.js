@@ -38,7 +38,7 @@ sql += `
   ${cols(batCols)} AS total_bat,
   ${cols(runsCols)} AS total_runs,`;
 
-// any info(hit, hr, rbi, bat) per inning
+// calcurate percent
 Object.keys(SITUATION_COL_NAME).map(baseTypeId => {
   const baseType = SITUATION_COL_NAME[baseTypeId];
   sql += `
