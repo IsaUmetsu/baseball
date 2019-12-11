@@ -23,7 +23,9 @@ let totalBatCol = "";
 // any info(hit, hr, rbi, bat) per inning
 Object.keys(INNINGS_COL).map(inningNum => {
   const inning = INNINGS_COL[inningNum];
-  sql += `IFNULL(${inning}.hit, 0) AS hit_${inning},
+  sql += `-- ${inningNum}回`;
+  sql += `
+  IFNULL(${inning}.hit, 0) AS hit_${inning},
   IFNULL(${inning}.hr, 0) AS hr_${inning},
   IFNULL(${inning}.rbi, 0) AS rbi_${inning},
   IFNULL(${inning}.bat, 0) AS bat_${inning},
@@ -36,11 +38,13 @@ Object.keys(INNINGS_COL).map(inningNum => {
 });
 
 // about `total`
-sql += `${totalHitCol.slice(0, -3)} AS total_hit,
+sql += `-- 各項目合計`;
+sql += `
+  ${totalHitCol.slice(0, -3)} AS total_hit,
   ${totalHrCol.slice(0, -3)} AS total_hr,
   ${totalRbiCol.slice(0, -3)} AS total_rbi,
   ${totalBatCol.slice(0, -3)} AS total_bat,
-`;
+  `;
 
 // -------------------- /[select part] --------------------
 
