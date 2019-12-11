@@ -178,3 +178,13 @@ constants.COUNT_ALL = [
   "31",
   "32"
 ];
+// 開発用
+constants.BATS_COL = {
+  1: "fst",
+  2: "scd",
+  3: "thr",
+  4: "fur",
+  5: "fif",
+  6: "six",
+  7: "sev"
+};

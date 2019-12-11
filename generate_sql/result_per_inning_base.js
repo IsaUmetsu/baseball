@@ -1,6 +1,6 @@
 "use strict";
 
-const { execute, getFilename } = require("./util/func");
+const { execute, getFilename, cols } = require("./util/func");
 const { INNINGS_COL } = require("../constants");
 
 let sql = `-- CREATE TABLE ${getFilename(__filename)}
@@ -40,10 +40,10 @@ Object.keys(INNINGS_COL).map(inningNum => {
 // about `total`
 sql += `-- 各項目合計`;
 sql += `
-  ${totalHitCol.slice(0, -3)} AS total_hit,
-  ${totalHrCol.slice(0, -3)} AS total_hr,
-  ${totalRbiCol.slice(0, -3)} AS total_rbi,
-  ${totalBatCol.slice(0, -3)} AS total_bat,
+  ${cols(totalHitCol)} AS total_hit,
+  ${cols(totalHrCol)} AS total_hr,
+  ${cols(totalRbiCol)} AS total_rbi,
+  ${cols(totalBatCol)} AS total_bat,
   `;
 
 // -------------------- /[select part] --------------------

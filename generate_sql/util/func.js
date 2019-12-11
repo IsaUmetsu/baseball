@@ -7,7 +7,7 @@ const func = (module.exports = {});
 
 /**
  * @param {string} fullFilePath
- * @return {string} 
+ * @return {string}
  */
 func.getFilename = fullFilePath => {
   const fnSplit = fullFilePath.split("/");
@@ -15,7 +15,7 @@ func.getFilename = fullFilePath => {
 };
 
 /**
- * 
+ *
  * @param {string} filename
  * @param {string} sql
  */
@@ -25,3 +25,10 @@ func.execute = (filename, sql) => {
     if (err) console.log(err);
   });
 };
+
+/**
+ * 
+ * @param {string} cols
+ * @return {string} trimmed ` + ` of end 
+ */
+func.cols = cols => cols.slice(0, -3);
