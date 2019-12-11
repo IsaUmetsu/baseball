@@ -1,6 +1,6 @@
 "use strict";
 
-const { execute, getFilename } = require("./util");
+const { execute, getFilename } = require("./util/func");
 const { INNINGS_COL } = require("../constants");
 
 let sql = `-- CREATE TABLE ${getFilename(__filename)}

@@ -3,13 +3,13 @@
 /**
  * クエリ生成ユーティリティクラス
  */
-const util = (module.exports = {});
+const func = (module.exports = {});
 
 /**
  * @param {string} fullFilePath
  * @return {string} 
  */
-util.getFilename = fullFilePath => {
+func.getFilename = fullFilePath => {
   const fnSplit = fullFilePath.split("/");
   return fnSplit[fnSplit.length - 1].split(".")[0];
 };
@@ -19,7 +19,7 @@ util.getFilename = fullFilePath => {
  * @param {string} filename
  * @param {string} sql
  */
-util.execute = (filename, sql) => {
+func.execute = (filename, sql) => {
   // generate
   require("fs").writeFile(`./sql/generated/${filename}.sql`, sql, err => {
     if (err) console.log(err);

@@ -19,29 +19,14 @@ const argv = require("yargs")
   .default({ count: 1 }).argv;
 
 const { resultPerCountRegulation } = require("../query");
-const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME } = require("../constants");
+const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME, COUNT_ALL } = require("../constants");
 const { isValid, executeRoundSmallNum } = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
 
-const countAll = [
-  "00",
-  "01",
-  "02",
-  "10",
-  "11",
-  "12",
-  "20",
-  "21",
-  "22",
-  "30",
-  "31",
-  "32"
-];
-
 // validated
-if (!isValid(argv.count, countAll, "count")) process.exit();
+if (!isValid(argv.count, COUNT_ALL, "count")) process.exit();
 if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result")) process.exit();
 // set bat
 const count = argv.count;
