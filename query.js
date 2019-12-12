@@ -642,7 +642,7 @@ query.speed = (ballType, limitPitches, limit) => `
     h.team,
     h.b${ballType}_avg_spd AS avg_spd,
     h.b${ballType}_max_spd AS max_spd,
-    h.b${ballType}_cnt AS cnt,
+    h.b${ballType}_mes_cnt AS cnt,
     rank.rank
   FROM
     baseball.pitched_ball_info h
@@ -662,7 +662,7 @@ query.speed = (ballType, limitPitches, limit) => `
               FROM
                 pitched_ball_info
               WHERE
-                b${ballType}_cnt >= ${limitPitches}
+                b${ballType}_mes_cnt >= ${limitPitches}
               ) AS htb
             GROUP BY score
             ORDER BY score DESC
@@ -674,13 +674,13 @@ query.speed = (ballType, limitPitches, limit) => `
           FROM
             pitched_ball_info
           WHERE
-            b${ballType}_cnt >= ${limitPitches}
+            b${ballType}_mes_cnt >= ${limitPitches}
           ) AS htb ON b${ballType}_avg_spd = Ranking.score
         ORDER BY rank ASC
         ) AS rank
       ON rank.id = h.id
     WHERE
-      h.b${ballType}_cnt >= ${limitPitches}
+      h.b${ballType}_mes_cnt >= ${limitPitches}
     ORDER BY h.b${ballType}_avg_spd DESC
     LIMIT ${limit}
 `;
