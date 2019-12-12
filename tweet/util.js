@@ -5,6 +5,7 @@
 const util = (module.exports = {});
 
 const client = require("./twitter");
+const { RATE_TYPE_COL_OPS } = require("../constants");
 
 /**
  * 指定桁数四捨五入
@@ -62,8 +63,7 @@ util.createRoundedRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     { cntCol: "target_cnt", allCol: "bat_cnt", targetCol: "average" }
   );
   // create display info
-  let average = String(rounded).slice(1);
-  let row = `${rank}位: ${name}(${team}) ${average} (${bat_cnt}-${target_cnt})\n`;
+  let row = `${rank}位: ${name}(${team}) ${rounded} (${bat_cnt}-${target_cnt})\n`;
 
   return [row, flag2, flag3];
 };
@@ -207,16 +207,17 @@ const doRoundDecimal = (
   }
 
   rounded = addedZero(rounded, roudedDecimal);
+  // create flugs
+  let isIntPartOne = String(rounded).slice(0, 1) == "1";
+  let isOps = targetCol == RATE_TYPE_COL_OPS;
+
   if (baseDecimal == 3) {
-    // when rounded = 1. then output as 1.000
-    if (String(rounded).slice(0, 1) == "1") {
+    // OPS以外 (when rounded = 1. then output as 1.000)
+    if (isIntPartOne && !isOps) {
       rounded = "1.000";
-    } else {
+    // OPS (1を超える場合があるため、1未満のみ`0`を削除)
+    } else if (!isIntPartOne) {
       rounded = String(rounded).slice(1);
-      // when rounded = .0 then output as .000
-      let roundedDecimalPart = rounded.slice(1);
-      if (roundedDecimalPart.length == roundedDecimalPart.split("0").length - 1)
-        rounded = ".000";
     }
   }
 
@@ -243,8 +244,12 @@ const addedZero = (target, roudedDecimal) => {
         rounded = rounded + "0";
       }
     }
+  // when rounded = .0 then output as .000
   } else {
-    rounded = rounded + ".0";
+    rounded = String(rounded).split(".")[0] + ".";
+    for (let idx = 0; idx < roudedDecimal; idx++) {
+      rounded = rounded + "0";
+    }
   }
   return rounded;
 };
@@ -345,8 +350,12 @@ util.putArgvInning = (inningArgv, inningArray, INNINGS_COL) => {
     if (firstArg > secondArg) [firstArg, secondArg] = [secondArg, firstArg];
 
     // validated
-    if (!innerIsValid(firstArg, Object.keys(INNINGS_COL), "inning")) willFin = true;
-    if (!willFin && !innerIsValid(secondArg, Object.keys(INNINGS_COL), "inning"))
+    if (!innerIsValid(firstArg, Object.keys(INNINGS_COL), "inning"))
+      willFin = true;
+    if (
+      !willFin &&
+      !innerIsValid(secondArg, Object.keys(INNINGS_COL), "inning")
+    )
       willFin = true;
 
     // 同じイニングの場合、後半をリセット

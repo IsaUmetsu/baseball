@@ -471,34 +471,43 @@ const resultPerInningBase = (selectColInfo, isTeam, target) => {
 `};
 
 /**
- * 打席ごと打率取得
- *
- * @param {number} targetBat 第何打席か
- * @return {string} query
- */
-query.averageHitByBat = (bat, limitPA) =>
-  averageByBat(bat, limitPA, "average_hit");
-
-/**
- * 打席ごと率取得
+ * 打席ごと結果取得
  *
  * @param {number} bat 第何打席か
- * @param {number} limitPA 打席数上限
- * @param {string} tableName テーブル名
+ * @param {string} rateType rate|obrate|slug|ops
  * @return {string} query
  */
-const averageByBat = (bat, limitPA, tableName) => {
-  const colPA = `pa${bat}`,
-    colAB = `ab${bat}`,
-    colCnt = `cnt${bat}`,
-    colRate = `rate${bat}`;
+query.resultPerBatBatter = (bat, rateType) => {
+  const colAB = `ab${bat}`,
+    colHit = `hit${bat}`,
+    colHr = `hr${bat}`,
+    colRbi = `rbi${bat}`,
+    colAbob = `abob${bat}`,
+    colOb = `ob${bat}`,
+    colTb = `tb${bat}`,
+    colRate = `rate${bat}`,
+    colObRate = `obrate${bat}`,
+    colSlug = `slug${bat}`,
+    colOps = `ops${bat}`,
+    colTarget = `${rateType}${bat}`;
 
   return `
     SELECT
-      h.id, h.name, h.team, h.${colAB} AS bat_cnt, h.${colCnt} AS target_cnt, h.${colRate} AS average,
+      h.id, h.name, h.team,
+      h.${colAB} AS bat,
+      h.${colHit} AS hit,
+      h.${colHr} AS hr,
+      h.${colRbi} AS rbi,
+      h.${colRate} AS rate,
+      h.${colAbob} AS batob,
+      h.${colOb} AS ob,
+      h.${colTb} AS tb,
+      h.${colObRate} AS obrate,
+      h.${colSlug} AS slug,
+      h.${colOps} AS ops,
       rank.rank
     FROM
-      baseball.${tableName} h
+      baseball.result_per_bat_regulation h
       LEFT JOIN (
         SELECT
           id, score, rank
@@ -510,15 +519,13 @@ const averageByBat = (bat, limitPA, tableName) => {
               ( SELECT @rank := 1 ) AS Dummy,
               (
                 SELECT
-                  ${colRate} AS score, COUNT(*) AS cnt
+                  ${colTarget} AS score, COUNT(*) AS cnt
                 FROM
                   (
                     SELECT
-                      id, name, team, ${colAB}, ${colCnt}, ${colRate}
+                      id, ${colTarget}
                     FROM
-                      ${tableName}
-                    WHERE
-                      ${colPA} >= ${limitPA}
+                      result_per_bat_regulation
                   ) AS htb
                 GROUP BY score
                 ORDER BY score DESC
@@ -526,39 +533,15 @@ const averageByBat = (bat, limitPA, tableName) => {
           ) AS Ranking
           JOIN (
             SELECT
-              id, name, team, ${colAB}, ${colCnt}, ${colRate}
+              id, ${colTarget} AS score_htb
             FROM
-              ${tableName}
-            WHERE
-              ${colPA} >= ${limitPA}
-          ) AS htb ON htb.${colRate} = Ranking.score
+              result_per_bat_regulation
+          ) AS htb ON htb.score_htb = Ranking.score
         ORDER BY rank ASC
       ) AS rank ON rank.id = h.id
-    WHERE
-      h.${colPA} >= ${limitPA}
-    ORDER BY h.${colRate} DESC
+    ORDER BY h.${colTarget} DESC
   `;
 };
-
-/**
- * 打席ごと出塁率取得
- *
- * @param {number} bat 第何打席か
- * @param {number} limitPA 打席数上限
- * @return {string} query
- */
-query.averageOnBaseByBat = (bat, limitPA) =>
-  averageByBat(bat, limitPA, "average_onbase");
-
-/**
- * 打席ごと長打率取得
- *
- * @param {number} bat 第何打席か
- * @param {number} limitPA 打席数上限
- * @return {string} query
- */
-query.averageSluggingByBat = (bat, limitPA) =>
-  averageByBat(bat, limitPA, "average_slugging");
 
 /**
  *

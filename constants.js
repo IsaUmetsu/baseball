@@ -188,3 +188,19 @@ constants.BATS_COL = {
   6: "six",
   7: "sev"
 };
+// 率種別カラム名
+constants.RATE_TYPE = {
+  1: "rate",
+  2: "obrate",
+  3: "slug",
+  4: "ops"
+};
+// 率種別和名
+constants.RATE_TYPE_NAME = {
+  1: "打率",
+  2: "出塁率",
+  3: "長打率",
+  4: "OPS"
+};
+constants.RATE_TYPE_OPS = 4;
+constants.RATE_TYPE_COL_OPS = "ops";
