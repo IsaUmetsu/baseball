@@ -130,7 +130,7 @@ bAve.executeWithCb = async (execQuery, tweet, headerBase, createRowCb) => {
  * @param {string} headerBase
  * @param {function} createRowCb callback function
  */
-bAve.executeWithRoundDevide = async (execQuery, tweet, createHeader, createRowCb, ) => {
+bAve.executeWithRoundDevide = async (execQuery, tweet, createHeader, createRowCb) => {
   // get target records
   const results = await db
     .query(execQuery, { type })

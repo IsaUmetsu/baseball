@@ -386,3 +386,15 @@ util.createHeader = (isKindTeam, first, second, third) =>
   `2019年 ${first} ${isKindTeam ? `チーム別` : ``}${second}${
     isKindTeam ? `` : `\n※規定打席到達打者のみ`
   }${third}\n\n`;
+
+/**
+ *
+ * @param {boolean} isKindTeam
+ * @param {string} first ヘッダ前半見出し
+ * @param {string} second ヘッダ中盤見出し
+ * @param {string} third ヘッダ後半見出し
+ */
+util.createHeaderNoRegulation = (isKindTeam, first, second, third) =>
+  `2019年 ${first} ${isKindTeam ? `チーム別` : ``}${second}${
+    third ? `\n${third}` : ``
+  }\n\n`;
