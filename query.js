@@ -848,3 +848,76 @@ const resultPerAnyRegulation = (any, tableName, target) => `
     ORDER BY rank ASC) AS rank ON rank.id = hb.id
   ORDER BY ${target}_${any} DESC
 `;
+
+/**
+ * 進塁率取得 (打者/チーム共通)
+ * @param {string} status
+ * @param {boolean} isTeam
+ * @return {string}
+ */
+query.resultDrivedPerStatus = (status, isTeam) => {
+  // 取得対象テーブルの区分
+  const fromTable = isTeam ? `
+    (
+      SELECT
+        MAX(rd.id) AS id,
+        team_short_name AS team, null AS name,
+        SUM(bat_${status}) AS bat_${status},
+        SUM(drv_${status}) AS drv_${status},
+        ROUND(SUM(drv_${status}) / SUM(bat_${status}), 5) AS ave_${status}
+      FROM baseball.result_drived_per_status_base rd
+      LEFT JOIN team_info t ON t.team_initial = rd.team AND t.league IN ('C', 'P')
+      WHERE t.id IS NOT NULL
+      GROUP BY team_short_name
+    ) AS hb
+  ` : `
+    -- result_drived_per_status_regulation hb
+    (
+      SELECT base.*
+      FROM baseball.result_drived_per_status_base base
+      LEFT JOIN batter_reaching_regulation br ON base.id = br.batter
+      WHERE br.batter IS NOT NULL
+    ) AS hb
+  `
+  
+  return `
+    SELECT
+      name, team,
+      bat_${status} AS bat,
+      drv_${status} AS drv,
+      ave_${status} AS ave,
+      rank.rank
+    FROM
+      ${fromTable}
+    LEFT JOIN (
+      SELECT
+        id, score, rank
+      FROM
+        (
+          SELECT
+            score, @rank AS rank, cnt, @rank := @rank + cnt
+          FROM
+            ( SELECT @rank := 1 ) AS Dummy,
+            (
+              SELECT
+                ave AS score, Count(*) AS cnt
+              FROM
+                (
+                  SELECT
+                    id, ave_${status} AS ave
+                  FROM
+                    ${fromTable}
+                ) AS htb
+              GROUP BY score
+              ORDER BY score DESC
+            ) AS GroupBy
+        ) AS Ranking
+        JOIN (
+          SELECT
+            id, ave_${status} AS ave
+          FROM
+            ${fromTable}
+        ) AS htb ON htb.ave = Ranking.score
+      ORDER BY rank ASC) AS rank ON rank.id = hb.id
+    ORDER BY ave_${status} DESC`;
+};
