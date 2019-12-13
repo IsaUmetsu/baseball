@@ -215,7 +215,7 @@ const doRoundDecimal = (
     // OPS以外 (when rounded = 1. then output as 1.000)
     if (isIntPartOne && !isOps) {
       rounded = "1.000";
-    // OPS (1を超える場合があるため、1未満のみ`0`を削除)
+      // OPS (1を超える場合があるため、1未満のみ`0`を削除)
     } else if (!isIntPartOne) {
       rounded = String(rounded).slice(1);
     }
@@ -244,7 +244,7 @@ const addedZero = (target, roudedDecimal) => {
         rounded = rounded + "0";
       }
     }
-  // when rounded = .0 then output as .000
+    // when rounded = .0 then output as .000
   } else {
     rounded = String(rounded).split(".")[0] + ".";
     for (let idx = 0; idx < roudedDecimal; idx++) {
@@ -374,3 +374,15 @@ util.putArgvInning = (inningArgv, inningArray, INNINGS_COL) => {
 
   return [firstArg, secondArg, willFin];
 };
+
+/**
+ *
+ * @param {boolean} isKindTeam
+ * @param {string} first ヘッダ前半見出し
+ * @param {string} second ヘッダ中盤見出し
+ * @param {string} third ヘッダ後半見出し
+ */
+util.createHeader = (isKindTeam, first, second, third) =>
+  `2019年 ${first} ${isKindTeam ? `チーム別` : ``}${second}${
+    isKindTeam ? `` : `\n※規定打席到達打者のみ`
+  }${third}\n\n`;

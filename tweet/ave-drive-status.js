@@ -21,7 +21,7 @@ const argv = require("yargs")
   .count("kindTeam")
   .alias("k", "kindTeam").argv;
 
-const { isValid, executeRoundSmallNum } = require("./util");
+const { isValid, executeRoundSmallNum, createHeader } = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 const { resultDrivedPerStatus } = require("../query");
 
@@ -44,11 +44,6 @@ if (!valid) {
 }
 
 /**
- * ヘッダ作成 (rank, number of homerun, tie)
- */
-const header = `2019年 走者${BASE_TYPE_NAME[status]} ${isKindTeam ? `チーム別` : ``}進塁率ランキング\n(打数-進塁成功数)\n(カウント対象:安打,ゴロ,フライ,犠打,犠飛)\n\n`;
-
-/**
  *
  * @param {array} results
  * @param {number} idx
@@ -65,9 +60,8 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     { cntCol: "drv", allCol: "bat", targetCol: "ave" }
   );
   const { name, team, bat, drv, rank } = results[idx];
-  let row = `${rank}位 ${
-    isKindTeam ? `${team}` : `${name}(${team})`
-  } ${rounded} (${bat}-${drv}) \n`;
+  let namePart = `${isKindTeam ? `${team}` : `${name}(${team})`}`;
+  let row = `${rank}位 ${namePart} ${rounded} (${bat}-${drv}) \n`;
   return [row, flag2, flag3];
 };
 
@@ -78,7 +72,12 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
   await executeWithRound(
     resultDrivedPerStatus(BASE_TYPE[status], isKindTeam),
     tweet,
-    header,
+    createHeader(
+      isKindTeam,
+      `走者${BASE_TYPE_NAME[status]}`,
+      `進塁率ランキング\n(打数-進塁成功数(安打,ゴロ,フライ,犠打,犠飛))`,
+      ""
+    ),
     createRow
   )
     .then(r => r)

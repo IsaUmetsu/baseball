@@ -10,15 +10,13 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
-const argv = require("yargs")
-  .count("tweet")
-  .alias("t", "tweet")
+const argv = require("./average/yargs")
+  .baseBothBatTeam.alias("a", "average")
   .alias("b", "bat")
   .default({ bat: 1 })
-  .alias("r", "result")
-  .alias("a", "average").argv;
+  .alias("r", "result").argv;
 
-const { resultPerBatBatter } = require("../query");
+const { resultPerBat } = require("../query");
 const {
   RATE_TYPE,
   RATE_TYPE_NAME,
@@ -26,10 +24,16 @@ const {
   RESULT_PER_TYPE,
   RESULT_PER_TYPE_NAME
 } = require("../constants");
-const { isValid, executeRoundSmallNum, round } = require("./util");
+const {
+  isValid,
+  executeRoundSmallNum,
+  round,
+  createHeader
+} = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
+const isKindTeam = argv.kindTeam > 0;
 const basePA = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
 
 // validated
@@ -45,6 +49,7 @@ const isValidResult = isValid(argv.result, Object.keys(RATE_TYPE), "result");
 const isValidAvg = isValid(argv.average, Object.keys(RATE_TYPE), "average");
 
 if (!isValidResult && !isValidAvg) {
+  console.log("オプション -r -a のどちらかを指定してください");
   process.exit();
 } else if (isValidResult && !isValidAvg) {
   ave = 1; // 打率に固定
@@ -73,11 +78,6 @@ const description = {
 };
 
 /**
- * ヘッダ作成 (rank, number of homerun, tie)
- */
-const header = `2019年 第${bat}打席 ${rankName}ランキング\n※規定到達打者のみ${description[ave]}\n\n`;
-
-/**
  * @param {number} ave
  * @return {string}
  */
@@ -91,12 +91,7 @@ const roundRate = ave => String(round(ave, 3)).slice(1);
  * @param {boolean} round3rdDecimal
  * @return {[string, boolean, boolean]}
  */
-const createRoundedRow = (
-  results,
-  idx,
-  round2ndDecimal,
-  round3rdDecimal
-) => {
+const createRoundedRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
   const result = results[idx];
   const { name, team, hr, rbi, rank, obrate, slug } = result;
 
@@ -114,9 +109,9 @@ const createRoundedRow = (
       ? `(${roundRate(obrate)} ${roundRate(slug)})`
       : `(${result[allCol]}-${result[cntCol]}) ${hr}本 ${rbi}打点`;
 
+  const namePart = `${isKindTeam ? `${team}` : `${name}(${team})`}`;
   // create display info
-  let row = `${rank}位 ${name}(${team}) ${rounded} ${detail}\n`;
-
+  let row = `${rank}位 ${namePart} ${rounded} ${detail}\n`;
   return [row, flag2, flag3];
 };
 
@@ -125,9 +120,14 @@ const createRoundedRow = (
  */
 (async () => {
   await executeWithRound(
-    resultPerBatBatter(bat, targetCol),
+    resultPerBat(bat, targetCol, isKindTeam),
     tweet,
-    header,
+    createHeader(
+      isKindTeam,
+      `第${bat}打席`,
+      `${rankName}ランキング`,
+      `${description[ave]}`
+    ),
     createRoundedRow
   )
     .then(r => r)

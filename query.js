@@ -477,7 +477,7 @@ const resultPerInningBase = (selectColInfo, isTeam, target) => {
  * @param {string} rateType rate|obrate|slug|ops
  * @return {string} query
  */
-query.resultPerBatBatter = (bat, rateType) => {
+query.resultPerBat = (bat, rateType, isTeam) => {
   const colAB = `ab${bat}`,
     colHit = `hit${bat}`,
     colHr = `hr${bat}`,
@@ -490,6 +490,20 @@ query.resultPerBatBatter = (bat, rateType) => {
     colSlug = `slug${bat}`,
     colOps = `ops${bat}`,
     colTarget = `${rateType}${bat}`;
+
+  const fromTable = isTeam ? getBaseTeamTable("result_per_bat", "h", `
+    SUM(base.${colAB}) AS ${colAB},
+    SUM(base.${colHit}) AS ${colHit},
+    SUM(base.${colHr}) AS ${colHr},
+    SUM(base.${colRbi}) AS ${colRbi},
+    ROUND(SUM(base.${colHit})/SUM(base.${colAB}), 5) AS ${colRate},
+    SUM(base.${colAbob}) AS ${colAbob},
+    SUM(base.${colOb}) AS ${colOb},
+    SUM(base.${colTb}) AS ${colTb},
+    ROUND(SUM(base.${colOb})/SUM(base.${colAbob}), 5) AS ${colObRate},
+    ROUND(SUM(base.${colTb})/SUM(base.${colAB}), 5) AS ${colSlug},
+    ROUND(SUM(base.${colOb})/SUM(base.${colAbob}), 5) + ROUND(SUM(base.${colTb})/SUM(base.${colAB}), 5) AS ${colOps}
+  `) : getBaseBatterTable("result_per_bat", "h");
 
   return `
     SELECT
@@ -507,7 +521,7 @@ query.resultPerBatBatter = (bat, rateType) => {
       h.${colOps} AS ops,
       rank.rank
     FROM
-      baseball.result_per_bat_regulation h
+      ${fromTable}
       LEFT JOIN (
         SELECT
           id, score, rank
@@ -525,7 +539,7 @@ query.resultPerBatBatter = (bat, rateType) => {
                     SELECT
                       id, ${colTarget}
                     FROM
-                      result_per_bat_regulation
+                      ${fromTable}
                   ) AS htb
                 GROUP BY score
                 ORDER BY score DESC
@@ -535,81 +549,12 @@ query.resultPerBatBatter = (bat, rateType) => {
             SELECT
               id, ${colTarget} AS score_htb
             FROM
-              result_per_bat_regulation
+              ${fromTable}
           ) AS htb ON htb.score_htb = Ranking.score
         ORDER BY rank ASC
       ) AS rank ON rank.id = h.id
     ORDER BY h.${colTarget} DESC
   `;
-};
-
-/**
- *
- * @param {number} bat
- * @param {number} limitPA
- */
-query.averageOpsBat = (bat, limitPA) => {
-  const rate = `rate${bat}`;
-  const pa = `pa${bat}`;
-
-  const selectTargetCols = `
-    o.id,
-    o.name,
-    o.team,
-    o.rate + s.rate AS rate_sum,
-    o.${rate} + s.${rate} AS rate,
-    o.${rate} AS onbase,
-    s.${rate} AS slugging,
-    o.${pa} AS pa
-  `;
-  return `
-    SELECT
-      ${selectTargetCols},
-      rank.rank
-    FROM
-      baseball.average_onbase o
-      LEFT JOIN baseball.average_slugging s ON o.batter = s.batter
-      LEFT JOIN (
-        SELECT
-          id, score, rank
-        FROM
-          (
-            SELECT
-              score, @rank AS rank, cnt, @rank := @rank + cnt
-            FROM
-              ( SELECT @rank := 1 ) AS Dummy,
-              (
-                SELECT
-                  rate AS score, COUNT(*) AS cnt
-                FROM
-                  (
-                    SELECT
-                      ${selectTargetCols}
-                    FROM
-                      baseball.average_onbase o
-                    LEFT JOIN baseball.average_slugging s ON o.batter = s.batter
-                    WHERE
-                      o.${pa} >= ${limitPA}
-                  ) AS htb
-                GROUP BY score
-                ORDER BY score DESC
-              ) AS GroupBy
-          ) AS Ranking
-          JOIN (
-            SELECT
-              ${selectTargetCols}
-            FROM
-              baseball.average_onbase o
-            LEFT JOIN baseball.average_slugging s ON o.batter = s.batter
-            WHERE
-              o.${pa} >= ${limitPA}
-          ) AS htb ON htb.rate = Ranking.score
-        ORDER BY rank ASC
-      ) AS rank ON rank.id = o.id
-    WHERE
-      o.${pa} >= ${limitPA}
-    ORDER BY rate DESC
-`;
 };
 
 /**
@@ -778,76 +723,70 @@ query.hitRbiSituation = (situation, limit) => {
 };
 
 /**
- * 塁別打撃成績(規定到達打者)取得
- * @param {string} base
- * @param {string} target 順位付け対象 (rate|hr|rbi)
- * @return {string}
- */
-query.resultPerBaseRegulation = (base, target) =>
-  resultPerAnyRegulation(base, "result_per_situation_regulation", target);
-
-/**
- * カウント別打撃成績(規定到達打者)取得
- * @param {string} count
- * @param {string} target 順位付け対象 (rate|hr|rbi)
- * @return {string}
- */
-query.resultPerCountRegulation = (count, target) =>
-  resultPerAnyRegulation(count, "result_per_count_regulation", target);
-
-/**
- * 任意項目別打撃成績(規定到達打者限定)取得
+ * 任意項目別打撃成績(チーム別/規定到達打者限定)取得
  * @param {string} any base|count
- * @param {string} tableName
  * @param {string} target 順位付け対象 (rate|hr|rbi)
+ * @param {string} tableName result_per_situation_base|result_per_count_regulation
+ * @param {boolean} isTeam
  * @return {string}
  */
-const resultPerAnyRegulation = (any, tableName, target) => `
-  SELECT
-    name, team,
-    hit_${any} AS hit, hr_${any} AS hr,
-    rbi_${any} AS rbi, bat_${any} AS bat,
-    rate_${any} AS rate, rank.rank
-  FROM
-    ${tableName} hb
-  LEFT JOIN (
+query.resultPerAny = (any, target, tableName, isTeam) => {
+
+  const fromTable = isTeam
+    ? getBaseTeamTable(tableName, "hb", `
+        SUM(hit_${any}) AS hit_${any},
+        SUM(hr_${any}) AS hr_${any},
+        SUM(rbi_${any}) AS rbi_${any},
+        SUM(bat_${any}) AS bat_${any},
+        ROUND(SUM(hit_${any})/SUM(bat_${any}), 5) AS rate_${any}`)
+    : getBaseBatterTable(tableName, "hb");
+  
+  return `
     SELECT
-      id, score, rank
+      name, team,
+      hit_${any} AS hit, hr_${any} AS hr,
+      rbi_${any} AS rbi, bat_${any} AS bat,
+      rate_${any} AS rate, rank.rank
     FROM
-      (
-        SELECT
-          score, @rank AS rank, cnt, @rank := @rank + cnt
-        FROM
-          ( SELECT @rank := 1 ) AS Dummy,
-          (
-            SELECT
-              ${target} AS score, Count(*) AS cnt
-            FROM
-              (
-                SELECT
-                  id, name, team,
-                  hit_${any} AS hit, hr_${any} AS hr,
-                  rbi_${any} AS rbi, bat_${any} AS bat,
-                  rate_${any} AS rate
-                FROM
-                  ${tableName}
-              ) AS htb
-            GROUP BY score
-            ORDER BY score DESC
-          ) AS GroupBy
-      ) AS Ranking
-      JOIN (
-        SELECT
-          id, name, team,
-          hit_${any} AS hit, hr_${any} AS hr,
-          rbi_${any} AS rbi, bat_${any} AS bat,
-          rate_${any} AS rate
-        FROM
-          ${tableName}
-      ) AS htb ON htb.${target} = Ranking.score
-    ORDER BY rank ASC) AS rank ON rank.id = hb.id
-  ORDER BY ${target}_${any} DESC
-`;
+      ${fromTable}
+    LEFT JOIN (
+      SELECT
+        id, score, rank
+      FROM
+        (
+          SELECT
+            score, @rank AS rank, cnt, @rank := @rank + cnt
+          FROM
+            ( SELECT @rank := 1 ) AS Dummy,
+            (
+              SELECT
+                ${target} AS score, Count(*) AS cnt
+              FROM
+                (
+                  SELECT
+                    id, name, team,
+                    hit_${any} AS hit, hr_${any} AS hr,
+                    rbi_${any} AS rbi, bat_${any} AS bat,
+                    rate_${any} AS rate
+                  FROM
+                    ${fromTable}
+                ) AS htb
+              GROUP BY score
+              ORDER BY score DESC
+            ) AS GroupBy
+        ) AS Ranking
+        JOIN (
+          SELECT
+            id, name, team,
+            hit_${any} AS hit, hr_${any} AS hr,
+            rbi_${any} AS rbi, bat_${any} AS bat,
+            rate_${any} AS rate
+          FROM
+            ${fromTable}
+        ) AS htb ON htb.${target} = Ranking.score
+      ORDER BY rank ASC) AS rank ON rank.id = hb.id
+    ORDER BY ${target}_${any} DESC`
+};
 
 /**
  * 進塁率取得 (打者/チーム共通)
@@ -921,3 +860,34 @@ query.resultDrivedPerStatus = (status, isTeam) => {
       ORDER BY rank ASC) AS rank ON rank.id = hb.id
     ORDER BY ave_${status} DESC`;
 };
+
+/**
+ * @param {string} tableName
+ * @param {string} selectCols
+ * @return {string}
+ */
+const getBaseTeamTable = (tableName, alias, selectCols) => `
+  (
+    SELECT
+      MAX(base.id) AS id,
+      team_short_name AS team, null AS name,
+      ${selectCols}
+    FROM baseball.${tableName} base
+    LEFT JOIN team_info t ON t.team_initial = base.team AND t.league IN ('C', 'P')
+    WHERE t.id IS NOT NULL
+    GROUP BY team_short_name
+  ) AS ${alias}
+`;
+
+/**
+ * @param {string} tableName
+ * @return {string}
+ */
+const getBaseBatterTable = (tableName, alias) => `
+  (
+    SELECT base.*
+    FROM baseball.${tableName} base
+    LEFT JOIN batter_reaching_regulation br ON base.id = br.batter
+    WHERE br.batter IS NOT NULL
+  ) AS ${alias}
+`;

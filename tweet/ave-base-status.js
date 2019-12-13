@@ -10,27 +10,31 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
-const argv = require("yargs")
-  .count("tweet")
-  .alias("t", "tweet")
-  .alias("r", "result")
+const argv = require("./average/yargs")
+  .baseBothBatTeam.alias("r", "result")
   .default({ result: 1 })
-  .alias("c", "count")
-  .default({ count: 1 }).argv;
+  .alias("b", "base")
+  .default({ base: 1 }).argv;
 
-const { resultPerCountRegulation } = require("../query");
-const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME, COUNT_ALL } = require("../constants");
-const { isValid, executeRoundSmallNum } = require("./util");
+const { resultPerAny } = require("../query");
+const {
+  RESULT_PER_TYPE,
+  RESULT_PER_TYPE_NAME,
+  BASE_TYPE,
+  BASE_TYPE_NAME
+} = require("../constants");
+const { isValid, executeRoundSmallNum, createHeader } = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
+const isKindTeam = argv.kindTeam > 0;
 
 // validated
-if (!isValid(argv.count, COUNT_ALL, "count")) process.exit();
-if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result")) process.exit();
+if (!isValid(argv.base, Object.keys(BASE_TYPE), "base")) process.exit();
+if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
+  process.exit();
 // set bat
-const count = argv.count;
-const [ball, strike] = String(count).split("");
+const base = argv.base;
 const rst = argv.result;
 
 /**
@@ -50,23 +54,29 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     { cntCol: "hit", allCol: "bat", targetCol: "rate" }
   );
   const { name, team, hr, rbi, hit, bat, rank } = results[idx];
-  let row = `${rank}位 ${name}(${team}) ${rounded} (${bat}-${hit}) ${hr}本 ${rbi}打点 \n`;
+  let namePart = `${isKindTeam ? `${team}` : `${name}(${team})`}`;
+  let row = `${rank}位 ${namePart} ${rounded} (${bat}-${hit}) ${hr}本 ${rbi}打点\n`;
   return [row, flag2, flag3];
 };
-
-/**
- * ヘッダ作成 (rank, number of homerun, tie)
- */
-const header = `2019年 カウント${ball}-${strike} ${RESULT_PER_TYPE_NAME[rst]}ランキング\n※規定打席到達打者のみ\n\n`;
 
 /**
  * Execute
  */
 (async () => {
   await executeWithRound(
-    resultPerCountRegulation(count, RESULT_PER_TYPE[rst]),
+    resultPerAny(
+      BASE_TYPE[base],
+      RESULT_PER_TYPE[rst],
+      "result_per_situation_base",
+      isKindTeam
+    ),
     tweet,
-    header,
+    createHeader(
+      isKindTeam,
+      `走者${BASE_TYPE_NAME[base]}`,
+      `${RESULT_PER_TYPE_NAME[rst]}ランキング`,
+      ""
+    ),
     createRow
   )
     .then(r => r)

@@ -38,5 +38,13 @@ y.search = require("yargs")
   .alias("w", "word")
   .default({ word: "ランキング" })
   .alias("c", "count")
-  .default({ word: 25 })
-  ;
+  .default({ word: 25 });
+
+/**
+ * for having output type batter and team
+ */
+y.baseBothBatTeam = require("yargs")
+  .count("tweet")
+  .alias("t", "tweet")
+  .count("kindTeam")
+  .alias("k", "kindTeam");
