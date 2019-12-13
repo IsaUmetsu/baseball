@@ -1,5 +1,5 @@
 -- CREATE TABLE _onbase_combi_all 
--- insert into _onbase_combi_all (`g_id`,`order_overview_id`,`ining`,`top_bottom`,`runner_1b`,`runner_2b`,`runner_3b`,`next_1b_go`,`next_2b_go`,`next_3b_go`,`bat_cnt`)
+-- insert into _onbase_combi_all (`g_id`,`order_overview_id`,`ining`,`top_bottom`,`on_all_base`, `runner_1b`,`runner_2b`,`runner_3b`,`next_1b_go`,`next_2b_go`,`next_3b_go`,`bat_cnt`)
 
 SELECT
     A.*
@@ -10,6 +10,7 @@ FROM
             oo_id AS order_overview_id,
             ining,
             top_bottom,
+            on_all_base,
             runner_1b,
             runner_2b,
             runner_3b,
@@ -25,6 +26,7 @@ FROM
             runner_1b,
             runner_2b,
             runner_3b,
+            on_all_base,
             order_overview_id
         ORDER BY
             g_id
