@@ -11,16 +11,24 @@
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
 
-const argv = require("yargs")
-  .count("tweet")
-  .alias("t", "tweet")
-  .alias("r", "result")
+const argv = require("./average/yargs")
+  .baseBothBatTeam.alias("r", "result")
   .default({ result: 1 })
   .alias("i", "inning").argv;
 
-const { resultPerInningTeam } = require("../query");
-const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME, INNINGS_COL, INNINGS_SET_NAME } = require("../constants");
-const { executeRoundSmallNum, putArgvInning, isValid } = require("./util");
+const { resultPerInningBase } = require("../query");
+const {
+  RESULT_PER_TYPE,
+  RESULT_PER_TYPE_NAME,
+  INNINGS_COL,
+  INNINGS_SET_NAME
+} = require("../constants");
+const {
+  executeRoundSmallNum,
+  putArgvInning,
+  isValid,
+  createHeader
+} = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 
 const inningArgv = argv.inning;
@@ -40,9 +48,11 @@ const inningName =
     ? `${firstArg}~${secondArg}回`
     : `${firstArg}回`;
 
-if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result")) process.exit();
+if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
+  process.exit();
 
 const tweet = argv.tweet > 0;
+const isKindTeam = argv.kindTeam > 0;
 const rst = argv.result;
 
 // converter
@@ -54,19 +64,17 @@ const targetInings = Object.keys(INNINGS_COL).filter(key =>
     : n(firstArg) == n(key)
 );
 
-const createTargetCols = (targetInings, col) => targetInings.map(inningNum => `h.${col}_${INNINGS_COL[inningNum]}`).join(" + ")
+const createTargetCols = (targetInings, col) =>
+  targetInings
+    .map(inningNum => `${col}_${INNINGS_COL[inningNum]}`)
+    .join(" + ");
 
 const selectCols = {
   hr: createTargetCols(targetInings, "hr"),
   hit: createTargetCols(targetInings, "hit"),
   rbi: createTargetCols(targetInings, "rbi"),
   bat: createTargetCols(targetInings, "bat")
-}
-
-/**
- * ヘッダ作成 (rank, number of homerun, tie)
- */
-const header = `2019年 チーム別${inningName}${RESULT_PER_TYPE_NAME[rst]}ランキング\n※同数の場合は打率が高い順に順位付け\n\n`;
+};
 
 /**
  *
@@ -84,8 +92,9 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     round3rdDecimal,
     { cntCol: "hit", allCol: "bat", targetCol: "rate" }
   );
-  const { team, hit, hr, rbi, bat, rank } = results[idx];
-  let row = `${rank}位 ${team} ${rounded}(${bat}-${hit}) ${hr}本 ${rbi}打点\n`;
+  const { name, team, hit, hr, rbi, bat, rank } = results[idx];
+  const namePart = `${isKindTeam ? `${team}` : `${name}(${team})`}`;
+  let row = `${rank}位 ${namePart} ${rounded}(${bat}-${hit}) ${hr}本 ${rbi}打点\n`;
   return [row, flag2, flag3];
 };
 
@@ -94,9 +103,18 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
  */
 (async () => {
   await executeWithRound(
-    resultPerInningTeam(selectCols, RESULT_PER_TYPE[rst]),
+    resultPerInningBase(
+      selectCols,
+      isKindTeam,
+      RESULT_PER_TYPE[rst]
+    ),
     tweet,
-    header,
+    createHeader(
+      isKindTeam,
+      inningName,
+      `${RESULT_PER_TYPE_NAME[rst]}ランキング`,
+      ""
+    ),
     createRow
   )
     .then(r => r)

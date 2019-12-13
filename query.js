@@ -368,17 +368,67 @@ query.homerunTypeRank = (situation, isDevide, isTeam, limit) => {
 /**
  * イニング別選手成績取得
  * @param {object} selectColInfo hit&hr&rbi&bat
- * @param {number} limit
+ * @param {boolean} isTeam
  * @param {string} target hit|hr|rbi|bat
  * @return {string} query
  */
-query.resultPerInningBatter = (selectColInfo, limit, target) => `
-  SELECT
-    *
-  FROM (${resultPerInningBase(selectColInfo, false, target)}) AS A
-  WHERE ${target} > 0
-  LIMIT ${limit};
-`;
+query.resultPerInningBase = (selectColInfo, isTeam, target) => {
+  const { hit, hr, rbi, bat } = selectColInfo;
+  // select target cols
+  const selectCols = isTeam
+    ? `
+      hit, hr, rbi, bat,
+      ROUND(hit/bat, 5) AS rate`
+    : `
+      ${hit} AS hit, ${hr} AS hr, ${rbi} AS rbi, ${bat} AS bat,
+      ROUND((${hit})/(${bat}), 5) AS rate
+    `;
+  // select target table (チームの場合、先にグループ化したテーブルから取得)
+  const fromTable = isTeam
+    ? getBaseTeamTable("result_per_inning_base", "h", `
+      SUM(${hit}) AS hit,
+      SUM(${hr}) AS hr,
+      SUM(${rbi}) AS rbi,
+      SUM(${bat}) AS bat
+    `)
+    : getBaseBatterTable("result_per_inning_base", "h");
+  
+  return `
+    SELECT
+      h.id, h.name, h.team, ${selectCols}, rank.rank
+    FROM
+      ${fromTable}
+    LEFT JOIN
+      (SELECT
+        id, score, rank 
+      FROM
+        (SELECT
+          score, ${target == "rate" ? `` : `rate,`} @rank AS rank, cnt, @rank := @rank + cnt 
+        FROM
+          (SELECT @rank := 1) AS Dummy, 
+          (SELECT
+            ${target} AS score, ${target == "rate" ? `` : `rate,`} Count(*) AS cnt 
+          FROM
+            (SELECT
+              h.id, ${selectCols}
+            FROM
+              ${fromTable}
+            ) AS htb 
+          GROUP  BY score ${target == "rate" ? `` : `, rate `} 
+          ORDER  BY score DESC ${target == "rate" ? `` : `, rate DESC `}
+          ) AS GroupBy
+        ) AS Ranking 
+      JOIN
+        (SELECT
+          h.id, ${selectCols}
+        FROM
+          ${fromTable}
+        ) AS htb 
+      ON htb.${target} = Ranking.score ${target == "rate" ? `` : ` AND htb.rate = Ranking.rate `}
+      ORDER  BY rank ASC
+    ) AS rank ON rank.id = h.id 
+    ORDER  BY ${target} DESC ${target == "rate" ? `` : `, rate DESC`}
+`};
 
 /**
  * イニング別チーム成績取得
@@ -863,6 +913,7 @@ query.resultDrivedPerStatus = (status, isTeam) => {
 
 /**
  * @param {string} tableName
+ * @param {string} alias
  * @param {string} selectCols
  * @return {string}
  */
@@ -881,6 +932,7 @@ const getBaseTeamTable = (tableName, alias, selectCols) => `
 
 /**
  * @param {string} tableName
+ * @param {string} alias
  * @return {string}
  */
 const getBaseBatterTable = (tableName, alias) => `
