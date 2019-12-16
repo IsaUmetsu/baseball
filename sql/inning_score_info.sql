@@ -1,4 +1,5 @@
-create table _inning_score_info
+-- create table _inning_score_info
+-- insert into _inning_score_info (`order_overview_id`,`ining`,`top_bottom`,`score`)
 
 SELECT
   oo_id, ining, top_bottom,
