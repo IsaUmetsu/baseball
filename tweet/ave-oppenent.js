@@ -13,28 +13,29 @@
 const argv = require("./average/yargs")
   .baseBothBatTeam.alias("r", "result")
   .default({ result: 1 })
-  .alias("c", "count")
-  .default({ count: 1 }).argv;
+  .alias("o", "opponent")
+  .default({ opponent: "G" }).argv;
 
 const { resultPerAny } = require("../query");
 const {
   RESULT_PER_TYPE,
   RESULT_PER_TYPE_NAME,
-  COUNT_ALL
+  TEAM_INITIAL,
+  TEAM_INITIAL_NAME: teamName,
+  HASHTAGS
 } = require("../constants");
 const { isValid, executeRoundSmallNum, createHeader } = require("./util");
-const { executeWithRound } = require("./average/b-ave");
+const { executeWithRoundChangeHashTags } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
 const isKindTeam = argv.kindTeam > 0;
 
 // validated
-if (!isValid(argv.count, COUNT_ALL, "count")) process.exit();
+if (!isValid(argv.opponent, TEAM_INITIAL, "opponent")) process.exit();
 if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
   process.exit();
 // set bat
-const count = argv.count;
-const [ball, strike] = String(count).split("");
+const oppo = argv.opponent;
 const rst = argv.result;
 
 /**
@@ -55,7 +56,7 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
   );
   const { name, team, hr, rbi, hit, bat, rank } = results[idx];
   let namePart = `${isKindTeam ? `${team}` : `${name}(${team})`}`;
-  let row = `${rank}位 ${namePart} ${rounded} (${bat}-${hit}) ${hr}本 ${rbi}打点 \n`;
+  let row = `${rank}位 ${namePart} ${rounded} (${bat}-${hit}) ${hr}本 ${rbi}打点\n`;
   return [row, flag2, flag3];
 };
 
@@ -63,22 +64,23 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
  * Execute
  */
 (async () => {
-  await executeWithRound(
+  await executeWithRoundChangeHashTags(
     resultPerAny(
-      count,
+      oppo,
       RESULT_PER_TYPE[rst],
-      "result_per_count_regulation",
+      "result_per_oppenent_base",
       isKindTeam,
-      ""
+      `WHERE bat_${oppo} >= 20`
     ),
     tweet,
     createHeader(
       isKindTeam,
-      `カウント${ball}-${strike}`,
-      `${RESULT_PER_TYPE_NAME[rst]}ランキング`,
+      `${teamName[oppo]}キラー`,
+      `${RESULT_PER_TYPE_NAME[rst]}部門`,
       ""
     ),
-    createRow
+    createRow,
+    HASHTAGS[oppo]
   )
     .then(r => r)
     .catch(e => {

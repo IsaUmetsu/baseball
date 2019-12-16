@@ -669,7 +669,7 @@ query.hitRbiSituation = (situation, limit) => {
  * @param {boolean} isTeam
  * @return {string}
  */
-query.resultPerAny = (any, target, tableName, isTeam) => {
+query.resultPerAny = (any, target, tableName, isTeam, whereClause) => {
   const fromTable = isTeam
     ? getBaseTeamTable(
         tableName,
@@ -712,6 +712,7 @@ query.resultPerAny = (any, target, tableName, isTeam) => {
                     rate_${any} AS rate
                   FROM
                     ${fromTable}
+                  ${whereClause}
                 ) AS htb
               GROUP BY score
               ORDER BY score DESC
@@ -725,8 +726,10 @@ query.resultPerAny = (any, target, tableName, isTeam) => {
             rate_${any} AS rate
           FROM
             ${fromTable}
+          ${whereClause}
         ) AS htb ON htb.${target} = Ranking.score
       ORDER BY rank ASC) AS rank ON rank.id = hb.id
+    ${whereClause}
     ORDER BY ${target}_${any} DESC`;
 };
 

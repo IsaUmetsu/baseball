@@ -68,7 +68,8 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
       BASE_TYPE[base],
       RESULT_PER_TYPE[rst],
       "result_per_situation_base",
-      isKindTeam
+      isKindTeam,
+      ""
     ),
     tweet,
     createHeader(

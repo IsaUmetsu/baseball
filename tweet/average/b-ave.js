@@ -33,7 +33,7 @@ let prevTweetId = "";
  * @param {string} headerBase
  * @param {function} createRowCb callback function
  */
-bAve.executeWithRound = async (execQuery, tweet, headerBase, createRowCb) => {
+const exeWithRoundInner = async (execQuery, tweet, headerBase, createRowCb) => {
   // get target records
   const results = await db
     .query(execQuery, { type })
@@ -75,6 +75,46 @@ bAve.executeWithRound = async (execQuery, tweet, headerBase, createRowCb) => {
   }
 
   await executeTweet(tweet, contents, footer, prevTweetId);
+};
+
+/**
+ * Execute
+ *
+ * @param {string} exexQuery
+ * @param {boolean} tweet
+ * @param {string} headerBase
+ * @param {function} createRowCb callback function
+ */
+bAve.executeWithRound = async (execQuery, tweet, headerBase, createRowCb) =>
+  await exeWithRoundInner(execQuery, tweet, headerBase, createRowCb)
+    .then(r => r)
+    .catch(e => {
+      throw e;
+    });
+
+/**
+ * Execute
+ *
+ * @param {string} exexQuery
+ * @param {boolean} tweet
+ * @param {string} headerBase
+ * @param {function} createRowCb callback function
+ * @param {string} hashtag
+ */
+bAve.executeWithRoundChangeHashTags = async (
+  execQuery,
+  tweet,
+  headerBase,
+  createRowCb,
+  hashtag
+) => {
+  if (hashtag) footer += `#${hashtag} `;
+
+  await exeWithRoundInner(execQuery, tweet, headerBase, createRowCb)
+  .then(r => r)
+  .catch(e => {
+    throw e;
+  });
 };
 
 /**
@@ -130,7 +170,12 @@ bAve.executeWithCb = async (execQuery, tweet, headerBase, createRowCb) => {
  * @param {string} headerBase
  * @param {function} createRowCb callback function
  */
-bAve.executeWithRoundDevide = async (execQuery, tweet, createHeader, createRowCb) => {
+bAve.executeWithRoundDevide = async (
+  execQuery,
+  tweet,
+  createHeader,
+  createRowCb
+) => {
   // get target records
   const results = await db
     .query(execQuery, { type })
@@ -142,7 +187,9 @@ bAve.executeWithRoundDevide = async (execQuery, tweet, createHeader, createRowCb
 
   let round2ndDecimal = false;
   let round3rdDecimal = false;
-  let currentCnt = 0, cnt = 0, rank = 0;
+  let currentCnt = 0,
+    cnt = 0,
+    rank = 0;
 
   for (let idx in results) {
     [row, cnt, rank, round2ndDecimal, round3rdDecimal] = createRowCb(
@@ -189,7 +236,7 @@ bAve.executeWithRoundDevide = async (execQuery, tweet, createHeader, createRowCb
         // reset content
         contents = header + row;
       } else {
-        contents = '';
+        contents = "";
       }
     }
   }
