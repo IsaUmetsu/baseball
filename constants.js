@@ -57,13 +57,13 @@ constants.INNINGS = {
 
 constants.INNINGS_SET_NAME = {
   "1": "初回",
-  "1,3": "序盤",
-  "4,6": "中盤",
-  "7,9": "終盤",
+  "1,3": "序盤(1~3回)",
+  "4,6": "中盤(4~6回)",
+  "7,9": "終盤(7~9回)",
   "9": "最終回",
-  "1,5": "前半イニング",
-  "6,9": "後半イニング",
-  "10,": "延長"
+  "1,5": "前半イニング(1~5回)",
+  "6,9": "後半イニング(6~9回)",
+  "10,": "延長(10回~)"
 };
 
 constants.INNINGS_COL = {
@@ -204,3 +204,16 @@ constants.RATE_TYPE_NAME = {
 };
 constants.RATE_TYPE_OPS = 4;
 constants.RATE_TYPE_COL_OPS = "ops";
+
+// 得失点カラム名
+constants.SCORE_TYPE = {
+  1: "scr",
+  2: "ls",
+  3: "df"
+};
+// 得失点別和名
+constants.SCORE_TYPE_NAME = {
+  1: "得点",
+  2: "失点",
+  3: "得失点差"
+};

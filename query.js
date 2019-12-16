@@ -266,12 +266,18 @@ query.homerunTypeRank = (situation, isDevide, isTeam, limit) => {
     h.${situation}_ttl_pct AS pct
   `;
   // switch select target table (チームの場合は選手をグループ化したテーブルから取得)
-  const selectTable = isTeam ? getBaseTeamTable("homerun_situation_batter", "h", `
+  const selectTable = isTeam
+    ? getBaseTeamTable(
+        "homerun_situation_batter",
+        "h",
+        `
     SUM(${situation}_hr) AS ${situation}_hr,
     SUM(total_hr) AS total_hr,
     ROUND(SUM(${situation}_hr)/SUM(total_hr), 5) AS ${situation}_ttl_pct
-  `) : getBaseBatterTable("homerun_situation_batter", "h");
-  
+  `
+      )
+    : getBaseBatterTable("homerun_situation_batter", "h");
+
   return `
     SELECT 
       h.id, h.name, h.team, ${selectColsPart}, rank.rank
@@ -282,11 +288,15 @@ query.homerunTypeRank = (situation, isDevide, isTeam, limit) => {
             id, score, rank
           FROM 
             (SELECT 
-              score, ${isDevide ? `` : `percent,`} @rank AS rank, cnt, @rank:=@rank + cnt
+              score, ${
+                isDevide ? `` : `percent,`
+              } @rank AS rank, cnt, @rank:=@rank + cnt
             FROM
               (SELECT @rank:=1) AS Dummy,
               (SELECT 
-                hr AS score, ${isDevide ? `` : `pct AS percent,`} COUNT(*) AS cnt
+                hr AS score, ${
+                  isDevide ? `` : `pct AS percent,`
+                } COUNT(*) AS cnt
               FROM
                 (SELECT 
                   h.id, h.name, h.team, ${selectColsPart}
@@ -302,15 +312,20 @@ query.homerunTypeRank = (situation, isDevide, isTeam, limit) => {
               id, name, team, ${selectColsPart}
             FROM
               ${selectTable}
-            ) AS htb ON htb.hr = Ranking.score ${isDevide ? `` : `AND htb.pct = Ranking.percent`}
+            ) AS htb ON htb.hr = Ranking.score ${
+              isDevide ? `` : `AND htb.pct = Ranking.percent`
+            }
           ORDER BY rank ASC
           ) AS rank
         ON rank.id = h.id
       LEFT JOIN team_info t ON t.team_initial = h.team
       WHERE h.${situation}_hr > 0
-      ORDER BY h.${situation}_hr ${isDevide ? `ASC` : `DESC`}, h.${situation}_ttl_pct ${isDevide ? `ASC` : `DESC`}
+      ORDER BY h.${situation}_hr ${
+    isDevide ? `ASC` : `DESC`
+  }, h.${situation}_ttl_pct ${isDevide ? `ASC` : `DESC`}
       ${isDevide ? `` : `LIMIT ${limit}`};
-`};
+`;
+};
 
 /**
  * イニング別選手成績取得
@@ -332,14 +347,18 @@ query.resultPerInningBase = (selectColInfo, isTeam, target) => {
     `;
   // select target table (チームの場合、先にグループ化したテーブルから取得)
   const fromTable = isTeam
-    ? getBaseTeamTable("result_per_inning_base", "h", `
+    ? getBaseTeamTable(
+        "result_per_inning_base",
+        "h",
+        `
       SUM(${hit}) AS hit,
       SUM(${hr}) AS hr,
       SUM(${rbi}) AS rbi,
       SUM(${bat}) AS bat
-    `)
+    `
+      )
     : getBaseBatterTable("result_per_inning_base", "h");
-  
+
   return `
     SELECT
       h.id, h.name, h.team, ${selectCols}, rank.rank
@@ -350,11 +369,15 @@ query.resultPerInningBase = (selectColInfo, isTeam, target) => {
         id, score, rank 
       FROM
         (SELECT
-          score, ${target == "rate" ? `` : `rate,`} @rank AS rank, cnt, @rank := @rank + cnt 
+          score, ${
+            target == "rate" ? `` : `rate,`
+          } @rank AS rank, cnt, @rank := @rank + cnt 
         FROM
           (SELECT @rank := 1) AS Dummy, 
           (SELECT
-            ${target} AS score, ${target == "rate" ? `` : `rate,`} Count(*) AS cnt 
+            ${target} AS score, ${
+    target == "rate" ? `` : `rate,`
+  } Count(*) AS cnt 
           FROM
             (SELECT
               h.id, ${selectCols}
@@ -371,11 +394,14 @@ query.resultPerInningBase = (selectColInfo, isTeam, target) => {
         FROM
           ${fromTable}
         ) AS htb 
-      ON htb.${target} = Ranking.score ${target == "rate" ? `` : ` AND htb.rate = Ranking.rate `}
+      ON htb.${target} = Ranking.score ${
+    target == "rate" ? `` : ` AND htb.rate = Ranking.rate `
+  }
       ORDER  BY rank ASC
     ) AS rank ON rank.id = h.id 
     ORDER  BY ${target} DESC ${target == "rate" ? `` : `, rate DESC`}
-`};
+`;
+};
 
 /**
  * 打席ごと結果取得
@@ -398,7 +424,11 @@ query.resultPerBat = (bat, rateType, isTeam) => {
     colOps = `ops${bat}`,
     colTarget = `${rateType}${bat}`;
 
-  const fromTable = isTeam ? getBaseTeamTable("result_per_bat", "h", `
+  const fromTable = isTeam
+    ? getBaseTeamTable(
+        "result_per_bat",
+        "h",
+        `
     SUM(base.${colAB}) AS ${colAB},
     SUM(base.${colHit}) AS ${colHit},
     SUM(base.${colHr}) AS ${colHr},
@@ -410,7 +440,9 @@ query.resultPerBat = (bat, rateType, isTeam) => {
     ROUND(SUM(base.${colOb})/SUM(base.${colAbob}), 5) AS ${colObRate},
     ROUND(SUM(base.${colTb})/SUM(base.${colAB}), 5) AS ${colSlug},
     ROUND(SUM(base.${colOb})/SUM(base.${colAbob}), 5) + ROUND(SUM(base.${colTb})/SUM(base.${colAB}), 5) AS ${colOps}
-  `) : getBaseBatterTable("result_per_bat", "h");
+  `
+      )
+    : getBaseBatterTable("result_per_bat", "h");
 
   return `
     SELECT
@@ -638,16 +670,19 @@ query.hitRbiSituation = (situation, limit) => {
  * @return {string}
  */
 query.resultPerAny = (any, target, tableName, isTeam) => {
-
   const fromTable = isTeam
-    ? getBaseTeamTable(tableName, "hb", `
+    ? getBaseTeamTable(
+        tableName,
+        "hb",
+        `
         SUM(hit_${any}) AS hit_${any},
         SUM(hr_${any}) AS hr_${any},
         SUM(rbi_${any}) AS rbi_${any},
         SUM(bat_${any}) AS bat_${any},
-        ROUND(SUM(hit_${any})/SUM(bat_${any}), 5) AS rate_${any}`)
+        ROUND(SUM(hit_${any})/SUM(bat_${any}), 5) AS rate_${any}`
+      )
     : getBaseBatterTable(tableName, "hb");
-  
+
   return `
     SELECT
       name, team,
@@ -692,7 +727,7 @@ query.resultPerAny = (any, target, tableName, isTeam) => {
             ${fromTable}
         ) AS htb ON htb.${target} = Ranking.score
       ORDER BY rank ASC) AS rank ON rank.id = hb.id
-    ORDER BY ${target}_${any} DESC`
+    ORDER BY ${target}_${any} DESC`;
 };
 
 /**
@@ -703,7 +738,8 @@ query.resultPerAny = (any, target, tableName, isTeam) => {
  */
 query.resultDrivedPerStatus = (status, isTeam) => {
   // 取得対象テーブルの区分
-  const fromTable = isTeam ? `
+  const fromTable = isTeam
+    ? `
     (
       SELECT
         MAX(rd.id) AS id,
@@ -716,7 +752,8 @@ query.resultDrivedPerStatus = (status, isTeam) => {
       WHERE t.id IS NOT NULL
       GROUP BY team_short_name
     ) AS hb
-  ` : `
+  `
+    : `
     -- result_drived_per_status_regulation hb
     (
       SELECT base.*
@@ -724,8 +761,8 @@ query.resultDrivedPerStatus = (status, isTeam) => {
       LEFT JOIN batter_reaching_regulation br ON base.id = br.batter
       WHERE br.batter IS NOT NULL
     ) AS hb
-  `
-  
+  `;
+
   return `
     SELECT
       name, team,
@@ -800,3 +837,63 @@ const getBaseBatterTable = (tableName, alias) => `
     WHERE br.batter IS NOT NULL
   ) AS ${alias}
 `;
+
+/**
+ * イニング別選手成績取得
+ * @param {object} selectColInfo hit&hr&rbi&bat
+ * @param {string} target scr|ls|df
+ * @return {string} query
+ */
+query.scoreLossPerInning = (selectColInfo, target) => {
+  const { scr, ls } = selectColInfo;
+  // select target cols
+  const selectCols = `scr, ls, df, ROUND(${target}/total_${target}, 5) AS rate`;
+  // select target table (チームの場合、先にグループ化したテーブルから取得)
+  const fromTable = `
+    (
+      SELECT
+        t.team_short_name AS team,
+        ${scr} AS scr, ${ls} AS ls, (${scr}) - (${ls}) AS df,
+        total_scr, total_ls, total_df
+      FROM baseball.score_loss_per_inning base
+      LEFT JOIN team_info t ON t.team_initial = base.team AND t.league IN ('C', 'P')
+      WHERE t.id IS NOT NULL
+    ) AS h`;
+
+  return `
+    SELECT
+      h.team, ${selectCols}, rank.rank
+    FROM
+      ${fromTable}
+    LEFT JOIN
+      (SELECT
+        team, score, rank 
+      FROM
+        (SELECT
+          score, @rank AS rank, cnt, @rank := @rank + cnt 
+        FROM
+          (SELECT @rank := 1) AS Dummy, 
+          (SELECT
+            ${target} AS score, Count(*) AS cnt 
+          FROM
+            (SELECT
+              h.team, ${selectCols}
+            FROM
+              ${fromTable}
+            ) AS htb 
+          GROUP  BY score 
+          ORDER  BY score DESC 
+          ) AS GroupBy
+        ) AS Ranking 
+      JOIN
+        (SELECT
+          h.team, ${selectCols}
+        FROM
+          ${fromTable}
+        ) AS htb 
+      ON htb.${target} = Ranking.score 
+      ORDER  BY rank ASC
+    ) AS rank ON rank.team = h.team
+    ORDER  BY ${target} DESC
+`;
+};

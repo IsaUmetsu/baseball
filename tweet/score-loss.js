@@ -12,16 +12,16 @@
  */
 
 const argv = require("./average/yargs")
-  .baseBothBatTeam.alias("r", "result")
+  .baseSimple.alias("r", "result")
   .default({ result: 1 })
   .alias("i", "inning").argv;
 
-const { resultPerInningBase } = require("../query");
-const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME } = require("../constants");
+const { scoreLossPerInning } = require("../query");
+const { SCORE_TYPE, SCORE_TYPE_NAME } = require("../constants");
 const {
   executeRoundSmallNum,
   isValid,
-  createHeader,
+  createHeaderNoRegulation,
   createInningInfo,
   createTargetCols
 } = require("./util");
@@ -30,18 +30,16 @@ const { executeWithRound } = require("./average/b-ave");
 const [inningName, willFin, targetInings] = createInningInfo(argv.inning);
 if (willFin) process.exit();
 
-if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
+if (!isValid(argv.result, Object.keys(SCORE_TYPE_NAME), "result"))
   process.exit();
 
 const tweet = argv.tweet > 0;
-const isKindTeam = argv.kindTeam > 0;
 const rst = argv.result;
 
 const selectCols = {
-  hr: createTargetCols(targetInings, "hr"),
-  hit: createTargetCols(targetInings, "hit"),
-  rbi: createTargetCols(targetInings, "rbi"),
-  bat: createTargetCols(targetInings, "bat")
+  scr: createTargetCols(targetInings, "scr"),
+  ls: createTargetCols(targetInings, "ls"),
+  df: createTargetCols(targetInings, "df")
 };
 
 /**
@@ -58,11 +56,10 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     idx,
     round2ndDecimal,
     round3rdDecimal,
-    { cntCol: "hit", allCol: "bat", targetCol: "rate" }
+    { cntCol: SCORE_TYPE[rst], allCol: `total_${SCORE_TYPE[rst]}`, targetCol: "rate" }
   );
-  const { name, team, hit, hr, rbi, bat, rank } = results[idx];
-  const namePart = `${isKindTeam ? `${team}` : `${name}(${team})`}`;
-  let row = `${rank}位 ${namePart} ${rounded}(${bat}-${hit}) ${hr}本 ${rbi}打点\n`;
+  const { team, scr, ls, df, rank } = results[idx];
+  let row = `${rank}位 ${team}  ${scr} ${ls} ${df}\n`;
   return [row, flag2, flag3];
 };
 
@@ -71,13 +68,13 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
  */
 (async () => {
   await executeWithRound(
-    resultPerInningBase(selectCols, isKindTeam, RESULT_PER_TYPE[rst]),
+    scoreLossPerInning(selectCols, SCORE_TYPE[rst]),
     tweet,
-    createHeader(
-      isKindTeam,
+    createHeaderNoRegulation(
+      false,
       inningName,
-      `${RESULT_PER_TYPE_NAME[rst]}ランキング`,
-      ""
+      `${SCORE_TYPE_NAME[rst]}ランキング`,
+      "(得点 失点 得失点差)"
     ),
     createRow
   )

@@ -5,7 +5,7 @@
 const util = (module.exports = {});
 
 const client = require("./twitter");
-const { RATE_TYPE_COL_OPS } = require("../constants");
+const { RATE_TYPE_COL_OPS, INNINGS_SET_NAME } = require("../constants");
 
 /**
  * 指定桁数四捨五入
@@ -332,50 +332,6 @@ const gcd = (a, b) => {
 };
 
 /**
- * 引数のイニング数とバリデーションエラーによる終了判定を実行
- * @return {array} number|number|boolean
- */
-util.putArgvInning = (inningArgv, inningArray, INNINGS_COL) => {
-  let firstArg, secondArg;
-  let willFin = false;
-  // カンマ区切りにで2イニング指定した場合
-  if (inningArray.length == 2) {
-    // 引数の値を代入
-    [firstArg, secondArg] = inningArray;
-    // 最初未指定の場合、初回を自動指定
-    if (!firstArg) firstArg = 1;
-    // 最後未指定の場合、最初が10回以上だったら12回を、9回以下の場合は9回を自動指定
-    if (!secondArg) secondArg = firstArg > 9 ? 12 : 9;
-    // 大小関係を正す
-    if (firstArg > secondArg) [firstArg, secondArg] = [secondArg, firstArg];
-
-    // validated
-    if (!innerIsValid(firstArg, Object.keys(INNINGS_COL), "inning"))
-      willFin = true;
-    if (
-      !willFin &&
-      !innerIsValid(secondArg, Object.keys(INNINGS_COL), "inning")
-    )
-      willFin = true;
-
-    // 同じイニングの場合、後半をリセット
-    if (firstArg == secondArg) secondArg = undefined;
-
-    // 1イニング指定した場合
-  } else if (inningArray.length == 1) {
-    if (!innerIsValid(inningArgv, Object.keys(INNINGS_COL), "inning"))
-      willFin = true;
-    firstArg = inningArgv;
-
-    // 指定なし or 3イニング以上指定した場合
-  } else {
-    willFin = true;
-  }
-
-  return [firstArg, secondArg, willFin];
-};
-
-/**
  *
  * @param {boolean} isKindTeam
  * @param {string} first ヘッダ前半見出し
@@ -398,3 +354,90 @@ util.createHeaderNoRegulation = (isKindTeam, first, second, third) =>
   `2019年 ${first} ${isKindTeam ? `チーム別` : ``}${second}${
     third ? `\n${third}` : ``
   }\n\n`;
+
+/**
+ * イニング表記名、バリデエラー、集計対象イニング情報作成
+ *
+ * @param {string} iningArgv
+ * @param {object} INNINGS_SET_NAME
+ * @return
+ */
+util.createInningInfo = inningArgv => {
+  const inningArray = String(inningArgv).split(",");
+  const innings = [...Array(12).keys()].map(idx => String(++idx));
+
+  const [firstArg, secondArg, willFin] = putArgvInning(
+    inningArgv,
+    inningArray,
+    innings
+  );
+
+  const inningName =
+    Object.keys(INNINGS_SET_NAME).indexOf(inningArgv) > -1
+      ? INNINGS_SET_NAME[inningArgv]
+      : inningArray.length > 1
+      ? `${firstArg}~${secondArg}回`
+      : `${firstArg}回`;
+
+  // converter
+  const n = n => Number(n);
+  // select target cols
+  const targetInings = innings.filter(key =>
+    secondArg
+      ? n(firstArg) <= n(key) && n(key) <= n(secondArg)
+      : n(firstArg) == n(key)
+  );
+
+  return [inningName, willFin, targetInings];
+};
+
+/**
+ * 引数のイニング数とバリデーションエラーによる終了判定を実行
+ * @param {string} inningArgv
+ * @param {array} inningArray
+ * @param {array} innings
+ * @return {array} number|number|boolean
+ */
+const putArgvInning = (inningArgv, inningArray, innings) => {
+  let firstArg, secondArg;
+  let willFin = false;
+  // カンマ区切りにで2イニング指定した場合
+  if (inningArray.length == 2) {
+    // 引数の値を代入
+    [firstArg, secondArg] = inningArray;
+    // 最初未指定の場合、初回を自動指定
+    if (!firstArg) firstArg = 1;
+    // 最後未指定の場合、最初が10回以上だったら12回を、9回以下の場合は9回を自動指定
+    if (!secondArg) secondArg = firstArg > 9 ? 12 : 9;
+    // 大小関係を正す
+    if (firstArg > secondArg) [firstArg, secondArg] = [secondArg, firstArg];
+
+    // validated
+    if (!innerIsValid(firstArg, innings, "inning")) willFin = true;
+    if (!willFin && !innerIsValid(secondArg, innings, "inning")) willFin = true;
+
+    // 同じイニングの場合、後半をリセット
+    if (firstArg == secondArg) secondArg = undefined;
+
+    // 1イニング指定した場合
+  } else if (inningArray.length == 1) {
+    if (!innerIsValid(inningArgv, innings, "inning")) willFin = true;
+    firstArg = inningArgv;
+
+    // 指定なし or 3イニング以上指定した場合
+  } else {
+    willFin = true;
+  }
+
+  return [firstArg, secondArg, willFin];
+};
+
+/**
+ * 集計対象カラム作成
+ * 
+ * @param {array} targetInnings
+ * @param {string} cols
+ * @return {array}
+ */
+util.createTargetCols = (targetInings, col) =>
+  targetInings.map(inningNum => `${col}${inningNum}`).join(" + ");
