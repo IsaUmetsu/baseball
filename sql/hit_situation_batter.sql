@@ -1,5 +1,5 @@
 -- CREATE TABLE hit_situation_batter 
--- INSERT INTO hit_situation_batter (`id`,`name`,`team`,`sns_hit`,`oia_hit`,`tik_hit`,`dtn_hit`,`kck_hit`,`gkt_hit`,`syn_hit`,`total_hit`,`sns_bat`,`oia_bat`,`tik_bat`,`dtn_bat`,`kck_bat`,`gkt_bat`,`syn_bat`,`total_bat`,`sns_ttl_pct`,`oia_ttl_pct`,`tik_ttl_pct`,`dtn_ttl_pct`,`kck_ttl_pct`,`gkt_ttl_pct`,`syn_ttl_pct`,`sns_situ_pct`,`oia_situ_pct`,`tik_situ_pct`,`dtn_situ_pct`,`kck_situ_pct`,`gkt_situ_pct`,`syn_situ_pct`,`hit_situation_batter`.`total_situ_pct`)
+-- INSERT INTO hit_situation_batter (`id`,`name`,`team`,`sns_hit`,`oia_hit`,`tik_hit`,`dtn_hit`,`kck_hit`,`gkt_hit`,`syn_hit`,`total_hit`,`sns_bat`,`oia_bat`,`tik_bat`,`dtn_bat`,`kck_bat`,`gkt_bat`,`syn_bat`,`total_bat`,`sns_ttl_pct`,`oia_ttl_pct`,`tik_ttl_pct`,`dtn_ttl_pct`,`kck_ttl_pct`,`gkt_ttl_pct`,`syn_ttl_pct`,`sns_situ_pct`,`oia_situ_pct`,`tik_situ_pct`,`dtn_situ_pct`,`kck_situ_pct`,`gkt_situ_pct`,`syn_situ_pct`,`total_situ_pct`)
 
 SELECT
     pb.id,

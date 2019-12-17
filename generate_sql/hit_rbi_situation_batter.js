@@ -1,51 +1,68 @@
 "use strict";
 
 const { execute, getFilename, cols } = require("./util/func");
-const getWhereClause = require('./util/situation_where_clause');
+const getWhereClause = require("./util/situation_where_clause");
 const { SITUATION_COL_NAME, SITUATION } = require("../constants");
-
-let sql = `-- CREATE TABLE ${getFilename(__filename)}
-`;
 
 // -------------------- [select part] --------------------
 
-// player_info
-sql += `SELECT
-  pb.id, p.name, p.team,`;
-
 let batCols = "",
   runsCols = "",
-  hitCols = "";
+  hitCols = "",
+  insertCols = ["id", "`name`", "team"],
+  sql = `SELECT
+  pb.id, p.name, p.team,`;
 
 // any info(hit, hr, rbi, bat) per inning
 Object.keys(SITUATION_COL_NAME).map(baseTypeId => {
   const baseType = SITUATION_COL_NAME[baseTypeId];
+  let col1 = `${baseType}_hit`,
+    col2 = `${baseType}_bat`,
+    col3 = `${baseType}_runs`,
+    col4 = `rate_${baseType}`;
+
   sql += `
-  IFNULL(b_${baseType}.hit_cnt, 0) AS ${baseType}_hit,
-  IFNULL(b_${baseType}.bat_cnt, 0) AS ${baseType}_bat,
-  IFNULL(b_${baseType}.runs, 0) AS ${baseType}_runs,
-  ROUND(CASE WHEN IFNULL(b_${baseType}.bat_cnt, 0) > 0 THEN b_${baseType}.hit_cnt / b_${baseType}.bat_cnt ELSE 0 END, 5) AS rate_${baseType},`;
+  IFNULL(b_${baseType}.hit_cnt, 0) AS ${col1},
+  IFNULL(b_${baseType}.bat_cnt, 0) AS ${col2},
+  IFNULL(b_${baseType}.runs, 0) AS ${col3},
+  ROUND(CASE WHEN IFNULL(b_${baseType}.bat_cnt, 0) > 0 THEN b_${baseType}.hit_cnt / b_${baseType}.bat_cnt ELSE 0 END, 5) AS ${col4},`;
 
   batCols += `IFNULL(b_${baseType}.bat_cnt, 0) + `;
   runsCols += `IFNULL(b_${baseType}.runs, 0) + `;
   hitCols += `IFNULL(b_${baseType}.hit_cnt, 0) + `;
+
+  insertCols = [...insertCols, col1, col2, col3, col4];
 });
+
+let totalCol1 = "total_hit",
+  totalCol2 = "total_bat",
+  totalCol3 = "total_runs";
 
 // about `total`
 sql += `-- 各項目合計`;
 sql += `
-  ${cols(hitCols)} AS total_hit,
-  ${cols(batCols)} AS total_bat,
-  ${cols(runsCols)} AS total_runs,`;
+  ${cols(hitCols)} AS ${totalCol1},
+  ${cols(batCols)} AS ${totalCol2},
+  ${cols(runsCols)} AS ${totalCol3},`;
+
+insertCols = [...insertCols, totalCol1, totalCol2, totalCol3];
 
 // calcurate percent
 Object.keys(SITUATION_COL_NAME).map(baseTypeId => {
   const baseType = SITUATION_COL_NAME[baseTypeId];
+  let colName = `${baseType}_ttl_pct`;
   sql += `
-  ROUND(CASE WHEN (${cols(hitCols)}) > 0 THEN (IFNULL(b_${baseType}.hit_cnt, 0)) / (${cols(hitCols)}) ELSE 0 END, 5) AS ${baseType}_ttl_pct,`;
+  ROUND(CASE WHEN (${cols(
+    hitCols
+  )}) > 0 THEN (IFNULL(b_${baseType}.hit_cnt, 0)) / (${cols(
+    hitCols
+  )}) ELSE 0 END, 5) AS ${colName},`;
+
+  insertCols = [...insertCols, colName];
 });
 
 // -------------------- /[select part] --------------------
+insertCols = [...insertCols, "eol"];
 
 sql += `
   'e' AS eol
@@ -84,6 +101,11 @@ sql += `
   LEFT JOIN batter_reaching_regulation br ON pb.id = br.batter WHERE br.batter IS NOT NULL
 ;`;
 */
+
+sql = `-- CREATE TABLE ${getFilename(__filename)}
+-- INSERT INTO ${getFilename(__filename)} (${insertCols.join(",")})
+
+` + sql;
 
 // generate
 execute(getFilename(__filename), sql);
