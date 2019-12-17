@@ -1,5 +1,5 @@
 -- CREATE TABLE _situation_base 
--- INSERT INTO _situation_base (`g_id`,`oo_id`,`date`,`location`,`pitch_count`, `ining`,`top_bottom`,`pitcher`,`batter`,`name`,`team`,`strike`,`ball`,`out`,`on_all_base`,`runner_1b`,`next_1b_go`,`runner_2b`,`next_2b_go`,`runner_3b`,`next_3b_go`,`bp_count`,`is_commit`,`rst_id`,`result`,`t_total`,`b_total`,`prv_gid`,`bat_cnt`)
+-- INSERT INTO _situation_base (`g_id`,`oo_id`,`date`,`location`,`pitch_count`, `ining`,`top_bottom`,`pitcher`,`batter`,`name`,`team`,`strike`,`ball`,`out`,`on_all_base`,`runner_1b`,`next_1b_go`,`runner_2b`,`next_2b_go`,`runner_3b`,`next_3b_go`,`bp_count`,`is_commit`,`ball_type_id`,`rst_id`,`result`,`t_total`,`b_total`,`prv_gid`,`bat_cnt`)
 
 -- /*
 -- set @no:=0;
@@ -30,6 +30,7 @@ SELECT
 	`next_3b_go`,
 	`bp_count`,
 	`is_commit`,
+    `ball_type_id`,
 	`rst_id`,
 	`result`,
 	`t_total`,
@@ -61,6 +62,7 @@ FROM (
 		g.next_3b_go,
 		p.batter_pitch_count AS bp_count,
 		r.is_commit,
+        p.ball_type_id,
 		r.rst_id AS rst_id,
 		r.result AS result,
 		gs.t_total,
