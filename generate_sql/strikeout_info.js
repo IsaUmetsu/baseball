@@ -52,27 +52,28 @@ FROM baseball._player_pitcher pp
   -- all k
   LEFT JOIN (
     SELECT pitcher, COUNT(*) AS all_cnt
-    FROM _tmp_strikeout
+    FROM _situation_base
+    WHERE rst_id IN (16, 17, 28)
     GROUP BY pitcher
   ) AS all_k ON p.id = all_k.pitcher
   -- swing
   LEFT JOIN (
     SELECT pitcher, COUNT(*) AS all_cnt
-    FROM _tmp_strikeout
+    FROM _situation_base
     WHERE rst_id IN (16, 28)
     GROUP BY pitcher
   ) AS swing_k ON p.id = swing_k.pitcher
   -- look
   LEFT JOIN (
     SELECT pitcher, COUNT(*) AS all_cnt
-    FROM _tmp_strikeout
+    FROM _situation_base
     WHERE rst_id = 17
     GROUP BY pitcher
   ) AS look_k ON p.id = look_k.pitcher
   -- average
   LEFT JOIN (
-    SELECT pitcher, AVG(batter_pitch_count) AS avg_cnt
-    FROM _tmp_strikeout
+    SELECT pitcher, AVG(pitch_count) AS avg_cnt
+    FROM _situation_base
     WHERE rst_id IN (16, 17, 28)
     GROUP BY pitcher
   ) AS p_avg ON p.id = p_avg.pitcher`;
@@ -85,13 +86,14 @@ ballTypeIds.map(ballTypeId => {
   LEFT JOIN (
     SELECT 
       pitcher,
-      ball_type,
-      COUNT(ball_type) AS cnt
-    FROM _tmp_strikeout
+      bt.ball_type,
+      COUNT(bt.ball_type) AS cnt
+    FROM _situation_base sb
+    LEFT JOIN ball_type bt ON sb.ball_type_id = bt.id
     WHERE
       rst_id IN (16, 17, 28)
-      AND ball_type_id = ${ballTypeId}
-    GROUP BY pitcher, ball_type
+      AND sb.ball_type_id = ${ballTypeId}
+    GROUP BY pitcher, bt.ball_type
   ) AS b${ballTypeId} ON p.id = b${ballTypeId}.pitcher`;
 });
 
