@@ -70,7 +70,7 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
       RESULT_PER_TYPE[rst],
       "result_per_oppenent_base",
       isKindTeam,
-      `WHERE bat_${oppo} >= 20`
+      `WHERE bat_${oppo} >= ${isKindTeam ? 200 : 20}`
     ),
     tweet,
     createHeader(
