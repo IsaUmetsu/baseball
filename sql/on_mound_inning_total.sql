@@ -1,4 +1,4 @@
--- create table _on_mound_inning
+-- create table on_mound_inning_total
 SELECT
   pitcher,
   `name`,
