@@ -604,61 +604,75 @@ query.strikeout = (ballType, limitSO, limitSORate, limit) => `
 `;
 
 /**
- * チーム別ホームランタイプ取得（通算本塁打数比較）
- * @param {string} homerun_type
+ * チーム別適時打ランキング
+ *
+ * @param {string} situation シチュエーション
+ * @param {number} limit
+ * @param {boolean} isTeam
  */
-query.hitRbiSituation = (situation, limit) => {
-  let targetCol = situation ? situation : "total";
-  let hitCol = `h.${targetCol}_hit`,
-    batCol = `h.${targetCol}_bat`,
-    runsCol = `h.${targetCol}_runs`;
-  let percent = situation
-    ? `${hitCol} / ${batCol}`
-    : `h.total_hit / h.total_bat`;
+query.hitRbiSituation = (situation, limit, isTeam) => {
+  let targetCol = situation ? situation : "total",
+    hitCol = `${targetCol}_hit`,
+    batCol = `${targetCol}_bat`,
+    runsCol = `${targetCol}_runs`;
+
+  const selectTable = isTeam
+    ? getBaseTeamTable(
+        "hit_rbi_situation_batter",
+        "h",
+        `
+    SUM(${hitCol}) AS ${hitCol},
+    SUM(${batCol}) AS ${batCol},
+    SUM(${runsCol}) AS ${runsCol}
+  `
+      )
+    : getBaseBatterTable("hit_rbi_situation_batter", "h");
 
   return `
     SELECT
       h.id, h.name, h.team,
-      ${hitCol} AS hit, ${batCol} AS bat, ${runsCol} AS runs,
-      ${situation ? `h.total_hit, h.total_bat, h.total_runs,` : ``}
-      ROUND(${percent}, 5) AS percent, rank.rank
+      ${hitCol} AS hit,
+      ${batCol} AS bat,
+      ${runsCol} AS runs,
+      ROUND(${hitCol} / ${batCol}, 5) AS percent,
+      rank.rank
     FROM
-      baseball.hit_rbi_situation_batter h 
+      ${selectTable}
     LEFT JOIN
       (SELECT
         id, score, rank 
       FROM
         (SELECT
-          score, percent, cond, @rank AS rank, cnt, @rank := @rank + cnt 
+          score, percent, @rank AS rank, cnt, @rank := @rank + cnt 
         FROM
           (SELECT @rank := 1) AS Dummy, 
           (SELECT
-            ${hitCol} AS score, percent, ${runsCol} AS cond, Count(*) AS cnt 
+            ${hitCol} AS score, percent, Count(*) AS cnt 
           FROM
             (SELECT
-              *, ROUND(${percent}, 5) AS percent 
+              id, ${hitCol}, ROUND(${hitCol} / ${batCol}, 5) AS percent 
             FROM
-              hit_rbi_situation_batter h
+              ${selectTable}
             WHERE 
               ${hitCol} >= ${limit}
             ) AS h 
-          GROUP  BY score, percent, cond DESC
-          ORDER  BY score DESC, percent DESC, cond DESC
+          GROUP  BY score, percent
+          ORDER  BY score DESC, percent DESC
           ) AS GroupBy
         ) AS Ranking 
       JOIN
         (SELECT
-          *, ROUND(${percent}, 5) AS percent
+          id, ${hitCol}, ROUND(${hitCol} / ${batCol}, 5) AS percent
         FROM
-          hit_rbi_situation_batter h
+          ${selectTable}
         WHERE
           ${hitCol} >= ${limit}
         ) AS h 
-      ON ${hitCol} = Ranking.score AND h.percent = Ranking.percent AND ${runsCol} = Ranking.cond
+      ON ${hitCol} = Ranking.score AND h.percent = Ranking.percent
       ORDER  BY rank ASC
     ) AS rank ON rank.id = h.id 
     WHERE ${hitCol} >= ${limit}
-    ORDER BY ${hitCol} DESC, percent DESC, ${runsCol} DESC`;
+    ORDER BY ${hitCol} DESC, percent DESC`;
 };
 
 /**

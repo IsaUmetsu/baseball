@@ -11,31 +11,23 @@
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
 
-const argv = require("yargs")
-  .alias("s", "situation")
+const argv = require("./average/yargs")
+  .baseBothBatTeam.alias("s", "situation")
   .alias("l", "limit")
-  .default({ limit: 5 })
-  .count("tweet")
-  .alias("t", "tweet").argv;
+  .default({ limit: 5 }).argv;
 
-const { isValidAllowEmply, executeRoundSmallNum } = require("./util");
+const { isValidAllowEmply, executeRoundSmallNum, createHeaderNoRegulation } = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 const { hitRbiSituation } = require("../query");
 const { SITUATION, SITUATION_COL_NAME } = require("../constants");
 
 const tweet = argv.tweet > 0;
+const isKindTeam = argv.kindTeam > 0;
 const situation = argv.situation;
 
 // validate args
 if (!isValidAllowEmply(argv.situation, Object.keys(SITUATION), "situation"))
   process.exit();
-
-/**
- * ヘッダ作成 (rank, number of homerun, tie)
- */
-const header = `2019年 ${
-  situation ? SITUATION[situation] : "累計"
-}適時打数ランキング\n(本/適時打状況打数 打点 率)\n\n`;
 
 /**
  *
@@ -54,7 +46,8 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     { cntCol: "hit", allCol: "bat", targetCol: "percent" }
   );
   const { name, team, hit, bat, runs, rank } = results[idx];
-  let row = `${rank}位 ${name}(${team}) (${hit}本/${bat}打数 ${runs}打点) ${rounded}\n`;
+  let namePart = `${isKindTeam ? `${team}` : `${name}(${team})`}`;
+  let row = `${rank}位 ${namePart} ${hit}本 ${bat}打数 ${runs}打点 ${rounded}\n`;
   return [row, flag2, flag3];
 };
 
@@ -63,9 +56,14 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
  */
 (async () => {
   await executeWithRound(
-    hitRbiSituation(SITUATION_COL_NAME[situation], argv.limit),
+    hitRbiSituation(SITUATION_COL_NAME[situation], argv.limit, isKindTeam),
     tweet,
-    header,
+    createHeaderNoRegulation(
+      isKindTeam,
+      `${situation ? SITUATION[situation] : "累計"}適時打ランキング`,
+      "",
+      "※本 適時状況打数 打点 率"
+    ),
     createRow
   )
     .then(r => r)

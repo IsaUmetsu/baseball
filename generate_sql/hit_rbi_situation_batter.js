@@ -34,20 +34,20 @@ Object.keys(SITUATION_COL_NAME).map(baseTypeId => {
   insertCols = [...insertCols, col1, col2, col3, col4];
 });
 
-let totalCol1 = "total_hit",
-  totalCol2 = "total_bat",
-  totalCol3 = "total_runs";
+let totalCol = ["total_hit", "total_bat", "total_runs", "rate_total"];
 
 // about `total`
 sql += `-- 各項目合計`;
 sql += `
-  ${cols(hitCols)} AS ${totalCol1},
-  ${cols(batCols)} AS ${totalCol2},
-  ${cols(runsCols)} AS ${totalCol3},`;
+  ${cols(hitCols)} AS ${totalCol[0]},
+  ${cols(batCols)} AS ${totalCol[1]},
+  ${cols(runsCols)} AS ${totalCol[2]},
+  ROUND((${cols(hitCols)})/(${cols(batCols)}), 5) AS ${totalCol[3]},`;
 
-insertCols = [...insertCols, totalCol1, totalCol2, totalCol3];
+insertCols = [...insertCols, totalCol];
 
 // calcurate percent
+/*
 Object.keys(SITUATION_COL_NAME).map(baseTypeId => {
   const baseType = SITUATION_COL_NAME[baseTypeId];
   let colName = `${baseType}_ttl_pct`;
@@ -60,6 +60,7 @@ Object.keys(SITUATION_COL_NAME).map(baseTypeId => {
 
   insertCols = [...insertCols, colName];
 });
+*/
 
 // -------------------- /[select part] --------------------
 insertCols = [...insertCols, "eol"];
@@ -96,13 +97,10 @@ Object.keys(SITUATION_COL_NAME).map(situId => {
 // -------------------- /[left join part] --------------------
 
 // end of query
-/*
-sql += `
-  LEFT JOIN batter_reaching_regulation br ON pb.id = br.batter WHERE br.batter IS NOT NULL
-;`;
-*/
+// sql += `LEFT JOIN batter_reaching_regulation br ON pb.id = br.batter WHERE br.batter IS NOT NULL;`;
 
-sql = `-- CREATE TABLE ${getFilename(__filename)}
+sql =
+  `-- CREATE TABLE ${getFilename(__filename)}
 -- INSERT INTO ${getFilename(__filename)} (${insertCols.join(",")})
 
 ` + sql;
