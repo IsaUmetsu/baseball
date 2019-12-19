@@ -129,6 +129,20 @@ constants.SITUATION_COL_NAME = {
   7: "syn"
 };
 
+constants.CASE = {
+  1: "無得点",
+  2: "同点",
+  3: "ビハインド",
+  4: "リード"
+};
+
+constants.CASE_COL_NAME = {
+  1: "no",
+  2: "dw",
+  3: "bh",
+  4: "ld"
+};
+
 // 打撃成績種別カラム名
 constants.RESULT_PER_TYPE = {
   1: "rate",
