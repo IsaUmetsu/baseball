@@ -1,5 +1,5 @@
 -- CREATE TABLE _situation_base 
--- INSERT INTO _situation_base (`g_id`,`oo_id`,`date`,`location`,`pitch_count`, `ining`,`top_bottom`,`pitcher`,`batter`,`name`,`team`,`strike`,`ball`,`out`,`on_all_base`,`runner_1b`,`next_1b_go`,`runner_2b`,`next_2b_go`,`runner_3b`,`next_3b_go`,`bp_count`,`is_commit`,`ball_type_id`,`rst_id`,`result`,`t_total`,`b_total`,`prv_gid`,`bat_cnt`)
+INSERT INTO _situation_base (`g_id`,`oo_id`,`date`,`location`,`pitch_count`, `ining`,`top_bottom`,`pitcher`,`batter`,`name`,`team`,`strike`,`ball`,`out`,`on_all_base`,`runner_1b`,`next_1b_go`,`runner_2b`,`next_2b_go`,`runner_3b`,`next_3b_go`,`bp_count`,`is_commit`,`ball_type_id`,`rst_id`,`result`,`ball_flow`,`t_total`,`b_total`,`prv_gid`,`bat_cnt`)
 
 -- /*
 -- set @no:=0;
@@ -33,6 +33,7 @@ SELECT
     `ball_type_id`,
 	`rst_id`,
 	`result`,
+    `ball_flow`,
 	`t_total`,
 	`b_total`,
 	`prv_gid`,
@@ -65,6 +66,7 @@ FROM (
         p.ball_type_id,
 		r.rst_id AS rst_id,
 		r.result AS result,
+        r.ball_flow,
 		gs.t_total,
 		gs.b_total,
 		g.id - 1 AS prv_gid,
