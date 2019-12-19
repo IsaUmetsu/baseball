@@ -334,7 +334,7 @@ query.homerunTypeRank = (situation, isDevide, isTeam, limit) => {
  * @param {string} target hit|hr|rbi|bat
  * @return {string} query
  */
-query.resultPerInningBase = (selectColInfo, isTeam, target) => {
+query.resultPerAnyColSum = (selectColInfo, isTeam, target, tableName) => {
   const { hit, hr, rbi, bat } = selectColInfo;
   // select target cols
   const selectCols = isTeam
@@ -348,7 +348,7 @@ query.resultPerInningBase = (selectColInfo, isTeam, target) => {
   // select target table (チームの場合、先にグループ化したテーブルから取得)
   const fromTable = isTeam
     ? getBaseTeamTable(
-        "result_per_inning_base",
+        tableName,
         "h",
         `
       SUM(${hit}) AS hit,
@@ -357,7 +357,7 @@ query.resultPerInningBase = (selectColInfo, isTeam, target) => {
       SUM(${bat}) AS bat
     `
       )
-    : getBaseBatterTable("result_per_inning_base", "h");
+    : getBaseBatterTable(tableName, "h");
 
   return `
     SELECT

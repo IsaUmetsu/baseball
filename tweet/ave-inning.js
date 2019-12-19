@@ -16,7 +16,7 @@ const argv = require("./average/yargs")
   .default({ result: 1 })
   .alias("i", "inning").argv;
 
-const { resultPerInningBase } = require("../query");
+const { resultPerAnyColSum } = require("../query");
 const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME } = require("../constants");
 const {
   executeRoundSmallNum,
@@ -71,7 +71,7 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
  */
 (async () => {
   await executeWithRound(
-    resultPerInningBase(selectCols, isKindTeam, RESULT_PER_TYPE[rst]),
+    resultPerAnyColSum(selectCols, isKindTeam, RESULT_PER_TYPE[rst], "result_per_inning_base"),
     tweet,
     createHeader(
       isKindTeam,

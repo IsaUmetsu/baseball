@@ -10,32 +10,70 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
-const argv = require("./average/yargs")
-  .baseBothBatTeam.alias("r", "result")
+const argv = require("yargs")
+  .count("tweet")
+  .alias("t", "tweet")
+  .count("kindTeam")
+  .alias("k", "kindTeam")
+  .alias("r", "result")
   .default({ result: 1 })
-  .alias("c", "count")
-  .default({ count: 1 }).argv;
+  .alias("b", "ball")
+  .alias("s", "strike")
+  .alias("o", "out").argv;
 
-const { resultPerAny } = require("../query");
+const { resultPerAnyColSum } = require("../query");
 const {
   RESULT_PER_TYPE,
-  RESULT_PER_TYPE_NAME,
-  COUNT_ALL
+  RESULT_PER_TYPE_NAME
 } = require("../constants");
-const { isValid, executeRoundSmallNum, createHeader } = require("./util");
+const {
+  isValid,
+  isValidAllowEmply,
+  executeRoundSmallNum,
+  createHeader
+} = require("./util");
 const { executeWithRound } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
 const isKindTeam = argv.kindTeam > 0;
 
+const createArrIdx = cnt => [...Array(cnt).keys()].map(key => String(key));
 // validated
-if (!isValid(argv.count, COUNT_ALL, "count")) process.exit();
+const isValidBall = isValidAllowEmply(argv.ball, createArrIdx(4), "ball"),
+  isValidStrike = isValidAllowEmply(argv.strike, createArrIdx(3), "strike"),
+  isValidOut = isValidAllowEmply(argv.out, createArrIdx(3), "out");
+
+const { ball, strike, out, result: rst } = argv;
+if (ball === undefined && strike === undefined && out === undefined) {
+  console.log("BSOのいずれか1つは指定してください");
+  process.exit();
+} else if (!isValidBall || !isValidStrike || !isValidOut) {
+  console.log("BSOは正しい範囲で指定してください");
+  process.exit();
+}
+
 if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
   process.exit();
-// set bat
-const count = argv.count;
-const [ball, strike] = String(count).split("");
-const rst = argv.result;
+// set args
+
+const targetCols = ["hit", "hr", "rbi", "bat"];
+const selectCols = {};
+// s
+targetCols.map(col => {
+  let cols = [];
+  [...Array(4).keys()].map(b => {
+    [...Array(3).keys()].map(s => {
+      [...Array(3).keys()].map(o => {
+        b = ball ? ball : b;
+        s = strike ? strike : s;
+        o = out ? out : o;
+        cols.push(`${col}_${b}${s}${o}`)
+      });
+    });
+  });
+  // 重複を削除して格納
+  selectCols[col] = cols.filter((x, i, self) => self.indexOf(x) == i).join(" + ");
+});
 
 /**
  *
@@ -64,17 +102,18 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
  */
 (async () => {
   await executeWithRound(
-    resultPerAny(
-      count,
-      RESULT_PER_TYPE[rst],
-      "result_per_count_regulation",
-      isKindTeam,
-      ""
-    ),
+    resultPerAnyColSum(selectCols, isKindTeam, RESULT_PER_TYPE[rst], "result_per_count_regulation"),
     tweet,
     createHeader(
       isKindTeam,
-      `カウント${ball}-${strike}`,
+      (() => {
+        let title = "";
+        if (out > -1 && out < 3) title += `${out}アウト`;
+        if ((ball > -1 && ball < 4) && strike == undefined) title += `${ball}ボール`;
+        if (ball == undefined && (strike > -1 && strike < 3)) title += `${strike}ストライク`;
+        if ((ball > -1 && ball < 4) && (strike > -1 && strike < 3)) title += `${ball}-${strike}`;
+        return title;
+      })(),
       `${RESULT_PER_TYPE_NAME[rst]}ランキング`,
       ""
     ),
