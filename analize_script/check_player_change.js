@@ -46,7 +46,7 @@ const getData = async (pitch_count, dateString, game_no) => {
 
   // return value
   let tgt_data;
-  const path_file = await checkAndCreateDir(dateString, game_no).then(rst => rst).catch(err => { throw err })
+  const path_file = await checkAndCreateDir("./data", dateString, game_no).then(rst => rst).catch(err => { throw err })
 
   // read from json file
   if (dataType == dataType_JSON) {
@@ -77,7 +77,6 @@ const getData = async (pitch_count, dateString, game_no) => {
 const saveData = async (pitch_count, dateStr, game_no) => {
   await getData(pitch_count, dateStr, game_no).then(async data => {
       if (data === undefined) return
-      console.log(data)
       // get info
       const { GI, TO, SI } = data
       // create `date` of game
