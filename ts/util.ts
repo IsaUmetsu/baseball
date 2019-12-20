@@ -1,6 +1,7 @@
 import { Cols, QueryResult } from './type';
 import { RATE_TYPE_COL_OPS } from "./constants";
 import * as client from './twitter';
+// import * as client from '../tweet/twitter'; // for js
 
 /**
  * バリデーション実行
@@ -196,6 +197,7 @@ export async function tweetResult(
   let res: string = "";
   if (tweet) {
     let { id_str } = await client.default.post("statuses/update", {
+    // let { id_str } = await client.post("statuses/update", {
       status,
       in_reply_to_status_id
     });
