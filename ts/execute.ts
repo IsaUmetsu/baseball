@@ -8,7 +8,11 @@ let header: string = ""; // rank, number of homerun, tie
 let footer: string = "\n#npb "; // hashtag
 let prevTweetId: string = "";
 
-export async function executeWithRound(execQuery, tweet, headerBase, createRowCb) {
+
+export async function executeWithRound(
+  execQuery: string, tweet: boolean, headerBase: string,
+  createRowCb: (results, idx, round2ndDecimal, round3rdDecimal) => [string, boolean, boolean]
+): Promise<string> {
   return await exeWithRoundInner(execQuery, tweet, headerBase, createRowCb)
     .then(r => r)
     .catch(e => {
@@ -18,8 +22,8 @@ export async function executeWithRound(execQuery, tweet, headerBase, createRowCb
 
 const exeWithRoundInner = async (
   execQuery: string, tweet: boolean, headerBase: string,
-  createRowCb: (results, idx, round2ndDecimal, round3rdDecimal) => [string, boolean, boolean]
-) => {
+  createRowCb: (results, idx: string, round2ndDecimal: boolean, round3rdDecimal: boolean) => [string, boolean, boolean]
+): Promise<string> => {
   // get target records
   const results = await db
     .query(execQuery, { type })
@@ -60,11 +64,11 @@ const exeWithRoundInner = async (
     }
   }
 
-  await executeTweet(tweet, contents, footer, prevTweetId);
+  return await executeTweet(tweet, contents, footer, prevTweetId);
 };
 
 
-const executeTweet = async (tweet, contents, footer, prevTweetId) => {
+const executeTweet = async (tweet, contents, footer, prevTweetId): Promise<string> => {
   let displayContent = contents + footer;
   // 最終ツイート内容出力
   console.log("----------");

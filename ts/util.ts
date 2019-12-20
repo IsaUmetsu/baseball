@@ -1,7 +1,10 @@
-import { Cols, ResultPerBase } from './type';
+import { Cols, QueryResult } from './type';
 import { RATE_TYPE_COL_OPS } from "./constants";
 import * as client from './twitter';
 
+/**
+ * バリデーション実行
+ */
 export function isValid(value: number, validList: Array<Object>, option: string): boolean {
   let valid: boolean = true;
   // 入力有無
@@ -17,45 +20,47 @@ export function isValid(value: number, validList: Array<Object>, option: string)
   return valid;
 };
 
+/**
+ * 指定桁数で四捨五入実行
+ */
 const customRound = (target: any, decimal: number): number =>
   Math.round(Number(target) * Math.pow(10, decimal)) / Math.pow(10, decimal);
 
-export function executeRoundSmallNum(results: Array<ResultPerBase>, idx: number, round2ndDcm: boolean, round3rdDcm: boolean, cols: Cols) {
+/**
+ * 小数点四捨五入
+ */
+export function executeRoundSmallNum(
+  results: Array<QueryResult>, idx: number,
+  round2ndDcm: boolean, round3rdDcm: boolean, cols: Cols
+): [string, boolean, boolean] {
   return doRoundDecimal(results, idx, round2ndDcm, round3rdDcm, 3, cols);
 }
 
-const sameAsDevide = (hitCntVal: number, batCntVal: number, nextHitCntVal: number, nextBatCntVal: number): boolean => {
-  let currentGcd: number = gcd(hitCntVal, batCntVal);
-  let nextGcd: number = gcd(nextHitCntVal, nextBatCntVal);
-
-  return (
-    hitCntVal / currentGcd == nextHitCntVal / nextGcd &&
-    batCntVal / currentGcd == nextBatCntVal / nextGcd
-  );
-};
-
+/**
+ * 指定桁数で小数点四捨五入実行
+ */
 const doRoundDecimal = (
-  results: Array<ResultPerBase>,
+  results: Array<QueryResult>,
   idx: number,
   round2ndDecimal: boolean,
   round3rdDecimal: boolean,
   baseDecimal: number,
   cols: Cols
-) => {
+): [string, boolean, boolean] => {
   const { cntCol, allCol, targetCol } = cols;
-  let cntVal: number = results[idx][cntCol];
-  let allVal: number = results[idx][allCol];
-  let targetVal: string = results[idx][targetCol];
+  let result: QueryResult = results[idx];
+  let cntVal: number = result[cntCol], allVal: number = result[allCol], targetVal: string = result[targetCol];
 
   idx = Number(idx);
   let nextIdx: number = idx + 1 < results.length ? idx + 1 : idx,
     rounded: number = customRound(targetVal, baseDecimal),
-    roudedDecimal: number = baseDecimal;
+    roudedDecimal: number = baseDecimal,
+    nextResult = results[nextIdx];
 
   // 小数点第4位での四捨五入フラグがONの場合
   if (round2ndDecimal) {
     // 次の打者の値と小数点3位を四捨五入した値が違う場合、フラグをfalseに戻す
-    if (rounded != customRound(results[nextIdx][targetCol], baseDecimal)) {
+    if (rounded != customRound(nextResult[targetCol], baseDecimal)) {
       round2ndDecimal = false;
     }
 
@@ -70,8 +75,8 @@ const doRoundDecimal = (
       round3rdDecimal = false;
 
       if (
-        rounded == customRound(results[nextIdx][targetCol], baseDecimal + 1) &&
-        allVal != results[nextIdx][allCol]
+        rounded == customRound(nextResult[targetCol], baseDecimal + 1) &&
+        allVal != nextResult[allCol]
       ) {
         round3rdDecimal = true;
         // 小数点第3位での四捨五入
@@ -81,17 +86,17 @@ const doRoundDecimal = (
     }
   } else {
     // 次の打者の値と小数点3位を四捨五入した値が同じ場合
-    if (rounded == customRound(results[nextIdx][targetCol], baseDecimal)) {
+    if (rounded == customRound(nextResult[targetCol], baseDecimal)) {
       // 本数・打数のどちらかが違う and 約分したら同じ比率にならない場合、小数点第2位で四捨五入させ、次の順位も同様に四捨五入させるフラグをtrue
       if (
         !(
-          (results[nextIdx][cntCol] == cntVal &&
-            results[nextIdx][allCol] == allVal) ||
+          (nextResult[cntCol] == cntVal &&
+            nextResult[allCol] == allVal) ||
           sameAsDevide(
             cntVal,
             allVal,
-            results[nextIdx][cntCol],
-            results[nextIdx][allCol]
+            nextResult[cntCol],
+            nextResult[allCol]
           )
         )
       ) {
@@ -109,8 +114,8 @@ const doRoundDecimal = (
               sameAsDevide(
                 cntVal,
                 allVal,
-                results[nextIdx][cntCol],
-                results[nextIdx][allCol]
+                nextResult[cntCol],
+                nextResult[allCol]
               )
             )
           ) {
@@ -144,11 +149,20 @@ const doRoundDecimal = (
     }
   }
 
-  return {
-    rounded: roundedAddedZero,
-    flag2: round2ndDecimal,
-    flag3: round3rdDecimal
-  };
+  return [roundedAddedZero, round2ndDecimal, round3rdDecimal];
+};
+
+const sameAsDevide = (
+  hitCntVal: number, batCntVal: number,
+  nextHitCntVal: number, nextBatCntVal: number
+): boolean => {
+  let currentGcd: number = gcd(hitCntVal, batCntVal);
+  let nextGcd: number = gcd(nextHitCntVal, nextBatCntVal);
+
+  return (
+    hitCntVal / currentGcd == nextHitCntVal / nextGcd &&
+    batCntVal / currentGcd == nextBatCntVal / nextGcd
+  );
 };
 
 const gcd = (a: number, b: number): number => {
@@ -176,7 +190,9 @@ const addedZero = (target: number, roudedDecimal: number): string => {
   return rounded;
 };
 
-export async function tweetResult(tweet: boolean, status: string, in_reply_to_status_id: string): Promise<string> {
+export async function tweetResult(
+  tweet: boolean, status: string, in_reply_to_status_id: string
+): Promise<string> {
   let res: string = "";
   if (tweet) {
     let { id_str } = await client.default.post("statuses/update", {
@@ -189,7 +205,9 @@ export async function tweetResult(tweet: boolean, status: string, in_reply_to_st
   return res;
 };
 
-export function createHeader(isKindTeam: boolean, first: string, second: string, third: string): string {
+export function createHeader(
+  isKindTeam: boolean, first: string = "", second: string = "", third: string = ""
+): string {
   return `2019年 ${first} ${isKindTeam ? `チーム別` : ``}${second}${
     isKindTeam ? `` : `\n※規定打席到達打者のみ`
     }${third}\n\n`;

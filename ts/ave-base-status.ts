@@ -8,10 +8,8 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
-import * as yargs from 'yargs';
-import { resultPerAny } from './query';
-import { Cols } from './type';
 
+import * as yargs from 'yargs';
 const argv = yargs.options({
   tweet: { type: 'count', alias: 't' },
   kindTeam: { type: 'count', alias: 'k' },
@@ -19,39 +17,38 @@ const argv = yargs.options({
   base: { type: 'number', alias: 'b', default: 1 }
 }).argv;
 
+import { resultPerAny } from './query';
+import { QueryResult, ResultPerAny } from './type';
 import { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME, BASE_TYPE, BASE_TYPE_NAME } from './constants';
-
 import { isValid, executeRoundSmallNum, createHeader } from "./util";
 import { executeWithRound } from "./execute";
 
-const tweet: boolean = argv.tweet > 0;
-const isKindTeam: boolean = argv.kindTeam > 0;
-
 // validated
 if (!isValid(argv.base, Object.keys(BASE_TYPE), "base")) process.exit();
-if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
-  process.exit();
+if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result")) process.exit();
 // set bat
 const base: number = argv.base;
 const rst: number = argv.result;
+const tweet: boolean = argv.tweet > 0;
+const isKindTeam: boolean = argv.kindTeam > 0;
 
 /**
  *
- * @param {array} results
- * @param {number} idx
- * @param {boolean} round2ndDecimal
- * @param {boolean} round3rdDecimal
- * @return {array}
+ * @param results
+ * @param idx
+ * @param round2ndDecimal
+ * @param round3rdDecimal
+ * @return
  */
-const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
-  let { rounded, flag2, flag3 } = executeRoundSmallNum(
-    results,
+const createRow = (results: Array<QueryResult>, idx, round2ndDecimal, round3rdDecimal): [string, boolean, boolean] => {
+  let [rounded, flag2, flag3] = executeRoundSmallNum(
+    results as Array<ResultPerAny>,
     idx,
     round2ndDecimal,
     round3rdDecimal,
     { cntCol: "hit", allCol: "bat", targetCol: "rate" }
   );
-  const { name, team, hr, rbi, hit, bat, rank } = results[idx];
+  const { name, team, hr, rbi, hit, bat, rank } = results[idx] as ResultPerAny;
   let namePart = `${isKindTeam ? `${team}` : `${name}(${team})`}`;
   let row = `${rank}位 ${namePart} ${rounded} (${bat}-${hit}) ${hr}本 ${rbi}打点\n`;
   return [row, flag2, flag3];
@@ -66,15 +63,13 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
       BASE_TYPE[base],
       RESULT_PER_TYPE[rst],
       "result_per_situation_base",
-      isKindTeam,
-      ""
+      isKindTeam
     ),
     tweet,
     createHeader(
       isKindTeam,
       `走者${BASE_TYPE_NAME[base]}`,
-      `${RESULT_PER_TYPE_NAME[rst]}ランキング`,
-      ""
+      `${RESULT_PER_TYPE_NAME[rst]}ランキング`
     ),
     createRow
   )
