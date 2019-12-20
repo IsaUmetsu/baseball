@@ -8,34 +8,32 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
-import yargs from 'yargs';
+import * as yargs from 'yargs';
 import { resultPerAny } from './query';
 import { Cols } from './type';
 
-const argv = yargs
-  .count("tweet")
-  .alias("t", "tweet")
-  .count("kindTeam")
-  .alias("k", "kindTeam").alias("r", "result")
-  .default({ result: 1 })
-  .alias("b", "base")
-  .default({ base: 1 }).argv;
+const argv = yargs.options({
+  tweet: { type: 'count', alias: 't' },
+  kindTeam: { type: 'count', alias: 'k' },
+  result: { type: 'number', alias: 'r', default: 1 },
+  base: { type: 'number', alias: 'b', default: 1 }
+}).argv;
 
 import { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME, BASE_TYPE, BASE_TYPE_NAME } from './constants';
 
-const { isValid, executeRoundSmallNum, createHeader } = require("./util");
-const { executeWithRound } = require("./average/b-ave");
+import { isValid, executeRoundSmallNum, createHeader } from "./util";
+import { executeWithRound } from "./execute";
 
-const tweet = argv.tweet > 0;
-const isKindTeam = argv.kindTeam > 0;
+const tweet: boolean = argv.tweet > 0;
+const isKindTeam: boolean = argv.kindTeam > 0;
 
 // validated
 if (!isValid(argv.base, Object.keys(BASE_TYPE), "base")) process.exit();
 if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
   process.exit();
 // set bat
-const base = argv.base;
-const rst = argv.result;
+const base: number = argv.base;
+const rst: number = argv.result;
 
 /**
  *

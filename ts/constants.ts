@@ -31,3 +31,5 @@ export const BASE_TYPE_NAME = {
   7: "三塁",
   8: "満塁"
 };
+
+export const RATE_TYPE_COL_OPS = "ops";

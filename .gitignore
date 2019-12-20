@@ -14,4 +14,5 @@ scraping/json/*
 scraping/html/*
 scraping/screenshot/*
 tweet/twitter.js
+ts/twitter.ts
 sql/generated/*

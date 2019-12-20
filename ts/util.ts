@@ -1,4 +1,6 @@
 import { Cols, ResultPerBase } from './type';
+import { RATE_TYPE_COL_OPS } from "./constants";
+import * as client from './twitter';
 
 export function isValid(value: number, validList: Array<Object>, option: string): boolean {
   let valid: boolean = true;
@@ -22,9 +24,9 @@ export function executeRoundSmallNum(results: Array<ResultPerBase>, idx: number,
   return doRoundDecimal(results, idx, round2ndDcm, round3rdDcm, 3, cols);
 }
 
-const sameAsDevide = (hitCntVal, batCntVal, nextHitCntVal, nextBatCntVal) => {
-  let currentGcd = gcd(hitCntVal, batCntVal);
-  let nextGcd = gcd(nextHitCntVal, nextBatCntVal);
+const sameAsDevide = (hitCntVal: number, batCntVal: number, nextHitCntVal: number, nextBatCntVal: number): boolean => {
+  let currentGcd: number = gcd(hitCntVal, batCntVal);
+  let nextGcd: number = gcd(nextHitCntVal, nextBatCntVal);
 
   return (
     hitCntVal / currentGcd == nextHitCntVal / nextGcd &&
@@ -41,8 +43,8 @@ const doRoundDecimal = (
   cols: Cols
 ) => {
   const { cntCol, allCol, targetCol } = cols;
-  let cntVal: string = results[idx][cntCol];
-  let allVal: string = results[idx][allCol];
+  let cntVal: number = results[idx][cntCol];
+  let allVal: number = results[idx][allCol];
   let targetVal: string = results[idx][targetCol];
 
   idx = Number(idx);
@@ -127,25 +129,68 @@ const doRoundDecimal = (
     }
   }
 
-  rounded = addedZero(rounded, roudedDecimal);
+  let roundedAddedZero: string = addedZero(rounded, roudedDecimal);
   // create flugs
-  let isIntPartOne = String(rounded).slice(0, 1) == "1";
-  let isOps = targetCol == RATE_TYPE_COL_OPS;
+  let isIntPartOne: boolean = roundedAddedZero.slice(0, 1) == "1";
+  let isOps: boolean = targetCol == RATE_TYPE_COL_OPS;
 
   if (baseDecimal == 3) {
     // OPS以外 (when rounded = 1. then output as 1.000)
     if (isIntPartOne && !isOps) {
-      rounded = "1.000";
+      roundedAddedZero = "1.000";
       // OPS (1を超える場合があるため、1未満のみ`0`を削除)
     } else if (!isIntPartOne) {
-      rounded = String(rounded).slice(1);
+      roundedAddedZero = roundedAddedZero.slice(1);
     }
   }
 
   return {
-    rounded,
+    rounded: roundedAddedZero,
     flag2: round2ndDecimal,
     flag3: round3rdDecimal
   };
 };
 
+const gcd = (a: number, b: number): number => {
+  if (b == 0) return a;
+  return gcd(b, a % b);
+};
+
+const addedZero = (target: number, roudedDecimal: number): string => {
+  let rounded: string = String(target);
+  let decimalPart: string = rounded.split(".")[1]; // 小数点で分割
+  // 小数点パートがある場合
+  if (decimalPart) {
+    if (decimalPart.length < roudedDecimal) {
+      for (let idx: number = 0; idx < roudedDecimal - decimalPart.length; idx++) {
+        rounded = rounded + "0";
+      }
+    }
+    // when rounded = .0 then output as .000
+  } else {
+    rounded = rounded.split(".")[0] + ".";
+    for (let idx: number = 0; idx < roudedDecimal; idx++) {
+      rounded = rounded + "0";
+    }
+  }
+  return rounded;
+};
+
+export async function tweetResult(tweet: boolean, status: string, in_reply_to_status_id: string): Promise<string> {
+  let res: string = "";
+  if (tweet) {
+    let { id_str } = await client.default.post("statuses/update", {
+      status,
+      in_reply_to_status_id
+    });
+    res = id_str;
+    console.log("--- tweeted ---");
+  }
+  return res;
+};
+
+export function createHeader(isKindTeam: boolean, first: string, second: string, third: string): string {
+  return `2019年 ${first} ${isKindTeam ? `チーム別` : ``}${second}${
+    isKindTeam ? `` : `\n※規定打席到達打者のみ`
+    }${third}\n\n`;
+}
