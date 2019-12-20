@@ -31,7 +31,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     profile_number: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.INTEGER(11),
       allowNull: false
     },
     player_name: {

@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
       autoIncrement: true
     },
     profile_number: {
-      type: DataTypes.INTEGER(4),
+      type: DataTypes.STRING(3),
       allowNull: false
     },
     name: {

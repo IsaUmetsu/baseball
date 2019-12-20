@@ -5,99 +5,63 @@ const query = (module.exports = {});
 /**
  * 選手起用に変更があるか判定
  */
-query.judgePlayerChange = (order_overview_id, now_pitch_count, top_bottom) => `
+query.judgePlayerChange = (oo_id, now_pitch_count, top_bottom) => `
   SELECT
-    *
+    prv.*,
+    aft_player,
+    aft_pos,
+    aft_prf_nbr,
+    aft_name
   FROM
     (
-      -- 選手交代前の前
       SELECT
-        *
+        \`order_overview_id\` AS oo_id,
+        \`top_bottom\`,
+        \`pitch_count\`,
+        \`batting_order\`,
+        \`player\` AS prv_player,
+        \`pos\` AS prv_pos,
+        \`profile_number\` AS prv_prf_nbr,
+        \`player_name\` AS prv_name
       FROM
-        (
-          (
-            SELECT
-              pitch_count AS before_pitch_count,
-              batting_order AS before_batting_order,
-              player AS before_player,
-              pos AS before_pos,
-              profile_number AS before_profile_number,
-              player_name AS before_player_name
-            FROM
-              baseball.order_detail
-            WHERE
-              order_overview_id = ${order_overview_id}
-              AND pitch_count = ${now_pitch_count - 1}
-              AND top_bottom = ${top_bottom}
-          ) AS A
-          LEFT OUTER JOIN (
-            SELECT
-              pitch_count AS after_pitch_count,
-              batting_order AS after_batting_order,
-              player AS after_player,
-              pos AS after_pos,
-              profile_number AS after_profile_number,
-              player_name AS after_player_name
-            FROM
-              baseball.order_detail
-            WHERE
-              order_overview_id = ${order_overview_id}
-              AND pitch_count = ${now_pitch_count}
-              AND top_bottom = ${top_bottom}
-          ) AS B ON A.before_player = B.after_player
-          AND A.before_pos = B.after_pos
-        )
-      UNION
-      -- 選手交代前の後
+        baseball.order_detail
+      WHERE
+        order_overview_id = ${oo_id}
+        AND top_bottom = ${top_bottom}
+        AND pitch_count = ${now_pitch_count} - 1
+    ) AS prv
+    LEFT JOIN (
       SELECT
-        *
+        \`order_overview_id\` AS oo_id,
+        \`top_bottom\`,
+        \`pitch_count\`,
+        \`batting_order\`,
+        \`player\` AS aft_player,
+        \`pos\` AS aft_pos,
+        \`profile_number\` AS aft_prf_nbr,
+        \`player_name\` AS aft_name
       FROM
-        (
-          (
-            SELECT
-              pitch_count AS before_pitch_count,
-              batting_order AS before_batting_order,
-              player AS before_player,
-              pos AS before_pos,
-              profile_number AS before_profile_number,
-              player_name AS before_player_name
-            FROM
-              baseball.order_detail
-            WHERE
-              order_overview_id = ${order_overview_id}
-              AND pitch_count = ${now_pitch_count - 1}
-              AND top_bottom = ${top_bottom}
-          ) AS A
-          RIGHT OUTER JOIN (
-            SELECT
-              pitch_count AS after_pitch_count,
-              batting_order AS after_batting_order,
-              player AS after_player,
-              pos AS after_pos,
-              profile_number AS after_profile_number,
-              player_name AS after_player_name
-            FROM
-              baseball.order_detail
-            WHERE
-              order_overview_id = ${order_overview_id}
-              AND pitch_count = ${now_pitch_count}
-              AND top_bottom = ${top_bottom}
-          ) AS B ON A.before_player = B.after_player
-          AND A.before_pos = B.after_pos
-        )
-    ) AS C
+        baseball.order_detail
+      WHERE
+        order_overview_id = ${oo_id}
+        AND top_bottom = ${top_bottom}
+        AND pitch_count = ${now_pitch_count}
+    ) AS aft ON prv.oo_id = aft.oo_id
+    AND prv.top_bottom = aft.top_bottom
+    AND prv.pitch_count = (aft.pitch_count - 1)
+    AND prv.batting_order = aft.batting_order
   WHERE
-    before_batting_order IS NULL
-    OR after_player IS NULL
-`;
+    prv_player != aft_player
+    OR prv_pos != aft_pos;
+`
 
 /**
  * 選手変更時の試合情報（イニング、カウント、ランナー状況）取得
  */
 query.getGameInfoWhenChange = (
-  order_overview_id,
-  before_pitch_count,
-  after_pitch_count
+  oo_id,
+  prv_pitch_count,
+  pitch_count
 ) => `
   SELECT
     g.ining,
@@ -123,8 +87,8 @@ query.getGameInfoWhenChange = (
     LEFT JOIN baseball.player pp ON g.pitcher = pp.id
     LEFT JOIN baseball.player pb ON g.batter = pb.id
   WHERE
-    g.order_overview_id = ${order_overview_id}
-    AND g.pitch_count IN (${before_pitch_count}, ${after_pitch_count})
+    g.order_overview_id = ${oo_id}
+    AND g.pitch_count IN (${prv_pitch_count}, ${pitch_count})
 `;
 
 /**

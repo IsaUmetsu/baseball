@@ -32,8 +32,8 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(15),
       allowNull: true
     },
-    unkcol_4: {
-      type: DataTypes.STRING(45),
+    p_LR: {
+      type: DataTypes.INTEGER(2),
       allowNull: true
     },
     unkcol_5: {
@@ -44,7 +44,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(15),
       allowNull: true
     },
-    LR: {
+    b_LR: {
       type: DataTypes.INTEGER(2),
       allowNull: true
     },
