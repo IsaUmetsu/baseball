@@ -1,3 +1,7 @@
+const { debug } = require("yargs")
+  .count("debug")
+  .alias("d", "debug").argv;
+
 const Sequelize = require("sequelize");
 const db = new Sequelize({
   database: "baseball",
@@ -8,15 +12,15 @@ const db = new Sequelize({
   username: "root",
   // password: "root"
   password: "",
-  // logging: true
-})
+  logging: Boolean(debug)
+});
 
 db.authenticate()
   .then(() => {
-    console.log('Connection has been established successfully.')
+    console.log("Connection has been established successfully.");
   })
   .catch(err => {
-    console.log('Unable to connect to the database.')
-  })
+    console.log("Unable to connect to the database.");
+  });
 
 module.exports = db;
