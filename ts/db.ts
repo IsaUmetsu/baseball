@@ -1,14 +1,19 @@
 import { Sequelize, QueryTypes } from "sequelize";
+import * as yargs from "yargs";
+
+const { debug } = yargs.options({
+  debug: { type: 'count', alias: 'd' }
+}).argv;
+
 const db = new Sequelize({
   database: "baseball",
   dialect: "mysql",
   timezone: "Asia/Tokyo",
-  logging: false,
   host: "localhost",
   username: "root",
   // password: "root"
   password: "",
-  // logging: true
+  logging: Boolean(debug)
 })
 
 db.authenticate()

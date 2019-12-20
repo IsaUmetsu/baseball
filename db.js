@@ -7,7 +7,6 @@ const db = new Sequelize({
   database: "baseball",
   dialect: "mysql",
   timezone: "Asia/Tokyo",
-  logging: false,
   host: "localhost",
   username: "root",
   // password: "root"
