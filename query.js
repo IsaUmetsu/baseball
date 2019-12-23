@@ -204,6 +204,22 @@ const getFullParticipationBySide = (top_bottom, order, ids) => `
 `;
 
 /**
+ * フル出場選手情報取得 (既成テーブルからのSELECT)
+ * @param {string} team
+ * @param {number} order
+ * @return {string}
+ */
+query.getFullParticipationTable = (team, order) => `
+  SELECT
+    name AS player_name,
+    stmm${order} AS starting_cnt,
+    full${order} AS count
+  FROM baseball.participate_order
+  WHERE team = '${team}' AND stmm${order} > 0
+  order by full${order} DESC, stmm${order} DESC;
+`;
+
+/**
  * チーム別ホームランタイプ取得（通算本塁打数比較）
  * @param {string} situation
  * @param {boolean} isDevide

@@ -30,7 +30,7 @@ sql += `-- 各項目合計`;
 sql += `
   CASE WHEN(${cols(stCols)}) > 0 THEN ROUND((${cols(flCols)})/(${cols(stCols)}), 5) ELSE 0 END AS rate,
   ${cols(stCols)} AS stmm,
-  ${cols(flCols)} AS flpt,`;
+  ${cols(flCols)} AS full,`;
 
 // -------------------- /[select part] --------------------
 
