@@ -178,8 +178,6 @@ const getFullParticipationBySide = (top_bottom, order, ids) => `
             (
               SELECT
                 order_overview_id,
-                top_bottom,
-                batting_order,
                 Max(pitch_count) AS max_pitch_count,
                 player_name
               FROM
@@ -190,12 +188,9 @@ const getFullParticipationBySide = (top_bottom, order, ids) => `
                 AND batting_order = ${order}
               GROUP BY
                 order_overview_id,
-                top_bottom,
-                batting_order,
                 player_name
               ORDER BY
                 order_overview_id,
-                top_bottom,
                 max_pitch_count
             ) AS A
           GROUP BY
