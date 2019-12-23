@@ -10,7 +10,7 @@ const func = (module.exports = {});
  * @return {string}
  */
 func.getFilename = fullFilePath => {
-  const isMac = process.cwd() == "/";
+  const isMac = process.cwd().slice(0, 1) == "/";
   const separator = isMac ? "/" : "\\";
 
   const fnSplit = fullFilePath.split(separator);
