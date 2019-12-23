@@ -1,42 +1,43 @@
-"use strict"
+"use strict";
 
-const { POSITIONS, VISITOR_TEAM, HOME_TEAM } = require('../constants')
-const { P, RF, D, PH, PR } = POSITIONS
+const { team } = require("yargs").alias("t", "team").argv;
+const { TEAM_INITIAL } = require("../constants");
+const { isValid } = require('../tweet/util');
 
-const { db } = require('../model')
-const { getStartingMenberSpecifyOrder, getOverviewIds } = require('../query')
-const { createListByPlayer } = require('../func')
-const logger = require('../logger')
+if (!isValid(team, TEAM_INITIAL, "team")) process.exit();
 
-const { SELECT: type } = db.QueryTypes
+const { db } = require("../model");
+const { getStartingMenberSpecifyOrder } = require("../query");
+const { createListByPlayer } = require("../func");
+
+const { SELECT: type } = db.QueryTypes;
 
 // define sleep function
 const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
+const logger = require("../logger");
 
+/**
+ * Execute
+ */
 (async () => {
-  // get overviewIds of top, bottom
-  const overviewIdsTop = await db.query(getOverviewIds('H', VISITOR_TEAM), { type }).then(r => r).catch(e => e);
-  const overviewIdsBtm = await db.query(getOverviewIds('H', HOME_TEAM), { type }).then(r => r).catch(e => e);
-  // create array
-  const idsTop = overviewIdsTop.map(({id}) => id);
-  const idsBtm = overviewIdsBtm.map(({id}) => id);
-
-  const rstByPly = {}
+  const rstByPly = {};
 
   // get order
   for (let order_no = 1; order_no <= 9; order_no++) {
-    const records = await db.query(getStartingMenberSpecifyOrder('H', order_no, idsTop, idsBtm), { type })
+    const records = await db
+      .query(getStartingMenberSpecifyOrder(team, order_no), { type })
       .then(rst => rst)
-      .catch(err => { console.log(err) })
+      .catch(err => {
+        console.log(err);
+      });
 
-    console.log(`----- Order No: [${order_no}] -----`)
+    console.log(`----- Order No: [${order_no}] -----`);
     records.map(({ count, player_name }) => {
-      console.log(`${count} ${player_name}`)
-
-      createListByPlayer(rstByPly, order_no, count, player_name)
-    })
-    console.log(``)
+      console.log(`${count} ${player_name}`);
+      createListByPlayer(rstByPly, order_no, count, player_name);
+    });
+    console.log(``);
   }
 
-  console.log(rstByPly)
-})()
+  console.log(rstByPly);
+})();

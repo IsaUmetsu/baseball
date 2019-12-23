@@ -26,6 +26,7 @@ const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
   // get order
   for (let order_no = 1; order_no <= 9; order_no++) {
     const records = await db.query(getFullParticipation(idsTop, idsBtm, order_no), { type })
+    // const records = await db.query(getFullParticipation(order_no, 'H'), { type })
       .then(rst => rst)
       .catch(err => { console.log(err) })
 

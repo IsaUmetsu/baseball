@@ -94,44 +94,38 @@ query.getGameInfoWhenChange = (
 /**
  * 打順ごとのスタメン回数取得
  */
-query.getStartingMenberSpecifyOrder = (team, order, idsTop, idsBtm) => `
+query.getStartingMenberSpecifyOrder = (team, order) => `
   SELECT
-    count(player_name) as count,
-    player_name
+    player_name,
+    COUNT(player_name) AS count
   FROM
-    baseball.order_detail
-  where
     (
-      (
-        order_overview_id in (
-          ${idsTop} -- SELECT 
-          --     id
-          -- FROM
-          --     baseball.order_overview
-          -- where
-          --     visitor_team = '${team}'
+      SELECT
+        od.*
+      FROM
+        baseball.order_detail od
+        LEFT JOIN order_overview oo ON oo.id = od.order_overview_id
+        LEFT JOIN no_game_info ng ON ng.order_overview_id = oo.id
+        LEFT JOIN post_season_info ps ON ps.oo_id = oo.id
+      WHERE
+        (
+          oo.visitor_team = '${team}'
+          OR oo.home_team = '${team}'
         )
-        and top_bottom = 1
-      )
-      or (
-        order_overview_id in (
-          ${idsBtm} -- SELECT 
-          --     id
-          -- FROM
-          --     baseball.order_overview
-          -- where
-          --     home_team = '${team}'
-        )
-        and top_bottom = 2
-      )
-    )
-    and pitch_count = 1
-    and batting_order = ${order}
-  group by
+        AND od.top_bottom = CASE
+          WHEN oo.visitor_team = '${team}' THEN 1
+          WHEN oo.home_team = '${team}' THEN 2
+        END
+        AND ng.remarks IS NULL
+        AND ps.oo_id IS NULL
+        AND pitch_count = 1
+        AND batting_order = ${order}
+    ) AS A
+  GROUP BY
     player_name
-  order by
-    count desc
-`;
+  ORDER BY
+    count DESC;
+`
 
 query.getOverviewIds = (team, top_bottom) => `
     SELECT 
