@@ -40,7 +40,7 @@ const isKindTeam: boolean = argv.kindTeam > 0;
  * @param round3rdDecimal
  * @return
  */
-const createRow = (results: Array<QueryResult>, idx, round2ndDecimal, round3rdDecimal): [string, boolean, boolean] => {
+const createRow = (results: Array<QueryResult>, idx: number, round2ndDecimal: boolean, round3rdDecimal: boolean): [string, boolean, boolean] => {
   let [rounded, flag2, flag3] = executeRoundSmallNum(
     results as Array<ResultPerAny>,
     idx,
