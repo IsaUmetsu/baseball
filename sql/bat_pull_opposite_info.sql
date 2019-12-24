@@ -8,6 +8,9 @@ SELECT
     COUNT(sb.rst_id = 6 OR NULL) AS `2B`,
     COUNT(sb.rst_id = 8 OR NULL) AS `3B`,
     COUNT(sb.rst_id = 9 OR NULL) AS hr,
+    COUNT(sb.rst_id = 11 OR NULL) AS goro,
+    COUNT(sb.rst_id = 12 OR NULL) AS fly,
+    COUNT(sb.rst_id = 13 OR NULL) AS liner,
     CASE
         WHEN
             COUNT(sb.batter OR NULL) > 0
@@ -34,13 +37,17 @@ WHERE
         AND br.batter IS NOT NULL
         AND eb.name IS NULL
         -- 流し打ち
---         AND (
--- 			(b_LR = 1 AND (direction IN (5, 7, 10, 14) or ((direction > 2 and direction < 10) AND r.col_6 < ROUND((- 1.6) * r.col_5 + 328.9, 0)))) OR 
--- 			(b_LR = 2 AND (direction IN (3, 9, 12, 13) or ((direction > 2 and direction < 10) AND r.col_6 > ROUND((- 0.6) * r.col_5 + 258.5, 0))))
---         )
-		-- 引っ張り
         AND (
-			(b_LR = 2 AND (direction IN (5, 7, 12) or (direction > 2 AND r.col_6 < ROUND((- 2.1) * r.col_5 + 365.8, 0)))) OR
-            (b_LR = 1 AND (direction IN (3, 9, 10) or (direction > 2 AND r.col_6 > ROUND((- 0.6) * r.col_5 + 256.9, 0))))
-		)
+			(b_LR = 1 AND (direction IN (5, 7, 10, 14) or ((direction > 2 and direction < 10) AND r.col_6 < ROUND((- 1.6) * r.col_5 + 328.9, 0)))) OR 
+			(b_LR = 2 AND (direction IN (3, 9, 12, 13) or ((direction > 2 and direction < 10) AND r.col_6 > ROUND((- 0.6) * r.col_5 + 258.5, 0))))
+        )
+		-- 引っ張り
+--         AND (
+-- 			(b_LR = 2 AND (direction IN (5, 7, 12) or (direction > 2 AND r.col_6 < ROUND((- 2.1) * r.col_5 + 365.8, 0)))) OR
+--             (b_LR = 1 AND (direction IN (3, 9, 10) or (direction > 2 AND r.col_6 > ROUND((- 0.6) * r.col_5 + 256.9, 0))))
+-- 		)
+		-- センター返し
+--         AND (direction = 1 OR direction > 2)
+--         AND r.col_6 > ROUND((- 2.1) * r.col_5 + 365.8, 0)
+--         AND r.col_6 < ROUND((- 0.6) * r.col_5 + 256.9, 0)
 GROUP BY sb.batter , sb.name , sb.team;
