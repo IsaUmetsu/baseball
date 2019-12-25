@@ -13,7 +13,7 @@
 const argv = require("./average/yargs").pitcher.argv;
 
 const { speed } = require("../query");
-const { isValid, round } = require("./util");
+const { isValid, round } = require("./util/util");
 const { executeWithCb } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;

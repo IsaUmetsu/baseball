@@ -13,6 +13,6 @@
 scraping/json/*
 scraping/html/*
 scraping/screenshot/*
-tweet/twitter.js
+tweet/util/twitter.js
 ts/twitter.ts
 sql/generated/*

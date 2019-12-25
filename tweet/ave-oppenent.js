@@ -24,7 +24,7 @@ const {
   TEAM_INITIAL_NAME: teamName,
   HASHTAGS
 } = require("../constants");
-const { isValid, executeRoundSmallNum, createHeader } = require("./util");
+const { isValid, executeRoundSmallNum, createHeader } = require("./util/util");
 const { executeWithRoundChangeHashTags } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;

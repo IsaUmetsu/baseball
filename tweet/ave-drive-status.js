@@ -21,7 +21,7 @@ const argv = require("yargs")
   .count("kindTeam")
   .alias("k", "kindTeam").argv;
 
-const { isValid, executeRoundSmallNum, createHeader } = require("./util");
+const { isValid, executeRoundSmallNum, createHeader } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 const { resultDrivedPerStatus } = require("../query");
 

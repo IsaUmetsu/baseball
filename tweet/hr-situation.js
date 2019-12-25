@@ -23,7 +23,7 @@ const {
   isValid,
   executeRoundSmallNum,
   createHeaderNoRegulation
-} = require("./util");
+} = require("./util/util");
 const { executeWithRound, executeWithRoundDevide } = require("./average/b-ave");
 const { homerunTypeRank } = require("../query");
 const { SITUATION, SITUATION_COL_NAME } = require("../constants");

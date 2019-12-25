@@ -24,7 +24,7 @@ const {
   createHeader,
   createInningInfo,
   createTargetCols
-} = require("./util");
+} = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 
 const [inningName, willFin, targetInings] = createInningInfo(argv.inning);

@@ -5,7 +5,7 @@
 const util = (module.exports = {});
 
 const client = require("./twitter");
-const { RATE_TYPE_COL_OPS, INNINGS_SET_NAME } = require("../constants");
+const { RATE_TYPE_COL_OPS, INNINGS_SET_NAME } = require("../../constants");
 
 /**
  * 指定桁数四捨五入

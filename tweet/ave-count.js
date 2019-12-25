@@ -31,7 +31,7 @@ const {
   isValidAllowEmply,
   executeRoundSmallNum,
   createHeader
-} = require("./util");
+} = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;

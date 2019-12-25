@@ -17,7 +17,7 @@ const twText = require("twitter-text");
 
 const { db } = require("../../model");
 const { SELECT: type } = db.QueryTypes;
-const { tweetResult } = require("../util");
+const { tweetResult } = require("../util/util");
 
 let contents = ""; // whole
 let row = "";

@@ -16,7 +16,7 @@ const argv = require("./average/yargs")
   .alias("l", "limit")
   .default({ limit: 5 }).argv;
 
-const { isValidAllowEmply, executeRoundSmallNum, createHeaderNoRegulation } = require("./util");
+const { isValidAllowEmply, executeRoundSmallNum, createHeaderNoRegulation } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 const { hitRbiSituation } = require("../query");
 const { SITUATION, SITUATION_COL_NAME } = require("../constants");

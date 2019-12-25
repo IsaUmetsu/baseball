@@ -14,7 +14,7 @@ const argv = require("./average/yargs").pitcher.argv;
 
 const { strikeout } = require("../query");
 const { BALL_TYPES } = require("../constants");
-const { isValid, executeRoundSmallNum } = require("./util");
+const { isValid, executeRoundSmallNum } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 
 const tweet = argv.tweet > 0;
