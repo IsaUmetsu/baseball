@@ -622,8 +622,7 @@ query.hitRbiSituation = (situation, limit, isTeam) => {
               id, ${hitCol}, ROUND(${hitCol} / ${batCol}, 5) AS percent 
             FROM
               ${selectTable}
-            WHERE 
-              ${hitCol} >= ${limit}
+            WHERE ${hitCol} > 0
             ) AS h 
           GROUP  BY score, percent
           ORDER  BY score DESC, percent DESC
@@ -634,14 +633,14 @@ query.hitRbiSituation = (situation, limit, isTeam) => {
           id, ${hitCol}, ROUND(${hitCol} / ${batCol}, 5) AS percent
         FROM
           ${selectTable}
-        WHERE
-          ${hitCol} >= ${limit}
+        WHERE ${hitCol} > 0
         ) AS h 
       ON ${hitCol} = Ranking.score AND h.percent = Ranking.percent
       ORDER  BY rank ASC
     ) AS rank ON rank.id = h.id 
-    WHERE ${hitCol} >= ${limit}
-    ORDER BY ${hitCol} DESC, percent DESC`;
+    WHERE ${hitCol} > 0
+    ORDER BY ${hitCol} DESC, percent DESC
+    LIMIT ${limit}`;
 };
 
 /**
