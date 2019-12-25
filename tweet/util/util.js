@@ -441,3 +441,19 @@ const putArgvInning = (inningArgv, inningArray, innings) => {
  */
 util.createTargetCols = (targetInings, col) =>
   targetInings.map(inningNum => `${col}${inningNum}`).join(" + ");
+
+/**
+ * 対象オブジェクトからランダムなキーを取得
+ * 
+ * @param {object} target
+ */
+util.getRandomKey = target => {
+  const baseKeys = Object.keys(target);
+  const targetBaseKey = Math.floor(Math.random() * baseKeys.length);
+  return baseKeys[targetBaseKey];
+}
+
+util.getRandomKeyArr = baseKeys => {
+  const targetBaseKey = Math.floor(Math.random() * baseKeys.length);
+  return baseKeys[targetBaseKey];
+}

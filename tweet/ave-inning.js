@@ -17,25 +17,34 @@ const argv = require("./average/yargs")
   .alias("i", "inning").argv;
 
 const { resultPerAnyColSum } = require("../query");
-const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME } = require("../constants");
+const { RESULT_PER_TYPE, RESULT_PER_TYPE_NAME, INNINGS_SET_NAME } = require("../constants");
 const {
   executeRoundSmallNum,
   isValid,
   createHeader,
   createInningInfo,
-  createTargetCols
+  createTargetCols,
+  getRandomKey
 } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 
-const [inningName, willFin, targetInings] = createInningInfo(argv.inning);
+const tweet = argv.tweet > 0, isKindTeam = argv.kindTeam > 0, isRandom = argv.random > 0;
+let rst;
+
+const isBetween = () => Math.random() >= 0.5;
+const inning = isRandom ? (isBetween() ? getRandomKey(INNINGS_SET_NAME) : (Math.floor(Math.random() * 12) + 1)) : argv.inning;
+
+const [inningName, willFin, targetInings] = createInningInfo(inning);
 if (willFin) process.exit();
 
-if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
-  process.exit();
+if (isRandom) {
+  rst = getRandomKey(RESULT_PER_TYPE);
+} else {
+  if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
+    process.exit();
 
-const tweet = argv.tweet > 0;
-const isKindTeam = argv.kindTeam > 0;
-const rst = argv.result;
+  rst = argv.result;
+}
 
 const selectCols = {
   hr: createTargetCols(targetInings, "hr"),

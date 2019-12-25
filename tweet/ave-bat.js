@@ -28,39 +28,65 @@ const {
   isValid,
   executeRoundSmallNum,
   round,
-  createHeader
+  createHeader,
+  getRandomKey
 } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 
-const tweet = argv.tweet > 0;
-const isKindTeam = argv.kindTeam > 0;
 const basePA = { 1: 100, 2: 80, 3: 80, 4: 70, 5: 35 };
+const tweet = argv.tweet > 0, isKindTeam = argv.kindTeam > 0, isRandom = argv.random > 0;
 
-// validated
-if (!isValid(argv.bat, Object.keys(basePA), "bat")) process.exit();
-
-let bat = argv.bat,
-  ave = argv.average,
-  rst = argv.result,
+let bat, ave, rst,
   targetCol = "",
   rankName = "";
 
-const isValidResult = isValid(argv.result, Object.keys(RATE_TYPE), "result");
+if (isRandom) {
+  bat = getRandomKey(basePA);
+} else {
+  // validated
+  if (!isValid(argv.bat, Object.keys(basePA), "bat")) process.exit();
+  bat = argv.bat;
+}
+
+const isValidResult = isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result");
 const isValidAvg = isValid(argv.average, Object.keys(RATE_TYPE), "average");
 
-if (!isValidResult && !isValidAvg) {
-  console.log("オプション -r -a のどちらかを指定してください");
-  process.exit();
-} else if (isValidResult && !isValidAvg) {
-  ave = 1; // 打率に固定
-  targetCol = RESULT_PER_TYPE[rst];
-  rankName = RESULT_PER_TYPE_NAME[rst];
-} else if (!isValidResult && isValidAvg) {
-  targetCol = RATE_TYPE[ave];
-  rankName = RATE_TYPE_NAME[ave];
+if (isRandom) {
+  // 指定する方をランダム決める
+  let option = Math.floor(Math.random() * 2) == 0 ? 'r' : 'a';
+
+  // 打率を1に固定 && resultをランダム指定
+  if (option == "r") {
+    ave = 1;
+    rst = getRandomKey(RESULT_PER_TYPE);
+
+    targetCol = RESULT_PER_TYPE[rst];
+    rankName = RESULT_PER_TYPE_NAME[rst];
+  // averageをランダム指定
+  } else if (option == "a") {
+    ave = getRandomKey(RATE_TYPE);
+
+    targetCol = RATE_TYPE[ave];
+    rankName = RATE_TYPE_NAME[ave];
+  }
 } else {
-  console.log("オプション -r -a を同時に指定できません");
-  process.exit();
+  rst = argv.result;
+  ave = argv.average;
+
+  if (!isValidResult && !isValidAvg) {
+    console.log("オプション -r -a のどちらかを指定してください");
+    process.exit();
+  } else if (isValidResult && !isValidAvg) {
+    ave = 1; // 打率に固定
+    targetCol = RESULT_PER_TYPE[rst];
+    rankName = RESULT_PER_TYPE_NAME[rst];
+  } else if (!isValidResult && isValidAvg) {
+    targetCol = RATE_TYPE[ave];
+    rankName = RATE_TYPE_NAME[ave];
+  } else {
+    console.log("オプション -r -a を同時に指定できません");
+    process.exit();
+  }
 }
 
 const cols = {

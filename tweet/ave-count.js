@@ -19,7 +19,9 @@ const argv = require("yargs")
   .default({ result: 1 })
   .alias("b", "ball")
   .alias("s", "strike")
-  .alias("o", "out").argv;
+  .alias("o", "out")
+  .count("random")
+  .alias("x", "random").argv;
 
 const { resultPerAnyColSum } = require("../query");
 const {
@@ -30,12 +32,13 @@ const {
   isValid,
   isValidAllowEmply,
   executeRoundSmallNum,
-  createHeader
+  createHeader,
+  getRandomKey,
+  getRandomKeyArr
 } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 
-const tweet = argv.tweet > 0;
-const isKindTeam = argv.kindTeam > 0;
+const tweet = argv.tweet > 0, isKindTeam = argv.kindTeam > 0, isRandom = argv.random > 0;
 
 const createArrIdx = cnt => [...Array(cnt).keys()].map(key => String(key));
 // validated
@@ -43,17 +46,38 @@ const isValidBall = isValidAllowEmply(argv.ball, createArrIdx(4), "ball"),
   isValidStrike = isValidAllowEmply(argv.strike, createArrIdx(3), "strike"),
   isValidOut = isValidAllowEmply(argv.out, createArrIdx(3), "out");
 
-const { ball, strike, out, result: rst } = argv;
-if (ball === undefined && strike === undefined && out === undefined) {
-  console.log("BSOのいずれか1つは指定してください");
-  process.exit();
-} else if (!isValidBall || !isValidStrike || !isValidOut) {
-  console.log("BSOは正しい範囲で指定してください");
-  process.exit();
+let { ball, strike, out } = argv;
+let rst;
+
+const isSet = () => Math.random() >= 0.5;
+
+if (isRandom) {
+  // result
+  rst = getRandomKey(RESULT_PER_TYPE);
+  // count (ball, strike, out)
+  while(1) {
+    ball = isSet() ? getRandomKeyArr(createArrIdx(4)) : undefined;
+    strike = isSet() ? getRandomKeyArr(createArrIdx(3)) : undefined;
+    out = isSet() ? getRandomKeyArr(createArrIdx(3)) : undefined;
+    if (!(isValidBall == undefined && isValidStrike == undefined && isValidOut == undefined)) break;
+  }
+} else {
+  // result
+  if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
+    process.exit();
+  rst = argv.result;
+  // count (ball, strike, out)
+  if (ball === undefined && strike === undefined && out === undefined) {
+    console.log("BSOのいずれか1つは指定してください");
+    process.exit();
+  } else if (!isValidBall || !isValidStrike || !isValidOut) {
+    console.log("BSOは正しい範囲で指定してください");
+    process.exit();
+  }
 }
 
-if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
-  process.exit();
+console.log(`${ball} ${strike} ${out}`)
+
 // set args
 
 const targetCols = ["hit", "hr", "rbi", "bat"];

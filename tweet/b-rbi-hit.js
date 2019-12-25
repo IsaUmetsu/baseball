@@ -14,20 +14,25 @@
 const argv = require("./average/yargs")
   .baseBothBatTeam.alias("s", "situation")
   .alias("l", "limit")
-  .default({ limit: 5 }).argv;
+  .default({ limit: 60 }).argv;
 
-const { isValidAllowEmply, executeRoundSmallNum, createHeaderNoRegulation } = require("./util/util");
+const { isValidAllowEmply, executeRoundSmallNum, createHeaderNoRegulation, getRandomKey } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 const { hitRbiSituation } = require("../query");
 const { SITUATION, SITUATION_COL_NAME } = require("../constants");
 
-const tweet = argv.tweet > 0;
-const isKindTeam = argv.kindTeam > 0;
-const situation = argv.situation;
+const tweet = argv.tweet > 0, isKindTeam = argv.kindTeam > 0, isRandom = argv.random;
+let situation;
 
-// validate args
-if (!isValidAllowEmply(argv.situation, Object.keys(SITUATION), "situation"))
-  process.exit();
+if (isRandom) {
+  situation = getRandomKey(SITUATION);
+} else {
+  // validate args
+  if (!isValidAllowEmply(argv.situation, Object.keys(SITUATION), "situation"))
+    process.exit();
+
+  situation = argv.situation;
+}
 
 /**
  *
@@ -62,7 +67,7 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
       isKindTeam,
       `${situation ? SITUATION[situation] : "累計"}適時打ランキング`,
       "",
-      "※本 適時状況打数 打点 率"
+      "※本数 適時状況打数 打点 適時打率"
     ),
     createRow
   )

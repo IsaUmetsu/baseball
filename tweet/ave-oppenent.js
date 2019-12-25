@@ -24,19 +24,24 @@ const {
   TEAM_INITIAL_NAME: teamName,
   HASHTAGS
 } = require("../constants");
-const { isValid, executeRoundSmallNum, createHeader } = require("./util/util");
+const { isValid, executeRoundSmallNum, createHeader, getRandomKey, getRandomKeyArr } = require("./util/util");
 const { executeWithRoundChangeHashTags } = require("./average/b-ave");
 
-const tweet = argv.tweet > 0;
-const isKindTeam = argv.kindTeam > 0;
+const tweet = argv.tweet > 0, isKindTeam = argv.kindTeam > 0, isRandom = argv.random;
+let oppo, rst;
 
-// validated
-if (!isValid(argv.opponent, TEAM_INITIAL, "opponent")) process.exit();
-if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
-  process.exit();
-// set bat
-const oppo = argv.opponent;
-const rst = argv.result;
+if (isRandom) {
+  oppo = getRandomKeyArr(TEAM_INITIAL);
+  rst = getRandomKey(RESULT_PER_TYPE);
+} else {
+  // validated
+  if (!isValid(argv.opponent, TEAM_INITIAL, "opponent")) process.exit();
+  if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
+    process.exit();
+  // set bat
+  oppo = argv.opponent;
+  rst = argv.result;
+}
 
 /**
  *

@@ -23,19 +23,26 @@ const {
   BASE_TYPE,
   BASE_TYPE_NAME
 } = require("../constants");
-const { isValid, executeRoundSmallNum, createHeader } = require("./util/util");
+const { isValid, executeRoundSmallNum, createHeader, getRandomKey } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 
-const tweet = argv.tweet > 0;
-const isKindTeam = argv.kindTeam > 0;
+const tweet = argv.tweet > 0, isKindTeam = argv.kindTeam > 0, isRandom = argv.random > 0;
 
-// validated
-if (!isValid(argv.base, Object.keys(BASE_TYPE), "base")) process.exit();
-if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
-  process.exit();
 // set bat
-const base = argv.base;
-const rst = argv.result;
+let base, rst;
+
+if (isRandom) {
+  base = getRandomKey(BASE_TYPE)
+  rst = getRandomKey(RESULT_PER_TYPE)
+} else {
+  // validated
+  if (!isValid(argv.base, Object.keys(BASE_TYPE), "base")) process.exit();
+  if (!isValid(argv.result, Object.keys(RESULT_PER_TYPE), "result"))
+    process.exit();
+
+  base = argv.base;
+  rst = argv.result;
+}
 
 /**
  *

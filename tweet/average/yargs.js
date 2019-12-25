@@ -36,7 +36,9 @@ y.baseBothBatTeam = require("yargs")
   .count("tweet")
   .alias("t", "tweet")
   .count("kindTeam")
-  .alias("k", "kindTeam");
+  .alias("k", "kindTeam")
+  .count("random")
+  .alias("x", "random");
 
 /**
  * for having output type batter and team

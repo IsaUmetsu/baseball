@@ -10,13 +10,14 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
-const argv = require("./average/yargs").pitcher.argv;
+const argv = require("./average/yargs").pitcher.count("random")
+  .alias("x", "random").argv;
 
 const { speed } = require("../query");
-const { isValid, round } = require("./util/util");
+const { isValid, round, getRandomKey } = require("./util/util");
 const { executeWithCb } = require("./average/b-ave");
 
-const tweet = argv.tweet > 0;
+const tweet = argv.tweet > 0, isRandom = argv.random > 0;
 const bType = {
   1: "ストレート",
   2: "カーブ",
@@ -38,11 +39,16 @@ const bPitchCnt = {
   9: 100
 };
 const resultLimit = 50;
+let ballType;
 
-// validated
-if (!isValid(argv.ballType, Object.keys(bPitchCnt), "ballType")) process.exit();
-// set bat
-const ballType = argv.ballType;
+if (isRandom) {
+  ballType = getRandomKey(bPitchCnt);
+} else {
+  // validated
+  if (!isValid(argv.ballType, Object.keys(bPitchCnt), "ballType")) process.exit();
+  // set bat
+  ballType = argv.ballType;
+}
 
 /**
  * ヘッダ作成 (rank, number of homerun, tie)

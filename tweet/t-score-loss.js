@@ -17,24 +17,36 @@ const argv = require("./average/yargs")
   .alias("i", "inning").argv;
 
 const { scoreLossPerInning } = require("../query");
-const { SCORE_TYPE, SCORE_TYPE_NAME } = require("../constants");
+const { SCORE_TYPE, SCORE_TYPE_NAME, INNINGS_SET_NAME } = require("../constants");
 const {
   executeRoundSmallNum,
   isValid,
   createHeaderNoRegulation,
   createInningInfo,
-  createTargetCols
+  createTargetCols,
+  getRandomKey
 } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 
-const [inningName, willFin, targetInings] = createInningInfo(argv.inning);
+const tweet = argv.tweet > 0, isRandom = argv.random > 0;
+let rst;
+
+const isBetween = () => Math.random() >= 0.5;
+const inning = isRandom ? (isBetween() ? getRandomKey(INNINGS_SET_NAME) : (Math.floor(Math.random() * 12) + 1)) : argv.inning;
+
+const [inningName, willFin, targetInings] = createInningInfo(inning);
 if (willFin) process.exit();
 
-if (!isValid(argv.result, Object.keys(SCORE_TYPE_NAME), "result"))
-  process.exit();
+if (isRandom) {
+  rst = getRandomKey(SCORE_TYPE_NAME);
+} else {
+  if (!isValid(argv.result, Object.keys(SCORE_TYPE_NAME), "result"))
+    process.exit();
 
-const tweet = argv.tweet > 0;
-const rst = argv.result;
+  rst = argv.result;
+}
+
+console.log(`inning: ${inning}, rst: ${rst}`)
 
 const selectCols = {
   scr: createTargetCols(targetInings, "scr"),
@@ -56,7 +68,7 @@ const createRow = (results, idx, round2ndDecimal, round3rdDecimal) => {
     idx,
     round2ndDecimal,
     round3rdDecimal,
-    { cntCol: SCORE_TYPE[rst], allCol: `total_${SCORE_TYPE[rst]}`, targetCol: "rate" }
+    { cntCol: SCORE_TYPE[rst], allCol: SCORE_TYPE[rst], targetCol: "rate" }
   );
   const { team, scr, ls, df, rank } = results[idx];
   let row = `${rank}位 ${team}  ${scr} ${ls} ${df}\n`;

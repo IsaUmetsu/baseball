@@ -22,20 +22,25 @@ const argv = require("./average/yargs")
 const {
   isValid,
   executeRoundSmallNum,
-  createHeaderNoRegulation
+  createHeaderNoRegulation,
+  getRandomKey
 } = require("./util/util");
 const { executeWithRound, executeWithRoundDevide } = require("./average/b-ave");
 const { homerunTypeRank } = require("../query");
 const { SITUATION, SITUATION_COL_NAME } = require("../constants");
 
-const tweet = argv.tweet > 0;
-const isKindTeam = argv.kindTeam > 0;
-const isDevide = argv.devide > 0;
-const homerunTypeId = argv.situation;
+const tweet = argv.tweet > 0, isKindTeam = argv.kindTeam > 0, isDevide = argv.devide > 0, isRandom = argv.random > 0;
+let homerunTypeId;
 
-// validate args
-if (!isValid(argv.situation, Object.keys(SITUATION), "situation"))
-  process.exit();
+if (isRandom) {
+  homerunTypeId = getRandomKey(SITUATION);
+} else {
+  // validate args
+  if (!isValid(argv.situation, Object.keys(SITUATION), "situation"))
+    process.exit();
+
+  homerunTypeId = argv.situation;
+}
 
 /**
  *

@@ -19,28 +19,39 @@ const argv = require("yargs")
   .alias("s", "status")
   .default({ status: 2 })
   .count("kindTeam")
-  .alias("k", "kindTeam").argv;
+  .alias("k", "kindTeam")
+  .count("random")
+  .alias("x", "random").argv;
 
-const { isValid, executeRoundSmallNum, createHeader } = require("./util/util");
+const { isValid, executeRoundSmallNum, createHeader, getRandomKey } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 const { resultDrivedPerStatus } = require("../query");
 
-const tweet = argv.tweet > 0;
-const isKindTeam = argv.kindTeam > 0;
-const status = argv.status;
+const tweet = argv.tweet > 0, isKindTeam = argv.kindTeam > 0, isRandom = argv.random > 0;
+let status;
 
 let msg = "",
   valid = true;
-// validate args
-if (!isValid(argv.status, Object.keys(BASE_TYPE), "status")) valid = false;
-if (status == 1) {
-  valid = false;
-  msg = "please don't input -s=1";
-}
 
-if (!valid) {
-  console.log(msg);
-  process.exit();
+if (isRandom) {
+  while (1) {
+    status = getRandomKey(BASE_TYPE);
+    if (status > 1) break;
+  }
+} else {
+  // validate args
+  if (!isValid(argv.status, Object.keys(BASE_TYPE), "status")) valid = false;
+  if (status == 1) {
+    valid = false;
+    msg = "please don't input -s=1";
+  }
+
+  if (!valid) {
+    console.log(msg);
+    process.exit();
+  }
+
+  status = argv.status;
 }
 
 /**

@@ -10,14 +10,17 @@
  *
  * 同率順位について複数ツイートにまたがる場合は header は省略
  */
-const argv = require("./average/yargs").pitcher.argv;
+const argv = require("./average/yargs").pitcher.count("random")
+  .alias("x", "random").argv;
 
 const { strikeout } = require("../query");
 const { BALL_TYPES } = require("../constants");
-const { isValid, executeRoundSmallNum } = require("./util/util");
+const { isValid, executeRoundSmallNum, getRandomKey } = require("./util/util");
 const { executeWithRound } = require("./average/b-ave");
 
-const tweet = argv.tweet > 0;
+const tweet = argv.tweet > 0, isRandom = argv.random > 0;
+let ballType;
+
 const bSoCnt = {
   1: 30,
   2: 10,
@@ -40,15 +43,20 @@ const bSoRate = {
 };
 const resultLimit = 100;
 
-// validated
-if (!isValid(argv.ballType, Object.keys(bSoCnt), "ballType")) process.exit();
-// set bat
-const ballType = argv.ballType;
+if (isRandom) {
+  ballType = getRandomKey(bSoCnt);
+} else {
+  // validated
+  if (!isValid(argv.ballType, Object.keys(bSoCnt), "ballType")) process.exit();
+  // set bat
+  ballType = argv.ballType;
+}
+
 
 /**
  * ヘッダ作成 (rank, number of homerun, tie)
  */
-const header = `2019年 決め球｢${BALL_TYPES[ballType]}｣奪三振率ランキング\n※対象球種で${bSoCnt[ballType]}奪三振または率が${bSoRate[ballType]}以上である投手 (累計-個数)\n\n`;
+const header = `2019年 決め球｢${BALL_TYPES[ballType]}｣奪三振率ランキング\n※対象球種で${bSoCnt[ballType]}奪三振または率が${bSoRate[ballType]}以上である投手 (全奪三振数-対象個数)\n\n`;
 
 /**
  *
