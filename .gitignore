@@ -16,3 +16,5 @@ scraping/screenshot/*
 tweet/util/twitter.js
 ts/twitter.ts
 sql/generated/*
+scheduler/logs/*
+scheduler/as_service.bat

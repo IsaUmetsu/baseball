@@ -3,19 +3,33 @@ const { debug } = require("yargs")
   .alias("d", "debug").argv;
 
 const isMac = process.cwd() == "/";
-const dbinfo = isMac ? {
-  host: "localhost",
-  username: "root",
-  password: "",
-} : {
-  host: "192.168.26.184",
-  username: "baseball",
-  password: "dUC$N4N6KJ(2",
+let dbInfo;
+
+if (process.env.NODE_ENV == 'mac') {
+  dbInfo = {
+    host: "localhost",
+    username: "root",
+    password: ""
+  }
+} else if (process.env.NODE_ENV == 'windows') {
+  if (process.env.DB_ENV == 'windows') {
+    dbInfo = {
+      host: "localhost",
+      username: "root",
+      password: "",
+    }
+  } else if (process.env.DB_ENV == 'mac') {
+    dbInfo = {
+      host: "192.168.26.184",
+      username: "baseball",
+      password: "dUC$N4N6KJ(2"
+    }
+  }
 }
 
 const Sequelize = require("sequelize");
 const db = new Sequelize({
-  ...dbinfo,
+  ...dbInfo,
   database: "baseball",
   dialect: "mysql",
   timezone: "Asia/Tokyo",
