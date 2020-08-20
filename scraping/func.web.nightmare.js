@@ -262,11 +262,17 @@ funcWebNightmare.getAndSaveData = function*(
     // 試合終了まで情報取得を繰り返す
     if (!isTest) {
       while (1) {
-        //「次の球」ボタン押下
-        let document = yield nightmare
-          .click(nxtBallBtnSelect)
-          .wait(waitSelect)
-          .evaluate(() => document.body.innerHTML);
+        try {
+          //「次の球」ボタン押下
+          let document = yield nightmare
+            .click(nxtBallBtnSelect)
+            .wait(waitSelect)
+            .evaluate(() => document.body.innerHTML);
+        } catch (e) {
+          console.log("--- catched!! ---");
+          console.log(e);
+          throw e;
+        }
 
         let rstCurrentInning = $(document)
           .find(".currentInning")

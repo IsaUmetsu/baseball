@@ -6,10 +6,10 @@ const SAVE_MODE_HTML = 1;
 const SAVE_MODE_JSON = 2;
 
 const unifiedDate = true;
-const targetDay = "2019-03-30";
+const targetDay = "2019-04-09";
 
-let seasonStartDay = "2019-03-30";
-let seasonEndDay = "2019-03-29";
+let seasonStartDay = "2019-04-04";
+let seasonEndDay = "2019-04-10";
 
 if (unifiedDate) {
   seasonStartDay = targetDay;
@@ -25,12 +25,12 @@ module.exports = {
   day: moment(targetDay), // 処理対象日
   seasonStart: moment(seasonStartDay), // 処理対象期間
   seasonEnd: moment(seasonEndDay), //    〃
-  startGameNo: "06", // 処理対象開始試合番号
+  startGameNo: "03", // 処理対象開始試合番号
   endGameNo: "06", // 処理対象終了試合番号
-  waitSelect: "#indexLayout", // for nightmare wait function // '#batterBoxLive'
+  waitSelect: "body", // for nightmare wait function // '#batterBoxLive' '#indexLayout'
   getAll: true,
-  startBallCnt: 332,
-  startInning: 9,
+  startBallCnt: 345,
+  startInning: 11,
   startFS: convertFS[2],
   // 固定値
   screeshotBasePath: "./scraping/screenshot", // save path
