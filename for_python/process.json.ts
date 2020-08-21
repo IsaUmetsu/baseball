@@ -92,8 +92,8 @@ const saveData = async (scene: number, dateStr: string, gameNo: string) => {
         dateStr,
         liveHeader.away.teamInitial,
         liveHeader.home.teamInitial
-      )
-      
+      );
+
       await insertLiveHeader(gameInfoId, scene, liveHeader);
       await insertLiveBody(gameInfoId, scene, liveBody);
       await insertPitchInfo(gameInfoId, scene, pitchInfo);
@@ -122,9 +122,6 @@ const getDataAndSave = async () => {
         // define pitch count
         for (let cnt = startSceneCnt; cnt <= 200; cnt++) {
           await saveData(cnt, dateStr, tgt_gameNo)
-            .then(rst => {
-              return rst;
-            })
             .catch(err => {
               noDataCnt++;
               console.log(err);
@@ -135,7 +132,7 @@ const getDataAndSave = async () => {
             });
 
           // break loop
-          if (noDataCnt >= 0) {
+          if (noDataCnt > 0) {
             noDataCnt = 0;
             break;
           }
