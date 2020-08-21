@@ -48,3 +48,77 @@ export interface LiveBodyJson {
     nextBatter: string,
     inningBatterCnt: string
 }
+
+/** ---------- definition of `PitchInfo` ---------- */
+export interface PitchDetail {
+    judgeIcon: string,
+    pitchCnt: string,
+    pitchType: string,
+    pitchSpeed: string,
+    pitchJudgeDetail: string
+}
+
+export interface PitchCourse {
+    top: string,
+    left: string
+}
+
+export interface GameResultDetail {
+    title: string,
+    name: string,
+    domainHand: string
+}
+
+export interface GameResult {
+    left: GameResultDetail,
+    right: GameResultDetail
+}
+/** ---------- /definition of `PitchInfo` ---------- */
+export interface PitchInfoJson {
+    pitchDetails: PitchDetail[],
+    allPitchCourse: PitchCourse[],
+    gameResult: GameResult
+}
+
+/** ---------- definition of `TeamInfo` ---------- */
+export interface Order {
+    no: string,
+    position: string,
+    name: string,
+    domainHand: string,
+    average: string
+}
+
+export interface BenchMemberInfo {
+    name: string,
+    domainHand: string,
+    average: string
+}
+
+export interface TeamInfoJson {
+    name: string,
+    order: Order[],
+    batteryInfo: string,
+    homerunInfo: string,
+    benchPitcher: BenchMemberInfo[],
+    benchCatcher: BenchMemberInfo[],
+    benchInfielder: BenchMemberInfo[],
+    benchOutfielder: BenchMemberInfo[]
+}
+/** ---------- /definition of `TeamInfo` ---------- */
+export interface HomeTeamInfoJson {
+    homeTeamInfo: TeamInfoJson
+}
+
+export interface AwayTeamInfoJson {
+    awayTeamInfo: TeamInfoJson
+}
+
+
+export interface OutputJson {
+    liveHeader: LiveHeaderJson,
+    liveBody: LiveBodyJson,
+    pitchInfo: PitchInfoJson,
+    homeTeamInfo: HomeTeamInfoJson,
+    awayTeamInfo: AwayTeamInfoJson
+}

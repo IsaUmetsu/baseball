@@ -6,7 +6,12 @@ import {
   LiveBody
 } from './entities';
 
-import { LiveHeaderJson, LiveBodyJson } from './type/jsonType';
+import {
+  LiveHeaderJson,
+  LiveBodyJson,
+  PitchInfoJson,
+  TeamInfoJson 
+} from './type/jsonType.d';
 
 /**
  * 試合情報保存
@@ -132,19 +137,19 @@ export const insertLiveBody = async (
 }
 
 export const insertPitchInfo = async (
-  gameInfoId: number, scene: number, pitchInfo: any
+  gameInfoId: number, scene: number, pitchInfo: PitchInfoJson
 ): Promise<void> => {
   //
 }
 
 export const insertHomeTeamInfo = async (
-  gameInfoId: number, scene: number, homeTeamInfo: any
+  gameInfoId: number, scene: number, homeTeamInfo: TeamInfoJson
 ): Promise<void> => {
   //
 }
 
 export const insertAwayTeamInfo = async (
-  gameInfoId: number, scene: number, awayTeamInfo: any
+  gameInfoId: number, scene: number, awayTeamInfo: TeamInfoJson
 ): Promise<void> => {
   //
 }
