@@ -12,7 +12,7 @@ export class PitchDetails extends BaseEntity {
   @Column("tinyint", { name: "judge_icon", nullable: true })
   judgeIcon: number | null;
 
-  @Column("tinyint", { name: "pitch_cnt", nullable: true })
+  @Column("smallint", { name: "pitch_cnt", nullable: true })
   pitchCnt: number | null;
 
   @Column("varchar", { name: "pitch_type", nullable: true, length: 10 })
