@@ -89,7 +89,7 @@ export interface Order {
     average: string
 }
 
-export interface BenchMemberInfo {
+export interface BenchMemberInfoType {
     name: string,
     domainHand: string,
     average: string
@@ -100,10 +100,10 @@ export interface TeamInfoJson {
     order: Order[],
     batteryInfo: string,
     homerunInfo: string,
-    benchPitcher: BenchMemberInfo[],
-    benchCatcher: BenchMemberInfo[],
-    benchInfielder: BenchMemberInfo[],
-    benchOutfielder: BenchMemberInfo[]
+    benchPitcher: BenchMemberInfoType[],
+    benchCatcher: BenchMemberInfoType[],
+    benchInfielder: BenchMemberInfoType[],
+    benchOutfielder: BenchMemberInfoType[]
 }
 /** ---------- /definition of `TeamInfo` ---------- */
 export interface HomeTeamInfoJson {

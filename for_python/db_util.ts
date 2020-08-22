@@ -7,7 +7,10 @@ import {
   PitchInfo,
   PitchCourse,
   PitchDetails,
-  PitcherBatter
+  PitcherBatter,
+  TeamInfo,
+  GameOrder,
+  BenchMemberInfo
 } from './entities';
 
 import {
@@ -16,8 +19,10 @@ import {
   PitchDetail,
   PitchCourseType,
   PitchInfoJson,
-  TeamInfoJson 
+  TeamInfoJson,
+  BenchMemberInfoType 
 } from './type/jsonType.d';
+import { domain } from 'process';
 
 /**
  * 試合情報保存
@@ -225,14 +230,90 @@ export const insertPitchInfo = async (
   }
 }
 
+/**
+ * 
+ */
+const insertTeamInfo = async (
+  gameInfoId: number, scene: number, teamInfo: TeamInfoJson, homeAway: string
+): Promise<void> => {
+  if (! teamInfo) return;
+
+  const teamInfoRepository = getRepository(TeamInfo);
+  let savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene, homeAway });
+  if (savedTeamInfo == null) {
+    const { name, batteryInfo, homerunInfo } = teamInfo;
+
+    const newRecord = new TeamInfo();
+    newRecord.gameInfoId = gameInfoId;
+    newRecord.scene = scene;
+    newRecord.homeAway = homeAway;
+    newRecord.teamName = name;
+    newRecord.batteryInfo = batteryInfo;
+    newRecord.homerunInfo = homerunInfo;
+
+    await newRecord.save();
+    savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene });
+  }
+
+  let teamInfoId = savedTeamInfo.id;
+
+  const gameOrderRepo = getRepository(GameOrder);
+  const savedGameOrder = await gameOrderRepo.find({ teamInfoId });
+  if (savedGameOrder == null || savedGameOrder.length == 0) {
+    teamInfo.order.forEach(async order => {
+      const { no, position, name, domainHand, average } = order;
+
+      const newRecord = new GameOrder();
+      newRecord.teamInfoId = teamInfoId;
+      newRecord.orderNo = Number(no);
+      newRecord.position = position;
+      newRecord.name = name;
+      newRecord.domainHand = domainHand;
+      newRecord.average = average;
+
+      await newRecord.save();
+    })
+  }
+
+  const benchMemberInfoRepo = getRepository(BenchMemberInfo);
+  const savedBenchMemberInfo = await benchMemberInfoRepo.find({ teamInfoId });
+  if (savedBenchMemberInfo == null || savedBenchMemberInfo.length == 0) {
+    const { benchPitcher, benchCatcher, benchInfielder, benchOutfielder } = teamInfo;
+
+    const saveBenchMember = async (position: string, benchMember: BenchMemberInfoType) => {
+      const { name, domainHand, average } = benchMember;
+      const newRecord = new BenchMemberInfo();
+
+      newRecord.teamInfoId = teamInfoId;
+      newRecord.position = position;
+      newRecord.playerName = name;
+      newRecord.domainHand = domainHand;
+      newRecord.average = average;
+
+      await newRecord.save();
+    }
+
+    benchPitcher.forEach(async member => { await saveBenchMember("投手", member); });
+    benchCatcher.forEach(async member => { await saveBenchMember("捕手", member); });
+    benchInfielder.forEach(async member => { await saveBenchMember("内野手", member); });
+    benchOutfielder.forEach(async member => { await saveBenchMember("外野手", member); });
+  }
+}
+
+/**
+ * 
+ */
 export const insertHomeTeamInfo = async (
   gameInfoId: number, scene: number, homeTeamInfo: TeamInfoJson
 ): Promise<void> => {
-  //
+  await insertTeamInfo(gameInfoId, scene, homeTeamInfo, "home");
 }
 
+/**
+ * 
+ */
 export const insertAwayTeamInfo = async (
   gameInfoId: number, scene: number, awayTeamInfo: TeamInfoJson
 ): Promise<void> => {
-  //
+  await insertTeamInfo(gameInfoId, scene, awayTeamInfo, "away");
 }
