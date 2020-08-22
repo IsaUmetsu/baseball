@@ -11,7 +11,7 @@ import {
   insertHomeTeamInfo
 } from './db_util';
 
-import { checkDir, getJson, countFiles } from './fs_util';
+import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
 
 import { format } from 'util';
 
@@ -31,7 +31,9 @@ const day = moment("2020-06-19");
 const seasonStart = moment("2020-06-19");
 const seasonEnd = moment("2020-06-19");
 
-const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
+const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
+const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
+const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s/%s.json";
 
 /**
  * 1シーンごとの試合データ取得、jsonファイル保存
@@ -40,22 +42,8 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
  * @param gameNo
  */
 const getData = async (scene: number, dateString: string, gameNo: string) => {
-
-  // return value
-  let tgt_data;
-  let prevPath = "/Users/IsamuUmetsu/dev/py_baseball/output";
-  const pathFile = await checkDir(prevPath, dateString, gameNo)
-    .then(rst => rst)
-    .catch(err => {
-      throw err;
-    });
-
   // フォルダから取得
-  if (pathFile.length > 0) {
-    tgt_data = JSON.parse(getJson(`${pathFile}/${scene}.json`))
-  }
-
-  return tgt_data;
+  return JSON.parse(getJson(format(jsonPath, dateString, gameNo, scene)));
 };
 
 /**
@@ -104,19 +92,24 @@ const getDataAndSave = async () => {
     if (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
       // define game date
       const dateStr = day.format("YYYYMMDD");
+      // 日付ディレクトリがない場合スキップ
+      const existDateDir = await checkDateDir(datePath, dateStr);
+      if (! existDateDir) continue;
+
       for (let gameNo = startGameNo; gameNo <= endGameNo; gameNo++) {
         // define game no
         const targetGameNo = format("0%d", gameNo);
-        const sceneCnt = await countFiles(format(jsonPath, dateStr, targetGameNo));
+        // 日付・ゲーム番号ディレクトリがない場合スキップ
+        const existGameDir = await checkGameDir(datePath, dateStr, targetGameNo);
+        if (! existGameDir) continue;
+
+        const sceneCnt = await countFiles(format(gamePath, dateStr, targetGameNo));
         // define pitch count
         for (let cnt = startSceneCnt; cnt <= sceneCnt; cnt++) {
-          await saveData(cnt, dateStr, targetGameNo)
-            .catch(err => {
-              console.log(err);
-              console.log(
-                format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo)
-              );
-            });
+          await saveData(cnt, dateStr, targetGameNo).catch(err => {
+            console.log(err);
+            console.log(format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
+          });
         }
         console.log(format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
       }
