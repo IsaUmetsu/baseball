@@ -22,7 +22,6 @@ import {
   TeamInfoJson,
   BenchMemberInfoType 
 } from './type/jsonType.d';
-import { domain } from 'process';
 
 /**
  * 試合情報保存
@@ -259,7 +258,7 @@ const insertTeamInfo = async (
 
   const gameOrderRepo = getRepository(GameOrder);
   const savedGameOrder = await gameOrderRepo.find({ teamInfoId });
-  if (savedGameOrder == null || savedGameOrder.length == 0) {
+  if (savedGameOrder.length == 0) {
     teamInfo.order.forEach(async order => {
       const { no, position, name, domainHand, average } = order;
 
@@ -277,7 +276,7 @@ const insertTeamInfo = async (
 
   const benchMemberInfoRepo = getRepository(BenchMemberInfo);
   const savedBenchMemberInfo = await benchMemberInfoRepo.find({ teamInfoId });
-  if (savedBenchMemberInfo == null || savedBenchMemberInfo.length == 0) {
+  if (savedBenchMemberInfo.length == 0) {
     const { benchPitcher, benchCatcher, benchInfielder, benchOutfielder } = teamInfo;
 
     const saveBenchMember = async (position: string, benchMember: BenchMemberInfoType) => {

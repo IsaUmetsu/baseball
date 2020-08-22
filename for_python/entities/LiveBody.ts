@@ -67,7 +67,7 @@ export class LiveBody extends BaseEntity {
   })
   currentPitcherDomainHand: string | null;
 
-  @Column("tinyint", { name: "current_pitcher_pitch", nullable: true })
+  @Column("smallint", { name: "current_pitcher_pitch", nullable: true })
   currentPitcherPitch: number | null;
 
   @Column("tinyint", { name: "current_pitcher_vs_batter_cnt", nullable: true })
