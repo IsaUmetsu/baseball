@@ -3,12 +3,18 @@ import { getRepository } from 'typeorm';
 import {
   GameInfo,
   LiveHeader,
-  LiveBody
+  LiveBody,
+  PitchInfo,
+  PitchCourse,
+  PitchDetails,
+  PitcherBatter
 } from './entities';
 
 import {
   LiveHeaderJson,
   LiveBodyJson,
+  PitchDetail,
+  PitchCourseType,
   PitchInfoJson,
   TeamInfoJson 
 } from './type/jsonType.d';
@@ -136,10 +142,87 @@ export const insertLiveBody = async (
   }
 }
 
+/**
+ * PitcherInfo 保存
+ */
 export const insertPitchInfo = async (
   gameInfoId: number, scene: number, pitchInfo: PitchInfoJson
 ): Promise<void> => {
-  //
+
+  if (! pitchInfo) return;
+
+  // about `pitch_info`
+  const pitchInfoRepository = getRepository(PitchInfo);
+  let savedPitchInfo = await pitchInfoRepository.findOne({ gameInfoId, scene });
+
+  if (savedPitchInfo == null) {
+    const newPitchInfo = new PitchInfo();
+
+    newPitchInfo.gameInfoId = gameInfoId;
+    newPitchInfo.scene = scene;
+
+    await newPitchInfo.save();
+    savedPitchInfo = await pitchInfoRepository.findOne({ gameInfoId, scene });
+  }
+
+  const pitchInfoId = savedPitchInfo.id;
+
+  // about `pitcher_batter`
+  const pbRepo = getRepository(PitcherBatter);
+  let savedPitcherBatter = await pbRepo.findOne({ pitchInfoId });
+
+  if (savedPitcherBatter == null) {
+    const { left, right } = pitchInfo.gameResult;
+    const newPitcherPatter = new PitcherBatter();
+
+    newPitcherPatter.pitchInfoId = pitchInfoId;
+    newPitcherPatter.leftTitle = left.title;
+    newPitcherPatter.leftName = left.name;
+    newPitcherPatter.leftDomainHand = left.domainHand;
+    newPitcherPatter.rightTitle = right.title;
+    newPitcherPatter.rightName = right.name;
+    newPitcherPatter.rightDomainHand = right.domainHand;
+
+    await newPitcherPatter.save();
+  }
+
+  // about `pitch_details`
+  const pdRepo = getRepository(PitchDetails);
+  let savedPitcherDetails = await pdRepo.findOne({ pitchInfoId });
+
+  if (savedPitcherDetails == null) {
+    pitchInfo.pitchDetails.forEach(async (detail: PitchDetail) => {
+      const { judgeIcon, pitchCnt, pitchType, pitchSpeed, pitchJudgeDetail } = detail;
+
+      const newPitchDetails = new PitchDetails();
+
+      newPitchDetails.pitchInfoId = pitchInfoId;
+      newPitchDetails.judgeIcon = Number(judgeIcon);
+      newPitchDetails.pitchCnt = Number(pitchCnt);
+      newPitchDetails.pitchType = pitchType;
+      newPitchDetails.pitchSpeed = pitchSpeed;
+      newPitchDetails.pitchJudgeDetail = pitchJudgeDetail;
+
+      await newPitchDetails.save();
+    });
+  }
+
+  // about `pitch_course`
+  const pcRepo = getRepository(PitchCourse);
+  let savedPitchCourse = await pcRepo.findOne({ pitchInfoId });
+
+  if (savedPitchCourse == null) {
+    pitchInfo.allPitchCourse.forEach(async (pitchCourse: PitchCourseType) => {
+      const { top, left } = pitchCourse;
+      const newPitchCourse = new PitchCourse();
+
+      newPitchCourse.pitchInfoId = pitchInfoId;
+      newPitchCourse.top = Number(top);
+      newPitchCourse.left = Number(left);
+
+      await newPitchCourse.save();
+    })
+  }
 }
 
 export const insertHomeTeamInfo = async (

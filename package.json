@@ -26,6 +26,7 @@
     "mem": "^4.3.0",
     "mysql": "^2.18.1",
     "mysql2": "^1.7.0",
+    "n": "^6.7.0",
     "nightmare": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^5.22.3",

@@ -58,7 +58,7 @@ export interface PitchDetail {
     pitchJudgeDetail: string
 }
 
-export interface PitchCourse {
+export interface PitchCourseType {
     top: string,
     left: string
 }
@@ -76,7 +76,7 @@ export interface GameResult {
 /** ---------- /definition of `PitchInfo` ---------- */
 export interface PitchInfoJson {
     pitchDetails: PitchDetail[],
-    allPitchCourse: PitchCourse[],
+    allPitchCourse: PitchCourseType[],
     gameResult: GameResult
 }
 
