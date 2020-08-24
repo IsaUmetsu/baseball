@@ -27,9 +27,9 @@ const startGameNo = 1;
 const endGameNo = 6;
 const startSceneCnt = 1;
 
-const day = moment("2020-06-23");
-const seasonStart = moment("2020-06-20");
-const seasonEnd = moment("2020-06-25");
+const day = moment("2020-08-23");
+const seasonStart = moment("2020-06-19");
+const seasonEnd = moment("2020-08-23");
 
 const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
 const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
@@ -93,7 +93,7 @@ const getDataAndSave = async () => {
     const dateStr = day.format("YYYYMMDD");
     // 日付ディレクトリがない場合スキップ
     const existDateDir = await checkDateDir(datePath, dateStr);
-    if (! existDateDir) continue;
+    if (! existDateDir) { day.add(1, "days"); continue; }
 
     for (let gameNo = startGameNo; gameNo <= endGameNo; gameNo++) {
       // define game no
@@ -114,6 +114,7 @@ const getDataAndSave = async () => {
     }
     day.add(1, "days");
   }
+  console.log('----- done!! -----');
 };
 
 // Execute
