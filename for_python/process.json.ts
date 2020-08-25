@@ -27,7 +27,7 @@ const startGameNo = 1;
 const endGameNo = 6;
 const startSceneCnt = 1;
 
-const day = moment("2020-08-23");
+const day = moment("2020-06-19");
 const seasonStart = moment("2020-06-19");
 const seasonEnd = moment("2020-08-23");
 

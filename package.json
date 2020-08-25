@@ -11,8 +11,8 @@
     "casper": "casperjs --verbose --log-level=debug process.web.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "import": "ts-node for_python/process.json.ts",
-    "generate:days": "ts-node for_python/create_day_list.ts",
-    "generate:model": "typeorm-model-generator -h localhost -d baseball_2020 -p 3306 -u root -e mysql -o ./for_python/."
+    "gen:days": "ts-node for_python/create_day_list.ts",
+    "gen:model": "typeorm-model-generator -h localhost -d baseball_2020 -p 3306 -u root -e mysql -o ./for_python/."
   },
   "keywords": [],
   "nodemonConfig": {

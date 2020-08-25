@@ -23,6 +23,15 @@ import {
   BenchMemberInfoType 
 } from './type/jsonType.d';
 
+import {
+  judgeAtBat,
+  judgeHit,
+  judgeOnbase,
+  judgeError,
+  judgeFc,
+  judgePlayerChange
+} from './liveBody_util';
+
 /**
  * 試合情報保存
  */
@@ -141,6 +150,16 @@ export const insertLiveBody = async (
     
     newLiveBody.nextBatterName = nextBatter;
     newLiveBody.inningBatterCnt = inningBatterCnt;
+
+    newLiveBody.isBat = judgeAtBat(battingResult, cbi ? cbi.name :  "", pitchingResult);
+    newLiveBody.isHit = judgeHit(battingResult);
+    newLiveBody.isOnbase = judgeOnbase(battingResult);
+    newLiveBody.isErr = judgeError(battingResult);
+    newLiveBody.isFc = judgeFc(battingResult);
+    newLiveBody.isChangePitcher = judgePlayerChange(battingResult, "継投");
+    newLiveBody.isChangeFileder = judgePlayerChange(battingResult, "守備");
+    newLiveBody.isChangeBatter = judgePlayerChange(battingResult, "代打");
+    newLiveBody.isChangeRunner = judgePlayerChange(battingResult, "代走");
 
     await newLiveBody.save();
   }
