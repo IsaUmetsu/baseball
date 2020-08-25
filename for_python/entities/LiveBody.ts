@@ -95,8 +95,11 @@ export class LiveBody extends BaseEntity {
   @Column("varchar", { name: "inning_batter_cnt", nullable: true, length: 5 })
   inningBatterCnt: string | null;
 
-  @Column("tinyint", { name: "is_bat", nullable: true })
-  isBat: number | null;
+  @Column("tinyint", { name: "is_pa", nullable: true })
+  isPa: number | null;
+
+  @Column("tinyint", { name: "is_ab", nullable: true })
+  isAb: number | null;
 
   @Column("tinyint", { name: "is_hit", nullable: true })
   isHit: number | null;

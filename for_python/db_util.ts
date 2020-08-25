@@ -24,6 +24,7 @@ import {
 } from './type/jsonType.d';
 
 import {
+  judgePlateAppearance,
   judgeAtBat,
   judgeHit,
   judgeOnbase,
@@ -151,7 +152,8 @@ export const insertLiveBody = async (
     newLiveBody.nextBatterName = nextBatter;
     newLiveBody.inningBatterCnt = inningBatterCnt;
 
-    newLiveBody.isBat = judgeAtBat(battingResult, cbi ? cbi.name :  "", pitchingResult);
+    newLiveBody.isPa = judgePlateAppearance(battingResult, cbi ? cbi.name :  "");
+    newLiveBody.isAb = judgeAtBat(battingResult, cbi ? cbi.name :  "");
     newLiveBody.isHit = judgeHit(battingResult);
     newLiveBody.isOnbase = judgeOnbase(battingResult);
     newLiveBody.isErr = judgeError(battingResult);
