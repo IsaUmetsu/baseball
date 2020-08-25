@@ -6,8 +6,8 @@ export const judgePlateAppearance = (battingResult: string, currentBatterName: s
   const isNotPA = battingResult.indexOf("けん制") > -1 || 
     battingResult.indexOf("ボーク") > -1 || 
     battingResult.indexOf("ボール") > -1 ||
-    battingResult.indexOf("見逃し") > -1 ||
-    battingResult.indexOf("空振り") > -1 ||
+    (battingResult.indexOf("見逃し") > -1 && battingResult.indexOf("三振") == -1) ||
+    (battingResult.indexOf("空振り") > -1 && battingResult.indexOf("三振") == -1) ||
     battingResult.indexOf("代走") > -1
   ;
 
@@ -33,8 +33,8 @@ export const judgeAtBat = (battingResult: string, currentBatterName: string): nu
     battingResult.indexOf("けん制") > -1 || 
     battingResult.indexOf("ボーク") > -1 || 
     battingResult.indexOf("ボール") > -1 ||
-    battingResult.indexOf("見逃し") > -1 ||
-    battingResult.indexOf("空振り") > -1 ||
+    (battingResult.indexOf("見逃し") > -1 && battingResult.indexOf("三振") == -1) ||
+    (battingResult.indexOf("空振り") > -1 && battingResult.indexOf("三振") == -1) ||
     battingResult.indexOf("代走") > -1
   ;
 
