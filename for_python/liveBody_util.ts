@@ -50,6 +50,8 @@ export const judgeHit = (battingResult: string): number => {
     battingResult.indexOf("安打") > -1 || 
     battingResult.indexOf("二塁打") > -1 || 
     battingResult.indexOf("三塁打") > -1 || 
+    battingResult.indexOf("2塁打") > -1 || 
+    battingResult.indexOf("3塁打") > -1 || 
     battingResult.indexOf("本塁打") > -1
   );
 }
@@ -62,7 +64,9 @@ export const judgeOnbase = (battingResult: string): number => {
     battingResult.indexOf("安打") > -1 || 
     battingResult.indexOf("二塁打") > -1 || 
     battingResult.indexOf("三塁打") > -1 || 
-    battingResult.indexOf("本塁打") > -1 ||
+    battingResult.indexOf("2塁打") > -1 || 
+    battingResult.indexOf("3塁打") > -1 || 
+    battingResult.indexOf("本塁打") > -1 || 
     battingResult.indexOf("四球") > -1 || 
     battingResult.indexOf("死球") > -1 || 
     battingResult.indexOf("申告敬遠") > -1
