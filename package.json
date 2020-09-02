@@ -9,10 +9,16 @@
     "dev:windows": "SET NODE_ENV=windows&&SET DB_ENV=windows&&node scheduler/player.js",
     "dev:win-mac": "SET NODE_ENV=windows&&SET DB_ENV=mac&&node scheduler/player.js",
     "casper": "casperjs --verbose --log-level=debug process.web.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+
     "import": "ts-node for_python/process.json.ts",
     "gen:days": "ts-node for_python/create_day_list.ts",
-    "gen:model": "typeorm-model-generator -h localhost -d baseball_2020 -p 3306 -u root -e mysql -o ./for_python/."
+    "gen:model": "typeorm-model-generator -h localhost -d baseball_2020 -p 3306 -u root -e mysql -o ./for_python/.",
+
+    "data:month": "ts-node for_python/query/month.ts",
+    "data:rc5": "ts-node for_python/query/recent_5days.ts",
+    "data:dow": "ts-node for_python/query/day_of_week.ts",
+
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "nodemonConfig": {
