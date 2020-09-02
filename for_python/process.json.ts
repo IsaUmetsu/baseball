@@ -1,5 +1,5 @@
 import * as moment from "moment";
-
+import { format } from 'util';
 import { createConnection } from 'typeorm';
 
 import {
@@ -13,23 +13,27 @@ import {
 
 import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
 
-import { format } from 'util';
-
-const logger = require("../logger");
-
-// define sleep function
-const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
-
-// execute params
-const requireGetAndSaveData = true;
+let error = false;
 
 const startGameNo = 1;
 const endGameNo = 6;
 const startSceneCnt = 1;
 
-const day = moment("2020-06-19");
+const targetDay = process.env.D;
+if (!targetDay) {
+  console.log('D=[保存開始日] を入力してください。');
+  error = true;
+}
+
+const seasonEndArg = process.env.SE;
+if (!seasonEndArg) {
+  console.log('SE=[保存開始日] を入力してください。');
+  error = true;
+}
+
+const day = moment(format("2020%s", targetDay), "YYYYMMDD");
 const seasonStart = moment("2020-06-19");
-const seasonEnd = moment("2020-08-23");
+const seasonEnd = moment(format("2020%s", seasonEndArg), "YYYYMMDD");
 
 const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
 const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
@@ -119,13 +123,8 @@ const getDataAndSave = async () => {
 
 // Execute
 (async () => {
-  // when require data
-  if (requireGetAndSaveData) {
+  if (! error) {
     await createConnection('default');
-    await getDataAndSave()
-      .then(rst => rst)
-      .catch(err => {
-        console.log(err);
-      });
+    await getDataAndSave().catch(err => { console.log(err); });
   }
 })();
