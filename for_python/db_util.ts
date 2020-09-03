@@ -11,7 +11,8 @@ import {
   TeamInfo,
   GameOrder,
   BenchMemberInfo,
-  BatteryInfo
+  BatteryInfo,
+  HomerunInfo
 } from './entities';
 
 import {
@@ -276,6 +277,24 @@ const insertTeamInfo = async (
     }
 
     batteryInfoId = savedBatteryInfo.id;
+  }
+
+  let homerunInfoId = null;
+  if (teamInfo.homerunInfo) {
+    const { homerunInfo } = teamInfo;
+    const homerunInfoRepo = getRepository(HomerunInfo);
+    let savedHomerunInfo = await homerunInfoRepo.findOne({ gameInfoId, homerun: homerunInfo });
+
+    if (savedHomerunInfo == null) {
+      const newRecord = new HomerunInfo();
+      newRecord.gameInfoId = gameInfoId;
+      newRecord.scene = scene;
+      newRecord.homerun = homerunInfo;
+      await newRecord.save();
+      savedHomerunInfo = await homerunInfoRepo.findOne({ gameInfoId, homerun: homerunInfo });
+    }
+
+    homerunInfoId = savedHomerunInfo.id;
   }
 
   const teamInfoRepository = getRepository(TeamInfo);
