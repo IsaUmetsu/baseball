@@ -1,4 +1,5 @@
 export { GameInfo } from './GameInfo';
+export { BatteryInfo } from './BatteryInfo';
 export { TeamInfo } from './TeamInfo';
 export { GameOrder } from './GameOrder';
 export { BenchMemberInfo } from './BenchMemberInfo';

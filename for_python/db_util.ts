@@ -10,7 +10,8 @@ import {
   PitcherBatter,
   TeamInfo,
   GameOrder,
-  BenchMemberInfo
+  BenchMemberInfo,
+  BatteryInfo
 } from './entities';
 
 import {
@@ -20,7 +21,7 @@ import {
   PitchCourseType,
   PitchInfoJson,
   TeamInfoJson,
-  BenchMemberInfoType 
+  BenchMemberInfoType
 } from './type/jsonType.d';
 
 import {
@@ -258,17 +259,36 @@ const insertTeamInfo = async (
 ): Promise<void> => {
   if (! teamInfo) return;
 
+  let batteryInfoId = null;
+  if (teamInfo.batteryInfo) {
+    const [ pitcher, catcher ] = teamInfo.batteryInfo.split(" - ");
+    const batteryInfoRepo = getRepository(BatteryInfo);
+    let savedBatteryInfo = await batteryInfoRepo.findOne({ gameInfoId, pitcher, catcher });
+
+    if (savedBatteryInfo == null) {
+      const newRecord = new BatteryInfo();
+      newRecord.gameInfoId = gameInfoId;
+      newRecord.scene = scene;
+      newRecord.pitcher = pitcher;
+      newRecord.catcher = catcher;
+      await newRecord.save();
+      savedBatteryInfo = await batteryInfoRepo.findOne({ gameInfoId, pitcher, catcher });
+    }
+
+    batteryInfoId = savedBatteryInfo.id;
+  }
+
   const teamInfoRepository = getRepository(TeamInfo);
   let savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene, homeAway });
   if (savedTeamInfo == null) {
-    const { name, batteryInfo, homerunInfo } = teamInfo;
+    const { name, homerunInfo } = teamInfo;
 
     const newRecord = new TeamInfo();
     newRecord.gameInfoId = gameInfoId;
     newRecord.scene = scene;
     newRecord.homeAway = homeAway;
     newRecord.teamName = name;
-    newRecord.batteryInfo = batteryInfo;
+    newRecord.batteryInfoId = batteryInfoId;
     newRecord.homerunInfo = homerunInfo;
 
     await newRecord.save();

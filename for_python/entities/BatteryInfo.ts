@@ -9,6 +9,9 @@ export class BatteryInfo extends BaseEntity {
   @Column("int", { name: "game_info_id" })
   gameInfoId: number;
 
+  @Column("smallint", { name: "scene" })
+  scene: number;
+
   @Column("varchar", { name: "pitcher", nullable: true, length: 100 })
   pitcher: string | null;
 
