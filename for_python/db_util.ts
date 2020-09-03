@@ -258,11 +258,13 @@ export const insertPitchInfo = async (
 const insertTeamInfo = async (
   gameInfoId: number, scene: number, teamInfo: TeamInfoJson, homeAway: string
 ): Promise<void> => {
+
   if (! teamInfo) return;
+  const { batteryInfo, homerunInfo, name } = teamInfo;
 
   let batteryInfoId = null;
-  if (teamInfo.batteryInfo) {
-    const [ pitcher, catcher ] = teamInfo.batteryInfo.split(" - ");
+  if (batteryInfo) {
+    const [ pitcher, catcher ] = batteryInfo.split(" - ");
     const batteryInfoRepo = getRepository(BatteryInfo);
     let savedBatteryInfo = await batteryInfoRepo.findOne({ gameInfoId, pitcher, catcher });
 
@@ -280,8 +282,7 @@ const insertTeamInfo = async (
   }
 
   let homerunInfoId = null;
-  if (teamInfo.homerunInfo) {
-    const { homerunInfo } = teamInfo;
+  if (homerunInfo) {
     const homerunInfoRepo = getRepository(HomerunInfo);
     let savedHomerunInfo = await homerunInfoRepo.findOne({ gameInfoId, homerun: homerunInfo });
 
@@ -300,7 +301,6 @@ const insertTeamInfo = async (
   const teamInfoRepository = getRepository(TeamInfo);
   let savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene, homeAway });
   if (savedTeamInfo == null) {
-    const { name, homerunInfo } = teamInfo;
 
     const newRecord = new TeamInfo();
     newRecord.gameInfoId = gameInfoId;
@@ -308,7 +308,7 @@ const insertTeamInfo = async (
     newRecord.homeAway = homeAway;
     newRecord.teamName = name;
     newRecord.batteryInfoId = batteryInfoId;
-    newRecord.homerunInfo = homerunInfo;
+    newRecord.homerunInfoId = homerunInfoId;
 
     await newRecord.save();
     savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene });

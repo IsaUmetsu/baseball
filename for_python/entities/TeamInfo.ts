@@ -22,6 +22,6 @@ export class TeamInfo extends BaseEntity {
   @Column("int", { name: "battery_info_id", nullable: true })
   batteryInfoId: number | null;
 
-  @Column("varchar", { name: "homerun_info", nullable: true, length: 250 })
-  homerunInfo: string | null;
+  @Column("int", { name: "homerun_info_id", nullable: true })
+  homerunInfoId: number | null;
 }
