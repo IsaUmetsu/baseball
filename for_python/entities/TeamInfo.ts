@@ -1,7 +1,7 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, BaseEntity } from "typeorm";
 
-@Index("idx_team_info_1", ["gameInfoId", "scene"], {})
 @Index("idx_team_info_2", ["homeAway", "teamName"], {})
+@Index("idx_team_info_1", ["gameInfoId", "scene", "homeAway"], {})
 @Entity("team_info", { schema: "baseball_2020" })
 export class TeamInfo extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
@@ -19,8 +19,8 @@ export class TeamInfo extends BaseEntity {
   @Column("varchar", { name: "team_name", length: 10 })
   teamName: string;
 
-  @Column("varchar", { name: "battery_info", nullable: true, length: 100 })
-  batteryInfo: string | null;
+  @Column("int", { name: "battery_info_id", nullable: true })
+  batteryInfoId: number | null;
 
   @Column("varchar", { name: "homerun_info", nullable: true, length: 250 })
   homerunInfo: string | null;
