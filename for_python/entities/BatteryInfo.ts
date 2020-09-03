@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn, BaseEntity } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn, BaseEntity } from "typeorm";
 
+@Index("idx_battery_info", ["gameInfoId", "pitcher", "catcher"], {})
 @Entity("battery_info", { schema: "baseball_2020" })
 export class BatteryInfo extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
