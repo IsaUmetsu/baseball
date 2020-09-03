@@ -19,16 +19,18 @@ const startGameNo = 1;
 const endGameNo = 6;
 const startSceneCnt = 1;
 
-const targetDay = process.env.D;
+let targetDay = process.env.D;
 if (!targetDay) {
-  console.log('D=[保存開始日] を入力してください。');
-  error = true;
+  console.log('D=[保存開始日] の指定がありません。2020/06/19 を指定します。');
+  // error = true;
+  targetDay = moment("2020-06-19").format("MMDD");
 }
 
-const seasonEndArg = process.env.SE;
+let seasonEndArg = process.env.SE;
 if (!seasonEndArg) {
-  console.log('SE=[保存開始日] を入力してください。');
-  error = true;
+  console.log('SE=[保存開始日] の指定がありません。実行日を指定します。');
+  // error = true;
+  seasonEndArg = moment().format("MMDD");
 }
 
 const day = moment(format("2020%s", targetDay), "YYYYMMDD");
