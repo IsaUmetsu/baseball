@@ -349,7 +349,7 @@ const insertTeamInfo = async (
   // 直前のベンチ入り情報
   const benchMasterRepo = getRepository(BenchMaster);
   const prevBenchMaster = await benchMasterRepo.findOne({ gameInfoId, scene: scene - 1, teamName: name });
-
+  // 初期保存 or ベンチ入り人数に変更があった場合のみ保存
   if (prevBenchMaster == null || currentMemberCount < prevBenchMaster.memberCount) {    
     const saveBenchMember = async (position: string, benchMember: BenchMemberInfoType) => {
       const { name, domainHand, average } = benchMember;
