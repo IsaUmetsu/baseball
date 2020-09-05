@@ -11,6 +11,7 @@ import {
   TeamInfo,
   GameOrder,
   BenchMemberInfo,
+  BenchMaster,
   BatteryInfo,
   HomerunInfo
 } from './entities';
@@ -314,7 +315,7 @@ const insertTeamInfo = async (
     savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene });
   }
 
-  let teamInfoId = savedTeamInfo.id;
+  const teamInfoId = savedTeamInfo.id;
 
   const gameOrderRepo = getRepository(GameOrder);
   const savedGameOrder = await gameOrderRepo.find({ teamInfoId });
@@ -334,11 +335,26 @@ const insertTeamInfo = async (
     })
   }
 
+  const { benchPitcher: p, benchCatcher: c, benchInfielder: i, benchOutfielder: o } = teamInfo;
+  const currentMemberCount = p.length + c.length + i.length + o.length;
+
+  const newRecordBenchMaster = new BenchMaster();
+  newRecordBenchMaster.gameInfoId = gameInfoId;
+  newRecordBenchMaster.scene = scene;
+  newRecordBenchMaster.teamName = name;
+  newRecordBenchMaster.memberCount = currentMemberCount;
+  await newRecordBenchMaster.save();
+
+  // const benchMasterRepo = getRepository(BenchMaster);
+  // 直前のベンチ入り情報
+  // const prevBenchMaster = await benchMasterRepo.findOne({ gameInfoId, scene: scene - 1, teamName: name });
+  // 現在のベンチ入り情報
+  // const currentBenchMaster = await benchMasterRepo.findOne({ gameInfoId, scene, teamName: name });
+
   const benchMemberInfoRepo = getRepository(BenchMemberInfo);
   const savedBenchMemberInfo = await benchMemberInfoRepo.find({ teamInfoId });
   if (savedBenchMemberInfo.length == 0) {
-    const { benchPitcher, benchCatcher, benchInfielder, benchOutfielder } = teamInfo;
-
+  // if (prevBenchMaster == null || currentMemberCount < prevBenchMaster.memberCount) {    
     const saveBenchMember = async (position: string, benchMember: BenchMemberInfoType) => {
       const { name, domainHand, average } = benchMember;
       const newRecord = new BenchMemberInfo();
@@ -352,10 +368,10 @@ const insertTeamInfo = async (
       await newRecord.save();
     }
 
-    benchPitcher.forEach(async member => { await saveBenchMember("投手", member); });
-    benchCatcher.forEach(async member => { await saveBenchMember("捕手", member); });
-    benchInfielder.forEach(async member => { await saveBenchMember("内野手", member); });
-    benchOutfielder.forEach(async member => { await saveBenchMember("外野手", member); });
+    p.forEach(async member => { await saveBenchMember("投手", member); });
+    c.forEach(async member => { await saveBenchMember("捕手", member); });
+    i.forEach(async member => { await saveBenchMember("内野手", member); });
+    o.forEach(async member => { await saveBenchMember("外野手", member); });
   }
 }
 
