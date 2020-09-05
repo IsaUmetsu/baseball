@@ -33,7 +33,9 @@ export const getJson = (filePath: string): string => {
  * 
  */
 export const countFiles = async (dir: string): Promise<number> => {
-    const fileCnt = await fs.promises.readdir(dir);
+    let fileCnt = await fs.promises.readdir(dir);
+    // .DS_Store を除外
+    fileCnt = fileCnt.filter(file => file != '.DS_Store')
 
     return fileCnt.length;
 }
