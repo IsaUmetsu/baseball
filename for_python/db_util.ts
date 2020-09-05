@@ -341,20 +341,16 @@ const insertTeamInfo = async (
   const newRecordBenchMaster = new BenchMaster();
   newRecordBenchMaster.gameInfoId = gameInfoId;
   newRecordBenchMaster.scene = scene;
+  newRecordBenchMaster.teamInfoId = teamInfoId;
   newRecordBenchMaster.teamName = name;
   newRecordBenchMaster.memberCount = currentMemberCount;
   await newRecordBenchMaster.save();
 
-  // const benchMasterRepo = getRepository(BenchMaster);
   // 直前のベンチ入り情報
-  // const prevBenchMaster = await benchMasterRepo.findOne({ gameInfoId, scene: scene - 1, teamName: name });
-  // 現在のベンチ入り情報
-  // const currentBenchMaster = await benchMasterRepo.findOne({ gameInfoId, scene, teamName: name });
+  const benchMasterRepo = getRepository(BenchMaster);
+  const prevBenchMaster = await benchMasterRepo.findOne({ gameInfoId, scene: scene - 1, teamName: name });
 
-  const benchMemberInfoRepo = getRepository(BenchMemberInfo);
-  const savedBenchMemberInfo = await benchMemberInfoRepo.find({ teamInfoId });
-  if (savedBenchMemberInfo.length == 0) {
-  // if (prevBenchMaster == null || currentMemberCount < prevBenchMaster.memberCount) {    
+  if (prevBenchMaster == null || currentMemberCount < prevBenchMaster.memberCount) {    
     const saveBenchMember = async (position: string, benchMember: BenchMemberInfoType) => {
       const { name, domainHand, average } = benchMember;
       const newRecord = new BenchMemberInfo();

@@ -12,6 +12,9 @@ export class BenchMaster extends BaseEntity {
   @Column("smallint", { name: "scene" })
   scene: number;
 
+  @Column("int", { name: "team_info_id" })
+  teamInfoId: number;
+
   @Column("varchar", { name: "team_name", nullable: true, length: 10 })
   teamName: string | null;
 
