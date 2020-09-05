@@ -37,7 +37,6 @@ import { teamArray, teamNames, teamHashTags } from '../constant';
   const results = await manager.query(`
     SELECT
       CONCAT(batter, " ", right(average, 4), " (", bat, "-", hit, ")") AS ${colName} -- 打率
-      -- CONCAT(batter, " ", right(average, 4), " (", pa, "-", onbase, ")") AS total -- 出塁率
     FROM
       (
       SELECT
