@@ -15,6 +15,7 @@
     "data:month": "ts-node for_python/query/month.ts",
     "data:rc5": "ts-node for_python/query/recent_5days.ts",
     "data:dow": "ts-node for_python/query/day_of_week.ts",
+    "data:team": "ts-node for_python/query/team.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
