@@ -119,6 +119,6 @@ export interface OutputJson {
     liveHeader: LiveHeaderJson,
     liveBody: LiveBodyJson,
     pitchInfo: PitchInfoJson,
-    homeTeamInfo: HomeTeamInfoJson,
-    awayTeamInfo: AwayTeamInfoJson
+    homeTeamInfo: TeamInfoJson,
+    awayTeamInfo: TeamInfoJson
 }

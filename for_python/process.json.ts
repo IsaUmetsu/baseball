@@ -11,6 +11,8 @@ import {
   insertHomeTeamInfo
 } from './db_util';
 
+import { OutputJson } from './type/jsonType.d';
+
 import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
 
 let error = false;
@@ -47,7 +49,7 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s/%s.json";
  * @param dateStr
  * @param gameNo
  */
-const getData = async (scene: number, dateString: string, gameNo: string) => {
+const getData = async (scene: number, dateString: string, gameNo: string): Promise<OutputJson> => {
   // フォルダから取得
   return JSON.parse(getJson(format(jsonPath, dateString, gameNo, scene)));
 };
@@ -107,9 +109,16 @@ const getDataAndSave = async () => {
       // 日付・ゲーム番号ディレクトリがない場合スキップ
       const existGameDir = await checkGameDir(datePath, dateStr, targetGameNo);
       if (! existGameDir) continue;
-
+      // 試合終了していなければスキップ
       const sceneCnt = await countFiles(format(gamePath, dateStr, targetGameNo));
-      // define pitch count
+      if (sceneCnt > 0) {
+        const lastJson: OutputJson = JSON.parse(getJson(format(jsonPath, dateStr, targetGameNo, sceneCnt)));
+        if (! ["試合終了", "試合中止"].includes(lastJson.liveHeader.inning)) {
+          console.log(format('----- finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
+          continue;
+        }
+      }
+
       for (let cnt = startSceneCnt; cnt <= sceneCnt; cnt++) {
         await saveData(cnt, dateStr, targetGameNo).catch(err => {
           console.log(err);
