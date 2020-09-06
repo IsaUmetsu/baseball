@@ -25,7 +25,7 @@ import { teamArray, teamNames, teamHashTags } from '../constant';
   const results = await manager.query(`
     SELECT
       CONCAT(
-        batter,
+        SUBSTRING_INDEX(batter, ' ', 1),
         " ",
         CASE LEFT(average, 1) WHEN 1 THEN average ELSE RIGHT(average, 4) END,
         " (",
