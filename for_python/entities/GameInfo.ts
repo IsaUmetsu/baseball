@@ -1,6 +1,7 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, BaseEntity } from "typeorm";
 
 @Index("idx_game_info", ["date", "awayTeamInitial", "homeTeamInitial"], {})
+@Index("idx_no_game", ["noGame"], {})
 @Entity("game_info", { schema: "baseball_2020" })
 export class GameInfo extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
@@ -14,4 +15,7 @@ export class GameInfo extends BaseEntity {
 
   @Column("varchar", { name: "home_team_initial", length: 2 })
   homeTeamInitial: string;
+
+  @Column("tinyint", { name: "no_game", default: () => "'0'" })
+  noGame: number;
 }

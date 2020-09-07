@@ -60,7 +60,7 @@ const getData = async (scene: number, dateString: string, gameNo: string): Promi
  * @param dateStr
  * @param gameNo
  */
-const saveData = async (scene: number, dateStr: string, gameNo: string) => {
+const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame: boolean) => {
   await getData(scene, dateStr, gameNo)
     .then(async data => {
       if (data === undefined) return;
@@ -77,7 +77,8 @@ const saveData = async (scene: number, dateStr: string, gameNo: string) => {
       const gameInfoId = await insertGameInfo(
         dateStr,
         liveHeader.away.teamInitial,
-        liveHeader.home.teamInitial
+        liveHeader.home.teamInitial,
+        isNoGame
       );
 
       await insertLiveHeader(gameInfoId, scene, liveHeader);
@@ -111,16 +112,18 @@ const getDataAndSave = async () => {
       if (! existGameDir) continue;
       // 試合終了していなければスキップ
       const sceneCnt = await countFiles(format(gamePath, dateStr, targetGameNo));
+      let isNoGame = false;
       if (sceneCnt > 0) {
         const lastJson: OutputJson = JSON.parse(getJson(format(jsonPath, dateStr, targetGameNo, sceneCnt)));
         if (! ["試合終了", "試合中止"].includes(lastJson.liveHeader.inning)) {
           console.log(format('----- finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
           continue;
         }
+        isNoGame = lastJson.liveHeader.inning == "試合中止";
       }
 
       for (let cnt = startSceneCnt; cnt <= sceneCnt; cnt++) {
-        await saveData(cnt, dateStr, targetGameNo).catch(err => {
+        await saveData(cnt, dateStr, targetGameNo, isNoGame).catch(err => {
           console.log(err);
           console.log(format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
         });

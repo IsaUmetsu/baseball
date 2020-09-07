@@ -51,7 +51,7 @@ import { teamArray, teamNames, teamHashTags } from '../constant';
       LEFT JOIN
         (
           SELECT * FROM baseball_2020.game_info
-          WHERE away_team_initial = '${team}' OR home_team_initial = '${team}'
+          WHERE (away_team_initial = '${team}' OR home_team_initial = '${team}') AND no_game = 0
           ORDER BY date DESC LIMIT 5
         ) gi ON lb.game_info_id = gi.id -- 最近5試合
       WHERE
