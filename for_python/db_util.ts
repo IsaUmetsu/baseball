@@ -263,7 +263,7 @@ const insertTeamInfo = async (
 
   if (! teamInfo) return;
   const { batteryInfo, homerunInfo, name } = teamInfo;
-
+  // about `battery_info`
   let batteryInfoId = null;
   if (batteryInfo) {
     const [ pitcher, catcher ] = batteryInfo.split(" - ");
@@ -282,7 +282,7 @@ const insertTeamInfo = async (
 
     batteryInfoId = savedBatteryInfo.id;
   }
-
+  // about `homerun_info`
   let homerunInfoId = null;
   if (homerunInfo) {
     const homerunInfoRepo = getRepository(HomerunInfo);
@@ -299,7 +299,7 @@ const insertTeamInfo = async (
 
     homerunInfoId = savedHomerunInfo.id;
   }
-
+  // about `team_info`
   const teamInfoRepository = getRepository(TeamInfo);
   let savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene, homeAway });
   if (savedTeamInfo == null) {
@@ -317,7 +317,7 @@ const insertTeamInfo = async (
   }
 
   const teamInfoId = savedTeamInfo.id;
-
+  // about `game_order`
   const gameOrderRepo = getRepository(GameOrder);
   const savedGameOrder = await gameOrderRepo.find({ teamInfoId });
   if (savedGameOrder.length == 0) {
@@ -338,7 +338,7 @@ const insertTeamInfo = async (
 
   const { benchPitcher: p, benchCatcher: c, benchInfielder: i, benchOutfielder: o } = teamInfo;
   const currentMemberCount = p.length + c.length + i.length + o.length;
-
+  // about `bench_master`
   const newRecordBenchMaster = new BenchMaster();
   newRecordBenchMaster.gameInfoId = gameInfoId;
   newRecordBenchMaster.scene = scene;
@@ -347,6 +347,7 @@ const insertTeamInfo = async (
   newRecordBenchMaster.memberCount = currentMemberCount;
   await newRecordBenchMaster.save();
 
+  // abount `bench_menber_info`
   // 直前のベンチ入り情報
   const benchMasterRepo = getRepository(BenchMaster);
   const prevBenchMaster = await benchMasterRepo.findOne({ gameInfoId, scene: scene - 1, teamName: name });
