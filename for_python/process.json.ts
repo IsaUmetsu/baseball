@@ -37,7 +37,7 @@ if (!seasonEndArg) {
 
 let specifyArg = process.env.S;
 if (!specifyArg) {
-  console.log('S=[指定試合] の指定がありません。全試合を指定します。');
+  console.log('S=[試合番号] の指定がありません。全試合を指定します。');
   // error = true;
 }
 
