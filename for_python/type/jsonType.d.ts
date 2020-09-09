@@ -122,3 +122,9 @@ export interface OutputJson {
     homeTeamInfo: TeamInfoJson,
     awayTeamInfo: TeamInfoJson
 }
+
+export interface SavedBallCount {
+    b: number,
+    s: number,
+    o: number
+}

@@ -8,7 +8,11 @@ export const judgePlateAppearance = (battingResult: string, currentBatterName: s
     battingResult.indexOf("ボール") > -1 ||
     (battingResult.indexOf("見逃し") > -1 && battingResult.indexOf("三振") == -1) ||
     (battingResult.indexOf("空振り") > -1 && battingResult.indexOf("三振") == -1) ||
-    battingResult.indexOf("代走") > -1
+    // 選手変更
+    battingResult.indexOf("継投") > -1 || 
+    battingResult.indexOf("代走") > -1 || 
+    battingResult.indexOf("代打") > -1 || 
+    battingResult.indexOf("守備") > -1
   ;
 
   return Number(
@@ -95,4 +99,54 @@ export const judgeFc = (battingResult: string): number => {
  */
 export const judgePlayerChange = (battingResult: string, changeKind: string): number => {
   return Number(battingResult.indexOf(changeKind) > -1);
+}
+
+/**
+ * 
+ */
+export const judgeIsBall = (battingResult: string, countBall: number): number => {
+  const isBall = battingResult.indexOf("四球") > -1;
+  const ball = isBall ? countBall - 1 : countBall;
+
+  return ball < 0 ? 0 : ball;
+}
+
+/**
+ * 
+ */
+export const judgeIsStrike = (battingResult: string, countStrike: number): number => {
+  const isStrike = 
+    battingResult.indexOf("三振") > -1 || 
+    battingResult.indexOf("振り逃げ") > -1 || 
+    battingResult.indexOf("スリーバント失敗") > -1 || 
+    battingResult.indexOf("空振り") > -1 || 
+    battingResult.indexOf("見逃し") > -1
+  ;
+
+  const strike = isStrike ? countStrike - 1 : countStrike;
+
+  return strike < 0 ? 0 : strike;
+}
+
+/**
+ * 
+ */
+export const judgeIsOut = (battingResult: string, countOut: number): number => {
+  let out = countOut;
+
+  const isOut = 
+    battingResult.indexOf("三振") > -1 || 
+    battingResult.indexOf("振り逃げ") > -1 || 
+    battingResult.indexOf("スリーバント失敗") > -1 || 
+    (battingResult.indexOf("犠打") > -1 && battingResult.indexOf("野選") == -1) || // 犠打野選を除外
+    battingResult.indexOf("犠飛") > -1 || 
+    battingResult.indexOf("ゴロ") > -1 || 
+    battingResult.indexOf("ライナー") > -1 || 
+    battingResult.indexOf("フライ") > -1
+  ;
+
+  if (isOut) out = out - 1;
+  if (battingResult.indexOf("併殺") > -1) out = out - 2;
+
+  return out < 0 ? 0 : out;
 }

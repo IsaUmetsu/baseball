@@ -23,7 +23,8 @@ import {
   PitchCourseType,
   PitchInfoJson,
   TeamInfoJson,
-  BenchMemberInfoType
+  BenchMemberInfoType,
+  SavedBallCount
 } from './type/jsonType.d';
 
 import {
@@ -33,7 +34,10 @@ import {
   judgeOnbase,
   judgeError,
   judgeFc,
-  judgePlayerChange
+  judgePlayerChange,
+  judgeIsBall,
+  judgeIsStrike,
+  judgeIsOut
 } from './liveBody_util';
 
 /**
@@ -71,13 +75,11 @@ export const insertGameInfo = async (
  */
 export const insertLiveHeader = async (
   gameInfoId: number, scene: number, liveHeader: LiveHeaderJson
-): Promise<void> => {
+): Promise<SavedBallCount> => {
   
   const liveHeaderRepository = getRepository(LiveHeader);
 
-  const savedLiveHeader = await liveHeaderRepository.findOne({
-    gameInfoId, scene
-  });
+  let savedLiveHeader = await liveHeaderRepository.findOne({ gameInfoId, scene });
 
   if (savedLiveHeader == null) {
     const { inning, away, home, count } = liveHeader;
@@ -94,21 +96,23 @@ export const insertLiveHeader = async (
     newLiveHader.countStrike = Number(count.s);
     newLiveHader.countOut = Number(count.o);
 
-    await newLiveHader.save()
+    await newLiveHader.save();
+    savedLiveHeader = await liveHeaderRepository.findOne({ gameInfoId, scene });
   }
+
+  let { countBall, countStrike, countOut } = savedLiveHeader;
+  return { b: countBall, s: countStrike, o: countOut };
 }
 
 /**
  * LiveBody 情報保存
  */
 export const insertLiveBody = async (
-  gameInfoId: number, scene: number, liveBody: LiveBodyJson
+  gameInfoId: number, scene: number, liveBody: LiveBodyJson, ballCount: SavedBallCount
 ): Promise<void> => {
-  const liveBodyRepository = getRepository(LiveBody);
 
-  const savedLiveBody = await liveBodyRepository.findOne({
-    gameInfoId, scene
-  });
+  const liveBodyRepository = getRepository(LiveBody);
+  const savedLiveBody = await liveBodyRepository.findOne({ gameInfoId, scene });
 
   if (savedLiveBody == null) {
     const newLiveBody = new LiveBody();
@@ -155,6 +159,12 @@ export const insertLiveBody = async (
     
     newLiveBody.nextBatterName = nextBatter;
     newLiveBody.inningBatterCnt = inningBatterCnt;
+
+    const { b, s, o } = ballCount;
+
+    newLiveBody.prevCountBall = judgeIsBall(battingResult, b);
+    newLiveBody.prevCountStrike = judgeIsStrike(battingResult, s);
+    newLiveBody.prevCountOut = judgeIsOut(battingResult, o);
 
     newLiveBody.isPa = judgePlateAppearance(battingResult, cbi ? cbi.name :  "");
     newLiveBody.isAb = judgeAtBat(battingResult, cbi ? cbi.name :  "");

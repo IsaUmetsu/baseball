@@ -35,6 +35,12 @@ if (!seasonEndArg) {
   seasonEndArg = moment().format("MMDD");
 }
 
+let specifyArg = process.env.S;
+if (!specifyArg) {
+  console.log('S=[指定試合] の指定がありません。全試合を指定します。');
+  // error = true;
+}
+
 const day = moment(format("2020%s", targetDay), "YYYYMMDD");
 const seasonStart = moment("2020-06-19");
 const seasonEnd = moment(format("2020%s", seasonEndArg), "YYYYMMDD");
@@ -83,9 +89,9 @@ const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame
       );
 
       // insert into `live_header`
-      await insertLiveHeader(gameInfoId, scene, liveHeader);
+      const ballCount = await insertLiveHeader(gameInfoId, scene, liveHeader);
       // insert into `live_body`
-      await insertLiveBody(gameInfoId, scene, liveBody);
+      await insertLiveBody(gameInfoId, scene, liveBody, ballCount);
       // insert into `pitch_info`, `pitcher_batter`, `pitch_details`, `pitch_course`
       await insertPitchInfo(gameInfoId, scene, pitchInfo);
       // insert into `battery_info`, `homerun_info`, `team_info`, `game_order`, `bench_master`, `bench_menber_info`
@@ -96,6 +102,33 @@ const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame
       throw e;
     });
 };
+
+const executeGame = async (gameNo, dateStr) => {
+  // define game no
+  const targetGameNo = format("0%d", gameNo);
+  // 日付・ゲーム番号ディレクトリがない場合スキップ
+  const existGameDir = await checkGameDir(datePath, dateStr, targetGameNo);
+  if (! existGameDir) return;
+  // 試合終了していなければスキップ
+  const sceneCnt = await countFiles(format(gamePath, dateStr, targetGameNo));
+  let isNoGame = false;
+  if (sceneCnt > 0) {
+    const lastJson: OutputJson = JSON.parse(getJson(format(jsonPath, dateStr, targetGameNo, sceneCnt)));
+    if (! ["試合終了", "試合中止"].includes(lastJson.liveHeader.inning)) {
+      console.log(format('----- finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
+      return;
+    }
+    isNoGame = lastJson.liveHeader.inning == "試合中止";
+  }
+
+  for (let cnt = startSceneCnt; cnt <= sceneCnt; cnt++) {
+    await saveData(cnt, dateStr, targetGameNo, isNoGame).catch(err => {
+      console.log(err);
+      console.log(format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
+    });
+  }
+  console.log(format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
+}
 
 /**
  * 2球連続でボールが取得できなかった場合のみ、取得処理終了
@@ -109,32 +142,14 @@ const getDataAndSave = async () => {
     const existDateDir = await checkDateDir(datePath, dateStr);
     if (! existDateDir) { day.add(1, "days"); continue; }
 
-    for (let gameNo = startGameNo; gameNo <= endGameNo; gameNo++) {
-      // define game no
-      const targetGameNo = format("0%d", gameNo);
-      // 日付・ゲーム番号ディレクトリがない場合スキップ
-      const existGameDir = await checkGameDir(datePath, dateStr, targetGameNo);
-      if (! existGameDir) continue;
-      // 試合終了していなければスキップ
-      const sceneCnt = await countFiles(format(gamePath, dateStr, targetGameNo));
-      let isNoGame = false;
-      if (sceneCnt > 0) {
-        const lastJson: OutputJson = JSON.parse(getJson(format(jsonPath, dateStr, targetGameNo, sceneCnt)));
-        if (! ["試合終了", "試合中止"].includes(lastJson.liveHeader.inning)) {
-          console.log(format('----- finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
-          continue;
-        }
-        isNoGame = lastJson.liveHeader.inning == "試合中止";
+    if (specifyArg) {
+      await executeGame(Number(specifyArg), dateStr);
+    } else {
+      for (let gameNo = startGameNo; gameNo <= endGameNo; gameNo++) {
+        await executeGame(gameNo, dateStr);
       }
-
-      for (let cnt = startSceneCnt; cnt <= sceneCnt; cnt++) {
-        await saveData(cnt, dateStr, targetGameNo, isNoGame).catch(err => {
-          console.log(err);
-          console.log(format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
-        });
-      }
-      console.log(format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
     }
+
     day.add(1, "days");
   }
   console.log('----- done!! -----');
