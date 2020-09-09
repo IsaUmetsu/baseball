@@ -131,10 +131,11 @@ export const judgeIsStrike = (battingResult: string, countStrike: number): numbe
 /**
  * 
  */
-export const judgeIsOut = (battingResult: string, countOut: number): number => {
+export const judgeIsOut = (battingResult: string, pitchingResult: string, countOut: number): number => {
   let out = countOut;
 
   const isOut = 
+    // 打撃結果関連
     battingResult.indexOf("三振") > -1 || 
     battingResult.indexOf("振り逃げ") > -1 || 
     battingResult.indexOf("スリーバント失敗") > -1 || 
@@ -142,7 +143,10 @@ export const judgeIsOut = (battingResult: string, countOut: number): number => {
     battingResult.indexOf("犠飛") > -1 || 
     battingResult.indexOf("ゴロ") > -1 || 
     battingResult.indexOf("ライナー") > -1 || 
-    battingResult.indexOf("フライ") > -1
+    battingResult.indexOf("フライ") > -1 || 
+    // 投球結果関連
+    pitchingResult.indexOf("盗塁失敗") > -1 ||  
+    pitchingResult.indexOf("牽制アウト") > -1 
   ;
 
   if (isOut) out = out - 1;

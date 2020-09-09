@@ -164,7 +164,7 @@ export const insertLiveBody = async (
 
     newLiveBody.prevCountBall = judgeIsBall(battingResult, b);
     newLiveBody.prevCountStrike = judgeIsStrike(battingResult, s);
-    newLiveBody.prevCountOut = judgeIsOut(battingResult, o);
+    newLiveBody.prevCountOut = judgeIsOut(battingResult, pitchingResult, o);
 
     newLiveBody.isPa = judgePlateAppearance(battingResult, cbi ? cbi.name :  "");
     newLiveBody.isAb = judgeAtBat(battingResult, cbi ? cbi.name :  "");
