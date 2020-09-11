@@ -67,7 +67,7 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s/%s.json";
     const results = await manager.query(`
       SELECT
         CONCAT(
-          right(average, 4), " (", bat, "-", hit, ")", " ", 
+          CASE LEFT(average, 1) WHEN 1 THEN average ELSE RIGHT(average, 4) END, " (", bat, "-", hit, ")", " ", 
           SUBSTRING_INDEX(batter, ' ', 1)
         ) AS ${colName} -- 打率
       FROM
