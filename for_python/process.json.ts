@@ -85,6 +85,7 @@ const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame
         dateStr,
         liveHeader.away.teamInitial,
         liveHeader.home.teamInitial,
+        gameNo,
         isNoGame
       );
 
@@ -103,7 +104,7 @@ const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame
     });
 };
 
-const executeGame = async (gameNo, dateStr) => {
+const doSave = async (gameNo, dateStr) => {
   // define game no
   const targetGameNo = format("0%d", gameNo);
   // 日付・ゲーム番号ディレクトリがない場合スキップ
@@ -114,11 +115,11 @@ const executeGame = async (gameNo, dateStr) => {
   let isNoGame = false;
   if (sceneCnt > 0) {
     const lastJson: OutputJson = JSON.parse(getJson(format(jsonPath, dateStr, targetGameNo, sceneCnt)));
-    if (! ["試合終了", "試合中止"].includes(lastJson.liveHeader.inning)) {
+    if (! ["試合終了", "試合中止", "ノーゲーム"].includes(lastJson.liveHeader.inning)) {
       console.log(format('----- finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
       return;
     }
-    isNoGame = lastJson.liveHeader.inning == "試合中止";
+    isNoGame = ["試合中止", "ノーゲーム"].includes(lastJson.liveHeader.inning);
   }
 
   for (let cnt = startSceneCnt; cnt <= sceneCnt; cnt++) {
@@ -143,10 +144,10 @@ const getDataAndSave = async () => {
     if (! existDateDir) { day.add(1, "days"); continue; }
 
     if (specifyArg) {
-      await executeGame(Number(specifyArg), dateStr);
+      await doSave(Number(specifyArg), dateStr);
     } else {
       for (let gameNo = startGameNo; gameNo <= endGameNo; gameNo++) {
-        await executeGame(gameNo, dateStr);
+        await doSave(gameNo, dateStr);
       }
     }
 

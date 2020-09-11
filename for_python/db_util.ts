@@ -44,7 +44,7 @@ import {
  * 試合情報保存
  */
 export const insertGameInfo = async (
-  date: string, awayTeamInitial: string, homeTeamInitial: string, isNoGame: boolean
+  date: string, awayTeamInitial: string, homeTeamInitial: string, gameNo: string, isNoGame: boolean
 ): Promise<number> => {
 
   const gameInfoRepository = getRepository(GameInfo);
@@ -58,6 +58,7 @@ export const insertGameInfo = async (
     gameInfo.date = date;
     gameInfo.awayTeamInitial = awayTeamInitial;
     gameInfo.homeTeamInitial = homeTeamInitial;
+    gameInfo.gameNo = gameNo;
     gameInfo.noGame = Number(isNoGame);
 
     await gameInfo.save();
@@ -65,6 +66,9 @@ export const insertGameInfo = async (
     savedGameInfo = await gameInfoRepository.findOne({
       date, awayTeamInitial, homeTeamInitial
     });
+  } else {
+    savedGameInfo.gameNo = gameNo;
+    await savedGameInfo.save();
   }
 
   return savedGameInfo.id;

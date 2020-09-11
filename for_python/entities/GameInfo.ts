@@ -16,6 +16,9 @@ export class GameInfo extends BaseEntity {
   @Column("varchar", { name: "home_team_initial", length: 2 })
   homeTeamInitial: string;
 
+  @Column("varchar", { name: "game_no", length: 2 })
+  gameNo: string;
+
   @Column("tinyint", { name: "no_game", default: () => "'0'" })
   noGame: number;
 }
