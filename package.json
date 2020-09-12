@@ -17,6 +17,7 @@
     "data:dow": "ts-node for_python/query/day_of_week.ts",
     "data:team": "ts-node for_python/query/team.ts",
     "data:week": "ts-node for_python/query/week.ts",
+    "data:rrapi": "ts-node for_python/query/runs_runsAllowed.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -128,3 +128,10 @@ export interface SavedBallCount {
     s: number,
     o: number
 }
+
+
+export interface RunsRunsAllowed {
+    inning: number,
+    runs: number,
+    runsAllowed: number
+}
