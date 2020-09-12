@@ -154,3 +154,12 @@ export const judgeIsOut = (battingResult: string, pitchingResult: string, countO
 
   return out < 0 ? 0 : out;
 }
+
+export const judgePlusScore = (battingResult: string): number => {
+  let plusScore = 0;
+  if (battingResult.indexOf("＋1点") > -1) plusScore = 1;
+  if (battingResult.indexOf("＋2点") > -1) plusScore = 2;
+  if (battingResult.indexOf("＋3点") > -1) plusScore = 3;
+  if (battingResult.indexOf("＋4点") > -1) plusScore = 4;
+  return plusScore;
+}

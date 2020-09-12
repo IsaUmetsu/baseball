@@ -104,6 +104,9 @@ export class LiveBody extends BaseEntity {
   @Column("tinyint", { name: "prev_count_out", nullable: true })
   prevCountOut: number | null;
 
+  @Column("tinyint", { name: "plus_score", default: () => "'0'" })
+  plusScore: number;
+
   @Column("tinyint", { name: "is_pa", nullable: true })
   isPa: number | null;
 
