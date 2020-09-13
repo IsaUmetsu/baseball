@@ -128,7 +128,7 @@ const doSave = async (gameNo, dateStr) => {
       console.log(format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
     });
   }
-  console.log(format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
+  console.log(format('----- finished: date: [%s], gameNo: [%s] %s -----', dateStr, targetGameNo, sceneCnt == 0 ? 'but not imported [because not complete game]' : ''));
 }
 
 /**

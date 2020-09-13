@@ -131,7 +131,7 @@ export const judgeIsStrike = (battingResult: string, countStrike: number): numbe
 /**
  * 
  */
-export const judgeIsOut = (battingResult: string, pitchingResult: string, countOut: number): number => {
+export const calcOut = (battingResult: string, pitchingResult: string, countOut: number): number => {
   let out = countOut;
 
   const isOut = 
@@ -153,6 +153,30 @@ export const judgeIsOut = (battingResult: string, pitchingResult: string, countO
   if (battingResult.indexOf("併殺") > -1) out = out - 2;
 
   return out < 0 ? 0 : out;
+}
+
+export const judgePlusOutCount = (battingResult: string, pitchingResult: string): number => {
+  let plusOut = 0;
+
+  const isOut = 
+    // 打撃結果関連
+    battingResult.indexOf("三振") > -1 || 
+    battingResult.indexOf("振り逃げ") > -1 || 
+    battingResult.indexOf("スリーバント失敗") > -1 || 
+    (battingResult.indexOf("犠打") > -1 && battingResult.indexOf("野選") == -1) || // 犠打野選を除外
+    battingResult.indexOf("犠飛") > -1 || 
+    battingResult.indexOf("ゴロ") > -1 || 
+    battingResult.indexOf("ライナー") > -1 || 
+    battingResult.indexOf("フライ") > -1 || 
+    // 投球結果関連
+    pitchingResult.indexOf("盗塁失敗") > -1 ||  
+    pitchingResult.indexOf("牽制アウト") > -1 
+  ;
+
+  if (isOut) plusOut = 1;
+  if (battingResult.indexOf("併殺") > -1 || pitchingResult.indexOf("併殺") > -1) plusOut = 2;
+
+  return plusOut;
 }
 
 export const judgePlusScore = (battingResult: string): number => {

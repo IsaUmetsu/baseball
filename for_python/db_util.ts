@@ -37,8 +37,8 @@ import {
   judgePlayerChange,
   judgeIsBall,
   judgeIsStrike,
-  judgeIsOut,
-  judgePlusScore
+  judgePlusScore,
+  judgePlusOutCount
 } from './liveBody_util';
 
 /**
@@ -166,12 +166,14 @@ export const insertLiveBody = async (
     newLiveBody.inningBatterCnt = inningBatterCnt;
 
     const { b, s, o } = ballCount;
+    const plusOutCount = judgePlusOutCount(battingResult, pitchingResult);
 
     newLiveBody.prevCountBall = judgeIsBall(battingResult, b);
     newLiveBody.prevCountStrike = judgeIsStrike(battingResult, s);
-    newLiveBody.prevCountOut = judgeIsOut(battingResult, pitchingResult, o);
+    newLiveBody.prevCountOut = o - plusOutCount;
 
     newLiveBody.plusScore = judgePlusScore(battingResult);
+    newLiveBody.plusOutCount = plusOutCount;
 
     newLiveBody.isPa = judgePlateAppearance(battingResult, cbi ? cbi.name :  "");
     newLiveBody.isAb = judgeAtBat(battingResult, cbi ? cbi.name :  "");
@@ -186,7 +188,10 @@ export const insertLiveBody = async (
 
     await newLiveBody.save();
   } else {
-    // await savedLiveBody.save();
+    const plusOutCount = judgePlusOutCount(liveBody.battingResult, liveBody.pitchingResult);
+    savedLiveBody.prevCountOut = ballCount.o - plusOutCount;
+    savedLiveBody.plusOutCount = plusOutCount;
+    await savedLiveBody.save();
   }
 }
 
