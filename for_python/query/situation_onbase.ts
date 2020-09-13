@@ -1,15 +1,12 @@
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags } from '../constant';
+import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
 import { RunsRunsAllowed } from '../type/jsonType';
 
 // Execute
 (async () => {
   await createConnection('default');
-
-  const leagueP = ['H', 'M', 'E', 'F', 'L', 'B'];
-  const leagueC = ['G', 'T', 'De', 'D', 'C', 'S'];
 
   let teams = [];
   const teamArg = process.env.TM;

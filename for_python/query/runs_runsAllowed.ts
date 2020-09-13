@@ -1,7 +1,7 @@
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags } from '../constant';
+import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
 import { RunsRunsAllowed } from '../type/jsonType.d';
 
 // Execute
@@ -12,9 +12,6 @@ import { RunsRunsAllowed } from '../type/jsonType.d';
   if (! teamArg) {
     console.log('TM=[チームイニシャル] を指定がないため12球団分出力します');
   }
-
-  const leagueP = ['H', 'M', 'E', 'F', 'L', 'B'];
-  const leagueC = ['G', 'T', 'De', 'D', 'C', 'S'];
 
   const teams = teamArg ? [teamArg] : leagueP.concat(leagueC);
 

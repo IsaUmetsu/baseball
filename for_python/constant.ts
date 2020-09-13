@@ -42,3 +42,6 @@ export const teamNames = {
   'C': '広島',
   'S': 'ヤクルト'
 }
+
+export const leagueP = ['H', 'M', 'E', 'F', 'L', 'B'];
+export const leagueC = ['G', 'T', 'De', 'D', 'C', 'S'];
