@@ -94,7 +94,17 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s/%s.json";
           END
         GROUP BY current_batter_name
       ) AS all_hawks_bat_summary
-      WHERE all_bat >= 10
+      WHERE all_bat >= 1.5 * (
+        SELECT 
+            COUNT(id)
+        FROM
+            baseball_2020.game_info
+        WHERE
+            (
+              (away_team_initial = '${team}' AND home_team_initial = '${oppo}') OR 
+              (home_team_initial = '${team}' AND away_team_initial = '${oppo}')
+            )
+      )
       ORDER BY average DESC
     `);
 
