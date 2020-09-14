@@ -45,3 +45,13 @@ export const teamNames = {
 
 export const leagueP = ['H', 'M', 'E', 'F', 'L', 'B'];
 export const leagueC = ['G', 'T', 'De', 'D', 'C', 'S'];
+
+export const leagueList = {
+  'P': 'パリーグ',
+  'C': 'セリーグ'
+}
+
+export const teamList = {
+  'P': ["\'ソ\'", "\'ロ\'", "\'楽\'", "\'日\'", "\'西\'", "\'オ\'"],
+  'C': ["\'巨\'", "\'デ\'", "\'神\'", "\'ヤ\'", "\'中\'", "\'広\'"]
+}

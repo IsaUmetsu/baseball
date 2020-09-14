@@ -1,16 +1,19 @@
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
+import { teamNames, teamHashTags, leagueList, leagueP, leagueC, teamList } from '../constant';
 
 // Execute
 (async () => {
   await createConnection('default');
 
-  const teamArg = process.env.TM;
-  if (! teamArg) {
-    console.log('TM=[チームイニシャル] を指定がないため12球団分出力します');
+  const league = process.env.LG;
+  if (! league) {
+    console.log('LG=[リーグイニシャル] の指定がないため12球団から選択します');
   }
+
+  const teams = league ? teamList[league] : teamList['P'].concat(teamList['C']);
+  const teamsListStr = teams.join(", ");
 
   const dayOfWeek = Number(process.env.D);
   if (! dayOfWeek) {
@@ -18,65 +21,66 @@ import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constan
     return;
   }
 
-  const teams = teamArg ? [teamArg] : leagueP.concat(leagueC)
-
-  teams.forEach(async targetTeam => {
-    const team = teamArray[targetTeam];
-    if (! team) {
-      console.log('正しいチームイニシャル を指定してください');
-      return;
-    }
-
-    const colName = "total";
-    const manager = await getManager();
-
-    const results = await manager.query(`
+  const manager = await getManager();
+  const results = await manager.query(`
+    SELECT
+      CASE LEFT(average, 1) WHEN 1 THEN average ELSE RIGHT(average, 4) END AS ave,
+      REPLACE(batter, ' ', '') AS batter_name,
+      L.*
+    FROM
+    (
       SELECT
-        CONCAT(
-          CASE LEFT(average, 1) WHEN 1 THEN average ELSE RIGHT(average, 4) END, " (", bat, "-", hit, ")",
-          " ", SUBSTRING_INDEX(batter, ' ', 1)
-        ) AS '${colName}'
+        current_batter_name AS batter,
+        b_team AS tm,
+        COUNT(current_batter_name) AS all_bat, SUM(is_pa) AS pa,
+        SUM(is_ab) AS bat,
+        SUM(is_hit) AS hit,
+        SUM(is_onbase) AS onbase,
+        ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average,
+        ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase,
+        '' AS eol
       FROM
-      (
-        SELECT
-          current_batter_name AS batter,
-          COUNT(current_batter_name) AS all_bat, SUM(is_pa) AS pa,
-          SUM(is_ab) AS bat,
-          SUM(is_hit) AS hit,
-          SUM(is_onbase) AS onbase,
-          ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average,
-          ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase,
-          '' AS eol
-        FROM
-          baseball_2020.debug_base
-        WHERE
-          is_pa = 1 AND
-          (away_team_initial = '${team}' OR home_team_initial = '${team}') AND
-          CASE
-            WHEN away_team_initial = '${team}' THEN inning LIKE '%表'
-            WHEN home_team_initial = '${team}' THEN inning LIKE '%裏'
-          END AND
-          DAYOFWEEK(date) = ${dayOfWeek} -- 曜日指定
-        GROUP BY current_batter_name
-      ) AS all_bat_summary
-      WHERE pa >= 10
-      ORDER BY average DESC;
-    `);
+        baseball_2020.debug_base
+      WHERE
+        is_pa = 1 AND 
+        home_initial IN (${teamsListStr}) AND 
+        DAYOFWEEK(date) = ${dayOfWeek} -- 曜日指定
+      GROUP BY current_batter_name, tm
+    ) AS L
+    LEFT JOIN (
+      SELECT 
+        b_team AS tm,
+        COUNT(date) AS game_cnt
+      FROM
+        (
+          SELECT 
+            date, b_team
+          FROM
+            baseball_2020.debug_base
+          WHERE
+            DAYOFWEEK(date) = ${dayOfWeek} -- 曜日指定
+            AND b_team IS NOT NULL
+          GROUP BY date , b_team
+        ) AS A
+      GROUP BY b_team
+    ) AS R on L.tm = R.tm
+    WHERE pa >= 3 * game_cnt
+    ORDER BY average DESC;
+  `);
 
-    const dayOfWeekArr = {
-      0: "日曜",
-      1: "月曜",
-      2: "火曜",
-      3: "水曜",
-      4: "木曜",
-      5: "金曜",
-      6: "土曜"
-    }
-    
-    console.log(format("\n%s打者 %s 打率\n", teamNames[targetTeam], dayOfWeekArr[dayOfWeek]));
-    results.forEach(result => {
-      console.log(result[colName]);  
-    });
-    console.log(format("\n%s", teamHashTags[targetTeam]));
+  const dayOfWeekArr = {
+    1: "日曜",
+    2: "月曜",
+    3: "火曜",
+    4: "水曜",
+    5: "木曜",
+    6: "金曜",
+    7: "土曜"
+  }
+  
+  console.log(format("\n%s打者 %s 打率\n", league ? leagueList[league] : 'NPB', dayOfWeekArr[dayOfWeek]));
+  results.forEach(result => {
+    const { ave, bat, hit, batter_name, tm } = result;
+    console.log(format("%s (%s-%s) %s(%s)", ave, bat, hit, batter_name, tm));  
   });
 })();
