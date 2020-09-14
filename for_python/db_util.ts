@@ -188,10 +188,7 @@ export const insertLiveBody = async (
 
     await newLiveBody.save();
   } else {
-    const plusOutCount = judgePlusOutCount(liveBody.battingResult, liveBody.pitchingResult);
-    savedLiveBody.prevCountOut = ballCount.o - plusOutCount;
-    savedLiveBody.plusOutCount = plusOutCount;
-    await savedLiveBody.save();
+    // await savedLiveBody.save();
   }
 }
 
