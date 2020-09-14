@@ -21,6 +21,7 @@
     "data:situ:ob": "ts-node for_python/query/situation_onbase.ts",
     "data:situ:sp": "ts-node for_python/query/situation_scoring.ts",
     "update:poc": "ts-node for_python/query/update_plus_out_count.ts",
+    "check:dup:json": "ts-node for_python/check.duplicate.json.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
