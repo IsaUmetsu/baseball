@@ -1,4 +1,4 @@
-import { getRepository } from 'typeorm';
+import { getRepository, getManager } from 'typeorm';
 
 import {
   GameInfo,
@@ -410,4 +410,41 @@ export const insertAwayTeamInfo = async (
   gameInfoId: number, scene: number, awayTeamInfo: TeamInfoJson
 ): Promise<void> => {
   await insertTeamInfo(gameInfoId, scene, awayTeamInfo, "away");
+}
+
+/**
+ * 
+ */
+export const executeUpdatePlusOutCount = async () => {
+
+  const manager = await getManager();
+  const results: any[] = await manager.query(`
+    SELECT 
+        lb_id,
+        prev_count_out,
+        after_count_out,
+        plus_out_count,
+        plus_out_count_new,
+        after_count_out - plus_out_count_new AS prev_count_out_new
+    FROM
+        check_not_match_plus_out
+  `);
+
+  console.log(`----- update plus_out_count target count: ${results.length} -----`);
+
+  results.forEach(async result => {
+    const { lb_id, plus_out_count_new, prev_count_out_new } = result;
+
+    await manager.query(`
+      UPDATE
+        live_body
+      SET
+        plus_out_count = ${plus_out_count_new},
+        prev_count_out = ${prev_count_out_new}
+      WHERE
+        id = ${lb_id}
+    `);
+  });
+
+  console.log('----- done!! -----');
 }

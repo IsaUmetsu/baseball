@@ -88,16 +88,13 @@ import { RunsRunsAllowed } from '../type/jsonType';
 
         console.log(format("\n2020年%s %s死%s 打撃成績\n", teamNames[targetTeam], outCountStr, onbaseStr));
         results.forEach(result => {
+          const { average, ab, hit, hr, runs, walk, onbase_ave, sf } = result;
           if (outCount < 2 && third) {
             console.log(
-              format(`%s (%d-%d) %d本 %d打点 %d四球 出塁率%s %d犠飛 `,
-                result['average'], result['ab'], result['hit'], result['hr'], result['runs'], result['walk'], result['onbase_ave'], result['sf'])
-            );
+              format(`%s (%d-%d) %d本 %d打点 %d四球 出塁率%s %d犠飛 `, average, ab, hit, hr, runs, walk, onbase_ave, sf));
           } else {
             console.log(
-              format(`%s (%d-%d) %d本 %d打点 %d四球 出塁率%s `,
-                result['average'], result['ab'], result['hit'], result['hr'], result['runs'], result['walk'], result['onbase_ave'])
-            );
+              format(`%s (%d-%d) %d本 %d打点 %d四球 出塁率%s `, average, ab, hit, hr, runs, walk, onbase_ave));
           }
         });
         console.log(format("\n%s", teamHashTags[targetTeam]));

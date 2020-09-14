@@ -8,7 +8,8 @@ import {
   insertLiveBody,
   insertPitchInfo,
   insertAwayTeamInfo,
-  insertHomeTeamInfo
+  insertHomeTeamInfo,
+  executeUpdatePlusOutCount
 } from './db_util';
 
 import { OutputJson } from './type/jsonType.d';
@@ -159,7 +160,12 @@ const getDataAndSave = async () => {
 // Execute
 (async () => {
   if (! error) {
-    await createConnection('default');
-    await getDataAndSave().catch(err => { console.log(err); });
+    try {
+      await createConnection('default');
+      await getDataAndSave();
+      await executeUpdatePlusOutCount();
+    } catch (err) {
+      console.log(err);
+    }
   }
 })();

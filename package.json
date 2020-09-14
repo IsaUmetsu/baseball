@@ -20,6 +20,7 @@
     "data:rrapi": "ts-node for_python/query/runs_runsAllowed.ts",
     "data:situ:ob": "ts-node for_python/query/situation_onbase.ts",
     "data:situ:sp": "ts-node for_python/query/situation_scoring.ts",
+    "update:poc": "ts-node for_python/query/update_plus_out_count.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
