@@ -2,6 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, teamList } from '../constant';
+import { trimRateZero } from '../db_util';
 
 // Execute
 (async () => {
@@ -126,13 +127,11 @@ import { teamHashTags, leagueList, teamList } from '../constant';
   results.forEach(result => {
     const { team_initial_kana, team_initial, win_count, lose_count, draw_count, win_rate } = result;
 
-    let draw_clause = draw_count > 0 ? format("%s分", draw_count) : '';
-    let win_rate_new = Number(win_rate) < 1 ? win_rate.slice(1) : win_rate;
-
     console.log(format(
       "%s  %s勝%s敗%s %s %s ",
       team_initial_kana, win_count, lose_count,
-      draw_clause, win_rate_new, teamHashTags[team_initial]
+      draw_count > 0 ? format("%s分", draw_count) : '',
+      trimRateZero(win_rate), teamHashTags[team_initial]
     ));  
   });
 })();

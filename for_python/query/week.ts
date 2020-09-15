@@ -2,6 +2,8 @@ import * as moment from "moment";
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
+import { leagueList, teamList } from "../constant";
+import { trimRateZero } from "../db_util";
 
 // Execute
 (async () => {
@@ -10,11 +12,6 @@ import { createConnection, getManager } from 'typeorm';
   const league = process.env.LG;
   if (! league) {
     console.log('LG=[リーグイニシャル] の指定がないため12球団から選択します');
-  }
-
-  const teamList = {
-    'P': ["\'ソ\'", "\'ロ\'", "\'楽\'", "\'日\'", "\'西\'", "\'オ\'"],
-    'C': ["\'巨\'", "\'デ\'", "\'神\'", "\'ヤ\'", "\'中\'", "\'広\'"]
   }
 
   const teams = league ? teamList[league] : teamList['P'].concat(teamList['C']);
@@ -47,20 +44,11 @@ import { createConnection, getManager } from 'typeorm';
   const firstDayOfWeekStr = firstDayOfWeek.format('YYYYMMDD');
   const lastDayOfWeekStr = lastDayOfWeek.format('YYYYMMDD');
 
-  const colName = "total";
   const manager = await getManager();
-
   const results = await manager.query(`
-  SELECT
-    CONCAT(
-      CASE LEFT(average, 1) WHEN 1 THEN average ELSE RIGHT(average, 4) END,  " (", bat, "-", hit, ") ", 
-      REPLACE(batter, ' ', ''), "(", tm, ")"
-    ) AS total
-  FROM
-  (
     SELECT
-      current_batter_name AS batter,
-      b_team AS tm,
+      REPLACE(current_batter_name, ' ', '') AS batter,
+      base.b_team AS tm,
       COUNT(current_batter_name) AS all_bat,
       SUM(is_pa) AS pa,
       SUM(is_ab) AS bat,
@@ -70,24 +58,36 @@ import { createConnection, getManager } from 'typeorm';
       ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase,
       '' AS eol
     FROM
-      baseball_2020.debug_base
-      WHERE
-        is_pa = 1 AND
-        home_initial IN (${teamsListStr}) AND 
-        (date >= '${firstDayOfWeekStr}' AND date <= '${lastDayOfWeekStr}')
-      GROUP BY current_batter_name, tm
-    ) AS all_bat_summary
-    WHERE pa >= 12
-    ORDER BY average DESC;
+      baseball_2020.debug_base base
+    -- 週間試合数 算出
+    LEFT JOIN (
+      SELECT 
+        b_team, COUNT(date) AS game_cnt
+      FROM
+        (SELECT DISTINCT
+          b_team, date
+        FROM
+          debug_base
+        WHERE
+          (date >= '${firstDayOfWeekStr}' AND date <= '${lastDayOfWeekStr}') AND 
+          CHAR_LENGTH(b_team) > 0) AS game_cnt_base
+      GROUP BY b_team
+    ) gm ON base.b_team = gm.b_team
+    WHERE
+      is_pa = 1 AND
+      home_initial IN (${teamsListStr}) AND 
+      (date >= '${firstDayOfWeekStr}' AND date <= '${lastDayOfWeekStr}')
+    GROUP BY current_batter_name, tm, game_cnt
+    HAVING SUM(is_pa) >= 3 * game_cnt AND SUM(is_ab) > 0
+    ORDER BY average DESC, bat DESC;
   `);
-
-  const leagueList = {
-    'P': 'パリーグ',
-    'C': 'セリーグ'
-  }
   
   console.log(format("\n%s打者 %s〜%s 打率\n", league ? leagueList[league] : 'NPB' , firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D')));
   results.forEach(result => {
-    console.log(result[colName]);  
+    const { batter, tm, bat, hit, average } = result;
+    console.log(format(
+      '%s (%s-%s) %s(%s)',
+      trimRateZero(average), bat, hit, batter, tm
+    ));  
   });
 })();
