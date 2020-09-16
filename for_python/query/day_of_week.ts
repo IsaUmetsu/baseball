@@ -1,25 +1,22 @@
 import { format } from 'util';
+import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
-import { leagueList, teamList, dayOfWeekArr } from '../constant';
-import { displayResult, trimRateZero } from '../disp_util';
+import { leagueList, dayOfWeekArr } from '../constant';
+import { checkArgLG, displayResult, trimRateZero } from '../disp_util';
 
 // Execute
 (async () => {
   await createConnection('default');
 
   const league = process.env.LG;
-  if (! league) {
-    console.log('LG=[リーグイニシャル] の指定がないため12球団から選択します');
-  }
+  const teams = checkArgLG(league);
+  if (! teams.length) return;
 
-  const teams = league ? teamList[league] : teamList['P'].concat(teamList['C']);
-  const teamsListStr = teams.join(", ");
-
-  const dayOfWeek = Number(process.env.D);
+  let dayOfWeek = Number(process.env.D);
   if (! dayOfWeek) {
-    console.log('D=[曜日番号] を指定してください');
-    return;
+    dayOfWeek = moment().day() + 1; // mysql の DAYOFWEEK() に合わせるため +1
+    console.log('D=[曜日番号] を指定がないため本日(%s)の結果を出力します', dayOfWeekArr[dayOfWeek]);
   }
 
   const manager = await getManager();
@@ -56,7 +53,7 @@ import { displayResult, trimRateZero } from '../disp_util';
       ) AS gm on base.b_team = gm.b_team
       WHERE
         is_pa = 1 AND 
-        home_initial IN (${teamsListStr}) AND 
+        home_initial IN (${teams.join(", ")}) AND 
         DAYOFWEEK(date) = ${dayOfWeek} -- 曜日指定
       GROUP BY current_batter_name, tm, game_cnt
       HAVING pa >= 3.1 * game_cnt

@@ -2,20 +2,18 @@ import * as moment from "moment";
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
-import { leagueList, teamList } from "../constant";
-import { displayResult, trimRateZero } from "../disp_util";
+import { leagueList, teamNames } from "../constant";
+import { checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
 
 // Execute
 (async () => {
   await createConnection('default');
 
+  const teamArg = process.env.TM;
   const league = process.env.LG;
-  if (! league) {
-    console.log('LG=[リーグイニシャル] の指定がないため12球団から選択します');
-  }
 
-  const teams = league ? teamList[league] : teamList['P'].concat(teamList['C']);
-  const teamsListStr = teams.join(", ");
+  const teams = checkArgTMLG(teamArg, league);
+  if (! teams.length) return;
 
   const dayArg = process.env.D;
   let targetDay;
@@ -75,39 +73,18 @@ import { displayResult, trimRateZero } from "../disp_util";
     ) gm ON base.b_team = gm.b_team
     WHERE
       is_pa = 1 AND
-      home_initial IN (${teamsListStr}) AND 
+      home_initial IN (${teams.join(", ")}) AND 
       (date >= '${firstDayOfWeekStr}' AND date <= '${lastDayOfWeekStr}')
     GROUP BY current_batter_name, tm, game_cnt
-    HAVING SUM(is_pa) >= 3 * game_cnt AND SUM(is_ab) > 0
+    HAVING SUM(is_pa) >= ${teamArg ? 2 : 3.1} AND SUM(is_ab) > 0
     ORDER BY average DESC, bat DESC;
   `);
-  
-  // const mainContents = [];
-  // let mainContent = "";
 
-  // const title = format("%s打者 %s〜%s 打率\n", league ? leagueList[league] : 'NPB' , firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D'));
-  // mainContent += title;
-  
-  // results.forEach(result => {
-  //   const { batter, tm, bat, hit, average } = result;
+  let batterTitle = 'NPB';
+  if (teamArg) batterTitle = teamNames[teamArg];
+  if (league) batterTitle = leagueList[league];
 
-  //   const row = format("\n%s (%s-%s) %s(%s)", trimRateZero(average), bat, hit, batter, tm);
-  //   if (twitter.parseTweet(mainContent + row).valid) {
-  //     mainContent += row;
-  //   } else {
-  //     mainContents.push(mainContent);
-  //     mainContent = title; // reset
-  //   }
-  // });
-  // mainContents.push(mainContent);
-
-  // // display
-  // mainContents.forEach(text => {
-  //   console.log("--------------------\n\n%s\n", text);
-  // })
-
-
-  const title = format("%s打者 %s〜%s 打率\n", league ? leagueList[league] : 'NPB' , firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D'));
+  const title = format("%s打者 %s〜%s 打率\n", batterTitle, firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D'));
   const rows = [];
   results.forEach(result => {
     const { batter, tm, bat, hit, average } = result;

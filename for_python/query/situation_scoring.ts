@@ -2,7 +2,6 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
-import { RunsRunsAllowed } from '../type/jsonType';
 
 // Execute
 (async () => {
