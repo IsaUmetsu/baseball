@@ -1,29 +1,61 @@
 import { format } from 'util';
+import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
-import { RunsRunsAllowed } from '../type/jsonType';
+import { countFiles, getJson } from '../fs_util';
+
+const pitcherPath = "/Users/IsamuUmetsu/dev/py_baseball/pitcher/%s";
+const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/pitcher/%s/%s.json";
 
 // Execute
 (async () => {
   await createConnection('default');
 
+  const targetPitchers = [];
+
+  const getPitcher = async () => {
+    const todayStr = moment().format('YYYYMMDD');
+    const totalGameCnt = await countFiles(format(pitcherPath, todayStr));
+    for (let gameCnt = 1; gameCnt <= totalGameCnt; gameCnt++) {
+      const { away, home } = JSON.parse(getJson(format(jsonPath, todayStr, format("0%d", gameCnt))));
+      targetPitchers.push({ team: away.team, pitcher: away.pitcher, oppoTeam: home.team });
+      targetPitchers.push({ team: home.team, pitcher: home.pitcher, oppoTeam: away.team  });
+      console.log(format('対戦カード%s (away): %s(%s)', gameCnt, away.pitcher, away.team));
+      console.log(format('対戦カード%s (home): %s(%s)', gameCnt, home.pitcher, home.team));
+    }
+  }
+
   let teams = [];
   const teamArg = process.env.TM;
-  if (teamArg) {
-    teams.push(teamArg);
-  } else {
-    console.log('TM=[チームイニシャル] を指定してください');
-    return;
-  }
-
   const nameArg = process.env.NM;
-  if (! nameArg) {
-    console.log('NM=[名前] を指定してください');
-    return;
+
+  if (!teamArg && !nameArg) {
+    console.log('NM=[名前] TM=[チームイニシャル] の指定がないため本日の先発投手を指定します');
+    await getPitcher();
+    if (! targetPitchers.length) {
+      console.log('本日の予告先発がいません');
+      return;
+    }
   }
 
-  teams.forEach(async targetTeam => {
+  if (teamArg && nameArg) {
+    targetPitchers.push({ team: teamArg, pitcher: nameArg, oppoTeam: '' });
+  }
+
+  // if (teamArg) {
+  //   teams.push(teamArg);
+  // } else {
+  //   console.log('TM=[チームイニシャル] を指定してください');
+  //   return;
+  // }
+
+  // if (! nameArg) {
+  //   console.log('NM=[名前] を指定してください');
+  //   return;
+  // }
+
+  targetPitchers.forEach(async ({ team: targetTeam, pitcher, oppoTeam }) => {
     const team = teamArray[targetTeam];
     if (! team) {
       console.log('正しいチームイニシャル を指定してください');
@@ -44,7 +76,7 @@ import { RunsRunsAllowed } from '../type/jsonType';
               WHEN home_team_initial = '${team}' THEN inning LIKE '%表'
           END
           AND plus_score > 0
-          AND current_pitcher_name like '%${nameArg.split(' ').join('%')}%'
+          AND current_pitcher_name like '%${pitcher.split(' ').join('%')}%'
         GROUP BY
           ing_num
     `);
@@ -60,28 +92,27 @@ import { RunsRunsAllowed } from '../type/jsonType';
       FROM
           baseball_2020.debug_base
       WHERE
-          current_pitcher_name LIKE '%${nameArg.split(' ').join('%')}%'
+          current_pitcher_name LIKE '%${pitcher.split(' ').join('%')}%'
       GROUP BY date , current_pitcher_name
       ORDER BY total_out DESC, date DESC
       LIMIT 1
     `);
 
     if (longestIp.length == 0) {
-      console.log("表示可能なデータがありません");
+      console.log(format("表示可能なデータがありません TM:[%s] NM:[%s]", team, pitcher));
       return;
     }
 
-    console.log(format("\n2020年 %s投手 イニング別失点数\n", nameArg.split(' ').join('')));
+    console.log(format("\n2020年 %s投手 イニング別失点数\n", pitcher.split(' ').join('')));
     const { inning } = longestIp[0];
     for (let ingNum = 1; ingNum <= Math.ceil(Number(inning)); ingNum++) {
       const targetInning = results.find(result => result.inning == ingNum);
-      if (targetInning) {
-        console.log(format(`%s回 %s`, targetInning.inning, targetInning.ra));
-      } else {
-        console.log(format(`%s回 %s`, ingNum, 0));
-      }
+
+      let inning = targetInning ? targetInning.inning : ingNum;
+      let runAllowed = targetInning ? targetInning.ra : 0;
+      console.log(format(`%s回 %s`, inning, runAllowed));
     }
     if (Math.ceil(Number(inning)) + 1 < 10) console.log(format(`(%s回以降未登板)`, Math.ceil(Number(inning)) + 1));
-    console.log(format("\n%s", teamHashTags[targetTeam]));
+    console.log(format("\n%s\n%s", teamHashTags[targetTeam], oppoTeam ? teamHashTags[oppoTeam] : ''));
   });
 })();
