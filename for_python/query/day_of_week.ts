@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { leagueList, teamList, dayOfWeekArr } from '../constant';
-import { trimRateZero } from '../db_util';
+import { displayResult, trimRateZero } from '../disp_util';
 
 // Execute
 (async () => {
@@ -25,7 +25,7 @@ import { trimRateZero } from '../db_util';
   const manager = await getManager();
   const results = await manager.query(`
       SELECT
-        current_batter_name AS batter,
+        REPLACE(current_batter_name, ' ', '') AS batter,
         base.b_team AS tm,
         COUNT(current_batter_name) AS all_bat, SUM(is_pa) AS pa,
         SUM(is_ab) AS bat,
@@ -62,10 +62,13 @@ import { trimRateZero } from '../db_util';
       HAVING pa >= 3.1 * game_cnt
       ORDER BY average DESC;
   `);
-  
-  console.log(format("\n%s打者 %s 打率\n", league ? leagueList[league] : 'NPB', dayOfWeekArr[dayOfWeek]));
+
+  const title = format("%s打者 %s 打率\n", league ? leagueList[league] : 'NPB', dayOfWeekArr[dayOfWeek]);
+  const rows = [];
   results.forEach(result => {
     const { average, bat, hit, batter, tm } = result;
-    console.log(format("%s (%s-%s) %s(%s)", trimRateZero(average), bat, hit, batter, tm));
+    rows.push(format("\n%s (%s-%s) %s(%s)", trimRateZero(average), bat, hit, batter, tm));
   });
+  displayResult(title, rows);
+
 })();

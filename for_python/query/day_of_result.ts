@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, teamList } from '../constant';
-import { trimRateZero } from '../db_util';
+import { trimRateZero } from '../disp_util';
 
 // Execute
 (async () => {
@@ -92,7 +92,7 @@ import { trimRateZero } from '../db_util';
               ) AS lose_count_home,
               COUNT(
                   home_initial = CASE
-                      WHEN home_score = away_score THEN away_initial
+                      WHEN home_score = away_score THEN home_initial
                       ELSE NULL
                   END
                   OR NULL

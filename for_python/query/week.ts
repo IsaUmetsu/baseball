@@ -3,7 +3,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { leagueList, teamList } from "../constant";
-import { trimRateZero } from "../db_util";
+import { displayResult, trimRateZero } from "../disp_util";
 
 // Execute
 (async () => {
@@ -82,12 +82,38 @@ import { trimRateZero } from "../db_util";
     ORDER BY average DESC, bat DESC;
   `);
   
-  console.log(format("\n%s打者 %s〜%s 打率\n", league ? leagueList[league] : 'NPB' , firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D')));
+  // const mainContents = [];
+  // let mainContent = "";
+
+  // const title = format("%s打者 %s〜%s 打率\n", league ? leagueList[league] : 'NPB' , firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D'));
+  // mainContent += title;
+  
+  // results.forEach(result => {
+  //   const { batter, tm, bat, hit, average } = result;
+
+  //   const row = format("\n%s (%s-%s) %s(%s)", trimRateZero(average), bat, hit, batter, tm);
+  //   if (twitter.parseTweet(mainContent + row).valid) {
+  //     mainContent += row;
+  //   } else {
+  //     mainContents.push(mainContent);
+  //     mainContent = title; // reset
+  //   }
+  // });
+  // mainContents.push(mainContent);
+
+  // // display
+  // mainContents.forEach(text => {
+  //   console.log("--------------------\n\n%s\n", text);
+  // })
+
+
+  const title = format("%s打者 %s〜%s 打率\n", league ? leagueList[league] : 'NPB' , firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D'));
+  const rows = [];
   results.forEach(result => {
     const { batter, tm, bat, hit, average } = result;
-    console.log(format(
-      '%s (%s-%s) %s(%s)',
-      trimRateZero(average), bat, hit, batter, tm
-    ));  
+    rows.push(format("\n%s (%s-%s) %s(%s)", trimRateZero(average), bat, hit, batter, tm));
   });
+
+  displayResult(title, rows);
+
 })();

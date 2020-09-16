@@ -449,9 +449,4 @@ export const executeUpdatePlusOutCount = async () => {
   console.log('----- done!! -----');
 }
 
-/**
- * 
- */
-export const trimRateZero = rate => {
-  return Number(rate) < 1 ? String(rate).slice(1) : rate;
-}
+

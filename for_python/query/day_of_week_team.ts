@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC, dayOfWeekArr } from '../constant';
-import { trimRateZero } from '../db_util';
+import { trimRateZero } from '../disp_util';
 
 // Execute
 (async () => {
