@@ -46,7 +46,7 @@ import { checkArgLG, trimRateZero } from '../disp_util';
   results.forEach(result => {
     const { tm, bat, hit, average } = result;
 
-    const [ team_initial, tm_init_kana ] = Object.entries(teamArray).find(([key, value]) => value == tm);
+    const [ team_initial ] = Object.entries(teamArray).find(([key, value]) => value == tm);
 
     console.log(format(
       "%s %s (%s-%s) %s ",
