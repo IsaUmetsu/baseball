@@ -22,13 +22,15 @@ const startSceneCnt = 1;
 
 let targetDay = process.env.D;
 if (!targetDay) {
-  console.log('D=[保存開始日] の指定がありません。2020/06/19 を指定します。');
-  targetDay = moment("2020-06-19").format("MMDD");
+  // console.log('D=[保存開始日] の指定がありません。2020/06/19 を指定します。');
+  // targetDay = moment("2020-06-19").format("MMDD");
+  console.log('D=[保存開始日] の指定がありません。実行日を指定します。');
+  targetDay = moment().format("MMDD");
 }
 
 let seasonEndArg = process.env.SE;
 if (!seasonEndArg) {
-  console.log('SE=[保存開始日] の指定がありません。実行日を指定します。');
+  console.log('SE=[保存終了日] の指定がありません。実行日を指定します。');
   seasonEndArg = moment().format("MMDD");
 }
 
