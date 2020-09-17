@@ -12,6 +12,8 @@
     "import": "ts-node for_python/process.json.ts",
     "gen:model": "typeorm-model-generator -h localhost -d baseball_2020 -p 3306 -u root -e mysql -o ./for_python/.",
     "data:month": "ts-node for_python/query/month.ts",
+    "data:month:rst": "ts-node for_python/query/month_of_result.ts",
+    "data:month:rst:avg": "ts-node for_python/query/month_of_result_average.ts",
     "data:rc5": "ts-node for_python/query/recent_5days.ts",
     "data:dow": "ts-node for_python/query/day_of_week.ts",
     "data:dow:team": "ts-node for_python/query/day_of_week_team.ts",
