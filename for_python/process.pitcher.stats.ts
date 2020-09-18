@@ -62,6 +62,9 @@ const doCheck = async (gameNo, dateStr) => {
       newRecord.ra = Number(ra);
       newRecord.er = Number(er);
 
+      const [ intPart, decimalPart ] = ip.split('.');
+      newRecord.outs = Number(intPart) * 3 + (decimalPart ? Number(decimalPart) : 0);
+
       await newRecord.save();
     })
   }

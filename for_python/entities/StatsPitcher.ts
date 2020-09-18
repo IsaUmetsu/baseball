@@ -27,6 +27,9 @@ export class StatsPitcher extends BaseEntity {
   @Column("varchar", { name: "ip", nullable: true, length: 5 })
   ip: string | null;
 
+  @Column("tinyint", { name: "outs", nullable: true })
+  outs: number | null;
+
   @Column("smallint", { name: "np", nullable: true })
   np: number | null;
 
