@@ -37,6 +37,11 @@ const doCheck = async (gameNo, dateStr) => {
 
   const { id: gameInfoId } = savedGameInfo;
 
+  const calcOuts = (ip: string) => {
+    const [ intPart, decimalPart ] = ip.split('.');
+    return Number(intPart) * 3 + (decimalPart ? Number(decimalPart) : 0);
+  }
+
   const doImport = (teamInfo: TeamPitchStats) => {
     const { team, stats } = teamInfo;
 
@@ -51,6 +56,7 @@ const doCheck = async (gameNo, dateStr) => {
       newRecord.result = result;
       newRecord.era = era;
       newRecord.ip = ip;
+      newRecord.outs = calcOuts(ip);
       newRecord.np = Number(np);
       newRecord.bf = Number(bf);
       newRecord.ha = Number(ha);
@@ -61,9 +67,6 @@ const doCheck = async (gameNo, dateStr) => {
       newRecord.balk = Number(balk);
       newRecord.ra = Number(ra);
       newRecord.er = Number(er);
-
-      const [ intPart, decimalPart ] = ip.split('.');
-      newRecord.outs = Number(intPart) * 3 + (decimalPart ? Number(decimalPart) : 0);
 
       await newRecord.save();
     })
