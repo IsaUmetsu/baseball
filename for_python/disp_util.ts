@@ -87,9 +87,17 @@ export const displayResult = (title, rows, footer?) => {
       mainContent = title; // reset
     }
   });
-  mainContents.push(mainContent);
 
-  if (footer) mainContents.push(footer);
+  if (footer) {
+    if (twitter.parseTweet(mainContent + footer).valid) {
+      mainContents.push(mainContent + footer);
+    } else {
+      mainContents.push(mainContent);
+      mainContents.push(footer);
+    }
+  } else {
+    mainContents.push(mainContent);
+  }
 
   // display
   mainContents.forEach(text => {

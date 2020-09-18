@@ -15,6 +15,17 @@ export const checkGameDir = async(
 /**
  * 
  */
+export const checkGameJson = async(
+  basePath: string, date_string: string, game_no: string
+): Promise<boolean> => {
+  const path_file = `${basePath}/${date_string}/${game_no}.json`;
+  
+  return fs.existsSync(path_file);
+}
+
+/**
+ * 
+ */
 export const checkDateDir = async(
   basePath: string, date_string: string
 ): Promise<boolean> => {

@@ -13,7 +13,7 @@ const { D, SE, S } = process.env;
 let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
 
 const day = moment(format("2020%s", targetDay), "YYYYMMDD");
-const seasonStart = moment("2020-06-19");
+const seasonStart = moment(format("2020%s", targetDay), "YYYYMMDD");
 const seasonEnd = moment(format("2020%s", seasonEndArg), "YYYYMMDD");
 
 const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
