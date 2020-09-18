@@ -1,4 +1,5 @@
 import { format } from 'util';
+import * as moment from 'moment';
 import * as twitter from "twitter-text";
 import { leagueList, teamArray, teamList } from './constant';
 
@@ -94,4 +95,29 @@ export const displayResult = (title, rows, footer?) => {
   mainContents.forEach(text => {
     console.log("--------------------\n\n%s\n", text);
   })
+}
+
+
+export const checkArgDaySeasonEndSpecify = (day, seasonEnd, specify) => {
+  let targetDay = day;
+  let seasonEndArg = seasonEnd;
+  let specifyArg = specify;
+
+  if (!targetDay) {
+    // console.log('D=[保存開始日] の指定がありません。2020/06/19 を指定します。');
+    // targetDay = moment("2020-06-19").format("MMDD");
+    console.log('D=[保存開始日] の指定がありません。実行日を指定します。');
+    targetDay = moment().format("MMDD");
+  }
+  
+  if (!seasonEndArg) {
+    console.log('SE=[保存終了日] の指定がありません。実行日を指定します。');
+    seasonEndArg = moment().format("MMDD");
+  }
+
+  if (!specifyArg) {
+    console.log('S=[試合番号] の指定がありません。全試合を指定します。');
+  }
+
+  return { targetDay, seasonEndArg, specifyArg }
 }

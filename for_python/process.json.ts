@@ -15,29 +15,14 @@ import {
 import { OutputJson } from './type/jsonType.d';
 
 import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
+import { checkArgDaySeasonEndSpecify } from "./disp_util";
 
 const startGameNo = 1;
 const endGameNo = 6;
 const startSceneCnt = 1;
 
-let targetDay = process.env.D;
-if (!targetDay) {
-  // console.log('D=[保存開始日] の指定がありません。2020/06/19 を指定します。');
-  // targetDay = moment("2020-06-19").format("MMDD");
-  console.log('D=[保存開始日] の指定がありません。実行日を指定します。');
-  targetDay = moment().format("MMDD");
-}
-
-let seasonEndArg = process.env.SE;
-if (!seasonEndArg) {
-  console.log('SE=[保存終了日] の指定がありません。実行日を指定します。');
-  seasonEndArg = moment().format("MMDD");
-}
-
-let specifyArg = process.env.S;
-if (!specifyArg) {
-  console.log('S=[試合番号] の指定がありません。全試合を指定します。');
-}
+const { D, SE, S } = process.env;
+let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
 
 const day = moment(format("2020%s", targetDay), "YYYYMMDD");
 const seasonStart = moment("2020-06-19");
