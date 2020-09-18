@@ -135,3 +135,30 @@ export interface RunsRunsAllowed {
     runs: number,
     runsAllowed: number
 }
+
+export interface TotalPitchStats {
+    away: TeamPitchStats,
+    home: TeamPitchStats
+}
+
+export interface TeamPitchStats {
+    team: string,
+    stats: PitchStats[]
+}
+
+export interface PitchStats {
+    result: string,
+    name: string,
+    era: string,
+    ip: string,
+    np: string,
+    bf: string,
+    ha: string,
+    hra: string,
+    so: string,
+    bb: string,
+    hbp: string,
+    balk: string,
+    ra: string,
+    er: string
+}

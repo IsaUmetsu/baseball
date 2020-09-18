@@ -20,3 +20,4 @@ scheduler/logs/*
 scheduler/as_service.bat
 tweet/twitter.js
 for_python/query/*.sql
+for_python/tweet/twitter.ts
