@@ -5,8 +5,8 @@ import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
 import { countFiles, getJson } from '../fs_util';
 
-const pitcherPath = "/Users/IsamuUmetsu/dev/py_baseball/pitcher/%s";
-const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/pitcher/%s/%s.json";
+const pitcherPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s";
+const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
 
 // Execute
 (async () => {
