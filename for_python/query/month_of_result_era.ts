@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, teamArray } from '../constant';
-import { checkArgLG } from '../disp_util';
+import { checkArgLG, checkArgM } from '../disp_util';
 
 // Execute
 (async () => {
@@ -21,17 +21,7 @@ import { checkArgLG } from '../disp_util';
     console.log('P=[投手種別] の指定がないため先発・中継ぎ両方ののデータを出力します')
   }
  
-  let monthArg = Number(process.env.M);
-  if (! monthArg) {
-    monthArg = Number(moment().format('M'));
-    console.log(format('M=[月] を指定がないため今月(%d月)のデータを出力します', monthArg));
-  } else if (monthArg < 6 || 12 < monthArg) {
-    console.log('M=[月] は6〜12月の間で入力してください');
-    return;
-  }
-
-  const firstDay = moment(format("2020%d", monthArg), "YYYYM").startOf('month').format('YYYYMMDD');
-  const lastDay = moment(format("2020%d", monthArg), "YYYYM").endOf('month').format('YYYYMMDD');
+  const { monthArg, firstDay, lastDay } = checkArgM(Number(process.env.M));
 
   const manager = await getManager();
   const results = await manager.query(`

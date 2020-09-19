@@ -66,6 +66,27 @@ export const checkArgTMLG = (teamArg: string, leagueArg: string): string[] => {
 /**
  * 
  */
+export const checkArgM = (month: number) => {
+  let monthArg = month;
+ 
+  if (! month) {
+    monthArg = Number(moment().format('M'));
+    console.log(format('M=[月] を指定がないため今月(%d月)のデータを出力します', monthArg));
+  } else if (month < 6 || 12 < month) {
+    console.log('M=[月] は6〜12月の間で入力してください');
+    monthArg = 0;
+  }
+
+  return {
+    monthArg,
+    firstDay: moment(format("2020%d", monthArg), "YYYYM").startOf('month').format('YYYYMMDD'),
+    lastDay: moment(format("2020%d", monthArg), "YYYYM").endOf('month').format('YYYYMMDD')
+  }
+}
+
+/**
+ * 
+ */
 export const trimRateZero = rate => {
   return Number(rate) < 1 ? String(rate).slice(1) : rate;
 }
