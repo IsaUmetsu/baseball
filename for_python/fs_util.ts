@@ -62,11 +62,24 @@ export const getPitcher = async (pitcherPath: string, jsonPath: string) => {
   const totalGameCnt = await countFiles(format(pitcherPath, todayStr));
 
   for (let gameCnt = 1; gameCnt <= totalGameCnt; gameCnt++) {
-    const { away, home } = JSON.parse(getJson(format(jsonPath, todayStr, format("0%d", gameCnt))));
-    targetPitchers.push({ team: away.team, pitcher: away.pitcher, oppoTeam: home.team });
-    targetPitchers.push({ team: home.team, pitcher: home.pitcher, oppoTeam: away.team  });
-    console.log(format('対戦カード%s (away): %s(%s)', gameCnt, away.pitcher, away.team));
-    console.log(format('対戦カード%s (home): %s(%s)', gameCnt, home.pitcher, home.team));
+    const fmJsonPath = format(jsonPath, todayStr, format("0%d", gameCnt));
+    const data = JSON.parse(getJson(fmJsonPath));
+    const { start, away, home, tweet } = data;
+
+    const [ hours, minute ] = start.split(':');
+    const now = moment();
+    const gameStartTime = moment({ hours, minute });
+
+    // 試合開始時間 ±2時間未満 かつ 未ツイートの場合
+    if (Math.abs(gameStartTime.diff(now, 'hours')) <= 1 && !tweet) {
+      targetPitchers.push({ team: away.team, pitcher: away.pitcher, oppoTeam: home.team });
+      targetPitchers.push({ team: home.team, pitcher: home.pitcher, oppoTeam: away.team  });
+      console.log(format('対戦カード%s (away): %s(%s)', gameCnt, away.pitcher, away.team));
+      console.log(format('対戦カード%s (home): %s(%s)', gameCnt, home.pitcher, home.team));
+
+      data.tweet = true;
+      fs.writeFileSync(fmJsonPath, JSON.stringify(data, null, '  '));
+    }
   }
 
   return targetPitchers;
