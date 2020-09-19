@@ -24,7 +24,7 @@
     "data:week": "ts-node for_python/query/week.ts",
     "data:rrapi": "ts-node for_python/query/runs_runsAllowed.ts",
     "data:situ:ob": "ts-node for_python/query/situation_onbase.ts",
-    "data:situ:sp": "ts-node for_python/query/situation_scoring.ts",
+    "data:situ:sp": "ts-node for_python/query/situation_onbase.ts -s",
     "data:irapp": "ts-node for_python/query/inning_ra_per_p.ts",
     "data:irapp:tw": "ts-node for_python/query/inning_ra_per_p.ts -t",
     "data:dh:b": "ts-node for_python/query/domain_hand_batter.ts",
