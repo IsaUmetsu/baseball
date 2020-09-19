@@ -16,6 +16,7 @@
     "data:month:rst": "ts-node for_python/query/month_of_result.ts",
     "data:month:rst:avg": "ts-node for_python/query/month_of_result_average.ts",
     "data:month:rst:era": "ts-node for_python/query/month_of_result_era.ts",
+    "data:month:rst:era:team": "ts-node for_python/query/month_of_result_era_team.ts",
     "data:rc5": "ts-node for_python/query/recent_5days.ts",
     "data:dow": "ts-node for_python/query/day_of_week.ts",
     "data:dow:team": "ts-node for_python/query/day_of_week_team.ts",
