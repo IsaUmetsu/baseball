@@ -105,7 +105,9 @@ export const displayResult = (title, rows, footer?) => {
   })
 }
 
-
+/**
+ * 
+ */
 export const checkArgDaySeasonEndSpecify = (day, seasonEnd, specify) => {
   let targetDay = day;
   let seasonEndArg = seasonEnd;
