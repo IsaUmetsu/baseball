@@ -1,11 +1,11 @@
 import { format } from 'util';
-
+import * as yargs from 'yargs';
 import { createConnection, getManager } from 'typeorm';
+
 import { teamArray, teamHashTags } from '../constant';
 import { getPitcher } from '../fs_util';
 import { displayResult } from '../disp_util';
 import { tweet } from '../tweet/tw_util';
-import * as yargs from 'yargs';
 
 const pitcherPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s";
 const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
