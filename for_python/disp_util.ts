@@ -77,10 +77,12 @@ export const checkArgM = (month: number) => {
     monthArg = 0;
   }
 
+  const fmYYYYM = format("2020%d", monthArg);
+
   return {
     monthArg,
-    firstDay: moment(format("2020%d", monthArg), "YYYYM").startOf('month').format('YYYYMMDD'),
-    lastDay: moment(format("2020%d", monthArg), "YYYYM").endOf('month').format('YYYYMMDD')
+    firstDay: moment(fmYYYYM, "YYYYM").startOf('month').format('YYYYMMDD'),
+    lastDay: moment(fmYYYYM, "YYYYM").endOf('month').format('YYYYMMDD')
   }
 }
 
