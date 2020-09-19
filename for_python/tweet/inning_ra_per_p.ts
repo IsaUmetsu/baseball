@@ -1,9 +1,8 @@
 import { format } from 'util';
-import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamHashTags } from '../constant';
-import { countFiles, getJson } from '../fs_util';
+import { getPitcher } from '../fs_util';
 import { tweet } from './tw_util';
 
 const pitcherPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s";
@@ -13,27 +12,13 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
 (async () => {
   await createConnection('default');
 
-  const targetPitchers = [];
-
-  const getPitcher = async () => {
-    const todayStr = moment().format('YYYYMMDD');
-    const totalGameCnt = await countFiles(format(pitcherPath, todayStr));
-    for (let gameCnt = 1; gameCnt <= totalGameCnt; gameCnt++) {
-      const { away, home } = JSON.parse(getJson(format(jsonPath, todayStr, format("0%d", gameCnt))));
-      targetPitchers.push({ team: away.team, pitcher: away.pitcher, oppoTeam: home.team });
-      targetPitchers.push({ team: home.team, pitcher: home.pitcher, oppoTeam: away.team  });
-      console.log(format('対戦カード%s (away): %s(%s)', gameCnt, away.pitcher, away.team));
-      console.log(format('対戦カード%s (home): %s(%s)', gameCnt, home.pitcher, home.team));
-    }
-  }
-
-  let teams = [];
+  let targetPitchers = [];
   const teamArg = process.env.TM;
   const nameArg = process.env.NM;
 
   if (!teamArg && !nameArg) {
     console.log('NM=[名前] TM=[チームイニシャル] の指定がないため本日の先発投手を指定します');
-    await getPitcher();
+    targetPitchers = await getPitcher(pitcherPath, jsonPath);
     if (! targetPitchers.length) {
       console.log('本日の予告先発がいません');
       return;

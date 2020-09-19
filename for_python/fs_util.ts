@@ -1,4 +1,6 @@
 import * as fs from "fs";
+import * as moment from "moment";
+import { format } from "util";
 
 /**
  * 
@@ -50,3 +52,22 @@ export const countFiles = async (dir: string): Promise<number> => {
 
     return fileCnt.length;
 }
+
+/**
+ * 
+ */
+export const getPitcher = async (pitcherPath: string, jsonPath: string) => {
+  const targetPitchers = [];
+  const todayStr = moment().format('YYYYMMDD');
+  const totalGameCnt = await countFiles(format(pitcherPath, todayStr));
+
+  for (let gameCnt = 1; gameCnt <= totalGameCnt; gameCnt++) {
+    const { away, home } = JSON.parse(getJson(format(jsonPath, todayStr, format("0%d", gameCnt))));
+    targetPitchers.push({ team: away.team, pitcher: away.pitcher, oppoTeam: home.team });
+    targetPitchers.push({ team: home.team, pitcher: home.pitcher, oppoTeam: away.team  });
+    console.log(format('対戦カード%s (away): %s(%s)', gameCnt, away.pitcher, away.team));
+    console.log(format('対戦カード%s (home): %s(%s)', gameCnt, home.pitcher, home.team));
+  }
+
+  return targetPitchers;
+} 
