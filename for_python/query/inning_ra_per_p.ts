@@ -4,9 +4,14 @@ import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamHashTags } from '../constant';
 import { getPitcher } from '../fs_util';
 import { displayResult } from '../disp_util';
+import { tweet } from '../tweet/tw_util';
+import * as yargs from 'yargs';
 
 const pitcherPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s";
 const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
+
+const argv = yargs.count('team').alias('t', 'tweet').argv;
+const isTweet = argv.tweet > 0;
 
 // Execute
 (async () => {
@@ -50,21 +55,21 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
 
     const manager = await getManager();
     const results: any[] = await manager.query(`
-        SELECT
-          ing_num AS inning,
-          SUM(debug_base.plus_score) AS ra
-        FROM
-          baseball_2020.debug_base
-        WHERE
-          (away_team_initial = '${team}' OR home_team_initial = '${team}')
-          AND CASE
-              WHEN away_team_initial = '${team}' THEN inning LIKE '%裏'
-              WHEN home_team_initial = '${team}' THEN inning LIKE '%表'
-          END
-          AND plus_score > 0
-          AND current_pitcher_name like '%${pitcher.split(' ').join('%')}%'
-        GROUP BY
-          ing_num
+      SELECT
+        ing_num AS inning,
+        SUM(debug_base.plus_score) AS ra
+      FROM
+        baseball_2020.debug_base
+      WHERE
+        (away_team_initial = '${team}' OR home_team_initial = '${team}')
+        AND CASE
+            WHEN away_team_initial = '${team}' THEN inning LIKE '%裏'
+            WHEN home_team_initial = '${team}' THEN inning LIKE '%表'
+        END
+        AND plus_score > 0
+        AND current_pitcher_name like '%${pitcher.split(' ').join('%')}%'
+      GROUP BY
+        ing_num
     `);
 
     const longestIp: any[] = await manager.query(`
@@ -90,6 +95,7 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
     }
 
     const { inning } = longestIp[0];
+    const title = format("2020年 %s投手 イニング別失点数\n", pitcher.split(' ').join(''));
     const rows = [];
     
     for (let ingNum = 1; ingNum <= Math.ceil(Number(inning)); ingNum++) {
@@ -101,9 +107,12 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
     }
 
     if (Math.ceil(Number(inning)) + 1 < 10) rows.push(format("\n(%s回以降未登板)", Math.ceil(Number(inning)) + 1));
+    const footer = format("\n\n%s\n%s", teamHashTags[targetTeam], oppoTeam ? teamHashTags[oppoTeam] : '');
 
-    displayResult(
-      format("2020年 %s投手 イニング別失点数\n", pitcher.split(' ').join('')), rows,
-      format("\n\n%s\n%s", teamHashTags[targetTeam], oppoTeam ? teamHashTags[oppoTeam] : ''));
+    if (isTweet) {
+      await tweet(title, rows, footer);
+    } else {
+      displayResult(title, rows, footer);
+    }
   });
 })();
