@@ -4,19 +4,20 @@ import { client } from './twitter';
 /**
  * 
  */
-export const tweet = async (title, rows, footer?) => {
+export const tweet = async (title: string, rows: string[], footer?: string) => {
   let mainContent = '';
 
   mainContent += title;
  
-  rows.forEach(async row => {
+  for (let idx in rows) {
+    const row = rows[idx];
     if (twitterText.parseTweet(mainContent + row).valid) {
       mainContent += row;
     } else {
       await doTweet(mainContent);
       mainContent = title; // reset
     }
-  });
+  }
 
   if (footer) {
     if (twitterText.parseTweet(mainContent + footer).valid) {
@@ -30,11 +31,65 @@ export const tweet = async (title, rows, footer?) => {
   }
 }
 
+/**
+ * 
+ */
 const doTweet = async status => {
+  let res = '';
   try {
     const tweet = await client.post('statuses/update', { status });
-    console.log(tweet);
+    res = tweet.id_str
   } catch (err) {
     console.log(err);
   }
+  return res;
+}
+
+
+
+/**
+ * 
+ */
+export const tweetMulti = async (title: string, rows: string[], footer?: string) => {
+  let in_reply_to_status_id = '';
+  let mainContent = '';
+
+  mainContent += title;
+ 
+  for (let idx in rows) {
+    const row = rows[idx];
+    if (twitterText.parseTweet(mainContent + row).valid) {
+      mainContent += row;
+    } else {
+      in_reply_to_status_id = await doTweetMulti(mainContent, in_reply_to_status_id);
+      mainContent = title; // reset
+    }
+  }
+
+  if (footer) {
+    if (twitterText.parseTweet(mainContent + footer).valid) {
+      await doTweetMulti(mainContent + footer, in_reply_to_status_id);
+    } else {
+      in_reply_to_status_id = await doTweetMulti(mainContent, in_reply_to_status_id);
+      await doTweetMulti(footer, in_reply_to_status_id);
+    }
+  } else {
+    await doTweetMulti(mainContent, in_reply_to_status_id);
+  }
+}
+
+/**
+ * 
+ */
+const doTweetMulti = async (status, in_reply_to_status_id) => {
+  let res = '';
+  try {
+    const param = { status };
+    // console.log(status)
+    const { id_str } = await client.post('statuses/update', { status, in_reply_to_status_id });
+    res = id_str;
+  } catch (err) {
+    console.log(err);
+  }
+  return res;
 }
