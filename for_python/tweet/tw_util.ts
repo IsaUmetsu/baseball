@@ -29,6 +29,8 @@ export const tweet = async (title: string, rows: string[], footer?: string) => {
   } else {
     await doTweet(mainContent);
   }
+
+  console.log('---------- done!!! ----------');
 }
 
 /**
@@ -38,7 +40,8 @@ const doTweet = async status => {
   let res = '';
   try {
     const tweet = await client.post('statuses/update', { status });
-    res = tweet.id_str
+    res = tweet.id_str;
+    console.log('---------- tweeted ----------');
   } catch (err) {
     console.log(err);
   }

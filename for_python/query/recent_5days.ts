@@ -4,7 +4,7 @@ import * as yargs from 'yargs';
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
 import { displayResult, trimRateZero } from '../disp_util';
-import { tweet } from '../tweet/tw_util';
+import { tweetMulti } from '../tweet/tw_util';
 
 const isTweet = yargs.count('team').alias('t', 'tweet').argv.tweet > 0;
 
@@ -29,7 +29,7 @@ const isTweet = yargs.count('team').alias('t', 'tweet').argv.tweet > 0;
     const manager = await getManager();
     const results = await manager.query(`
       SELECT
-        SUBSTRING_INDEX(current_batter_name, ' ', 1) AS batter,
+        REPLACE(current_batter_name, ' ', '') AS batter,
         COUNT(current_batter_name) AS all_bat, SUM(is_pa) AS pa,
         SUM(is_ab) AS bat,
         SUM(is_hit) AS hit,
@@ -66,7 +66,7 @@ const isTweet = yargs.count('team').alias('t', 'tweet').argv.tweet > 0;
     const footer = format('\n\n%s', teamHashTags[targetTeam]);
 
     if (isTweet) {
-      await tweet(title, rows, footer);
+      await tweetMulti(title, rows, footer);
     } else {
       displayResult(title, rows, footer);
     }
