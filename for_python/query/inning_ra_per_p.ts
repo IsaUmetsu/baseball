@@ -10,8 +10,7 @@ import { tweet } from '../tweet/tw_util';
 const pitcherPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s";
 const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
 
-const argv = yargs.count('team').alias('t', 'tweet').argv;
-const isTweet = argv.tweet > 0;
+const isTweet = yargs.count('team').alias('t', 'tweet').argv.tweet > 0;
 
 // Execute
 (async () => {
