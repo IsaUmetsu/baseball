@@ -1,5 +1,20 @@
 import * as twitterText from 'twitter-text';
 import { client } from './twitter';
+import * as yargs from 'yargs';
+
+/**
+ * 
+ */
+export const getIsTweet = () => {
+  return yargs.count('team').alias('t', 'tweet').argv.tweet > 0;
+}
+
+/**
+ * 
+ */
+export const getIsScoringPos = () => {
+  return yargs.count('scoring').alias('s', 'scoring').argv.scoring > 0;
+}
 
 /**
  * 

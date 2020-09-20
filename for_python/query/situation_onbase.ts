@@ -1,12 +1,11 @@
 import { format } from 'util';
-import * as yargs from 'yargs';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
 import { displayResult } from '../disp_util';
+import { getIsScoringPos } from '../tweet/tw_util';
 
-const argv = yargs.count('scoring').alias('s', 'scoring').argv;
-const isScoringPos = argv.scoring > 0;
+const isScoringPos = getIsScoringPos();
 
 // Execute
 (async () => {

@@ -1,13 +1,12 @@
 import * as moment from "moment";
 import { format } from 'util';
-import * as yargs from 'yargs';
 
 import { createConnection, getManager } from 'typeorm';
 import { leagueList, teamNames } from "../constant";
 import { checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
-import { tweetMulti } from "../tweet/tw_util";
+import { getIsTweet, tweetMulti } from "../tweet/tw_util";
 
-const isTweet = yargs.count('team').alias('t', 'tweet').argv.tweet > 0;
+const isTweet = getIsTweet();
 
 // Execute
 (async () => {
