@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, dayOfWeekArr } from '../constant';
-import { checkArgLG, checkArgM, trimRateZero } from '../disp_util';
+import { checkArgLG, checkArgM, displayResult, trimRateZero } from '../disp_util';
 
 // Execute
 (async () => {
@@ -106,15 +106,22 @@ import { checkArgLG, checkArgM, trimRateZero } from '../disp_util';
       win_rate DESC
   `);
   
-  console.log(format("\n%s球団 %s月 成績\n", league ? leagueList[league] + '6' : 'NPB12', monthArg));
-  results.forEach(result => {
+  let prevTeamSavings = 0;
+  const title = format("%s球団 %s月 成績\n", league ? leagueList[league] + '6' : 'NPB12', monthArg);
+  const rows = [];
+  results.forEach((result, idx) => {
     const { team_initial_kana, team_initial, win_count, lose_count, draw_count, win_rate } = result;
+    const nowTeamSavings = Number(win_count) - Number(lose_count);
 
-    console.log(format(
-      "%s  %s勝%s敗%s %s %s ",
+    rows.push(format(
+      "\n%s %s勝%s敗%s %s %s %s ",
       team_initial_kana, win_count, lose_count,
-      draw_count > 0 ? format("%s分", draw_count) : '',
-      trimRateZero(win_rate), teamHashTags[team_initial]
+      draw_count > 0 ? format("%s分", draw_count) : '', trimRateZero(win_rate),
+      idx > 0 ? (prevTeamSavings - nowTeamSavings) / 2 : '-', teamHashTags[team_initial]
     ));  
+
+    prevTeamSavings = nowTeamSavings;
   });
+
+  displayResult(title, rows);
 })();
