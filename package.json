@@ -26,6 +26,7 @@
     "data:dow:rst": "ts-node for_python/query/day_of_result.ts",
     "data:team": "ts-node for_python/query/team.ts",
     "data:week": "ts-node for_python/query/week.ts",
+    "data:week:tw": "ts-node for_python/query/week.ts -t",
     "data:rrapi": "ts-node for_python/query/runs_runsAllowed.ts",
     "data:situ:ob": "ts-node for_python/query/situation_onbase.ts",
     "data:situ:sp": "ts-node for_python/query/situation_onbase.ts -s",

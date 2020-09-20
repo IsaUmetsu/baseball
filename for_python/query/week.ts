@@ -1,9 +1,13 @@
 import * as moment from "moment";
 import { format } from 'util';
+import * as yargs from 'yargs';
 
 import { createConnection, getManager } from 'typeorm';
 import { leagueList, teamNames } from "../constant";
 import { checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
+import { tweetMulti } from "../tweet/tw_util";
+
+const isTweet = yargs.count('team').alias('t', 'tweet').argv.tweet > 0;
 
 // Execute
 (async () => {
@@ -76,7 +80,7 @@ import { checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
       home_initial IN (${teams.join(", ")}) AND 
       (date >= '${firstDayOfWeekStr}' AND date <= '${lastDayOfWeekStr}')
     GROUP BY current_batter_name, tm, game_cnt
-    HAVING SUM(is_pa) >= ${teamArg ? 2 : 3.1} AND SUM(is_ab) > 0
+    HAVING SUM(is_pa) >= ${teamArg ? 2 : 3.1} * gm.game_cnt AND SUM(is_ab) > 0
     ORDER BY average DESC, bat DESC;
   `);
 
@@ -91,6 +95,9 @@ import { checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
     rows.push(format("\n%s (%s-%s) %s(%s)", trimRateZero(average), bat, hit, batter, tm));
   });
 
-  displayResult(title, rows);
-
+  if (isTweet) {
+    tweetMulti(title, rows);
+  } else {
+    displayResult(title, rows);
+  }
 })();
