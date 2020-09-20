@@ -1,9 +1,14 @@
 import * as moment from 'moment';
 import { format } from 'util';
+import * as yargs from 'yargs';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags } from '../constant';
 import { countFiles, getJson } from '../fs_util';
+import { displayResult, trimRateZero } from '../disp_util';
+import { tweetMulti } from '../tweet/tw_util';
+
+const isTweet = yargs.count('team').alias('t', 'tweet').argv.tweet > 0;
 
 const cardsPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s";
 const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s/%s.json";
@@ -61,40 +66,28 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s/%s.json";
       return;
     }
 
-    const colName = "total";
     const manager = await getManager();
-
     const results = await manager.query(`
       SELECT
-        CONCAT(
-          CASE LEFT(average, 1) WHEN 1 THEN average ELSE RIGHT(average, 4) END, " (", bat, "-", hit, ")", " ", 
-          SUBSTRING_INDEX(batter, ' ', 1)
-        ) AS ${colName} -- 打率
-      FROM
+        REPLACE(current_batter_name, ' ', '') AS batter,
+        SUM(is_pa) AS pa,
+        SUM(is_ab) AS bat,
+        SUM(is_hit) AS hit,
+        ROUND(SUM(is_hit) / sum(is_ab), 3) AS average,
+        '' AS eol
+      FROM baseball_2020.debug_base
+      WHERE
+        is_pa = 1 AND 
         (
-        SELECT
-          current_batter_name AS batter,
-          COUNT(current_batter_name) AS all_bat,
-          SUM(is_pa) AS pa,
-          SUM(is_ab) AS bat,
-          SUM(is_hit) AS hit,
-          SUM(is_onbase) AS onbase,
-          ROUND(SUM(is_hit) / sum(is_ab), 3) AS average,
-          '' AS eol
-        FROM baseball_2020.debug_base
-        WHERE
-          is_pa = 1 AND 
-          (
-            (away_team_initial = '${team}' AND home_team_initial = '${oppo}') OR 
-            (home_team_initial = '${team}' AND away_team_initial = '${oppo}')
-          ) AND
-          CASE
-            WHEN away_team_initial = '${team}' THEN inning LIKE '%表'
-            WHEN home_team_initial = '${team}' THEN inning LIKE '%裏'
-          END
-        GROUP BY current_batter_name
-      ) AS all_hawks_bat_summary
-      WHERE all_bat >= 1.5 * (
+          (away_team_initial = '${team}' AND home_team_initial = '${oppo}') OR 
+          (home_team_initial = '${team}' AND away_team_initial = '${oppo}')
+        ) AND
+        CASE
+          WHEN away_team_initial = '${team}' THEN inning LIKE '%表'
+          WHEN home_team_initial = '${team}' THEN inning LIKE '%裏'
+        END
+      GROUP BY current_batter_name
+      HAVING pa >= 2 * (
         SELECT 
             COUNT(id)
         FROM
@@ -108,11 +101,19 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s/%s.json";
       ORDER BY average DESC
     `);
 
-    console.log(format("\n%s打者 対%s 打率\n", teamNames[teamArg], teamNames[oppoArg]));
+    const title = format("%s打者 対%s 打率\n", teamNames[teamArg], teamNames[oppoArg]);
+    const rows = [];
     results.forEach(result => {
-      console.log(result[colName]);  
+      const { batter, bat, hit, average } = result;
+      rows.push(format('\n%s (%s-%s) %s', trimRateZero(average), bat, hit, batter));  
     });
-    console.log(format("\n%s", teamHashTags[teamArg]));
+    const footer = format("\n\n%s", teamHashTags[teamArg]);
+    
+    if (isTweet) {
+      await tweetMulti(title, rows, footer);
+    } else {
+      displayResult(title, rows, footer);
+    }
   }
 
   targetTeam.forEach(async ({ team1, team2 }) => {

@@ -26,6 +26,7 @@
     "data:dow:team": "ts-node for_python/query/day_of_week_team.ts",
     "data:dow:rst": "ts-node for_python/query/day_of_result.ts",
     "data:team": "ts-node for_python/query/team.ts",
+    "data:team:tw": "ts-node for_python/query/team.ts -t",
     "data:week": "ts-node for_python/query/week.ts",
     "data:week:tw": "ts-node for_python/query/week.ts -t",
     "data:rrapi": "ts-node for_python/query/runs_runsAllowed.ts",
