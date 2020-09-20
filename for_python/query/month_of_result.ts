@@ -3,6 +3,9 @@ import { format } from 'util';
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList } from '../constant';
 import { checkArgLG, checkArgM, displayResult, trimRateZero } from '../disp_util';
+import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+
+const isTweet = getIsTweet();
 
 // Execute
 (async () => {
@@ -122,5 +125,9 @@ import { checkArgLG, checkArgM, displayResult, trimRateZero } from '../disp_util
     prevTeamSavings = nowTeamSavings;
   });
 
-  displayResult(title, rows);
+  if (isTweet) {
+    await tweetMulti(title, rows);
+  } else {
+    displayResult(title, rows);
+  }
 })();
