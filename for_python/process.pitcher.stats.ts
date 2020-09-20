@@ -47,14 +47,15 @@ const doCheck = async (gameNo, dateStr) => {
 
     stats.forEach(async (pitchStats, idx) => {
       const order = idx + 1;
-      let savedRecord = await getRepository(StatsPitcher).findOne({ gameInfoId, pTeam: teamArray[team], order });
+      const pTeam = teamArray[team];
+      let savedRecord = await getRepository(StatsPitcher).findOne({ gameInfoId, pTeam, order });
 
       if (! savedRecord) {
         const newRecord = new StatsPitcher();
         const { name, result, era, ip, np, bf, ha, hra, so, bb, hbp, balk, ra, er } = pitchStats;
 
         newRecord.gameInfoId = gameInfoId;
-        newRecord.pTeam = teamArray[team];
+        newRecord.pTeam = pTeam;
         newRecord.name = name;
         newRecord.order = order;
         newRecord.result = result;
