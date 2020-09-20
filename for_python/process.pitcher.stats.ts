@@ -46,29 +46,34 @@ const doCheck = async (gameNo, dateStr) => {
     const { team, stats } = teamInfo;
 
     stats.forEach(async (pitchStats, idx) => {
-      const newRecord = new StatsPitcher();
-      const { name, result, era, ip, np, bf, ha, hra, so, bb, hbp, balk, ra, er } = pitchStats;
+      const order = idx + 1;
+      let savedRecord = await getRepository(StatsPitcher).findOne({ gameInfoId, pTeam: teamArray[team], order });
 
-      newRecord.gameInfoId = gameInfoId;
-      newRecord.pTeam = teamArray[team];
-      newRecord.name = name;
-      newRecord.order = idx + 1;
-      newRecord.result = result;
-      newRecord.era = era;
-      newRecord.ip = ip;
-      newRecord.outs = calcOuts(ip);
-      newRecord.np = Number(np);
-      newRecord.bf = Number(bf);
-      newRecord.ha = Number(ha);
-      newRecord.hra = Number(hra);
-      newRecord.so = Number(so);
-      newRecord.bb = Number(bb);
-      newRecord.hbp = Number(hbp);
-      newRecord.balk = Number(balk);
-      newRecord.ra = Number(ra);
-      newRecord.er = Number(er);
+      if (! savedRecord) {
+        const newRecord = new StatsPitcher();
+        const { name, result, era, ip, np, bf, ha, hra, so, bb, hbp, balk, ra, er } = pitchStats;
 
-      await newRecord.save();
+        newRecord.gameInfoId = gameInfoId;
+        newRecord.pTeam = teamArray[team];
+        newRecord.name = name;
+        newRecord.order = order;
+        newRecord.result = result;
+        newRecord.era = era;
+        newRecord.ip = ip;
+        newRecord.outs = calcOuts(ip);
+        newRecord.np = Number(np);
+        newRecord.bf = Number(bf);
+        newRecord.ha = Number(ha);
+        newRecord.hra = Number(hra);
+        newRecord.so = Number(so);
+        newRecord.bb = Number(bb);
+        newRecord.hbp = Number(hbp);
+        newRecord.balk = Number(balk);
+        newRecord.ra = Number(ra);
+        newRecord.er = Number(er);
+
+        await newRecord.save();
+      }
     })
   }
 
