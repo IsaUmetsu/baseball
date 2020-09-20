@@ -79,6 +79,8 @@ export const tweetMulti = async (title: string, rows: string[], footer?: string)
   } else {
     await doTweetMulti(mainContent, in_reply_to_status_id);
   }
+
+  console.log('---------- done!!! ----------');
 }
 
 /**
@@ -91,6 +93,7 @@ const doTweetMulti = async (status, in_reply_to_status_id) => {
     // console.log(status)
     const { id_str } = await client.post('statuses/update', { status, in_reply_to_status_id });
     res = id_str;
+    console.log('---------- tweeted ----------');
   } catch (err) {
     console.log(err);
   }

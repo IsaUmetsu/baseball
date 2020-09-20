@@ -17,7 +17,7 @@ const isTweet = yargs.count('team').alias('t', 'tweet').argv.tweet > 0;
     console.log('TM=[チームイニシャル] を指定がないため12球団分出力します');
   }
 
-  const teams = teamArg ? teamArg.split('') : leagueP.concat(leagueC)
+  const teams = teamArg ? teamArg.split(' ') : leagueP.concat(leagueC)
 
   teams.forEach(async targetTeam => {
     const team = teamArray[targetTeam];
