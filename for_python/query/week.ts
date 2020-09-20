@@ -1,9 +1,8 @@
-import * as moment from "moment";
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { leagueList, teamNames } from "../constant";
-import { checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
+import { checkArgTargetDay, checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
 import { getIsTweet, tweetMulti } from "../tweet/tw_util";
 
 const isTweet = getIsTweet();
@@ -19,31 +18,7 @@ const isTweet = getIsTweet();
   if (! teams.length) return;
 
   const dayArg = process.env.D;
-  let targetDay;
-  if (! process.env.D) {
-    console.log('D=[日付] の指定がないため実行日を指定します');
-    targetDay = moment();
-  } else {
-    targetDay = moment(format("2020%s", dayArg), "YYYYMMDD");
-  }
-
-  // [週始] 指定日が日曜なら前の週の月曜を指定、月曜〜土曜ならその週の月曜指定
-  let firstDayOfWeek;
-  if (targetDay.day() > 0) {
-    firstDayOfWeek = moment(targetDay).day(1);
-  } else {
-    firstDayOfWeek = moment(targetDay).add(-7, 'days').day(1);
-  }
-  // [週終] 指定日が日曜なら前の週の土曜を指定、月曜〜土曜ならその次の週の日曜を指定
-  let lastDayOfWeek;
-  if (targetDay.day() > 0) {
-    lastDayOfWeek = moment(targetDay).add(7, 'days').day(0);
-  } else {
-    lastDayOfWeek = moment(targetDay);
-  }
-
-  const firstDayOfWeekStr = firstDayOfWeek.format('YYYYMMDD');
-  const lastDayOfWeekStr = lastDayOfWeek.format('YYYYMMDD');
+  const { firstDayOfWeek, lastDayOfWeek, firstDayOfWeekStr, lastDayOfWeekStr } = checkArgTargetDay(dayArg);
 
   const manager = await getManager();
   const results = await manager.query(`
