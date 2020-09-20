@@ -1,7 +1,7 @@
 import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
-import { leagueList, teamArray, teamList } from './constant';
+import { dayOfWeekArr, leagueList, teamArray, teamList } from './constant';
 
 /**
  * リーグ指定時は指定リーグチームを、指定なしの場合は12球団のかなイニシャルを返す
@@ -119,6 +119,20 @@ export const checkArgTargetDay = (dayArg: string) => {
     firstDayOfWeekStr: firstDayOfWeek.format('YYYYMMDD'),
     lastDayOfWeekStr: lastDayOfWeek.format('YYYYMMDD')
   }
+}
+
+/**
+ * 
+ */
+export const checkArgDow = (dayOfWeekArg: number) => {
+  let dayOfWeek = dayOfWeekArg;
+
+  if (! dayOfWeek) {
+    dayOfWeek = moment().day() + 1; // mysql の DAYOFWEEK() に合わせるため +1
+    console.log('D=[曜日番号] を指定がないため本日(%s)の結果を出力します', dayOfWeekArr[dayOfWeek]);
+  }
+
+  return dayOfWeek;
 }
 
 /**

@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC, dayOfWeekArr } from '../constant';
-import { trimRateZero } from '../disp_util';
+import { checkArgDow, trimRateZero } from '../disp_util';
 
 // Execute
 (async () => {
@@ -13,13 +13,8 @@ import { trimRateZero } from '../disp_util';
     console.log('TM=[チームイニシャル] を指定がないため12球団分出力します');
   }
 
-  const dayOfWeek = Number(process.env.D);
-  if (! dayOfWeek) {
-    console.log('D=[曜日番号] を指定してください');
-    return;
-  }
-
   const teams = teamArg ? [teamArg] : leagueP.concat(leagueC)
+  const dayOfWeek = checkArgDow(Number(process.env.D));
 
   teams.forEach(async targetTeam => {
     const team = teamArray[targetTeam];

@@ -1,9 +1,11 @@
 import { format } from 'util';
-import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, dayOfWeekArr } from '../constant';
-import { checkArgLG, trimRateZero } from '../disp_util';
+import { checkArgDow, checkArgLG, displayResult, trimRateZero } from '../disp_util';
+import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+
+const isTweet = getIsTweet();
 
 // Execute
 (async () => {
@@ -13,11 +15,7 @@ import { checkArgLG, trimRateZero } from '../disp_util';
   const teams = checkArgLG(league);
   if (! teams.length) return;
 
-  let dayOfWeek = Number(process.env.D);
-  if (! dayOfWeek) {
-    dayOfWeek = moment().day() + 1; // mysql の DAYOFWEEK() に合わせるため +1
-    console.log('D=[曜日番号] を指定がないため本日(%s)の結果を出力します', dayOfWeekArr[dayOfWeek]);
-  }
+  const dayOfWeek = checkArgDow(Number(process.env.D));
 
   const manager = await getManager();
   const results = await manager.query(`
@@ -25,10 +23,10 @@ import { checkArgLG, trimRateZero } from '../disp_util';
       base.team_initial_kana,
       base.team_initial,
       base.game_cnt,
-      away.win_count_away + home.win_count_home AS win_count,
-      away.lose_count_away + home.lose_count_home AS lose_count,
-      away.draw_count_away + home.draw_count_home AS draw_count,
-      ROUND((away.win_count_away + home.win_count_home) / (base.game_cnt - (away.draw_count_away + home.draw_count_home)), 3) AS win_rate,
+      IFNULL(away.win_count_away, 0) + IFNULL(home.win_count_home, 0) AS win_count,
+      IFNULL(away.lose_count_away, 0) + IFNULL(home.lose_count_home, 0) AS lose_count,
+      IFNULL(away.draw_count_away, 0) + IFNULL(home.draw_count_home, 0) AS draw_count,
+      ROUND((IFNULL(away.win_count_away, 0) + IFNULL(home.win_count_home, 0)) / (base.game_cnt - (IFNULL(away.draw_count_away, 0) + IFNULL(home.draw_count_home, 0))), 3) AS win_rate,
       '' AS eol
     FROM
       game_cnt_per_day base
@@ -110,15 +108,27 @@ import { checkArgLG, trimRateZero } from '../disp_util';
       win_rate DESC
   `);
   
-  console.log(format("\n%s球団 %s 成績\n", league ? leagueList[league] + '6' : 'NPB12', dayOfWeekArr[dayOfWeek]));
-  results.forEach(result => {
-    const { team_initial_kana, team_initial, win_count, lose_count, draw_count, win_rate } = result;
+  let prevTeamSavings = 0;
+  const title = format("%s球団 %s 成績\n", league ? leagueList[league] + '6' : 'NPB12', dayOfWeekArr[dayOfWeek]);
+  const rows = [];
 
-    console.log(format(
-      "%s  %s勝%s敗%s %s %s ",
+  results.forEach((result, idx) => {
+    const { team_initial_kana, team_initial, win_count, lose_count, draw_count, win_rate } = result;
+    const nowTeamSavings = Number(win_count) - Number(lose_count);
+
+    rows.push(format(
+      '\n%s  %s勝%s敗%s %s %s',
       team_initial_kana, win_count, lose_count,
-      draw_count > 0 ? format("%s分", draw_count) : '',
-      trimRateZero(win_rate), teamHashTags[team_initial]
-    ));  
+      draw_count > 0 ? format('%s分', draw_count) : '', trimRateZero(win_rate),
+      idx > 0 ? (prevTeamSavings - nowTeamSavings) / 2 : '-', teamHashTags[team_initial]
+    ));
+
+    prevTeamSavings = nowTeamSavings;
   });
+
+  if (isTweet) {
+    await tweetMulti(title, rows);
+  } else {
+    displayResult(title, rows);
+  }
 })();

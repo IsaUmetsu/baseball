@@ -1,9 +1,11 @@
 import { format } from 'util';
-import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { leagueList, dayOfWeekArr } from '../constant';
-import { checkArgLG, displayResult, trimRateZero } from '../disp_util';
+import { checkArgLG, displayResult, trimRateZero, checkArgDow } from '../disp_util';
+import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+
+const isTweet = getIsTweet();
 
 // Execute
 (async () => {
@@ -13,11 +15,7 @@ import { checkArgLG, displayResult, trimRateZero } from '../disp_util';
   const teams = checkArgLG(league);
   if (! teams.length) return;
 
-  let dayOfWeek = Number(process.env.D);
-  if (! dayOfWeek) {
-    dayOfWeek = moment().day() + 1; // mysql の DAYOFWEEK() に合わせるため +1
-    console.log('D=[曜日番号] を指定がないため本日(%s)の結果を出力します', dayOfWeekArr[dayOfWeek]);
-  }
+  const dayOfWeek = checkArgDow(Number(process.env.D));
 
   const manager = await getManager();
   const results = await manager.query(`
@@ -66,6 +64,10 @@ import { checkArgLG, displayResult, trimRateZero } from '../disp_util';
     const { average, bat, hit, batter, tm } = result;
     rows.push(format("\n%s (%s-%s) %s(%s)", trimRateZero(average), bat, hit, batter, tm));
   });
-  displayResult(title, rows);
 
+  if (isTweet) {
+    await tweetMulti(title, rows);
+  } else {
+    displayResult(title, rows);
+  }
 })();
