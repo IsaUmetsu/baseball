@@ -65,3 +65,5 @@ export const dayOfWeekArr = {
   6: "金曜",
   7: "土曜"
 }
+
+export const posArr = ['捕', '一', '二', '三', '遊', '左', '中', '右'];

@@ -1,13 +1,12 @@
 import * as moment from "moment";
 import { format } from 'util';
 
-import { TeamBatStats, TotalBatStats, TotalPitchStats } from './type/jsonType';
+import { TeamBatStats, TotalBatStats } from './type/jsonType';
 import { getJson, checkDateDir, checkGameJson } from './fs_util';
 import { checkArgDaySeasonEndSpecify } from "./disp_util";
-import { TeamPitchStats } from './type/jsonType';
-import { teamArray } from './constant';
+import { posArr, teamArray } from './constant';
 import { createConnection, getRepository } from "typeorm";
-import { GameInfo, StatsPitcher, StatsScoreboard } from "./entities";
+import { GameInfo, StatsScoreboard } from "./entities";
 import { StatsBatter } from './entities/StatsBatter';
 
 const startGameNo = 1;
@@ -26,6 +25,13 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/batterStats/%s/%s.json";
 /**
  * 
  */
+const isStartingMember = (position: string) => {
+  return Boolean(position.match(/\(*\)/));
+}
+
+/**
+ * 
+ */
 const doCheck = async (gameNo, dateStr) => {
   // define game no
   const targetGameNo = format("0%d", gameNo);
@@ -38,19 +44,21 @@ const doCheck = async (gameNo, dateStr) => {
 
   const { id: gameInfoId } = savedGameInfo;
 
-  const calcOuts = (ip: string) => {
-    const [ intPart, decimalPart ] = ip.split('.');
-    return Number(intPart) * 3 + (decimalPart ? Number(decimalPart) : 0);
-  }
-
   /**
    * 
    */
   const doImport = async (teamInfo: TeamBatStats) => {
     const { team, stats, scoreBoard } = teamInfo;
     const bTeam = teamArray[team];
-
     let currentOrder = 0;
+
+    /**
+     * 
+     */
+    const calcOrder = (position: string, order: number) => {
+      currentOrder = isStartingMember(position) ? order + 1 : order;
+      return currentOrder;
+    }
 
     for (let idx in stats) {
       const batStats = stats[idx];
@@ -64,12 +72,10 @@ const doCheck = async (gameNo, dateStr) => {
           ing1, ing2, ing3, ing4, ing5, ing6, ing7, ing8, ing9, ing10
         } = batStats;
 
-        currentOrder = position.match(/\(*\)/) ? currentOrder + 1 : currentOrder;
-
         newRecord.gameInfoId = gameInfoId;
         newRecord.bTeam = bTeam;
         newRecord.name = name;
-        newRecord.order = currentOrder;
+        newRecord.order = calcOrder(position, currentOrder);
         newRecord.position = position;        
         newRecord.ave = ave;
         newRecord.ab = Number(ab);
@@ -94,6 +100,11 @@ const doCheck = async (gameNo, dateStr) => {
         newRecord.ing8 = ing8;
         newRecord.ing9 = ing9;
         newRecord.ing10 = ing10 ? ing10 : '';
+
+        newRecord.isSm = Number(isStartingMember(position));
+        newRecord.isPh = Number(position.indexOf('打') > -1);
+        newRecord.isPr = Number(position.indexOf('走') > -1);
+        newRecord.isSf = Number(!isStartingMember(position) && posArr.indexOf(position.split('')[0]) > -1);
 
         await newRecord.save();
       }

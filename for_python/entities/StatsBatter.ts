@@ -86,4 +86,16 @@ export class StatsBatter extends BaseEntity {
 
   @Column("varchar", { name: "ing10", nullable: true, length: 10 })
   ing10: string | null;
+
+  @Column("tinyint", { name: "is_sm", nullable: true })
+  isSm: number | null;
+
+  @Column("tinyint", { name: "is_ph", nullable: true })
+  isPh: number | null;
+
+  @Column("tinyint", { name: "is_pr", nullable: true })
+  isPr: number | null;
+
+  @Column("tinyint", { name: "is_sf", nullable: true })
+  isSf: number | null;
 }
