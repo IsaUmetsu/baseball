@@ -248,8 +248,7 @@ const doCheckBat = async (gameNo, dateStr) => {
 }
 
 /**
- * 2球連続でボールが取得できなかった場合のみ、取得処理終了
- * (たまに1球だけ取得できない場合があり、その対策)
+ * 
  */
 export const saveBatAndScoreData = async (
   targetDay: string,
