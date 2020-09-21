@@ -11,6 +11,7 @@
     "casper": "casperjs --verbose --log-level=debug process.web.js",
     "import": "ts-node for_python/process.json.ts",
     "import:pitch:stats": "ts-node for_python/process.pitcher.stats.ts",
+    "import:bat:stats": "ts-node for_python/process.batter.stats.ts",
     "gen:model": "typeorm-model-generator -h localhost -d baseball_2020 -p 3306 -u root -e mysql -o ./for_python/.",
     "data:month": "ts-node for_python/query/month.ts",
     "data:month:rst": "ts-node for_python/query/month_of_result.ts",

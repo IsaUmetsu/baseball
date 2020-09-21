@@ -162,3 +162,55 @@ export interface PitchStats {
     ra: string,
     er: string
 }
+
+export interface TotalBatStats {
+    away: TeamBatStats,
+    home: TeamBatStats
+}
+
+export interface TeamBatStats {
+    team: string,
+    stats: BatStats[],
+    scoreBoard: ScoreBoard
+}
+
+export interface BatStats {
+    position: string,
+    name: string,
+    ave: string,
+    ab: string,
+    run: string,
+    hit: string,
+    rbi: string,
+    so: string,
+    bb: string,
+    hbp: string,
+    sh: string,
+    sb: string,
+    e: string,
+    hr: string,
+    ing1?: string,
+    ing2?: string,
+    ing3?: string,
+    ing4?: string,
+    ing5?: string,
+    ing6?: string,
+    ing7?: string,
+    ing8?: string,
+    ing9?: string,
+    ing10?: string
+}
+
+export interface ScoreBoard {
+    total: string,
+    ing1?: string,
+    ing2?: string,
+    ing3?: string,
+    ing4?: string,
+    ing5?: string,
+    ing6?: string,
+    ing7?: string,
+    ing8?: string,
+    ing9?: string,
+    ing10?: string
+}
