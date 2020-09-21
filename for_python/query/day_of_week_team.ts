@@ -2,9 +2,14 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC, dayOfWeekArr } from '../constant';
-import { checkArgDow, trimRateZero } from '../disp_util';
+import { checkArgDow, trimRateZero, displayResult } from '../disp_util';
+import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
-// Execute
+const isTweet = getIsTweet();
+
+/**
+ * 曜日ごとの打率(出力単位: チーム)
+ */
 (async () => {
   await createConnection('default');
 
@@ -26,33 +31,45 @@ import { checkArgDow, trimRateZero } from '../disp_util';
     const manager = await getManager();
     const results = await manager.query(`
       SELECT
-        SUBSTRING_INDEX(current_batter_name, ' ', 1) AS batter,
-        COUNT(current_batter_name) AS all_bat, SUM(is_pa) AS pa,
+        REPLACE(current_batter_name, ' ', '') AS batter,
+        SUM(is_pa) AS pa,
         SUM(is_ab) AS bat,
         SUM(is_hit) AS hit,
         SUM(is_onbase) AS onbase,
         ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average,
-        ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase
+        ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase,
+        game.game_cnt
       FROM
-        baseball_2020.debug_base
+        baseball_2020.debug_base base
+      LEFT JOIN (
+        SELECT 
+          team_initial_kana, game_cnt
+        FROM
+          baseball_2020.game_cnt_per_day
+        WHERE
+          dow = ${dayOfWeek} -- 曜日指定
+      ) AS game ON game.team_initial_kana = b_team
       WHERE
-        is_pa = 1 AND
-        (away_team_initial = '${team}' OR home_team_initial = '${team}') AND
-        CASE
-          WHEN away_team_initial = '${team}' THEN inning LIKE '%表'
-          WHEN home_team_initial = '${team}' THEN inning LIKE '%裏'
-        END AND
+        is_pa = 1 AND 
+        b_team = '${team}' AND 
         DAYOFWEEK(date) = ${dayOfWeek} -- 曜日指定
-      GROUP BY current_batter_name 
-      HAVING SUM(is_pa) >= 10 
+      GROUP BY current_batter_name, game.game_cnt 
+      HAVING pa >= 2 * game.game_cnt 
       ORDER BY average DESC
     `);
     
-    console.log(format("\n%s打者 %s 打率\n", teamNames[targetTeam], dayOfWeekArr[dayOfWeek]));
+    const title = format('%s打者 %s 打率\n', teamNames[targetTeam], dayOfWeekArr[dayOfWeek]);
+    const rows = [];
     results.forEach(result => {
       const { average, bat, hit, batter } = result;
-      console.log(format("%s (%s-%s) %s", trimRateZero(average), bat, hit, batter));
+      rows.push(format('\n%s (%s-%s) %s', trimRateZero(average), bat, hit, batter));
     });
-    console.log(format("\n%s", teamHashTags[targetTeam]));
+    const footer = format('\n\n%s', teamHashTags[targetTeam]);
+    
+    if (isTweet) {
+      await tweetMulti(title, rows, footer);
+    } else {
+      displayResult(title, rows, footer);
+    }
   });
 })();
