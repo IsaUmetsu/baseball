@@ -138,7 +138,8 @@ export interface RunsRunsAllowed {
 
 export interface TotalPitchStats {
     away: TeamPitchStats,
-    home: TeamPitchStats
+    home: TeamPitchStats,
+    isFinished?: boolean
 }
 
 export interface TeamPitchStats {
@@ -165,7 +166,8 @@ export interface PitchStats {
 
 export interface TotalBatStats {
     away: TeamBatStats,
-    home: TeamBatStats
+    home: TeamBatStats,
+    isFinished?: boolean
 }
 
 export interface TeamBatStats {

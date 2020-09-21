@@ -13,9 +13,9 @@ import {
 } from './db_util';
 
 import { OutputJson } from './type/jsonType.d';
-
 import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
 import { checkArgDaySeasonEndSpecify } from "./disp_util";
+import { savePitchData, saveBatAndScoreData } from "./process_util";
 
 const startGameNo = 1;
 const endGameNo = 6;
@@ -33,24 +33,14 @@ const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
 const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s/%s.json";
 
 /**
- * 1シーンごとの試合データ取得、jsonファイル保存
- * @param scene
- * @param dateStr
- * @param gameNo
- */
-const getData = async (scene: number, dateString: string, gameNo: string): Promise<OutputJson> => {
-  // フォルダから取得
-  return JSON.parse(getJson(format(jsonPath, dateString, gameNo, scene)));
-};
-
-/**
  * DB保存実行処理
+ * 
  * @param scene
  * @param dateStr
  * @param gameNo
  */
 const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame: boolean) => {
-  const data = await getData(scene, dateStr, gameNo);
+  const data = JSON.parse(getJson(format(jsonPath, dateStr, gameNo, scene)));
   if (data === undefined) return;
 
   // get all
@@ -82,6 +72,9 @@ const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame
   await insertAwayTeamInfo(gameInfoId, scene, awayTeamInfo);
 };
 
+/**
+ * 
+ */
 const doSave = async (gameNo, dateStr) => {
   // define game no
   const targetGameNo = format("0%d", gameNo);
@@ -94,7 +87,7 @@ const doSave = async (gameNo, dateStr) => {
   if (sceneCnt > 0) {
     const lastJson: OutputJson = JSON.parse(getJson(format(jsonPath, dateStr, targetGameNo, sceneCnt)));
     if (! ["試合終了", "試合中止", "ノーゲーム"].includes(lastJson.liveHeader.inning)) {
-      console.log(format('----- finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
+      console.log(format('----- [game] finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
       return;
     }
     isNoGame = ["試合中止", "ノーゲーム"].includes(lastJson.liveHeader.inning);
@@ -103,17 +96,16 @@ const doSave = async (gameNo, dateStr) => {
   for (let cnt = startSceneCnt; cnt <= sceneCnt; cnt++) {
     await saveData(cnt, dateStr, targetGameNo, isNoGame).catch(err => {
       console.log(err);
-      console.log(format('----- finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
+      console.log(format('----- [game] finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
     });
   }
-  console.log(format('----- finished: date: [%s], gameNo: [%s] %s -----', dateStr, targetGameNo, sceneCnt == 0 ? 'but not imported [because not complete game]' : ''));
+  console.log(format('----- [game] finished: date: [%s], gameNo: [%s] %s -----', dateStr, targetGameNo, sceneCnt == 0 ? 'but not imported [because not complete game]' : ''));
 }
 
 /**
- * 2球連続でボールが取得できなかった場合のみ、取得処理終了
- * (たまに1球だけ取得できない場合があり、その対策)
+ *
  */
-const getDataAndSave = async () => {
+const saveGame = async () => {
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -138,8 +130,12 @@ const getDataAndSave = async () => {
 (async () => {
   try {
     await createConnection('default');
-    await getDataAndSave();
+
+    await saveGame();
     await executeUpdatePlusOutCount();
+
+    await savePitchData(targetDay, seasonStart, seasonEnd, specifyArg);
+    await saveBatAndScoreData(targetDay, seasonStart, seasonEnd, specifyArg);
   } catch (err) {
     console.log(err);
   }

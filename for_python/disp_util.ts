@@ -201,5 +201,5 @@ export const checkArgDaySeasonEndSpecify = (day, seasonEnd, specify) => {
     console.log('S=[試合番号] の指定がありません。全試合を指定します。');
   }
 
-  return { targetDay, seasonEndArg, specifyArg }
+  return { targetDay, seasonEndArg, specifyArg: Number(specifyArg) }
 }
