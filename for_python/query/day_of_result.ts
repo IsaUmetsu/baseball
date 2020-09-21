@@ -7,7 +7,9 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 const isTweet = getIsTweet();
 
-// Execute
+/**
+ * 曜日ごとの対戦成績出力
+ */
 (async () => {
   await createConnection('default');
 

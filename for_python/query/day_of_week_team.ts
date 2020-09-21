@@ -8,7 +8,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 const isTweet = getIsTweet();
 
 /**
- * 曜日ごとの打率(出力単位: チーム)
+ * 曜日ごとの打率(出力単位: チーム単体)
  */
 (async () => {
   await createConnection('default');
