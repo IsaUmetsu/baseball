@@ -56,7 +56,7 @@ export const countFiles = async (dir: string): Promise<number> => {
 /**
  * 
  */
-export const getPitcher = async (pitcherPath: string, jsonPath: string) => {
+export const getPitcher = async (pitcherPath: string, jsonPath: string, isTweet: boolean) => {
   const targetPitchers = [];
   const todayStr = moment().format('YYYYMMDD');
   const totalGameCnt = await countFiles(format(pitcherPath, todayStr));
@@ -77,8 +77,10 @@ export const getPitcher = async (pitcherPath: string, jsonPath: string) => {
       console.log(format('対戦カード%s (away): %s(%s)', gameCnt, away.pitcher, away.team));
       console.log(format('対戦カード%s (home): %s(%s)', gameCnt, home.pitcher, home.team));
 
-      data.tweet = true;
-      fs.writeFileSync(fmJsonPath, JSON.stringify(data, null, '  '));
+      if (isTweet) {
+        data.tweet = true;
+        fs.writeFileSync(fmJsonPath, JSON.stringify(data, null, '  '));
+      }
     }
   }
 

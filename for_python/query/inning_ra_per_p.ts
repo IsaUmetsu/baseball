@@ -21,7 +21,7 @@ const isTweet = getIsTweet();
 
   if (!teamArg && !nameArg) {
     console.log('NM=[名前] TM=[チームイニシャル] の指定がないため本日の先発投手を指定します');
-    targetPitchers = await getPitcher(pitcherPath, jsonPath);
+    targetPitchers = await getPitcher(pitcherPath, jsonPath, isTweet);
     if (! targetPitchers.length) {
       console.log('本日の予告先発がいない または ツイート対象の投手がいません');
       return;
