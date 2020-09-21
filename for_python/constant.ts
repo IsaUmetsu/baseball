@@ -67,3 +67,16 @@ export const dayOfWeekArr = {
 }
 
 export const posArr = ['捕', '一', '二', '三', '遊', '左', '中', '右'];
+
+export const PT_STARTER = 1;
+export const PT_RELIEVER = 2;
+
+export const PitcherType = {
+  [PT_STARTER]: '先発',
+  [PT_RELIEVER]: '中継ぎ'
+}
+
+export const pitcherTypeArgArr = {
+  ST: 1,
+  RL: 2
+}

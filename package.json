@@ -31,6 +31,8 @@
     "data:dow:rst:tw": "ts-node for_python/query/day_of_result.ts -t",
     "data:team": "ts-node for_python/query/team.ts",
     "data:team:tw": "ts-node for_python/query/team.ts -t",
+    "data:team:rst:era": "ts-node for_python/query/team_of_result_era.ts",
+    "data:team:rst:era:tw": "ts-node for_python/query/team_of_result_era.ts -t",
     "data:week": "ts-node for_python/query/week.ts",
     "data:week:tw": "ts-node for_python/query/week.ts -t",
     "data:week:rst": "ts-node for_python/query/week_of_result.ts",
