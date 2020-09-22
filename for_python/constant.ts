@@ -66,7 +66,27 @@ export const dayOfWeekArr = {
   7: "土曜"
 }
 
-export const posArr = ['捕', '一', '二', '三', '遊', '左', '中', '右'];
+export const posArgDic = {
+  'C': '捕',
+  '1B':'一',
+  '2B': '二',
+  '3B': '三',
+  'SS': '遊',
+  'LF': '左',
+  'CF': '中',
+  'RF': '右'
+};
+
+export const posFullDic = {
+  'C': '捕',
+  '1B':'一塁',
+  '2B': '二塁',
+  '3B': '三塁',
+  'SS': '遊撃',
+  'LF': '左翼',
+  'CF': '中堅',
+  'RF': '右翼'
+};
 
 export const PT_STARTER = 1;
 export const PT_RELIEVER = 2;

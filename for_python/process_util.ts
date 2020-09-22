@@ -4,7 +4,7 @@ import { format } from 'util';
 import { TotalPitchStats } from './type/jsonType';
 import { getJson, checkDateDir, checkGameJson } from './fs_util';
 import { TeamPitchStats, TeamBatStats, TotalBatStats } from './type/jsonType.d';
-import { teamArray, posArr } from './constant';
+import { teamArray, posArgDic } from './constant';
 import { getRepository } from "typeorm";
 import { GameInfo, StatsPitcher, StatsScoreboard, StatsBatter } from "./entities";
 
@@ -207,7 +207,7 @@ const doCheckBat = async (gameNo, dateStr) => {
         newRecord.isSm = Number(isStartingMember(position));
         newRecord.isPh = Number(position.indexOf('打') > -1);
         newRecord.isPr = Number(position.indexOf('走') > -1);
-        newRecord.isSf = Number(!isStartingMember(position) && posArr.indexOf(position.split('')[0]) > -1);
+        newRecord.isSf = Number(!isStartingMember(position) && Object.values(posArgDic).indexOf(position.split('')[0]) > -1);
 
         await newRecord.save();
       }

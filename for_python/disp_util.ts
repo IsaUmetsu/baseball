@@ -1,7 +1,7 @@
 import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
-import { dayOfWeekArr, leagueList, teamArray, teamList } from './constant';
+import { dayOfWeekArr, leagueList, posArgDic, teamArray, teamList } from './constant';
 import { countFiles, getJson } from './fs_util';
 
 /**
@@ -241,4 +241,19 @@ export const checkArgTmOp = async (teamArg, oppoArg) => {
   }
 
   return targetTeam;
+}
+
+/**
+ * 
+ */
+export const checkArgPs = (posArg: string) => {
+  let pos = '';
+  if (! posArg) {
+    console.log(format('PS=[ポジションイニシャル] を入力してください (%s)', Object.keys(posArgDic).join('/')));
+  } else if (Object.keys(posArgDic).indexOf(posArg) == -1) {
+    console.log(format('PS=[ポジションイニシャル] は正しい形式で入力してください (%s)', Object.keys(posArgDic).join('/')));
+  } else {
+    pos = posArgDic[posArg];
+  }
+  return pos;
 }

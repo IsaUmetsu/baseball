@@ -42,6 +42,7 @@
     "data:irapp": "ts-node for_python/query/inning_ra_per_p.ts",
     "data:irapp:tw": "ts-node for_python/query/inning_ra_per_p.ts -t",
     "data:dh:b": "ts-node for_python/query/domain_hand_batter.ts",
+    "data:mjr:pos": "ts-node for_python/query/major_pos.ts",
     "update:poc": "ts-node for_python/query/update_plus_out_count.ts",
     "check:dup": "ts-node for_python/check.duplicate.json.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
