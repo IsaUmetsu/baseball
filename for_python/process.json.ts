@@ -12,7 +12,7 @@ import {
   executeUpdatePlusOutCount
 } from './db_util';
 
-import { OutputJson } from './type/jsonType.d';
+import { OutputJson, TeamInfoJson } from './type/jsonType.d';
 import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
 import { checkArgDaySeasonEndSpecify, checkArgI } from "./disp_util";
 import { savePitchData, saveBatAndScoreData } from "./process_util";
@@ -33,6 +33,16 @@ const { importGame, importPitch, importBat } = checkArgI(process.env.I)
 const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
 const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
 const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s/%s.json";
+
+/**
+ * 
+ */
+const commitTeamInfo = (topBtm: number, awayTeamInfo: TeamInfoJson, homeTeamInfo: TeamInfoJson) => {
+  return topBtm == TOP
+    ? homeTeamInfo ? homeTeamInfo.batteryInfo : ''
+    : awayTeamInfo ? awayTeamInfo.batteryInfo : ''
+  ;
+}
 
 /**
  * DB保存実行処理
@@ -65,10 +75,8 @@ const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame
 
   // insert into `live_header`
   const { ballCount, topBtm } = await insertLiveHeader(gameInfoId, scene, liveHeader);
-
-  const batteryInfo = topBtm == TOP ? homeTeamInfo ? homeTeamInfo.batteryInfo : '' : awayTeamInfo ? awayTeamInfo.batteryInfo : '';
   // insert into `live_body`
-  await insertLiveBody(gameInfoId, scene, liveBody, ballCount, batteryInfo);
+  await insertLiveBody(gameInfoId, scene, liveBody, ballCount, commitTeamInfo(topBtm, awayTeamInfo, homeTeamInfo));
   // insert into `pitch_info`, `pitcher_batter`, `pitch_details`, `pitch_course`
   await insertPitchInfo(gameInfoId, scene, pitchInfo);
   // insert into `battery_info`, `homerun_info`, `team_info`, `game_order`, `bench_master`, `bench_menber_info`
