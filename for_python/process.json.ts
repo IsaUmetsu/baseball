@@ -63,14 +63,14 @@ const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame
   );
 
   // insert into `live_header`
-  const ballCount = await insertLiveHeader(gameInfoId, scene, liveHeader);
+  const { ballCount, topBtm } = await insertLiveHeader(gameInfoId, scene, liveHeader);
   // insert into `live_body`
-  await insertLiveBody(gameInfoId, scene, liveBody, ballCount);
+  // await insertLiveBody(gameInfoId, scene, liveBody, ballCount);
   // insert into `pitch_info`, `pitcher_batter`, `pitch_details`, `pitch_course`
-  await insertPitchInfo(gameInfoId, scene, pitchInfo);
+  // await insertPitchInfo(gameInfoId, scene, pitchInfo);
   // insert into `battery_info`, `homerun_info`, `team_info`, `game_order`, `bench_master`, `bench_menber_info`
-  await insertHomeTeamInfo(gameInfoId, scene, homeTeamInfo);
-  await insertAwayTeamInfo(gameInfoId, scene, awayTeamInfo);
+  await insertHomeTeamInfo(gameInfoId, scene, homeTeamInfo, topBtm);
+  await insertAwayTeamInfo(gameInfoId, scene, awayTeamInfo, topBtm);
 };
 
 /**

@@ -30,7 +30,8 @@ export interface CurrentPlayerInfo {
 }
 
 export interface CurrentBatterInfo extends CurrentPlayerInfo {
-    average: string
+    average: string,
+    prevResult: string
 }
 
 export interface CurrentPitcherInfo extends CurrentPlayerInfo {

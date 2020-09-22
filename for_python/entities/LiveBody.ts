@@ -46,6 +46,9 @@ export class LiveBody extends BaseEntity {
   })
   currentBatterAverage: string | null;
 
+  @Column("tinyint", { name: "current_batter_at_bat", nullable: true })
+  currentBatterAtBat: number | null;
+
   @Column("varchar", {
     name: "current_pitcher_name",
     nullable: true,
@@ -79,6 +82,9 @@ export class LiveBody extends BaseEntity {
     length: 10,
   })
   currentPitcherEra: string | null;
+
+  @Column("tinyint", { name: "current_pitcher_order", nullable: true })
+  currentPitcherOrder: number | null;
 
   @Column("varchar", { name: "base1_player", nullable: true, length: 20 })
   base1Player: string | null;

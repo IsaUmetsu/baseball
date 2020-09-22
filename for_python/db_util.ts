@@ -41,6 +41,9 @@ import {
   judgePlusOutCount
 } from './liveBody_util';
 
+import { teamNameFullToIni, TOP, BTM, HM, AW } from './constant';
+import { format } from 'util';
+
 /**
  * 試合情報保存
  */
@@ -80,7 +83,7 @@ export const insertGameInfo = async (
  */
 export const insertLiveHeader = async (
   gameInfoId: number, scene: number, liveHeader: LiveHeaderJson
-): Promise<SavedBallCount> => {
+) => {
   
   const liveHeaderRepository = getRepository(LiveHeader);
 
@@ -105,8 +108,10 @@ export const insertLiveHeader = async (
     savedLiveHeader = await liveHeaderRepository.findOne({ gameInfoId, scene });
   }
 
-  let { countBall, countStrike, countOut } = savedLiveHeader;
-  return { b: countBall, s: countStrike, o: countOut };
+  let { countBall: b, countStrike: s, countOut: o, inning } = savedLiveHeader;
+  const topBtm = inning.indexOf('表') > -1 ? TOP : inning.indexOf('裏') > -1 ? BTM : 0;
+
+  return { ballCount: { b, s, o }, topBtm };
 }
 
 /**
@@ -138,6 +143,8 @@ export const insertLiveBody = async (
     newLiveBody.battingResult = battingResult;
     newLiveBody.pitchingResult = pitchingResult;
 
+    const isPa = judgePlateAppearance(battingResult, cbi ? cbi.name :  "");
+
     if (onbaseInfo) {
       onbaseInfo.forEach(({ base, player }) => {
         if (base == "base1") newLiveBody.base1Player = player
@@ -151,6 +158,7 @@ export const insertLiveBody = async (
       newLiveBody.currentBatterPlayerNo = cbi.playerNo;
       newLiveBody.currentBatterDomainHand = cbi.domainHand;
       newLiveBody.currentBatterAverage = cbi.average;
+      newLiveBody.currentBatterAtBat = isPa ? (cbi.prevResult ? cbi.prevResult.split('、').length + 1 : 1) : null;
     }
 
     if (cpi) {
@@ -175,7 +183,7 @@ export const insertLiveBody = async (
     newLiveBody.plusScore = judgePlusScore(battingResult);
     newLiveBody.plusOutCount = plusOutCount;
 
-    newLiveBody.isPa = judgePlateAppearance(battingResult, cbi ? cbi.name :  "");
+    newLiveBody.isPa = isPa;
     newLiveBody.isAb = judgeAtBat(battingResult, cbi ? cbi.name :  "");
     newLiveBody.isHit = judgeHit(battingResult);
     newLiveBody.isOnbase = judgeOnbase(battingResult);
@@ -279,7 +287,7 @@ export const insertPitchInfo = async (
  * 
  */
 const insertTeamInfo = async (
-  gameInfoId: number, scene: number, teamInfo: TeamInfoJson, homeAway: string
+  gameInfoId: number, scene: number, teamInfo: TeamInfoJson, homeAway: string, topBtm: number
 ): Promise<void> => {
 
   if (! teamInfo) return;
@@ -299,6 +307,13 @@ const insertTeamInfo = async (
       newRecord.catcher = catcher;
       await newRecord.save();
       savedBatteryInfo = await batteryInfoRepo.findOne({ gameInfoId, pitcher, catcher });
+    }
+
+    // update live_body.current_pitcher_order
+    let savedLiveBody = await getRepository(LiveBody).findOne({ gameInfoId, scene });
+    if ((topBtm == TOP && homeAway == HM) || (topBtm == BTM && homeAway == AW)) {
+      savedLiveBody.currentPitcherOrder = pitcher.split('、').length;
+      await savedLiveBody.save();
     }
 
     batteryInfoId = savedBatteryInfo.id;
@@ -330,11 +345,14 @@ const insertTeamInfo = async (
     newRecord.scene = scene;
     newRecord.homeAway = homeAway;
     newRecord.teamName = name;
+    newRecord.teamInitialKana = teamNameFullToIni[name];
     newRecord.batteryInfoId = batteryInfoId;
     newRecord.homerunInfoId = homerunInfoId;
 
     await newRecord.save();
     savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene });
+  } else {
+    // await savedTeamInfo.save();
   }
 
   const teamInfoId = savedTeamInfo.id;
@@ -398,18 +416,18 @@ const insertTeamInfo = async (
  * 
  */
 export const insertHomeTeamInfo = async (
-  gameInfoId: number, scene: number, homeTeamInfo: TeamInfoJson
+  gameInfoId: number, scene: number, homeTeamInfo: TeamInfoJson, topBtm: number
 ): Promise<void> => {
-  await insertTeamInfo(gameInfoId, scene, homeTeamInfo, "home");
+  await insertTeamInfo(gameInfoId, scene, homeTeamInfo, HM, topBtm);
 }
 
 /**
  * 
  */
 export const insertAwayTeamInfo = async (
-  gameInfoId: number, scene: number, awayTeamInfo: TeamInfoJson
+  gameInfoId: number, scene: number, awayTeamInfo: TeamInfoJson, topBtm: number
 ): Promise<void> => {
-  await insertTeamInfo(gameInfoId, scene, awayTeamInfo, "away");
+  await insertTeamInfo(gameInfoId, scene, awayTeamInfo, AW, topBtm);
 }
 
 /**
@@ -448,5 +466,3 @@ export const executeUpdatePlusOutCount = async () => {
 
   console.log('----- done!! -----');
 }
-
-

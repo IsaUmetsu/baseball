@@ -43,6 +43,21 @@ export const teamNames = {
   'S': 'ヤクルト'
 }
 
+export const teamNameFullToIni = {
+  'ソフトバンク': 'ソ',
+  'ロッテ': 'ロ',
+  '楽天': '楽',
+  '日本ハム': '日',
+  '西武': '西',
+  'オリックス': 'オ',
+  '巨人': '巨',
+  '阪神': '神',
+  'ＤｅＮＡ': 'デ',
+  '中日': '中',
+  '広島': '広',
+  'ヤクルト': 'ヤ'
+}
+
 export const leagueP = ['H', 'M', 'E', 'F', 'L', 'B'];
 export const leagueC = ['G', 'T', 'De', 'D', 'C', 'S'];
 
@@ -100,3 +115,9 @@ export const pitcherTypeArgArr = {
   ST: 1,
   RL: 2
 }
+
+export const TOP = 1;
+export const BTM = 2;
+
+export const HM = 'home';
+export const AW = 'away';
