@@ -14,7 +14,7 @@ import {
 
 import { OutputJson } from './type/jsonType.d';
 import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
-import { checkArgDaySeasonEndSpecify } from "./disp_util";
+import { checkArgDaySeasonEndSpecify, checkArgI } from "./disp_util";
 import { savePitchData, saveBatAndScoreData } from "./process_util";
 
 const startGameNo = 1;
@@ -24,9 +24,10 @@ const startSceneCnt = 1;
 const { D, SE, S } = process.env;
 let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
 
-const day = moment(format("2020%s", targetDay), "YYYYMMDD");
 const seasonStart = moment(format("2020%s", targetDay), "YYYYMMDD");
 const seasonEnd = moment(format("2020%s", seasonEndArg), "YYYYMMDD");
+
+const { importGame, importPitch, importBat } = checkArgI(process.env.I)
 
 const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
 const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
@@ -106,6 +107,7 @@ const doSave = async (gameNo, dateStr) => {
  *
  */
 const saveGame = async () => {
+  const day = moment(format("2020%s", targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -131,11 +133,13 @@ const saveGame = async () => {
   try {
     await createConnection('default');
 
-    await saveGame();
-    await executeUpdatePlusOutCount();
+    if (importGame) {
+      await saveGame();
+      await executeUpdatePlusOutCount();
+    }
 
-    await savePitchData(targetDay, seasonStart, seasonEnd, specifyArg);
-    await saveBatAndScoreData(targetDay, seasonStart, seasonEnd, specifyArg);
+    if (importPitch) await savePitchData(targetDay, seasonStart, seasonEnd, specifyArg);
+    if (importBat) await saveBatAndScoreData(targetDay, seasonStart, seasonEnd, specifyArg);
   } catch (err) {
     console.log(err);
   }

@@ -5,6 +5,27 @@ import { dayOfWeekArr, leagueList, posArgDic, teamArray, teamList } from './cons
 import { countFiles, getJson } from './fs_util';
 
 /**
+ * 
+ */
+export const checkArgI = (importArg: string) => {
+  let importGame = false, importPitch = false, importBat = false;
+  if (! importArg) {
+    importGame = true, importPitch = true, importBat = true;
+  } else {
+    const importTypes = importArg.split('');
+    for (let idx in importTypes) {
+      const importType = importTypes[idx];
+      if (importType == 'G') importGame = true;
+      if (importType == 'P') importPitch = true;
+      if (importType == 'B') importBat = true;
+    }
+    if (! (importGame || importPitch || importBat)) console.log('I=[インポート種別(G/P/B)] に誤りがあるためインポートは実行されません');
+  }
+
+  return { importGame, importPitch, importBat };
+}
+
+/**
  * リーグ指定時は指定リーグチームを、指定なしの場合は12球団のかなイニシャルを返す
  */
 export const checkArgLG = (leagueArg: string) => {
