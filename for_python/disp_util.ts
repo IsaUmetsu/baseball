@@ -146,8 +146,8 @@ export const trimRateZero = rate => {
 /**
  * 
  */
-export const displayResult = (title, rows, footer?) => {
-  const mainContents = [];
+export const displayResult = (title: string, rows: string[], footer?: string) => {
+  const mainContents: string[] = [];
   let mainContent = "";
 
   mainContent += title;
@@ -157,7 +157,7 @@ export const displayResult = (title, rows, footer?) => {
       mainContent += row;
     } else {
       mainContents.push(mainContent);
-      mainContent = title; // reset
+      mainContent = title + row; // reset and join row
     }
   });
 

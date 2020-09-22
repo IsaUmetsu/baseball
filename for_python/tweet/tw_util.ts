@@ -30,7 +30,7 @@ export const tweet = async (title: string, rows: string[], footer?: string) => {
       mainContent += row;
     } else {
       await doTweet(mainContent);
-      mainContent = title; // reset
+      mainContent = title + row; // reset and join row
     }
   }
 
@@ -80,7 +80,7 @@ export const tweetMulti = async (title: string, rows: string[], footer?: string)
       mainContent += row;
     } else {
       in_reply_to_status_id = await doTweetMulti(mainContent, in_reply_to_status_id);
-      mainContent = title; // reset
+      mainContent = title + row; // reset and join row
     }
   }
 
