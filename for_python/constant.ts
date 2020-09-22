@@ -121,3 +121,5 @@ export const BTM = 2;
 
 export const HM = 'home';
 export const AW = 'away';
+
+export const FORMAT_BATTER = '\n%s (%s-%s) %s本 %s打点 %s';
