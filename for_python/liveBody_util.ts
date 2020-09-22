@@ -97,6 +97,20 @@ export const judgeFc = (battingResult: string): number => {
 /**
  * 
  */
+export const calcTotalBase = (battingResult: string): number => {
+  let totalBase = 0;
+
+  if (battingResult.indexOf("安打") > -1) totalBase = 1;
+  if (battingResult.indexOf("二塁打") > -1 || battingResult.indexOf("2塁打") > -1) totalBase = 2;
+  if (battingResult.indexOf("三塁打") > -1 || battingResult.indexOf("3塁打") > -1) totalBase = 3;
+  if (battingResult.indexOf("本塁打") > -1) totalBase = 4;
+
+  return totalBase
+}
+
+/**
+ * 
+ */
 export const judgePlayerChange = (battingResult: string, changeKind: string): number => {
   return Number(battingResult.indexOf(changeKind) > -1);
 }

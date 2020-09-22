@@ -1,48 +1,9 @@
 import { getRepository, getManager } from 'typeorm';
 
-import {
-  GameInfo,
-  LiveHeader,
-  LiveBody,
-  PitchInfo,
-  PitchCourse,
-  PitchDetails,
-  PitcherBatter,
-  TeamInfo,
-  GameOrder,
-  BenchMemberInfo,
-  BenchMaster,
-  BatteryInfo,
-  HomerunInfo
-} from './entities';
-
-import {
-  LiveHeaderJson,
-  LiveBodyJson,
-  PitchDetail,
-  PitchCourseType,
-  PitchInfoJson,
-  TeamInfoJson,
-  BenchMemberInfoType,
-  SavedBallCount
-} from './type/jsonType.d';
-
-import {
-  judgePlateAppearance,
-  judgeAtBat,
-  judgeHit,
-  judgeOnbase,
-  judgeError,
-  judgeFc,
-  judgePlayerChange,
-  judgeIsBall,
-  judgeIsStrike,
-  judgePlusScore,
-  judgePlusOutCount
-} from './liveBody_util';
-
+import { LiveHeaderJson, LiveBodyJson, PitchDetail, PitchCourseType, PitchInfoJson, TeamInfoJson, BenchMemberInfoType, SavedBallCount } from './type/jsonType.d';
+import { GameInfo, LiveHeader, LiveBody, PitchInfo, PitchCourse, PitchDetails, PitcherBatter, TeamInfo, GameOrder, BenchMemberInfo, BenchMaster, BatteryInfo, HomerunInfo } from './entities';
+import { judgePlateAppearance, judgeAtBat, judgeHit, judgeOnbase, judgeError, judgeFc, judgePlayerChange, judgeIsBall, judgeIsStrike, judgePlusScore, judgePlusOutCount, calcTotalBase } from './liveBody_util';
 import { teamNameFullToIni, TOP, BTM, HM, AW } from './constant';
-import { format } from 'util';
 
 /**
  * 試合情報保存
@@ -197,6 +158,7 @@ export const insertLiveBody = async (
     newLiveBody.isOnbase = judgeOnbase(battingResult);
     newLiveBody.isErr = judgeError(battingResult);
     newLiveBody.isFc = judgeFc(battingResult);
+    newLiveBody.totalBase = calcTotalBase(battingResult);
     newLiveBody.isChangePitcher = judgePlayerChange(battingResult, "継投");
     newLiveBody.isChangeFileder = judgePlayerChange(battingResult, "守備");
     newLiveBody.isChangeBatter = judgePlayerChange(battingResult, "代打");

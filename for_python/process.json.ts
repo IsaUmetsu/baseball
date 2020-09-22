@@ -2,17 +2,8 @@ import * as moment from "moment";
 import { format } from 'util';
 import { createConnection } from 'typeorm';
 
-import {
-  insertGameInfo,
-  insertLiveHeader,
-  insertLiveBody,
-  insertPitchInfo,
-  insertAwayTeamInfo,
-  insertHomeTeamInfo,
-  executeUpdatePlusOutCount
-} from './db_util';
-
 import { OutputJson, TeamInfoJson } from './type/jsonType.d';
+import { insertGameInfo, insertLiveHeader, insertLiveBody, insertPitchInfo, insertAwayTeamInfo, insertHomeTeamInfo, executeUpdatePlusOutCount } from './db_util';
 import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
 import { checkArgDaySeasonEndSpecify, checkArgI } from "./disp_util";
 import { savePitchData, saveBatAndScoreData } from "./process_util";

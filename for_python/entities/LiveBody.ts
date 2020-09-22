@@ -128,6 +128,9 @@ export class LiveBody extends BaseEntity {
   @Column("tinyint", { name: "is_onbase", nullable: true })
   isOnbase: number | null;
 
+  @Column("tinyint", { name: "total_base", nullable: true })
+  totalBase: number | null;
+
   @Column("tinyint", { name: "is_err", nullable: true })
   isErr: number | null;
 
