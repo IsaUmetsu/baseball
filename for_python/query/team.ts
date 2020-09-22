@@ -1,49 +1,22 @@
-import * as moment from 'moment';
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags } from '../constant';
-import { countFiles, getJson } from '../fs_util';
-import { displayResult, trimRateZero } from '../disp_util';
+import { displayResult, trimRateZero, checkArgTmOp } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 const isTweet = getIsTweet();
 
-const cardsPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s";
-const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s/%s.json";
-
-// Execute
+/**
+ * チームごと打者の対戦チームの打率
+ */
 (async () => {
   await createConnection('default');
 
-  const targetTeam = [];
-
-  /**
-   * 実行日の対戦カード取得
-   */
-  const getCards = async targetTeam => {
-    const todayStr = moment().format('YYYYMMDD');
-    const totalGameCnt = await countFiles(format(cardsPath, todayStr));
-    for (let gameCnt = 1; gameCnt <= totalGameCnt; gameCnt++) {
-      const { away, home } = JSON.parse(getJson(format(jsonPath, todayStr, "0" + String(gameCnt))));
-      console.log(format('対戦カード%s: %s-%s', gameCnt, away, home));
-      targetTeam.push({ team1: away, team2: home })
-    }
-  }
-
   const teamArg = process.env.TM;
-  if (! teamArg) {
-    console.log('TM=[チームイニシャル] の指定がないため実行日の対戦カードについて取得します');
-    // 実行日の対戦カード取得
-    if (targetTeam.length == 0) await getCards(targetTeam);
-  }
-
   const oppoArg = process.env.OP;
-  if (! oppoArg) {
-    console.log('OP=[対戦相手チームイニシャル] の指定がないため実行日の対戦カードについて取得します');
-    // 実行日の対戦カード取得
-    if (targetTeam.length == 0) await getCards(targetTeam);
-  }
+
+  const targetTeam = await checkArgTmOp(teamArg, oppoArg);
 
   if (teamArg && oppoArg) {
     targetTeam.push({ team1: teamArg, team2: oppoArg });
