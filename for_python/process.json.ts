@@ -16,6 +16,7 @@ import { OutputJson } from './type/jsonType.d';
 import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
 import { checkArgDaySeasonEndSpecify, checkArgI } from "./disp_util";
 import { savePitchData, saveBatAndScoreData } from "./process_util";
+import { TOP } from "./constant";
 
 const startGameNo = 1;
 const endGameNo = 6;
@@ -51,7 +52,7 @@ const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame
     pitchInfo,
     homeTeamInfo,
     awayTeamInfo
-  } = data;
+  }: OutputJson = data;
 
   // insert into `game_info`
   const gameInfoId = await insertGameInfo(
@@ -64,13 +65,15 @@ const saveData = async (scene: number, dateStr: string, gameNo: string, isNoGame
 
   // insert into `live_header`
   const { ballCount, topBtm } = await insertLiveHeader(gameInfoId, scene, liveHeader);
+
+  const batteryInfo = topBtm == TOP ? homeTeamInfo ? homeTeamInfo.batteryInfo : '' : awayTeamInfo ? awayTeamInfo.batteryInfo : '';
   // insert into `live_body`
-  // await insertLiveBody(gameInfoId, scene, liveBody, ballCount);
+  await insertLiveBody(gameInfoId, scene, liveBody, ballCount, batteryInfo);
   // insert into `pitch_info`, `pitcher_batter`, `pitch_details`, `pitch_course`
-  // await insertPitchInfo(gameInfoId, scene, pitchInfo);
+  await insertPitchInfo(gameInfoId, scene, pitchInfo);
   // insert into `battery_info`, `homerun_info`, `team_info`, `game_order`, `bench_master`, `bench_menber_info`
-  await insertHomeTeamInfo(gameInfoId, scene, homeTeamInfo, topBtm);
-  await insertAwayTeamInfo(gameInfoId, scene, awayTeamInfo, topBtm);
+  await insertHomeTeamInfo(gameInfoId, scene, homeTeamInfo);
+  await insertAwayTeamInfo(gameInfoId, scene, awayTeamInfo);
 };
 
 /**

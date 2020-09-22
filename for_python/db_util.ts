@@ -118,7 +118,11 @@ export const insertLiveHeader = async (
  * LiveBody 情報保存
  */
 export const insertLiveBody = async (
-  gameInfoId: number, scene: number, liveBody: LiveBodyJson, ballCount: SavedBallCount
+  gameInfoId: number,
+  scene: number,
+  liveBody: LiveBodyJson,
+  ballCount: SavedBallCount,
+  batteryInfo: string
 ): Promise<void> => {
 
   const liveBodyRepository = getRepository(LiveBody);
@@ -168,6 +172,10 @@ export const insertLiveBody = async (
       newLiveBody.currentPitcherPitch = Number(cpi.pitch);
       newLiveBody.currentPitcherVsBatterCnt = Number(cpi.vsBatterCount);
       newLiveBody.currentPitcherEra = cpi.pitchERA;
+      if (batteryInfo) {
+        const [ pitcher ] = batteryInfo.split(" - ");
+        newLiveBody.currentPitcherOrder = pitcher.split('、').length;
+      }
     }
 
     newLiveBody.nextBatterName = nextBatter;
@@ -287,7 +295,7 @@ export const insertPitchInfo = async (
  * 
  */
 const insertTeamInfo = async (
-  gameInfoId: number, scene: number, teamInfo: TeamInfoJson, homeAway: string, topBtm: number
+  gameInfoId: number, scene: number, teamInfo: TeamInfoJson, homeAway: string
 ): Promise<void> => {
 
   if (! teamInfo) return;
@@ -307,13 +315,6 @@ const insertTeamInfo = async (
       newRecord.catcher = catcher;
       await newRecord.save();
       savedBatteryInfo = await batteryInfoRepo.findOne({ gameInfoId, pitcher, catcher });
-    }
-
-    // update live_body.current_pitcher_order
-    let savedLiveBody = await getRepository(LiveBody).findOne({ gameInfoId, scene });
-    if ((topBtm == TOP && homeAway == HM) || (topBtm == BTM && homeAway == AW)) {
-      savedLiveBody.currentPitcherOrder = pitcher.split('、').length;
-      await savedLiveBody.save();
     }
 
     batteryInfoId = savedBatteryInfo.id;
@@ -416,18 +417,18 @@ const insertTeamInfo = async (
  * 
  */
 export const insertHomeTeamInfo = async (
-  gameInfoId: number, scene: number, homeTeamInfo: TeamInfoJson, topBtm: number
+  gameInfoId: number, scene: number, homeTeamInfo: TeamInfoJson
 ): Promise<void> => {
-  await insertTeamInfo(gameInfoId, scene, homeTeamInfo, HM, topBtm);
+  await insertTeamInfo(gameInfoId, scene, homeTeamInfo, HM);
 }
 
 /**
  * 
  */
 export const insertAwayTeamInfo = async (
-  gameInfoId: number, scene: number, awayTeamInfo: TeamInfoJson, topBtm: number
+  gameInfoId: number, scene: number, awayTeamInfo: TeamInfoJson
 ): Promise<void> => {
-  await insertTeamInfo(gameInfoId, scene, awayTeamInfo, AW, topBtm);
+  await insertTeamInfo(gameInfoId, scene, awayTeamInfo, AW);
 }
 
 /**
