@@ -1,7 +1,7 @@
 import { format } from "util";
 
 import { createConnection, getManager } from 'typeorm';
-import { leagueList, posArgDic, posFullDic } from '../constant';
+import { leagueList, posFullDic } from '../constant';
 import { checkArgPs, checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
