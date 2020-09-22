@@ -19,6 +19,9 @@ export class TeamInfo extends BaseEntity {
   @Column("varchar", { name: "team_name", length: 10 })
   teamName: string;
 
+  @Column("varchar", { name: "team_initial_kana", nullable: true, length: 2 })
+  teamInitialKana: string | null;
+
   @Column("int", { name: "battery_info_id", nullable: true })
   batteryInfoId: number | null;
 
