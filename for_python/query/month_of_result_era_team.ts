@@ -3,7 +3,8 @@ import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, teamArray } from '../constant';
-import { checkArgLG, checkArgM } from '../disp_util';
+import { checkArgLG, checkArgM, displayResult } from '../disp_util';
+import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 // Execute
 (async () => {
@@ -46,14 +47,21 @@ import { checkArgLG, checkArgM } from '../disp_util';
     ORDER BY era ASC
   `);
 
-  console.log(format("\n%s球団 %s月%s 防御率\n", league ? leagueList[league] + '6' : 'NPB12', monthArg, pitcherArg == 'A' ? '' : pitcherArg == 'S' ? ' 先発' : ' 中継ぎ'));
-  results.forEach(result => {
-    const { tm, era, inning, ra, er } = result;
+  const title = format('%s球団 %s月%s 防御率\n', league ? leagueList[league] + '6' : 'NPB12', monthArg, pitcherArg == 'A' ? '' : pitcherArg == 'S' ? ' 先発' : ' 中継ぎ');
+  const rows = [];
+  for (let idx in results) {
+    const { tm, era, inning, ra, er } = results[idx];
     const [ team_initial ] = Object.entries(teamArray).find(([, value]) => value == tm);
 
-    console.log(format(
-      "%s %s %s回 %s失点 自責%s %s ",
+    rows.push(format(
+      '\n%s %s %s回 %s失点 自責%s %s ',
       tm, era, inning, ra, er, teamHashTags[team_initial]
     ));  
-  });
+  }
+
+  if (getIsTweet()) {
+    await tweetMulti(title, rows);
+  } else {
+    displayResult(title, rows);
+  }
 })();

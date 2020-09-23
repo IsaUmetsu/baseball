@@ -60,12 +60,12 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
   const title = format("%s打者 %d月 打率\n", batterTitle, monthArg);
   const rows = [];
-  results.forEach(result => {
-    const { batter, tm, bat, hit, average } = result;
+  for (let idx in results) {
+    const { batter, tm, bat, hit, average } = results[idx];
     const teamClause = teamArg ? '' : format('(%s)', tm);
 
     rows.push(format('\n%s (%s-%s) %s%s', trimRateZero(average), bat, hit, batter, teamClause));
-  });
+  }
 
   if (getIsTweet()) {
     await tweetMulti(title, rows);
