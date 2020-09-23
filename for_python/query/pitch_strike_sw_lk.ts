@@ -2,11 +2,8 @@ import { format } from 'util';
 import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
-import { teamArray, teamHashTags, teamHalfNames } from '../constant';
 import { displayResult } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
-
-const isTweet = getIsTweet();
 
 // Execute
 (async () => {
@@ -42,16 +39,16 @@ const isTweet = getIsTweet();
 
   const title = format('%s 先発投手\n%sストライク数\n', moment(dayArg, 'YYYYMMDD').format('M/D'), strikeArg == 'SW' ? '空振り': '見逃し');
   const rows = [];
-  results.forEach(result => {
+  for (const result of results) {
     const { pitcher, tm, swing_cnt, look_cnt } = result;
 
     rows.push(format(
       '\n%s  %s(%s)',
       strikeArg == 'SW' ? swing_cnt : look_cnt, pitcher, tm
     ));
-  });
+  }
 
-  if (isTweet) {
+  if (getIsTweet()) {
     await tweetMulti(title, rows);
   } else {
     displayResult(title, rows);
