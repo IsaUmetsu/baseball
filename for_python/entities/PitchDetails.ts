@@ -27,4 +27,10 @@ export class PitchDetails extends BaseEntity {
     length: 100,
   })
   pitchJudgeDetail: string | null;
+
+  @Column("tinyint", { name: "is_swing", nullable: true })
+  isSwing: number | null;
+
+  @Column("tinyint", { name: "is_missed", nullable: true })
+  isMissed: number | null;
 }
