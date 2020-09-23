@@ -5,8 +5,6 @@ import { leagueList, posFullDic } from '../constant';
 import { checkArgPs, checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
-const isTweet = getIsTweet();
-
 // Execute
 (async () => {
   await createConnection('default');
@@ -83,16 +81,16 @@ const isTweet = getIsTweet();
 
   const title = format("%s打者 主要%s手 打撃成績\n", leagueArg ? leagueList[leagueArg] + '6' : 'NPB12', posFullDic[posArg]);
   const rows = [];
-  results.forEach(result => {
+  for (const result of results) {
     const { batter, tm, ab, hit, ave, hr, rbi } = result;
 
     rows.push(format(
       '\n%s(%s) %s (%s-%s) %s本 %s打点',
       batter, tm, trimRateZero(ave), ab, hit, hr, rbi
     ));
-  });
+  }
 
-  if (isTweet) {
+  if (getIsTweet()) {
     await tweetMulti(title, rows);
   } else {
     displayResult(title, rows);
