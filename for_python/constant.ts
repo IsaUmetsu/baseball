@@ -58,6 +58,21 @@ export const teamNameFullToIni = {
   'ヤクルト': 'ヤ'
 }
 
+export const teamHalfNames = {
+  'H': 'ソフトバンクホークス',
+  'M': 'ロッテマリーンズ',
+  'E': '楽天イーグルス',
+  'F': '日本ハムファイターズ',
+  'L': '西武ライオンズ',
+  'B': 'オリックスバファローズ',
+  'G': '巨人',
+  'T': '阪神タイガーズ',
+  'De': 'DeNAベイスターズ',
+  'D': '中日ドラゴンズ',
+  'C': '広島カープ',
+  'S': 'ヤクルトスワローズ'
+}
+
 export const leagueP = ['H', 'M', 'E', 'F', 'L', 'B'];
 export const leagueC = ['G', 'T', 'De', 'D', 'C', 'S'];
 
@@ -122,4 +137,4 @@ export const BTM = 2;
 export const HM = 'home';
 export const AW = 'away';
 
-export const FORMAT_BATTER = '\n%s (%s-%s) %s本 %s打点 %s';
+export const FORMAT_BATTER = '\n%s (%s-%s) %s本 %s打点  %s';

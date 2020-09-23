@@ -5,8 +5,6 @@ import { teamHashTags, leagueList } from '../constant';
 import { checkArgLG, checkArgM, displayResult, trimRateZero } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
-const isTweet = getIsTweet();
-
 // Execute
 (async () => {
   await createConnection('default');
@@ -125,7 +123,7 @@ const isTweet = getIsTweet();
     prevTeamSavings = nowTeamSavings;
   });
 
-  if (isTweet) {
+  if (getIsTweet()) {
     await tweetMulti(title, rows);
   } else {
     displayResult(title, rows);

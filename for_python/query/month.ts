@@ -1,9 +1,9 @@
-import * as moment from "moment";
 import { format } from "util";
 
 import { createConnection, getManager } from 'typeorm';
 import { teamNames, leagueList } from '../constant';
 import { checkArgM, checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
+import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 // Execute
 (async () => {
@@ -67,5 +67,9 @@ import { checkArgM, checkArgTMLG, displayResult, trimRateZero } from "../disp_ut
     rows.push(format('\n%s (%s-%s) %s%s', trimRateZero(average), bat, hit, batter, teamClause));
   });
 
-  displayResult(title, rows);
+  if (getIsTweet()) {
+    await tweetMulti(title, rows);
+  } else {
+    displayResult(title, rows);
+  }
 })();
