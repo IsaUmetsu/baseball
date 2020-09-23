@@ -1,8 +1,8 @@
 import { getRepository, getManager } from 'typeorm';
 
-import { LiveHeaderJson, LiveBodyJson, PitchDetail, PitchCourseType, PitchInfoJson, TeamInfoJson, BenchMemberInfoType, SavedBallCount } from './type/jsonType.d';
+import { LiveHeaderJson, LiveBodyJson, PitchInfoJson, TeamInfoJson, BenchMemberInfoType, SavedBallCount } from './type/jsonType.d';
 import { GameInfo, LiveHeader, LiveBody, PitchInfo, PitchCourse, PitchDetails, PitcherBatter, TeamInfo, GameOrder, BenchMemberInfo, BenchMaster, BatteryInfo, HomerunInfo } from './entities';
-import { judgePlateAppearance, judgeAtBat, judgeHit, judgeOnbase, judgeError, judgeFc, judgePlayerChange, judgeIsBall, judgeIsStrike, judgePlusScore, judgePlusOutCount, calcTotalBase } from './liveBody_util';
+import { judgePlateAppearance, judgeAtBat, judgeHit, judgeOnbase, judgeError, judgeFc, judgePlayerChange, judgeIsBall, judgeIsStrike, judgePlusScore, judgePlusOutCount, calcTotalBase, indexOfAnd } from './liveBody_util';
 import { teamNameFullToIni, TOP, BTM, HM, AW } from './constant';
 
 /**
@@ -111,11 +111,11 @@ export const insertLiveBody = async (
     const isPa = judgePlateAppearance(battingResult, cbi ? cbi.name :  "");
 
     if (onbaseInfo) {
-      onbaseInfo.forEach(({ base, player }) => {
-        if (base == "base1") newLiveBody.base1Player = player
-        if (base == "base2") newLiveBody.base2Player = player
-        if (base == "base3") newLiveBody.base3Player = player
-      })
+      for (const { base, player } of onbaseInfo) {
+        if (base == "base1") newLiveBody.base1Player = player;
+        if (base == "base2") newLiveBody.base2Player = player;
+        if (base == "base3") newLiveBody.base3Player = player;
+      }
     }
 
     if (cbi) {
@@ -216,10 +216,10 @@ export const insertPitchInfo = async (
 
   // about `pitch_details`
   const pdRepo = getRepository(PitchDetails);
-  let savedPitcherDetails = await pdRepo.findOne({ pitchInfoId });
+  let savedPitcherDetails = await pdRepo.find({ pitchInfoId });
 
-  if (savedPitcherDetails == null) {
-    pitchInfo.pitchDetails.forEach(async (detail: PitchDetail) => {
+  if (savedPitcherDetails == null || savedPitcherDetails.length == 0) {
+    for (const detail of pitchInfo.pitchDetails) {
       const { judgeIcon, pitchCnt, pitchType, pitchSpeed, pitchJudgeDetail } = detail;
 
       const newPitchDetails = new PitchDetails();
@@ -230,9 +230,17 @@ export const insertPitchInfo = async (
       newPitchDetails.pitchType = pitchType;
       newPitchDetails.pitchSpeed = pitchSpeed;
       newPitchDetails.pitchJudgeDetail = pitchJudgeDetail;
+      newPitchDetails.isSwing = Number(indexOfAnd(pitchJudgeDetail, ['空', '振']));
+      newPitchDetails.isMissed = Number(pitchJudgeDetail.indexOf('見') > -1);
 
       await newPitchDetails.save();
-    });
+    }
+  } else {
+    // for (const savedPitcherDetail of savedPitcherDetails) {
+    //   const detail = pitchInfo.pitchDetails.find(detail => Number(detail.pitchCnt) == savedPitcherDetail.pitchCnt);
+    //   const { pitchJudgeDetail } = detail;
+    //   await savedPitcherDetail.save();
+    // }
   }
 
   // about `pitch_course`
@@ -240,7 +248,7 @@ export const insertPitchInfo = async (
   let savedPitchCourse = await pcRepo.findOne({ pitchInfoId });
 
   if (savedPitchCourse == null) {
-    pitchInfo.allPitchCourse.forEach(async (pitchCourse: PitchCourseType) => {
+    for (const pitchCourse of pitchInfo.allPitchCourse) {
       const { top, left } = pitchCourse;
       const newPitchCourse = new PitchCourse();
 
@@ -249,7 +257,7 @@ export const insertPitchInfo = async (
       newPitchCourse.left = Number(left);
 
       await newPitchCourse.save();
-    })
+    }
   }
 }
 
@@ -323,7 +331,7 @@ const insertTeamInfo = async (
   const gameOrderRepo = getRepository(GameOrder);
   const savedGameOrder = await gameOrderRepo.find({ teamInfoId });
   if (savedGameOrder.length == 0) {
-    teamInfo.order.forEach(async order => {
+    for (const order of teamInfo.order) {
       const { no, position, name, domainHand, average } = order;
 
       const newRecord = new GameOrder();
@@ -335,7 +343,7 @@ const insertTeamInfo = async (
       newRecord.average = average;
 
       await newRecord.save();
-    })
+    }
   }
 
   const { benchPitcher: p, benchCatcher: c, benchInfielder: i, benchOutfielder: o } = teamInfo;
@@ -368,10 +376,10 @@ const insertTeamInfo = async (
       await newRecord.save();
     }
 
-    p.forEach(async member => { await saveBenchMember("投手", member); });
-    c.forEach(async member => { await saveBenchMember("捕手", member); });
-    i.forEach(async member => { await saveBenchMember("内野手", member); });
-    o.forEach(async member => { await saveBenchMember("外野手", member); });
+    for (const member of p) { await saveBenchMember("投手", member); }
+    for (const member of c) { await saveBenchMember("捕手", member); }
+    for (const member of i) { await saveBenchMember("内野手", member); }
+    for (const member of o) { await saveBenchMember("外野手", member); }
   }
 }
 
@@ -413,7 +421,7 @@ export const executeUpdatePlusOutCount = async () => {
 
   console.log(`----- update plus_out_count target count: ${results.length} -----`);
 
-  results.forEach(async result => {
+  for (const result of results) {
     const { lb_id, plus_out_count_new, prev_count_out_new } = result;
 
     await manager.query(`
@@ -425,7 +433,7 @@ export const executeUpdatePlusOutCount = async () => {
       WHERE
         id = ${lb_id}
     `);
-  });
+  }
 
   console.log('----- done!! -----');
 }

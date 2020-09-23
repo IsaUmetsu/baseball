@@ -15,6 +15,11 @@ export const judgePlateAppearance = (battingResult: string, currentBatterName: s
     battingResult.indexOf("守備") > -1
   ;
 
+  // const isNotPA = indexOfOr(battingResult, [
+  //   'けん制', 'ボーク', 'ボール', ['見逃し', '三振'], ['空振り', '三振'], // シーンのうち、打席数に含まれない結果を除外
+  //   '継投', '代走', '代打', '守備' // 選手変更
+  // ]);
+
   return Number(
     currentBatterName.length > 0 &&
     battingResult.length > 0 &&
@@ -200,4 +205,26 @@ export const judgePlusScore = (battingResult: string): number => {
   if (battingResult.indexOf("＋3点") > -1) plusScore = 3;
   if (battingResult.indexOf("＋4点") > -1) plusScore = 4;
   return plusScore;
+}
+
+/**
+ * 
+ */
+export const indexOfAnd = (target: string, words: string[]): boolean => {
+  let judge = true;
+  for (const word of words) {
+    judge = judge && target.indexOf(word) > -1;
+  }
+  return judge;
+}
+
+/**
+ * 
+ */
+export const indexOfOr = (target: string, words: any[]): boolean => {
+  let judge = false;
+  for (const word of words) {
+    judge = judge || indexOfAnd(target, word) ? true : target.indexOf(word) > -1;
+  }
+  return judge;
 }

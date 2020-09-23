@@ -51,6 +51,7 @@
     "data:pitch:strike:lk": "S=LK ts-node for_python/query/pitch_strike_sw_lk.ts",
     "update:poc": "ts-node for_python/query/update_plus_out_count.ts",
     "check:dup": "ts-node for_python/check.duplicate.json.ts",
+    "gen:query": "ts-node for_python/query/createQuery.ts > ./gen_query.sql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
