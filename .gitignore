@@ -21,3 +21,5 @@ scheduler/as_service.bat
 tweet/twitter.js
 for_python/query/*.sql
 for_python/tweet/twitter.ts
+for_python/query/createQuery.ts
+gen_query.sql

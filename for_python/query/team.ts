@@ -16,10 +16,10 @@ const isTweet = getIsTweet();
   const teamArg = process.env.TM;
   const oppoArg = process.env.OP;
 
-  const targetTeam = await checkArgTmOp(teamArg, oppoArg);
+  const targetTeams = await checkArgTmOp(teamArg, oppoArg);
 
   if (teamArg && oppoArg) {
-    targetTeam.push({ team1: teamArg, team2: oppoArg });
+    targetTeams.push({ team1: teamArg, team2: oppoArg });
   }
 
   /**
@@ -103,21 +103,21 @@ const isTweet = getIsTweet();
 
     const title = format("%s打者 対%s 打撃成績\n", teamNames[teamArg], teamNames[oppoArg]);
     const rows = [];
-    results.forEach(result => {
+    for (const result of results) {
       const { batter, bat, hit, average, hr, rbi } = result;
       rows.push(format(FORMAT_BATTER, trimRateZero(average), bat, hit, hr, rbi, batter));  
-    });
+    }
     const footer = format("\n\n%s", teamHashTags[teamArg]);
 
-    if (isTweet) {
+    if (getIsTweet()) {
       await tweetMulti(title, rows, footer);
     } else {
       displayResult(title, rows, footer);
     }
   }
 
-  targetTeam.forEach(async ({ team1, team2 }) => {
+  for (const { team1, team2 } of targetTeams) { 
     await execute(team1, team2);
     await execute(team2, team1);
-  })
+  }
 })();

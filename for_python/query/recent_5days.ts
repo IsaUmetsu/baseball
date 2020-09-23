@@ -5,8 +5,6 @@ import { teamArray, teamNames, teamHashTags, leagueP, leagueC, FORMAT_BATTER } f
 import { displayResult, trimRateZero } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
-const isTweet = getIsTweet();
-
 // Execute
 (async () => {
   await createConnection('default');
@@ -80,13 +78,13 @@ const isTweet = getIsTweet();
 
     const title = format('%s打者 最近5試合 打撃成績\n', teamNames[targetTeam]);
     let rows = [];
-    results.forEach(result => {
+    for (const result of results) {
       const { average, batter, bat, hit, hr, rbi } = result;
       rows.push(format(FORMAT_BATTER, trimRateZero(average), bat, hit, hr, rbi, batter));
-    });
+    }
     const footer = format('\n\n%s', teamHashTags[targetTeam]);
 
-    if (isTweet) {
+    if (getIsTweet()) {
       await tweetMulti(title, rows, footer);
     } else {
       displayResult(title, rows, footer);
