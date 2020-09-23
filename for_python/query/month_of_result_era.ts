@@ -72,10 +72,10 @@ const isTweet = getIsTweet();
   `);
 
   const rows = [];
-  results.forEach(result => {
+  for (const result of results) {
     const { tm, p_name, era, game_cnt, inning, ra, er } = result;
     rows.push(format('\n%s %s(%s) %s試 %s回 失%s 自%s ', era, p_name, tm, game_cnt, inning, ra, er));
-  });
+  }
 
   const title = format('%s投手 %s月%s 防御率\n',
     league ? leagueList[league] : 'NPB',

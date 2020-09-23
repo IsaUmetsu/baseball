@@ -173,14 +173,14 @@ export const displayResult = (title: string, rows: string[], footer?: string) =>
 
   mainContent += title;
   
-  rows.forEach(row => {
+  for (const row of rows) {
     if (twitter.parseTweet(mainContent + row).valid) {
       mainContent += row;
     } else {
       mainContents.push(mainContent);
       mainContent = title + row; // reset and join row
     }
-  });
+  }
 
   if (footer) {
     if (twitter.parseTweet(mainContent + footer).valid) {

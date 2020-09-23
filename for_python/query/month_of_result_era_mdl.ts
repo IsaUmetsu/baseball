@@ -62,12 +62,12 @@ const isTweet = getIsTweet();
   `);
 
   const rows = [];
-  results.forEach(result => {
+  for (const result of results) {
     const { tm, p_name, era, hp, hold, win, game_cnt } = result;
     let winClause = Number(win) > 0 ? format('%s勝 ', win) : '';
     let holdClause = Number(hold) > 0 ? format('%sH', hold) : '';
     rows.push(format('\n%s %s(%s) 防%s %s試 %s%s', hp, p_name, tm, era, game_cnt, winClause, holdClause));
-  });
+  }
 
   const title = format('%s投手 %s月%s HP数\n',
     league ? leagueList[league] : 'NPB',

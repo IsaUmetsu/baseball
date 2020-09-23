@@ -24,8 +24,7 @@ export const tweet = async (title: string, rows: string[], footer?: string) => {
 
   mainContent += title;
  
-  for (let idx in rows) {
-    const row = rows[idx];
+  for (const row of rows) {
     if (twitterText.parseTweet(mainContent + row).valid) {
       mainContent += row;
     } else {

@@ -49,8 +49,8 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
   const title = format('%s球団 %s月%s 防御率\n', league ? leagueList[league] + '6' : 'NPB12', monthArg, pitcherArg == 'A' ? '' : pitcherArg == 'S' ? ' 先発' : ' 中継ぎ');
   const rows = [];
-  for (let idx in results) {
-    const { tm, era, inning, ra, er } = results[idx];
+  for (const result of results) {
+    const { tm, era, inning, ra, er } = result;
     const [ team_initial ] = Object.entries(teamArray).find(([, value]) => value == tm);
 
     rows.push(format(
