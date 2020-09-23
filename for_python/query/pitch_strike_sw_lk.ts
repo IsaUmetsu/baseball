@@ -27,8 +27,8 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
     SELECT 
       p_team AS tm,
       REPLACE(current_pitcher_name, ' ', '') AS pitcher,
-      COUNT(pitch_judge_detail LIKE '%空%振%' OR NULL) AS swing_cnt,
-      COUNT(pitch_judge_detail LIKE '%見%' OR NULL) AS look_cnt
+      SUM(is_swing) AS swing_cnt,
+      SUM(is_missed) AS look_cnt
     FROM
       baseball_2020.debug_pitch_base
     WHERE
