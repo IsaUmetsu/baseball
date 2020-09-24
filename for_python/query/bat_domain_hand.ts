@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import { createConnection, getManager } from 'typeorm';
 import { leagueList } from '../constant';
 import { checkArgTMLG, displayResult, trimRateZero } from '../disp_util';
+import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 // Execute
 (async () => {
@@ -126,5 +127,9 @@ import { checkArgTMLG, displayResult, trimRateZero } from '../disp_util';
     ));
   }
 
-  displayResult(title, rows);
+  if (getIsTweet()) {
+    await tweetMulti(title, rows);
+  } else {
+    displayResult(title, rows);
+  }
 })();
