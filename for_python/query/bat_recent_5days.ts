@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC, FORMAT_BATTER } from '../constant';
-import { createBatterResultRows, displayResult, trimRateZero } from '../disp_util';
+import { checkArgTMLG, createBatterResultRows, displayResult, trimRateZero } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 
@@ -11,20 +11,12 @@ import { BatterResult } from '../type/jsonType';
   await createConnection('default');
 
   const teamArg = process.env.TM;
-  if (! teamArg) {
-    console.log('TM=[チームイニシャル] を指定がないため12球団分出力します');
-  }
+  const league = process.env.LG;
+  const teams = checkArgTMLG(teamArg, league);
+  if (! teams.length) return;
 
-  const teams = teamArg ? teamArg.split(' ') : leagueP.concat(leagueC)
-
-  for (const targetTeam of teams) {
-    const team = teamArray[targetTeam];
-    if (! team) {
-      console.log('正しいチームイニシャル を指定してください');
-      return;
-    }
-
-    const manager = await getManager();
+  const manager = await getManager();
+  for (const team of teams) {
     const results: BatterResult[] = await manager.query(`
       SELECT
         base.*,
@@ -77,9 +69,11 @@ import { BatterResult } from '../type/jsonType';
       ORDER BY average DESC
     `);
 
-    const title = format('%s打者 最近5試合 打撃成績\n', teamNames[targetTeam]);
+    const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == team);
+
+    const title = format('%s打者 最近5試合 打撃成績\n', teamNames[teamIniEn]);
     const rows = createBatterResultRows(results);
-    const footer = format('\n\n%s', teamHashTags[targetTeam]);
+    const footer = format('\n\n%s', teamHashTags[teamIniEn]);
 
     if (getIsTweet()) {
       await tweetMulti(title, rows, footer);
