@@ -1,5 +1,4 @@
 import { format } from 'util';
-import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { leagueList } from '../constant';
@@ -118,7 +117,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
   const title = format("%s球団 対%s投手 打率\n", league ? leagueList[league] + '6' : 'NPB12', domainHandList[domainHandArg]);
   const rows = [];
   for (const result of results) {
-    const { current_batter_name, b_team, ave } = result;
+    const { current_batter_name, b_team } = result;
 
     rows.push(format(
       "\n%s (%s-%s) %s(%s)",

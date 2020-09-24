@@ -1,8 +1,8 @@
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags, leagueP, leagueC, FORMAT_BATTER } from '../constant';
-import { checkArgTMLG, createBatterResultRows, displayResult, trimRateZero } from '../disp_util';
+import { teamArray, teamNames, teamHashTags } from '../constant';
+import { checkArgTMLG, createBatterResultRows, displayResult } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 
