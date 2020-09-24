@@ -1,11 +1,10 @@
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags, FORMAT_BATTER } from '../constant';
-import { displayResult, trimRateZero, checkArgTmOp } from '../disp_util';
+import { teamArray, teamNames, teamHashTags } from '../constant';
+import { displayResult, checkArgTmOp, createBatterResultRows } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
-
-const isTweet = getIsTweet();
+import { BatterResult } from '../type/jsonType';
 
 /**
  * チームごと打者の対戦チームの打率
@@ -39,7 +38,7 @@ const isTweet = getIsTweet();
     }
 
     const manager = await getManager();
-    const results = await manager.query(`
+    const results: BatterResult[] = await manager.query(`
       SELECT
         base.*,
         other.hr,
@@ -102,11 +101,7 @@ const isTweet = getIsTweet();
     `);
 
     const title = format("%s打者 対%s 打撃成績\n", teamNames[teamArg], teamNames[oppoArg]);
-    const rows = [];
-    for (const result of results) {
-      const { batter, bat, hit, average, hr, rbi } = result;
-      rows.push(format(FORMAT_BATTER, trimRateZero(average), bat, hit, hr, rbi, batter));  
-    }
+    const rows = createBatterResultRows(results);
     const footer = format("\n\n%s", teamHashTags[teamArg]);
 
     if (getIsTweet()) {

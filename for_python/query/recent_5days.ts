@@ -2,8 +2,9 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC, FORMAT_BATTER } from '../constant';
-import { displayResult, trimRateZero } from '../disp_util';
+import { createBatterResultRows, displayResult, trimRateZero } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+import { BatterResult } from '../type/jsonType';
 
 // Execute
 (async () => {
@@ -24,7 +25,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
     }
 
     const manager = await getManager();
-    const results = await manager.query(`
+    const results: BatterResult[] = await manager.query(`
       SELECT
         base.*,
         other.hr,
@@ -77,11 +78,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
     `);
 
     const title = format('%s打者 最近5試合 打撃成績\n', teamNames[targetTeam]);
-    let rows = [];
-    for (const result of results) {
-      const { average, batter, bat, hit, hr, rbi } = result;
-      rows.push(format(FORMAT_BATTER, trimRateZero(average), bat, hit, hr, rbi, batter));
-    }
+    const rows = createBatterResultRows(results);
     const footer = format('\n\n%s', teamHashTags[targetTeam]);
 
     if (getIsTweet()) {

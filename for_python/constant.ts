@@ -137,4 +137,6 @@ export const BTM = 2;
 export const HM = 'home';
 export const AW = 'away';
 
-export const FORMAT_BATTER = '\n%s (%s-%s) %s本 %s打点  %s';
+export const FORMAT_BATTER = '\n%s (%s-%s)  %s%s%s';
+export const FORMAT_BATTER_HR = ' %s本';
+export const FORMAT_BATTER_RBI = ' %s打点';

@@ -1,8 +1,9 @@
 import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
-import { dayOfWeekArr, leagueList, posArgDic, teamArray, teamList } from './constant';
+import { dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, teamArray, teamList } from './constant';
 import { countFiles, getJson } from './fs_util';
+import { BatterResult } from './type/jsonType.d';
 
 /**
  * 
@@ -277,4 +278,22 @@ export const checkArgPs = (posArg: string) => {
     pos = posArgDic[posArg];
   }
   return pos;
+}
+
+/**
+ * 
+ */
+export const createBatterResultRows = (results: BatterResult[]): string[] => {
+  const rows = [];
+  for (const result of results) {
+    const { batter, bat, hit, average, hr, rbi } = result;
+    const hrClause = Number(hr) ? format(FORMAT_BATTER_HR, hr) : '';
+    const rbiClause = Number(rbi) ? format(FORMAT_BATTER_RBI, rbi) : '';
+  
+    rows.push(format(
+      FORMAT_BATTER,
+      trimRateZero(average), bat, hit, batter, hrClause, rbiClause
+    ));
+  }
+  return rows;
 }

@@ -217,3 +217,12 @@ export interface ScoreBoard {
     ing9?: string,
     ing10?: string
 }
+
+export interface BatterResult {
+    batter: string,
+    bat: string,
+    hit: string,
+    average: string,
+    hr: string,
+    rbi: string
+}
