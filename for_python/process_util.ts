@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import { format } from 'util';
 
-import { TotalPitchStats } from './type/jsonType';
+import { BatStats, PitchStats, ScoreBoard, TotalPitchStats } from './type/jsonType';
 import { getJson, checkDateDir, checkGameJson } from './fs_util';
 import { TeamPitchStats, TeamBatStats, TotalBatStats } from './type/jsonType.d';
 import { teamArray, posArgDic } from './constant';
@@ -44,49 +44,54 @@ const doCheckPitch = async (gameNo, dateStr) => {
    */
   const doImportPitch = async (teamInfo: TeamPitchStats) => {
     const { team, stats } = teamInfo;
+    const pTeam = teamArray[team];
+
+    /**
+     * 
+     */
+    const doSaveStatsPitcher = async (statsPitcher: StatsPitcher, pitchStats: PitchStats, order: number) => {
+      const { name, result, era, ip, np, bf, ha, hra, so, bb, hbp, balk, ra, er } = pitchStats;
+
+      statsPitcher.gameInfoId = gameInfoId;
+      statsPitcher.pTeam = pTeam;
+      statsPitcher.name = name;
+      statsPitcher.order = order;
+      statsPitcher.result = result;
+      statsPitcher.era = era;
+      statsPitcher.ip = ip;
+      statsPitcher.outs = calcOuts(ip);
+      statsPitcher.np = Number(np);
+      statsPitcher.bf = Number(bf);
+      statsPitcher.ha = Number(ha);
+      statsPitcher.hra = Number(hra);
+      statsPitcher.so = Number(so);
+      statsPitcher.bb = Number(bb);
+      statsPitcher.hbp = Number(hbp);
+      statsPitcher.balk = Number(balk);
+      statsPitcher.ra = Number(ra);
+      statsPitcher.er = Number(er);
+
+      await statsPitcher.save();
+    }
 
     for (let idx in stats) {
       const order = Number(idx) + 1;
-      const pTeam = teamArray[team];
       let savedRecord = await getRepository(StatsPitcher).findOne({ gameInfoId, pTeam, order });
 
       if (! savedRecord) {
-        const newRecord = new StatsPitcher();
-        const { name, result, era, ip, np, bf, ha, hra, so, bb, hbp, balk, ra, er } = stats[idx];
-
-        newRecord.gameInfoId = gameInfoId;
-        newRecord.pTeam = pTeam;
-        newRecord.name = name;
-        newRecord.order = order;
-        newRecord.result = result;
-        newRecord.era = era;
-        newRecord.ip = ip;
-        newRecord.outs = calcOuts(ip);
-        newRecord.np = Number(np);
-        newRecord.bf = Number(bf);
-        newRecord.ha = Number(ha);
-        newRecord.hra = Number(hra);
-        newRecord.so = Number(so);
-        newRecord.bb = Number(bb);
-        newRecord.hbp = Number(hbp);
-        newRecord.balk = Number(balk);
-        newRecord.ra = Number(ra);
-        newRecord.er = Number(er);
-
-        await newRecord.save();
+        await doSaveStatsPitcher(new StatsPitcher(), stats[idx], order);
+      } else {
+        await doSaveStatsPitcher(savedRecord, stats[idx], order);
       }
     }
   }
 
   const { away, home, isFinished }: TotalPitchStats = JSON.parse(getJson(format(pitchJsonPath, dateStr, targetGameNo)));
 
-  if (isFinished === undefined || isFinished) {
-    await doImportPitch(away);
-    await doImportPitch(home);
-    console.log(format('----- [pitch] finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
-  } else {
-    console.log(format('----- [pitch] finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
-  }
+  await doImportPitch(away);
+  await doImportPitch(home);
+
+  console.log(format('----- [pitch] finished: date: [%s], gameNo: [%s] %s-----', dateStr, targetGameNo, isFinished ? '' : 'but not complete because not complete game '));
 }
 
 /**
@@ -163,88 +168,99 @@ const doCheckBat = async (gameNo, dateStr) => {
       return currentOrder;
     }
 
+    /**
+     * 
+     */
+    const doSaveStatsBatter = async (statsBatter: StatsBatter, batStats: BatStats) => {
+      const {
+        position, name, ave, ab, run, hit, rbi, so, bb, hbp, sh, sb, e, hr,
+        ing1, ing2, ing3, ing4, ing5, ing6, ing7, ing8, ing9, ing10
+      } = batStats;
+
+      statsBatter.gameInfoId = gameInfoId;
+      statsBatter.bTeam = bTeam;
+      statsBatter.name = name;
+      statsBatter.order = calcOrder(position, currentOrder);
+      statsBatter.position = position;        
+      statsBatter.ave = ave;
+      statsBatter.ab = Number(ab);
+      statsBatter.run = Number(run);
+      statsBatter.hit = Number(hit);
+      statsBatter.rbi = Number(rbi);
+      statsBatter.so = Number(so);
+      statsBatter.bb = Number(bb);
+      statsBatter.hbp = Number(hbp);
+      statsBatter.sh = Number(sh);
+      statsBatter.sb = Number(sb);
+      statsBatter.err = Number(e);
+      statsBatter.hr = Number(hr);
+
+      statsBatter.ing1 = ing1;
+      statsBatter.ing2 = ing2;
+      statsBatter.ing3 = ing3;
+      statsBatter.ing4 = ing4;
+      statsBatter.ing5 = ing5;
+      statsBatter.ing6 = ing6;
+      statsBatter.ing7 = ing7;
+      statsBatter.ing8 = ing8;
+      statsBatter.ing9 = ing9;
+      statsBatter.ing10 = ing10 ? ing10 : '';
+
+      statsBatter.isSm = Number(isStartingMember(position));
+      statsBatter.isPh = Number(position.indexOf('打') > -1);
+      statsBatter.isPr = Number(position.indexOf('走') > -1);
+      statsBatter.isSf = Number(!isStartingMember(position) && Object.values(posArgDic).indexOf(position.split('')[0]) > -1);
+
+      await statsBatter.save();
+    }
+
+    /**
+     * 
+     */
+    const doSaveScoreBoard = async (statsScoreBoard: StatsScoreboard, scoreBoard: ScoreBoard) => {
+      const { total, ing1, ing2, ing3, ing4, ing5, ing6, ing7, ing8, ing9, ing10 } = scoreBoard;
+
+      statsScoreBoard.gameInfoId = gameInfoId;
+      statsScoreBoard.bTeam = bTeam;
+      statsScoreBoard.ing1 = ing1;
+      statsScoreBoard.ing2 = ing2;
+      statsScoreBoard.ing3 = ing3;
+      statsScoreBoard.ing4 = ing4;
+      statsScoreBoard.ing5 = ing5;
+      statsScoreBoard.ing6 = ing6;
+      statsScoreBoard.ing7 = ing7;
+      statsScoreBoard.ing8 = ing8;
+      statsScoreBoard.ing9 = ing9;
+      statsScoreBoard.ing10 = ing10 ? ing10 : '';
+      statsScoreBoard.total = total;
+
+      await statsScoreBoard.save();
+    }
+
     for (let idx in stats) {
       const batStats = stats[idx];
       let savedBatRecord = await getRepository(StatsBatter).findOne({ gameInfoId, bTeam, name: batStats.name });
 
       if (! savedBatRecord) {
-        const newRecord = new StatsBatter();
-
-        const {
-          position, name, ave, ab, run, hit, rbi, so, bb, hbp, sh, sb, e, hr,
-          ing1, ing2, ing3, ing4, ing5, ing6, ing7, ing8, ing9, ing10
-        } = batStats;
-
-        newRecord.gameInfoId = gameInfoId;
-        newRecord.bTeam = bTeam;
-        newRecord.name = name;
-        newRecord.order = calcOrder(position, currentOrder);
-        newRecord.position = position;        
-        newRecord.ave = ave;
-        newRecord.ab = Number(ab);
-        newRecord.run = Number(run);
-        newRecord.hit = Number(hit);
-        newRecord.rbi = Number(rbi);
-        newRecord.so = Number(so);
-        newRecord.bb = Number(bb);
-        newRecord.hbp = Number(hbp);
-        newRecord.sh = Number(sh);
-        newRecord.sb = Number(sb);
-        newRecord.err = Number(e);
-        newRecord.hr = Number(hr);
-
-        newRecord.ing1 = ing1;
-        newRecord.ing2 = ing2;
-        newRecord.ing3 = ing3;
-        newRecord.ing4 = ing4;
-        newRecord.ing5 = ing5;
-        newRecord.ing6 = ing6;
-        newRecord.ing7 = ing7;
-        newRecord.ing8 = ing8;
-        newRecord.ing9 = ing9;
-        newRecord.ing10 = ing10 ? ing10 : '';
-
-        newRecord.isSm = Number(isStartingMember(position));
-        newRecord.isPh = Number(position.indexOf('打') > -1);
-        newRecord.isPr = Number(position.indexOf('走') > -1);
-        newRecord.isSf = Number(!isStartingMember(position) && Object.values(posArgDic).indexOf(position.split('')[0]) > -1);
-
-        await newRecord.save();
+        await doSaveStatsBatter(new StatsBatter(), batStats);
+      } else {
+        await doSaveStatsBatter(savedBatRecord, batStats);
       }
     }
 
     let savedScoreRecord = await getRepository(StatsScoreboard).findOne({ gameInfoId, bTeam });
     if (! savedScoreRecord) {
-      const { total, ing1, ing2, ing3, ing4, ing5, ing6, ing7, ing8, ing9, ing10 } = scoreBoard;
-      const nr = new StatsScoreboard();
-
-      nr.gameInfoId = gameInfoId;
-      nr.bTeam = bTeam;
-      nr.ing1 = ing1;
-      nr.ing2 = ing2;
-      nr.ing3 = ing3;
-      nr.ing4 = ing4;
-      nr.ing5 = ing5;
-      nr.ing6 = ing6;
-      nr.ing7 = ing7;
-      nr.ing8 = ing8;
-      nr.ing9 = ing9;
-      nr.ing10 = ing10 ? ing10 : '';
-      nr.total = total;
-
-      await nr.save();
+      await doSaveScoreBoard(new StatsScoreboard(), scoreBoard);
+    } else {
+      await doSaveScoreBoard(savedScoreRecord, scoreBoard);
     }
   }
 
   const { away, home, isFinished }: TotalBatStats = JSON.parse(getJson(format(batJsonPath, dateStr, targetGameNo)));
 
-  if (isFinished === undefined || isFinished) {
-    await doImportBat(away);
-    await doImportBat(home);
-    console.log(format('----- [bat] finished: date: [%s], gameNo: [%s] -----', dateStr, targetGameNo));
-  } else {
-    console.log(format('----- [bat] finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
-  }
+  await doImportBat(away);
+  await doImportBat(home);
+  console.log(format('----- [bat] finished: date: [%s], gameNo: [%s] %s-----', dateStr, targetGameNo, isFinished ? '' : 'but not complete because not complete game '));
 }
 
 /**
