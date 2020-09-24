@@ -140,7 +140,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
     WHERE
       base.team_initial_kana IN (${teams.join(", ")})
     ORDER BY
-      win_rate DESC
+      win_rate DESC, win_count DESC
   `);
   
   let prevTeamSavings = 0;
