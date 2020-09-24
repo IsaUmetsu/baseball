@@ -19,7 +19,6 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
   const dayOfWeek = checkArgDow(Number(process.env.D));
 
-  console.log(teams)
   for (const targetTeam of teams) {
 
     const manager = await getManager();
@@ -45,17 +44,15 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
       ) AS game ON game.team_initial_kana = b_team
       WHERE
         is_pa = 1 AND 
-        b_team IN (${targetTeam}) AND 
+        b_team IN ('${targetTeam}') AND 
         DAYOFWEEK(date) = ${dayOfWeek} -- 曜日指定
       GROUP BY current_batter_name, game.game_cnt 
       HAVING pa >= 2 * game.game_cnt 
       ORDER BY average DESC
     `);
 
-    const teamIni = targetTeam.split('"').join('');
-    console.log(teamIni)
-    const [ teamName ] = Object.entries(teamNameFullToIni).find(([,value]) => value == teamIni);
-    const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == teamName);
+    const [ teamName ] = Object.entries(teamNameFullToIni).find(([,value]) => value == targetTeam);
+    const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == targetTeam);
     
     const title = format('%s打者 %s 打率\n', teamName, dayOfWeekArr[dayOfWeek]);
     const rows = [];
