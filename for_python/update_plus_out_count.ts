@@ -1,5 +1,5 @@
 import { createConnection } from 'typeorm';
-import { executeUpdatePlusOutCount } from '../db_util';
+import { executeUpdatePlusOutCount } from './db_util';
 
 // Execute
 (async () => {
