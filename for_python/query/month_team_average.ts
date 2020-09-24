@@ -2,8 +2,9 @@ import { format } from 'util';
 import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
-import { teamHashTags, leagueList, dayOfWeekArr, teamArray } from '../constant';
+import { teamHashTags, leagueList, teamArray } from '../constant';
 import { checkArgLG, displayResult, trimRateZero } from '../disp_util';
+import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 // Execute
 (async () => {
@@ -54,5 +55,9 @@ import { checkArgLG, displayResult, trimRateZero } from '../disp_util';
     ));  
   }
 
-  displayResult(title, rows);
+  if (getIsTweet()) {
+    await tweetMulti(title, rows);
+  } else {
+    displayResult(title, rows);
+  }
 })();
