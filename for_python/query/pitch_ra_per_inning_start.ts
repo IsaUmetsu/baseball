@@ -69,20 +69,9 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
     `);
 
     const longestIp: any[] = await manager.query(`
-      SELECT 
-          date,
-          SUM(plus_out_count) as total_out,
-          CONCAT(
-            SUM(plus_out_count) DIV 3,
-            CASE WHEN SUM(plus_out_count) MOD 3 > 0 THEN CONCAT('.', SUM(plus_out_count) MOD 3) ELSE '' END
-          ) AS inning
-      FROM
-          baseball_2020.debug_base
-      WHERE
-          current_pitcher_name LIKE '%${pitcher.split(' ').join('%')}%'
-      GROUP BY date , current_pitcher_name
-      ORDER BY total_out DESC, date DESC
-      LIMIT 1
+      SELECT
+        MAX(ip) AS inning
+      FROM baseball_2020.stats_pitcher WHERE name LIKE '%${pitcher.split(' ').join('%')}%';
     `);
 
     if (longestIp.length == 0) {
@@ -91,10 +80,13 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
     }
 
     const { inning } = longestIp[0];
+    let [ intPart, decimalPart ] = inning.split('.');
+    intPart = decimalPart ? Number(intPart) + 1 : Number(intPart)
+    
     const title = format("2020年 %s投手 イニング別失点数\n", pitcher.split(' ').join(''));
     const rows = [];
     
-    for (let ingNum = 1; ingNum <= Math.ceil(Number(inning)); ingNum++) {
+    for (let ingNum = 1; ingNum <= intPart; ingNum++) {
       const targetInning = results.find(result => result.inning == ingNum);
 
       let inning = targetInning ? targetInning.inning : ingNum;
@@ -102,7 +94,7 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
       rows.push(format("\n%s回 %s", inning, runAllowed));
     }
 
-    if (Math.ceil(Number(inning)) + 1 < 10) rows.push(format("\n(%s回以降未登板)", Math.ceil(Number(inning)) + 1));
+    if (intPart + 1 < 10) rows.push(format("\n(%s回以降未登板)", intPart + 1));
     const footer = format("\n\n%s\n%s", teamHashTags[targetTeam], oppoTeam ? teamHashTags[oppoTeam] : '');
 
     if (getIsTweet()) {
