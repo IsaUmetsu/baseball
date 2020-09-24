@@ -116,7 +116,7 @@ import { checkArgTMLG, displayResult, trimRateZero } from '../disp_util';
   
   const title = format("%s球団 対%s投手 打率\n", league ? leagueList[league] + '6' : 'NPB12', domainHandList[domainHandArg]);
   const rows = [];
-  results.forEach(result => {
+  for (const result of results) {
     const { current_batter_name, b_team, ave } = result;
 
     rows.push(format(

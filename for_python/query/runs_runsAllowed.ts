@@ -3,6 +3,8 @@ import { format } from 'util';
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
 import { RunsRunsAllowed } from '../type/jsonType.d';
+import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+import { displayResult } from '../disp_util';
 
 // Execute
 (async () => {
@@ -15,7 +17,7 @@ import { RunsRunsAllowed } from '../type/jsonType.d';
 
   const teams = teamArg ? [teamArg] : leagueP.concat(leagueC);
 
-  teams.forEach(async targetTeam => {
+  for (const targetTeam of teams) {
     const team = teamArray[targetTeam];
     if (! team) {
       console.log('正しいチームイニシャル を指定してください');
@@ -78,10 +80,18 @@ import { RunsRunsAllowed } from '../type/jsonType.d';
       results.push({ inning: 10, runs: 0, runsAllowed: 0 })
     }
 
-    console.log(format("\n2020年%s イニング別得失点\n(順番: 得点 失点)\n", teamNames[targetTeam]));
-    results.forEach(result => {
-      console.log(format('%d回 %d %d', result['inning'], result['runs'], result['runsAllowed']));  
-    });
-    console.log(format("\n%s", teamHashTags[targetTeam]));
-  })
+    const title = format('2020年%s イニング別得失点\n(順番: 得点 失点)\n', teamNames[targetTeam]);
+    const rows = [];
+    for (const result of results) {
+      const { inning, runs, runsAllowed } = result;
+      rows.push(format('\n%d回 %d %d', inning, runs, runsAllowed));  
+    }
+    const footer = format('\n\n%s', teamHashTags[targetTeam]);
+    
+    if (getIsTweet()) {
+      await tweetMulti(title, rows, footer);
+    } else {
+      displayResult(title, rows, footer);
+    }
+  }
 })();

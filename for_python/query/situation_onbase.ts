@@ -47,7 +47,7 @@ const isScoringPos = getIsScoringPos();
         END
   `;
 
-  teams.forEach(async targetTeam => {
+  for (const targetTeam of teams) {
     const team = teamArray[targetTeam];
     if (! team) {
       console.log('正しいチームイニシャル を指定してください');
@@ -63,14 +63,14 @@ const isScoringPos = getIsScoringPos();
       `);
 
       const rows = [];
-      results.forEach(result => {
+      for (const result of results) {
         const { average, ab, hit, hr, runs, walk, onbase_ave, sf } = result;
 
         rows.push(format(
           '\n%s (%d-%d) %d本 %d打点 %d四球 出塁率%s %s犠飛\n',
           average, ab, hit, hr, runs, walk, onbase_ave, sf
         ));
-      });
+      }
 
       displayResult(
         format("2020年%s 得点圏 打撃成績\n", teamNames[targetTeam]), rows,
@@ -111,8 +111,8 @@ const isScoringPos = getIsScoringPos();
         return onbaseStr;
       }
 
-      outCountArr.forEach(async outCount => {
-        onbaseArr.forEach(async onbase => {
+      for (const outCount of outCountArr) {
+        for (const onbase of onbaseArr) {
           const [first, second, third] = onbase;
     
           const results = await manager.query(`
@@ -126,14 +126,14 @@ const isScoringPos = getIsScoringPos();
           `);
 
           const rows = [];
-          results.forEach(result => {
+          for (const result of results) {
             const { average, ab, hit, hr, runs, walk, onbase_ave, sf } = result;
 
             rows.push(format(
               '\n%s (%d-%d) %d本 %d打点 %d四球 出塁率%s %s',
               average, ab, hit, hr, runs, walk, onbase_ave, outCount < 2 && third ? format('%d犠飛 ', sf) : ''
             ));
-          });
+          }
 
           displayResult(
             format('2020年%s %s死%s 打撃成績\n',
@@ -143,8 +143,8 @@ const isScoringPos = getIsScoringPos();
             ),
             rows, format("\n\n%s", teamHashTags[targetTeam])
           );
-        });
-      });
+        }
+      }
     }
-  });
+  }
 })();

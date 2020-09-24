@@ -17,7 +17,7 @@ import { BatterResult } from '../type/jsonType';
 
   const teams = teamArg ? teamArg.split(' ') : leagueP.concat(leagueC)
 
-  teams.forEach(async targetTeam => {
+  for (const targetTeam of teams) {
     const team = teamArray[targetTeam];
     if (! team) {
       console.log('正しいチームイニシャル を指定してください');
@@ -86,5 +86,5 @@ import { BatterResult } from '../type/jsonType';
     } else {
       displayResult(title, rows, footer);
     }
-  })
+  }
 })();

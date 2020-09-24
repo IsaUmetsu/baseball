@@ -5,8 +5,6 @@ import { leagueList, dayOfWeekArr } from '../constant';
 import { checkArgLG, displayResult, trimRateZero, checkArgDow } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
-const isTweet = getIsTweet();
-
 /**
  * 曜日ごとの打率(出力単位: チーム、リーグ(単体・複数))
  */
@@ -62,12 +60,12 @@ const isTweet = getIsTweet();
 
   const title = format("%s打者 %s 打率\n", league ? leagueList[league] : 'NPB', dayOfWeekArr[dayOfWeek]);
   const rows = [];
-  results.forEach(result => {
+  for (const result of results) {
     const { average, bat, hit, batter, tm } = result;
     rows.push(format("\n%s (%s-%s) %s(%s)", trimRateZero(average), bat, hit, batter, tm));
-  });
+  }
 
-  if (isTweet) {
+  if (getIsTweet()) {
     await tweetMulti(title, rows);
   } else {
     displayResult(title, rows);

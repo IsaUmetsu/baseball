@@ -5,8 +5,6 @@ import { teamHashTags, leagueList, dayOfWeekArr } from '../constant';
 import { checkArgDow, checkArgLG, displayResult, trimRateZero } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
-const isTweet = getIsTweet();
-
 /**
  * 曜日ごとの対戦成績出力
  */
@@ -114,21 +112,21 @@ const isTweet = getIsTweet();
   const title = format("%s球団 %s 成績\n", league ? leagueList[league] + '6' : 'NPB12', dayOfWeekArr[dayOfWeek]);
   const rows = [];
 
-  results.forEach((result, idx) => {
-    const { team_initial_kana, team_initial, win_count, lose_count, draw_count, win_rate } = result;
+  for (let idx in results) {
+    const { team_initial_kana, team_initial, win_count, lose_count, draw_count, win_rate } = results[idx];
     const nowTeamSavings = Number(win_count) - Number(lose_count);
 
     rows.push(format(
       '\n%s  %s勝%s敗%s %s %s',
       team_initial_kana, win_count, lose_count,
       draw_count > 0 ? format('%s分', draw_count) : '', trimRateZero(win_rate),
-      idx > 0 ? (prevTeamSavings - nowTeamSavings) / 2 : '-', teamHashTags[team_initial]
+      Number(idx) > 0 ? (prevTeamSavings - nowTeamSavings) / 2 : '-', teamHashTags[team_initial]
     ));
 
     prevTeamSavings = nowTeamSavings;
-  });
+  }
 
-  if (isTweet) {
+  if (getIsTweet()) {
     await tweetMulti(title, rows);
   } else {
     displayResult(title, rows);

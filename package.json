@@ -44,7 +44,7 @@
     "irapp": "ts-node for_python/query/inning_ra_per_p.ts",
     "irapp:tw": "ts-node for_python/query/inning_ra_per_p.ts -t",
     "dh:b": "ts-node for_python/query/domain_hand_batter.ts",
-    "mjr:pos": "ts-node for_python/query/major_pos.ts",
+    "major:pos": "ts-node for_python/query/major_pos.ts",
     "pitch:type": "ts-node for_python/query/pitch_type.ts",
     "pitch:type:tw": "ts-node for_python/query/pitch_type.ts -t",
     "pitch:strike:sw": "S=SW ts-node for_python/query/pitch_strike_sw_lk.ts",

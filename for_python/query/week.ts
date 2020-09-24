@@ -5,8 +5,6 @@ import { leagueList, teamNames } from "../constant";
 import { checkArgTargetDay, checkArgTMLG, displayResult, trimRateZero } from "../disp_util";
 import { getIsTweet, tweetMulti } from "../tweet/tw_util";
 
-const isTweet = getIsTweet();
-
 // Execute
 (async () => {
   await createConnection('default');
@@ -64,12 +62,12 @@ const isTweet = getIsTweet();
 
   const title = format("%s打者 %s〜%s 打率\n", batterTitle, firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D'));
   const rows = [];
-  results.forEach(result => {
+  for (const result of results) {
     const { batter, tm, bat, hit, average } = result;
     rows.push(format("\n%s (%s-%s) %s(%s)", trimRateZero(average), bat, hit, batter, tm));
-  });
+  }
 
-  if (isTweet) {
+  if (getIsTweet()) {
     tweetMulti(title, rows);
   } else {
     displayResult(title, rows);

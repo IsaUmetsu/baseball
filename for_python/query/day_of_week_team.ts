@@ -5,8 +5,6 @@ import { teamArray, teamNames, teamHashTags, leagueP, leagueC, dayOfWeekArr } fr
 import { checkArgDow, trimRateZero, displayResult } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
-const isTweet = getIsTweet();
-
 /**
  * 曜日ごとの打率(出力単位: チーム単体)
  */
@@ -21,7 +19,7 @@ const isTweet = getIsTweet();
   const teams = teamArg ? [teamArg] : leagueP.concat(leagueC)
   const dayOfWeek = checkArgDow(Number(process.env.D));
 
-  teams.forEach(async targetTeam => {
+  for (const targetTeam of teams) {
     const team = teamArray[targetTeam];
     if (! team) {
       console.log('正しいチームイニシャル を指定してください');
@@ -60,16 +58,16 @@ const isTweet = getIsTweet();
     
     const title = format('%s打者 %s 打率\n', teamNames[targetTeam], dayOfWeekArr[dayOfWeek]);
     const rows = [];
-    results.forEach(result => {
+    for (const result of results) {
       const { average, bat, hit, batter } = result;
       rows.push(format('\n%s (%s-%s) %s', trimRateZero(average), bat, hit, batter));
-    });
+    }
     const footer = format('\n\n%s', teamHashTags[targetTeam]);
     
-    if (isTweet) {
+    if (getIsTweet()) {
       await tweetMulti(title, rows, footer);
     } else {
       displayResult(title, rows, footer);
     }
-  });
+  }
 })();

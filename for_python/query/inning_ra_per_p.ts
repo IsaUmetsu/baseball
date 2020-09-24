@@ -9,8 +9,6 @@ import { getIsTweet, tweet } from '../tweet/tw_util';
 const pitcherPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s";
 const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
 
-const isTweet = getIsTweet();
-
 // Execute
 (async () => {
   await createConnection('default');
@@ -21,7 +19,7 @@ const isTweet = getIsTweet();
 
   if (!teamArg && !nameArg) {
     console.log('NM=[名前] TM=[チームイニシャル] の指定がないため本日の先発投手を指定します');
-    targetPitchers = await getPitcher(pitcherPath, jsonPath, isTweet);
+    targetPitchers = await getPitcher(pitcherPath, jsonPath, getIsTweet());
     if (! targetPitchers.length) {
       console.log('本日の予告先発がいない または ツイート対象の投手がいません');
       return;
@@ -44,7 +42,7 @@ const isTweet = getIsTweet();
   //   return;
   // }
 
-  targetPitchers.forEach(async ({ team: targetTeam, pitcher, oppoTeam }) => {
+  for (const { team: targetTeam, pitcher, oppoTeam } of targetPitchers) {
     const team = teamArray[targetTeam];
     if (! team) {
       console.log('正しいチームイニシャル を指定してください');
@@ -107,10 +105,10 @@ const isTweet = getIsTweet();
     if (Math.ceil(Number(inning)) + 1 < 10) rows.push(format("\n(%s回以降未登板)", Math.ceil(Number(inning)) + 1));
     const footer = format("\n\n%s\n%s", teamHashTags[targetTeam], oppoTeam ? teamHashTags[oppoTeam] : '');
 
-    if (isTweet) {
+    if (getIsTweet()) {
       await tweet(title, rows, footer);
     } else {
       displayResult(title, rows, footer);
     }
-  });
+  }
 })();

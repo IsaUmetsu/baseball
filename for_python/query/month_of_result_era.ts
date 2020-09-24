@@ -5,8 +5,6 @@ import { leagueList } from '../constant';
 import { checkArgLG, checkArgM, displayResult } from '../disp_util';
 import { tweetMulti, getIsTweet } from '../tweet/tw_util';
 
-const isTweet = getIsTweet();
-
 // Execute
 (async () => {
   await createConnection('default');
@@ -83,7 +81,7 @@ const isTweet = getIsTweet();
     pitcherArg == 'A' ? '' : pitcherArg == 'S' ? ' 先発' : ' 中継ぎ'
   );
 
-  if (isTweet) {
+  if (getIsTweet()) {
     await tweetMulti(title, rows);
   } else {
     displayResult(title, rows);

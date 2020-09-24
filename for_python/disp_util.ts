@@ -195,9 +195,9 @@ export const displayResult = (title: string, rows: string[], footer?: string) =>
   }
 
   // display
-  mainContents.forEach(text => {
+  for (const text of mainContents) {
     console.log("--------------------\n\n%s\n", text);
-  })
+  }
 }
 
 /**

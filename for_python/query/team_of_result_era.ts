@@ -5,8 +5,6 @@ import { teamArray, teamNames, teamHashTags, PT_STARTER, pitcherTypeArgArr } fro
 import { checkArgTmOp, displayResult } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
-const isTweet = getIsTweet();
-
 /**
  * 対戦チームにおける先発・中継ぎ陣の防御率
  */
@@ -91,7 +89,7 @@ const isTweet = getIsTweet();
     const pitcherTypeClause = pitcherType ? pitcherType == PT_STARTER ? '先発 ': '中継ぎ ' : '';
     const title = format('%s vs %s\n%s投球内容\n', teamNames[teamArg], teamNames[oppoArg], pitcherTypeClause);
     const rows = [];
-    results.forEach(result => {
+    for (const result of results) {
       const { p_team, win, lose, era, inning, so, ha, hra, bb, ra, er } = result;
       const [ pTeamIniEn ] = Object.entries(teamArray).find(([, value]) => value == p_team );
 
@@ -99,17 +97,17 @@ const isTweet = getIsTweet();
         '\n%s\n%s勝%s敗 防%s %s回 %s奪三振 被安%s 被本%s 与四%s 失%s 自%s\n',
         teamNames[pTeamIniEn], win, lose, era, inning, so, ha, hra, bb, ra, er
       ));  
-    });
+    }
     const footer = format("\n%s\n%s", teamHashTags[teamArg], teamHashTags[oppoArg]);
     
-    if (isTweet) {
+    if (getIsTweet()) {
       await tweetMulti(title, rows, footer);
     } else {
       displayResult(title, rows, footer);
     }
   }
 
-  targetTeam.forEach(async ({ team1, team2 }) => {
+  for (const { team1, team2 } of targetTeam) {
     await execute(team1, team2);
-  })
+  }
 })();

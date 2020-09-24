@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, dayOfWeekArr, teamArray } from '../constant';
-import { checkArgLG, trimRateZero } from '../disp_util';
+import { checkArgLG, displayResult, trimRateZero } from '../disp_util';
 
 // Execute
 (async () => {
@@ -42,15 +42,17 @@ import { checkArgLG, trimRateZero } from '../disp_util';
     ORDER BY average DESC
   `);
   
-  console.log(format("\n%s球団 %s月 打率\n", league ? leagueList[league] + '6' : 'NPB12', monthArg));
-  results.forEach(result => {
+  const title = format('%s球団 %s月 打率\n', league ? leagueList[league] + '6' : 'NPB12', monthArg);
+  const rows = [];
+  for (const result of results) {
     const { tm, bat, hit, average } = result;
-
     const [ team_initial ] = Object.entries(teamArray).find(([, value]) => value == tm);
 
-    console.log(format(
-      "%s %s (%s-%s) %s ",
+    rows.push(format(
+      '\n%s %s (%s-%s) %s ',
       tm, trimRateZero(average), bat, hit, teamHashTags[team_initial]
     ));  
-  });
+  }
+
+  displayResult(title, rows);
 })();

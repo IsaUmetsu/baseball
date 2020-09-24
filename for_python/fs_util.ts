@@ -70,17 +70,14 @@ export const getPitcher = async (pitcherPath: string, jsonPath: string, isTweet:
     const now = moment();
     const gameStartTime = moment({ hours, minute });
 
+    targetPitchers.push({ team: away.team, pitcher: away.pitcher, oppoTeam: home.team });
+    targetPitchers.push({ team: home.team, pitcher: home.pitcher, oppoTeam: away.team  });
+    console.log(format('対戦カード%s (away): %s(%s)', gameCnt, away.pitcher, away.team));
+    console.log(format('対戦カード%s (home): %s(%s)', gameCnt, home.pitcher, home.team));
     // 試合開始時間 ±2時間未満 かつ 未ツイートの場合
-    if (Math.abs(gameStartTime.diff(now, 'hours')) <= 1 && !tweet) {
-      targetPitchers.push({ team: away.team, pitcher: away.pitcher, oppoTeam: home.team });
-      targetPitchers.push({ team: home.team, pitcher: home.pitcher, oppoTeam: away.team  });
-      console.log(format('対戦カード%s (away): %s(%s)', gameCnt, away.pitcher, away.team));
-      console.log(format('対戦カード%s (home): %s(%s)', gameCnt, home.pitcher, home.team));
-
-      if (isTweet) {
-        data.tweet = true;
-        fs.writeFileSync(fmJsonPath, JSON.stringify(data, null, '  '));
-      }
+    if (Math.abs(gameStartTime.diff(now, 'hours')) <= 1 && !tweet && isTweet) {
+      data.tweet = true;
+      fs.writeFileSync(fmJsonPath, JSON.stringify(data, null, '  '));
     }
   }
 

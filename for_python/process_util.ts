@@ -45,14 +45,14 @@ const doCheckPitch = async (gameNo, dateStr) => {
   const doImportPitch = async (teamInfo: TeamPitchStats) => {
     const { team, stats } = teamInfo;
 
-    stats.forEach(async (pitchStats, idx) => {
-      const order = idx + 1;
+    for (let idx in stats) {
+      const order = Number(idx) + 1;
       const pTeam = teamArray[team];
       let savedRecord = await getRepository(StatsPitcher).findOne({ gameInfoId, pTeam, order });
 
       if (! savedRecord) {
         const newRecord = new StatsPitcher();
-        const { name, result, era, ip, np, bf, ha, hra, so, bb, hbp, balk, ra, er } = pitchStats;
+        const { name, result, era, ip, np, bf, ha, hra, so, bb, hbp, balk, ra, er } = stats[idx];
 
         newRecord.gameInfoId = gameInfoId;
         newRecord.pTeam = pTeam;
@@ -75,7 +75,7 @@ const doCheckPitch = async (gameNo, dateStr) => {
 
         await newRecord.save();
       }
-    })
+    }
   }
 
   const { away, home, isFinished }: TotalPitchStats = JSON.parse(getJson(format(pitchJsonPath, dateStr, targetGameNo)));
