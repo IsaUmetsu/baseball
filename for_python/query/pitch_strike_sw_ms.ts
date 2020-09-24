@@ -30,7 +30,7 @@ interface Result { team: string, pitcher: string, swing_cnt: string, missed_cnt:
     WHERE
       date = '${dayArg}' AND current_pitcher_order = 1
     GROUP BY p_team, current_pitcher_name
-    ORDER BY ${ strikeArg == 'SW' ? 'swing_cnt' : 'look_cnt' } DESC
+    ORDER BY ${ strikeArg == 'SW' ? 'swing_cnt' : 'missed_cnt' } DESC
   `);
 
   const title = format('%s 先発投手\n%sストライク数\n', moment(dayArg, 'YYYYMMDD').format('M/D'), strikeArg == 'SW' ? '空振り': '見逃し');
