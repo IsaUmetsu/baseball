@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
-import { RunsRunsAllowed } from '../type/jsonType.d';
+import { RunsRunsAllowed } from '../type/jsonType';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 import { displayResult } from '../disp_util';
 
