@@ -124,7 +124,7 @@ import { checkArgTMLG, displayResult, trimRateZero } from '../disp_util';
       trimRateZero(result[`${dh}_ave`]), result[`${dh}_ab`], result[`${dh}_hit`],
       current_batter_name, b_team
     ));
-  });
+  }
 
   displayResult(title, rows);
 })();

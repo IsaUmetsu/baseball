@@ -46,7 +46,7 @@
     "situ:sp": "ts-node for_python/query/situation_onbase.ts -s",
     "irapp": "ts-node for_python/query/inning_ra_per_p.ts",
     "irapp:tw": "ts-node for_python/query/inning_ra_per_p.ts -t",
-    "dh:b": "ts-node for_python/query/domain_hand_batter.ts",
+    "bat:domain:hand": "ts-node for_python/query/bat_domain_hand.ts",
     "bat:major:pos": "ts-node for_python/query/bat_per_major_position.ts",
     "bat:major:pos:tw": "ts-node for_python/query/bat_per_major_position.ts -t",
     "pitch:type": "ts-node for_python/query/pitch_type.ts",
