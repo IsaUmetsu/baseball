@@ -89,10 +89,10 @@ const doSave = async (gameNo, dateStr) => {
   let isNoGame = false;
   if (sceneCnt > 0) {
     const lastJson: OutputJson = JSON.parse(getJson(format(jsonPath, dateStr, targetGameNo, sceneCnt)));
-    if (! ["試合終了", "試合中止", "ノーゲーム"].includes(lastJson.liveHeader.inning)) {
-      console.log(format('----- [game] finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
-      return;
-    }
+    // if (! ["試合終了", "試合中止", "ノーゲーム"].includes(lastJson.liveHeader.inning)) {
+    //   console.log(format('----- [game] finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
+    //   return;
+    // }
     isNoGame = ["試合中止", "ノーゲーム"].includes(lastJson.liveHeader.inning);
   }
 
