@@ -42,6 +42,8 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
   //   return;
   // }
 
+  const manager = await getManager();
+
   for (const { team: targetTeam, pitcher, oppoTeam } of targetPitchers) {
     const team = teamArray[targetTeam];
     if (! team) {
@@ -49,7 +51,6 @@ const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
       return;
     }
 
-    const manager = await getManager();
     const results: any[] = await manager.query(`
       SELECT
         ing_num AS inning,
