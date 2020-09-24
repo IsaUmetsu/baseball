@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { leagueList, dayOfWeekArr } from '../constant';
-import { checkArgLG, displayResult, trimRateZero, checkArgDow } from '../disp_util';
+import { displayResult, trimRateZero, checkArgDow, checkArgTMLG } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 /**
@@ -11,8 +11,10 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 (async () => {
   await createConnection('default');
 
+  const teamArg = process.env.TM;
   const league = process.env.LG;
-  const teams = checkArgLG(league);
+
+  const teams = checkArgTMLG(teamArg, league);
   if (! teams.length) return;
 
   const dayOfWeek = checkArgDow(Number(process.env.D));
@@ -51,7 +53,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
       ) AS gm on base.b_team = gm.b_team
       WHERE
         is_pa = 1 AND 
-        home_initial IN (${teams.join(", ")}) AND 
+        home_initial IN ('${teams.join("', '")}') AND 
         DAYOFWEEK(date) = ${dayOfWeek} -- 曜日指定
       GROUP BY current_batter_name, tm, game_cnt
       HAVING pa >= 3.1 * game_cnt

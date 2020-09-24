@@ -47,7 +47,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
     ) gm ON base.b_team = gm.b_team
     WHERE
       is_pa = 1 AND 
-      base.b_team IN (${teams.join(',')}) AND 
+      base.b_team IN ('${teams.join("', '")}') AND 
       date BETWEEN '${firstDay}' AND '${lastDay}'
     GROUP BY current_batter_name, base.b_team, game_cnt
     HAVING SUM(is_pa) >= ${teamArg ? 2 : 3.1} * game_cnt AND SUM(is_ab) > 0

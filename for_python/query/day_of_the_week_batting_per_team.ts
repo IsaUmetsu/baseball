@@ -1,8 +1,8 @@
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags, leagueP, leagueC, dayOfWeekArr } from '../constant';
-import { checkArgDow, trimRateZero, displayResult } from '../disp_util';
+import { teamArray, teamHashTags, dayOfWeekArr, teamNameFullToIni } from '../constant';
+import { checkArgDow, trimRateZero, displayResult, checkArgTMLG } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 /**
@@ -12,19 +12,15 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
   await createConnection('default');
 
   const teamArg = process.env.TM;
-  if (! teamArg) {
-    console.log('TM=[チームイニシャル] を指定がないため12球団分出力します');
-  }
+  const league = process.env.LG;
 
-  const teams = teamArg ? [teamArg] : leagueP.concat(leagueC)
+  const teams = checkArgTMLG(teamArg, league);
+  if (! teams.length) return;
+
   const dayOfWeek = checkArgDow(Number(process.env.D));
 
+  console.log(teams)
   for (const targetTeam of teams) {
-    const team = teamArray[targetTeam];
-    if (! team) {
-      console.log('正しいチームイニシャル を指定してください');
-      return;
-    }
 
     const manager = await getManager();
     const results = await manager.query(`
@@ -49,20 +45,25 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
       ) AS game ON game.team_initial_kana = b_team
       WHERE
         is_pa = 1 AND 
-        b_team = '${team}' AND 
+        b_team IN (${targetTeam}) AND 
         DAYOFWEEK(date) = ${dayOfWeek} -- 曜日指定
       GROUP BY current_batter_name, game.game_cnt 
       HAVING pa >= 2 * game.game_cnt 
       ORDER BY average DESC
     `);
+
+    const teamIni = targetTeam.split('"').join('');
+    console.log(teamIni)
+    const [ teamName ] = Object.entries(teamNameFullToIni).find(([,value]) => value == teamIni);
+    const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == teamName);
     
-    const title = format('%s打者 %s 打率\n', teamNames[targetTeam], dayOfWeekArr[dayOfWeek]);
+    const title = format('%s打者 %s 打率\n', teamName, dayOfWeekArr[dayOfWeek]);
     const rows = [];
     for (const result of results) {
       const { average, bat, hit, batter } = result;
       rows.push(format('\n%s (%s-%s) %s', trimRateZero(average), bat, hit, batter));
     }
-    const footer = format('\n\n%s', teamHashTags[targetTeam]);
+    const footer = format('\n\n%s', teamHashTags[teamIniEn]);
     
     if (getIsTweet()) {
       await tweetMulti(title, rows, footer);

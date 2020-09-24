@@ -58,7 +58,7 @@ import { tweetMulti, getIsTweet } from '../tweet/tw_util';
     WHERE
       sp.order = 1
       AND DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${monthArg}
-      AND p_team IN (${teams.join(',')})
+      AND p_team IN ('${teams.join("', '")}')
     GROUP BY
       name,
       p_team,

@@ -49,7 +49,7 @@ import { getIsTweet, tweetMulti } from "../tweet/tw_util";
     ) gm ON base.b_team = gm.b_team
     WHERE
       is_pa = 1 AND
-      home_initial IN (${teams.join(", ")}) AND 
+      home_initial IN ('${teams.join("', '")}') AND 
       (date >= '${firstDayOfWeekStr}' AND date <= '${lastDayOfWeekStr}')
     GROUP BY current_batter_name, tm, game_cnt
     HAVING SUM(is_pa) >= ${teamArg ? 2 : 3.1} * gm.game_cnt AND SUM(is_ab) > 0

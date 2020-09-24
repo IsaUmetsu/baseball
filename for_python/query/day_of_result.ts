@@ -103,7 +103,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
               home_initial
       ) home ON home.team_initial = base.team_initial_kana
     WHERE
-      base.dow = ${dayOfWeek} AND base.team_initial_kana IN (${teams.join(", ")})
+      base.dow = ${dayOfWeek} AND base.team_initial_kana IN ('${teams.join("', '")}')
     ORDER BY
       win_rate DESC
   `);

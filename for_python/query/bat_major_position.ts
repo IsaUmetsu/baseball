@@ -75,7 +75,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
           ) AS B ON A.b_team = B.b_team AND A.ab = B.ab
           WHERE B.b_team IS NOT NULL
         )
-        AND b_team IN (${teams.join(',')})
+        AND b_team IN ('${teams.join("', '")}')
       GROUP BY
         name,
         b_team

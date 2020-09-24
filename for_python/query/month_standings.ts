@@ -101,7 +101,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
               home_initial
       ) home ON home.team_initial = base.team_initial_kana
     WHERE
-      base.month = ${monthArg} AND base.team_initial_kana IN (${teams.join(", ")})
+      base.month = ${monthArg} AND base.team_initial_kana IN ('${teams.join("', '")}')
     ORDER BY
       win_rate DESC
   `);
