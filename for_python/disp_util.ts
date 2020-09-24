@@ -283,6 +283,20 @@ export const checkArgPs = (posArg: string) => {
 /**
  * 
  */
+export const checkArgDay = (dayArgument) => {
+  let dayArg = dayArgument;
+  if (! dayArg) {
+    dayArg = moment().format('YYYYMMDD');
+    console.log(format('D=[日付(MMDD)] の指定がないため本日(%s)の先発投手について出力します', moment().format('MM/DD')));
+  } else {
+    dayArg = format('2020%s', dayArg)
+  }
+  return dayArg;
+}
+
+/**
+ * 
+ */
 export const createBatterResultRows = (results: BatterResult[]): string[] => {
   const rows = [];
   for (const result of results) {

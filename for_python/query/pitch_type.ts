@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamHashTags, teamHalfNames } from '../constant';
-import { displayResult } from '../disp_util';
+import { checkArgDay, displayResult } from '../disp_util';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 interface Result { team: string, pitcher: string, pitch_type: string, pitch_type_cnt: string }
@@ -14,13 +14,7 @@ interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
 (async () => {
   await createConnection('default');
 
-  let dayArg = process.env.D;
-  if (! dayArg) {
-    dayArg = moment().format('YYYYMMDD');
-    console.log(format('D=[日付(MMDD)] の指定がないため本日(%s)の先発投手について出力します', moment().format('MM/DD')));
-  } else {
-    dayArg = format('2020%s', dayArg)
-  }
+  const dayArg = checkArgDay(process.env.D);
 
   const manager = await getManager();
   const results: Result[] = await manager.query(`
