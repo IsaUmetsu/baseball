@@ -33,7 +33,7 @@
     "month:stand": "ts-node for_python/query/month_standings.ts",
     "month:stand:tw": "ts-node for_python/query/month_standings.ts -t",
     "month:team:ave": "ts-node for_python/query/month_team_average.ts",
-    "month:team:ave:tws": "ts-node for_python/query/month_team_average.ts -t",
+    "month:team:ave:tw": "ts-node for_python/query/month_team_average.ts -t",
     "month:team:era": "ts-node for_python/query/month_team_era.ts",
     "month:team:era:tw": "ts-node for_python/query/month_team_era.ts -t",
     "month:team:era:s": "ts-node for_python/query/month_team_era_start.ts",

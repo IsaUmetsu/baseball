@@ -42,7 +42,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
     WHERE
       ${pitcherArg == 'A' ? '' : `sp.order ${pitcherArg == 'S' ? '=' : '>'} 1 AND`}
       gi.date BETWEEN '${firstDay}' AND '${lastDay}' AND
-      p_team IN (${teams.join(', ')})
+      p_team IN ('${teams.join("', '")}')
     GROUP BY p_team
     ORDER BY era ASC
   `);

@@ -37,11 +37,11 @@ import { checkArgLG, displayResult, trimRateZero } from '../disp_util';
     WHERE
       date BETWEEN '${firstDay}' AND '${lastDay}'
       AND CHAR_LENGTH(b_team) > 0
-      AND b_team IN (${teams.join(', ')})
+      AND b_team IN ('${teams.join("', '")}')
     GROUP BY b_team
     ORDER BY average DESC
   `);
-  
+
   const title = format('%s球団 %s月 打率\n', league ? leagueList[league] + '6' : 'NPB12', monthArg);
   const rows = [];
   for (const result of results) {
