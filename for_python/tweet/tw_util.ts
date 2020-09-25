@@ -6,6 +6,7 @@ import { Tweet } from '../entities';
 import { getRepository } from 'typeorm';
 
 export const SC_RC5 = 'rc5';
+export const SC_PT = 'pitch_type';
 
 /**
  * 

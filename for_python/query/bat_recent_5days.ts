@@ -84,10 +84,10 @@ import { isFinishedGame } from '../db_util';
 
       if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows, footer);
-        await saveTweeted('rc5', teamIniEn, tweetedDay);
+        await saveTweeted(SC_RC5, teamIniEn, tweetedDay);
 
         console.log(format(
-          '----- [done] date: [%s], team: [%s], script: [%s], not tweeted because: [%s] -----',
+          '----- [done] date: [%s], team: [%s], script: [%s] -----',
           tweetedDay, teamIniEn, SC_RC5
         ));
       } else {

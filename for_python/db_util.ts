@@ -466,6 +466,83 @@ export const isFinishedGame = async (team, day): Promise<boolean> => {
   `);
 
   const { is_finished } = results[0];
-  console.log(is_finished)
   return Boolean(Number(is_finished));
+}
+
+/**
+ * 
+ */
+export const isFinishedGameById = async (gameInfoId): Promise<boolean> => {
+
+  const manager = await getManager();
+  const results: {is_finished: string}[] = await manager.query(`
+    SELECT 
+      COUNT(id) > 0 AS is_finished
+    FROM
+      (SELECT 
+          id
+      FROM
+          live_body
+      WHERE
+          game_info_id = ${gameInfoId}
+          AND batting_result LIKE '%試合%'
+    ) AS A;
+  `);
+
+  const { is_finished } = results[0];
+  return Boolean(Number(is_finished));
+}
+
+/**
+ * 
+ */
+export const isLeftMoundStarterAllGame = async (day): Promise<boolean> => {
+
+  const manager = await getManager();
+  const results: { is_left: string }[] = await manager.query(`
+    SELECT 
+      L.cnt = R.cnt AS is_left
+    FROM
+      (SELECT 
+          date, COUNT(id) * 2 AS cnt
+      FROM
+          game_info
+      WHERE
+          date = '${day}' AND no_game = 0
+      GROUP BY date) AS L
+          LEFT JOIN
+      (SELECT 
+          date, COUNT(p_team) AS cnt
+      FROM
+          baseball_2020.debug_stats_pitcher sp
+      WHERE
+          date = '${day}'
+              AND (sp.order = 2
+              OR (sp.order = 1 AND complete = 1))
+      GROUP BY date) AS R ON L.date = R.date
+  `);
+
+  const { is_left } = results[0];
+  return Boolean(Number(is_left));
+}
+
+/**
+ * 
+ */
+export const isLeftMoundStarterByTeam = async (day, team): Promise<boolean> => {
+
+  const manager = await getManager();
+  const results: { is_left: string }[] = await manager.query(`
+    SELECT 
+      COUNT(sp.name) AS is_left
+    FROM
+      baseball_2020.debug_stats_pitcher sp
+    WHERE
+      date = '${day}'
+    AND (sp.order = 2 OR (sp.order = 1 AND complete = 1))
+      AND p_team = '${team}'
+  `);
+
+  const { is_left } = results[0];
+  return Boolean(Number(is_left));
 }

@@ -7,6 +7,7 @@ import { TeamPitchStats, TeamBatStats, TotalBatStats } from './type/jsonType.d';
 import { teamArray, posArgDic } from './constant';
 import { getRepository } from "typeorm";
 import { GameInfo, StatsPitcher, StatsScoreboard, StatsBatter } from "./entities";
+import { isFinishedGameById } from './db_util';
 
 const startGameNo = 1;
 const endGameNo = 6;
@@ -30,6 +31,8 @@ const doCheckPitch = async (gameNo, dateStr) => {
   if (! savedGameInfo) return;
 
   const { id: gameInfoId } = savedGameInfo;
+  const { away, home }: TotalPitchStats = JSON.parse(getJson(format(pitchJsonPath, dateStr, targetGameNo)));
+  const isFinished = await isFinishedGameById(gameInfoId);
 
   /**
    * 
@@ -49,7 +52,7 @@ const doCheckPitch = async (gameNo, dateStr) => {
     /**
      * 
      */
-    const doSaveStatsPitcher = async (statsPitcher: StatsPitcher, pitchStats: PitchStats, order: number) => {
+    const doSaveStatsPitcher = async (statsPitcher: StatsPitcher, pitchStats: PitchStats, order: number, pitcherCnt: number) => {
       const { name, result, era, ip, np, bf, ha, hra, so, bb, hbp, balk, ra, er } = pitchStats;
 
       statsPitcher.gameInfoId = gameInfoId;
@@ -70,6 +73,7 @@ const doCheckPitch = async (gameNo, dateStr) => {
       statsPitcher.balk = Number(balk);
       statsPitcher.ra = Number(ra);
       statsPitcher.er = Number(er);
+      statsPitcher.complete = Number(isFinished && pitcherCnt == 1);
 
       await statsPitcher.save();
     }
@@ -79,14 +83,12 @@ const doCheckPitch = async (gameNo, dateStr) => {
       let savedRecord = await getRepository(StatsPitcher).findOne({ gameInfoId, pTeam, order });
 
       if (! savedRecord) {
-        await doSaveStatsPitcher(new StatsPitcher(), stats[idx], order);
+        await doSaveStatsPitcher(new StatsPitcher(), stats[idx], order, stats.length);
       } else {
-        await doSaveStatsPitcher(savedRecord, stats[idx], order);
+        await doSaveStatsPitcher(savedRecord, stats[idx], order, stats.length);
       }
     }
   }
-
-  const { away, home, isFinished }: TotalPitchStats = JSON.parse(getJson(format(pitchJsonPath, dateStr, targetGameNo)));
 
   await doImportPitch(away);
   await doImportPitch(home);
@@ -110,7 +112,6 @@ export const savePitchData = async (
     // 日付ディレクトリがない場合スキップ
     const existDateDir = await checkDateDir(pitchDatePath, dateStr);
     if (! existDateDir) { day.add(1, "days"); continue; }
-
 
     if (specifyArg) {
       await doCheckPitch(specifyArg, dateStr);

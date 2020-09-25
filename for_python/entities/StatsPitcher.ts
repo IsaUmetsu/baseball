@@ -59,4 +59,7 @@ export class StatsPitcher extends BaseEntity {
 
   @Column("tinyint", { name: "er", nullable: true })
   er: number | null;
+
+  @Column("tinyint", { name: "complete", nullable: true })
+  complete: number | null;
 }

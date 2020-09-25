@@ -3,8 +3,9 @@ import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamHashTags, teamHalfNames } from '../constant';
-import { checkArgDay, displayResult } from '../disp_util';
-import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+import { checkArgDay, checkArgTMLG, displayResult } from '../disp_util';
+import { getIsTweet, tweetMulti, findSavedTweeted, SC_PT, saveTweeted } from '../tweet/tw_util';
+import { isLeftMoundStarterByTeam } from '../db_util';
 
 interface Result { team: string, pitcher: string, pitch_type: string, pitch_type_cnt: string }
 interface PitchType { type: string, cnt: number }
@@ -16,6 +17,9 @@ interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
 
   const dayArg = checkArgDay(process.env.D);
 
+  const teams = checkArgTMLG(process.env.TM, process.env.LG);
+  if (! teams.length) return;
+
   const manager = await getManager();
   const results: Result[] = await manager.query(`
     SELECT 
@@ -26,7 +30,9 @@ interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
     FROM
       baseball_2020.debug_pitch_base
     WHERE
-      date = '${dayArg}' AND current_pitcher_order = 1
+      date = '${dayArg}'
+      AND current_pitcher_order = 1
+      AND p_team IN ('${teams.join("', '")}')
     GROUP BY p_team, current_pitcher_name , pitch_type
     ORDER BY p_team DESC, current_pitcher_name DESC, pitch_type_cnt DESC
   `);
@@ -67,7 +73,23 @@ interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
     const footer = format('\n\n%s', teamHashTags[teamIniEn]);
 
     if (getIsTweet()) {
-      await tweetMulti(title, rows, footer);
+      const savedTweeted = await findSavedTweeted(SC_PT, teamIniEn, dayArg);
+      const isLeft = await isLeftMoundStarterByTeam(dayArg, team);
+
+      if (! savedTweeted && isLeft) {
+        await tweetMulti(title, rows, footer);
+        await saveTweeted(SC_PT, teamIniEn, dayArg);
+
+        console.log(format(
+          '----- [done] date: [%s], team: [%s], script: [%s] -----',
+          dayArg, teamIniEn, SC_PT
+        ));
+      } else {
+        console.log(format(
+          '----- date: [%s], team: [%s], script: [%s], not tweeted because: [%s] -----',
+          dayArg, teamIniEn, SC_PT, savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other'
+        ));
+      }
     } else {
       displayResult(title, rows, footer);
     }
