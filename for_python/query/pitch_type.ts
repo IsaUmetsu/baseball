@@ -37,6 +37,8 @@ interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
     ORDER BY p_team DESC, current_pitcher_name DESC, pitch_type_cnt DESC
   `);
 
+  if (! results.length) console.log('出力対象のデータがありません');
+
   const newResults: PitcherPitchType[] = [];
   // 投手単位 球種別投球数リスト作成
   for (const result of results) {
