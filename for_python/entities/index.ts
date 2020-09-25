@@ -1,4 +1,5 @@
 export { GameInfo } from './GameInfo';
+export { Tweet } from './Tweet';
 export { StatsBatter } from './StatsBatter';
 export { StatsScoreboard } from './StatsScoreboard';
 export { StatsPitcher } from './StatsPitcher';
