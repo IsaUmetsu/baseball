@@ -39,12 +39,7 @@ import { isFinishedGame } from '../db_util';
         WHERE
           is_pa = 1 AND
           b_team = '${team}' AND 
-          date IN (
-            SELECT A.date FROM (
-              SELECT date FROM baseball_2020.game_info
-              WHERE (away_team_initial = '${team}' OR home_team_initial = '${team}') AND no_game = 0
-              ORDER BY date DESC LIMIT 5
-            ) AS A) -- 最近5試合
+          g_id IN (SELECT id FROM game_id_recent_5days WHERE team = '${team}')
         GROUP BY current_batter_name, b_team 
         HAVING pa >= 2 * 5
       ) AS base
@@ -59,12 +54,7 @@ import { isFinishedGame } from '../db_util';
           baseball_2020.stats_batter
         WHERE
           b_team = '${team}' AND
-          game_info_id IN (
-            SELECT A.id FROM (
-              SELECT id FROM baseball_2020.game_info
-              WHERE (away_team_initial = '${team}' OR home_team_initial = '${team}') AND no_game = 0
-              ORDER BY date DESC LIMIT 5
-            ) AS A) -- 最近5試合
+          game_info_id IN (SELECT id FROM game_id_recent_5days WHERE team = '${team}')
         GROUP BY name, b_team
       ) AS other ON base.batter = other.batter AND base.b_team = other.b_team
       ORDER BY average DESC
