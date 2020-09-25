@@ -7,8 +7,6 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 interface Result { team: string, pitcher: string, swing_cnt: string, missed_cnt: string }
 
-
-
 // Execute
 (async () => {
   await createConnection('default');
