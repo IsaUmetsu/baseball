@@ -1,7 +1,7 @@
 import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
-import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList } from './constant';
+import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes } from './constant';
 import { countFiles, getJson } from './fs_util';
 import { BatterResult } from './type/jsonType.d';
 
@@ -328,6 +328,46 @@ export const checkArgStrikeType = (strikeArg) => {
   }
 
   return strikes;
+}
+
+/**
+ * 
+ */
+export const checkArgPitcher = (pitcherArg) => {
+  const pitcherTypesKeys = Object.keys(pitcherRoles);
+  const pitcherTypesValues = Object.values(pitcherRoles);
+
+  let pitchers = []
+  if (! pitcherArg) {
+    console.log(format('P=[投手種別(%s)] の指定がないので両方を出力します', pitcherTypesKeys.join('/')))
+    pitchers = pitcherTypesValues;
+  } else if (pitcherTypesKeys.indexOf(pitcherArg) == -1) {
+    console.log(format('P=[投手種別(%s)] で指定してください', pitcherTypesKeys.join('/')));
+  } else {
+    pitchers.push(pitcherRoles[pitcherArg]);
+  }
+
+  return pitchers;
+}
+
+/**
+ * 
+ */
+export const checkArgPitchType = (pitchTypeArg) => {
+  const pitchTypesKeys = Object.keys(pitchTypes);
+  const pitchTypesValues = Object.values(pitchTypes);
+
+  let elems = []
+  if (! pitchTypeArg) {
+    console.log(format('PT=[球種種別(%s)] の指定がないので両方を出力します', pitchTypesKeys.join('/')))
+    elems = pitchTypesValues;
+  } else if (pitchTypesKeys.indexOf(pitchTypeArg) == -1) {
+    console.log(format('PT=[球種種別(%s)] で指定してください', pitchTypesKeys.join('/')));
+  } else {
+    elems.push(pitcherRoles[pitchTypeArg]);
+  }
+
+  return elems;
 }
 
 /**

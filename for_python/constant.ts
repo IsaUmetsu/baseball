@@ -133,6 +133,8 @@ export const pitcherTypeArgArr = {
 
 export const strikeTypes = {'SW': 'swing', 'MS': 'missed'};
 export const batOuts = {'G': 'ground', 'F': 'fly'};
+export const pitcherRoles = {'S': '先発', 'M': '中継ぎ'};
+export const pitchTypes = {'F': 'ストレート', 'B': '変化球'};
 
 export const TOP = 1;
 export const BTM = 2;
