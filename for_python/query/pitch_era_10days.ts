@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamHashTags, teamNames } from '../constant';
-import { checkArgLG, displayResult } from '../disp_util';
+import { checkArgLG, checkArgTMLG, displayResult } from '../disp_util';
 import { getIsTweet, tweetMulti, SC_RC10, genTweetedDay, findSavedTweeted, saveTweeted } from '../tweet/tw_util';
 import { isFinishedGame } from '../db_util';
 
@@ -10,8 +10,9 @@ import { isFinishedGame } from '../db_util';
 (async () => {
   await createConnection('default');
 
+  const teamArg = process.env.TM;
   const league = process.env.LG;
-  const teams = checkArgLG(league);
+  const teams = checkArgTMLG(teamArg, league);
   if (! teams.length) return;
 
   const manager = await getManager();
@@ -44,6 +45,7 @@ import { isFinishedGame } from '../db_util';
         AND game_info_id IN (SELECT id FROM game_id_recent_10days WHERE team = '${team}')
         AND p_team = '${team}'
       GROUP BY name, p_team
+      HAVING SUM(outs) > 0
       ORDER BY SUM(er) * 27 / SUM(outs), game_cnt DESC, inning DESC, win
     `);
 
@@ -60,7 +62,7 @@ import { isFinishedGame } from '../db_util';
         Number(win) > 0 ? format('%s勝', win) : '',
         Number(lose) > 0 ? format('%s敗', lose) : '',
         Number(hold) > 0 ? format('%sH', hold) : '',
-        Number(save) > 0 ? format('%sH', save) : ''
+        Number(save) > 0 ? format('%sS', save) : ''
       );
       resultClause = resultClause.length > 0 ? resultClause + ' ' : resultClause;
 
