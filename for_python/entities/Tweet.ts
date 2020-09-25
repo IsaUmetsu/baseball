@@ -11,6 +11,6 @@ export class Tweet extends BaseEntity {
   @Column("varchar", { name: "team", nullable: true, length: 20 })
   team: string | null;
 
-  @Column("datetime", { name: "tweeted_at", nullable: true })
-  tweetedAt: Date | null;
+  @Column("varchar", { name: "tweeted_day", nullable: true, length: 10 })
+  tweetedDay: string | null;
 }
