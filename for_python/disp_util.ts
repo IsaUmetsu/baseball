@@ -60,7 +60,7 @@ export const checkArgTMLG = (teamArg: string, leagueArg: string): string[] => {
     if (teamInitialArray.indexOf(teamArg) == -1) {
       console.log('TM=正しいチームイニシャル を指定してください');
     } else {
-      teams.push(format('\'%s\'', teamArray[teamArg]));
+      teams.push(teamArray[teamArg]);
     }
   }
   // TM is none and LG then LG
