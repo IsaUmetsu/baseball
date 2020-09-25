@@ -287,7 +287,7 @@ export const checkArgDay = (dayArgument) => {
   let dayArg = dayArgument;
   if (! dayArg) {
     dayArg = moment().format('YYYYMMDD');
-    console.log(format('D=[日付(MMDD)] の指定がないため本日(%s)の先発投手について出力します', moment().format('MM/DD')));
+    console.log(format('D=[日付(MMDD)] の指定がないため本日(%s)を起点に出力します', moment().format('MM/DD')));
   } else {
     dayArg = format('2020%s', dayArg)
   }

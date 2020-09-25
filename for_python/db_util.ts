@@ -437,3 +437,35 @@ export const executeUpdatePlusOutCount = async () => {
 
   console.log('----- done!! -----');
 }
+
+/**
+ * 
+ */
+export const isFinishedGame = async (team, day): Promise<boolean> => {
+
+  const manager = await getManager();
+  const results: {is_finished: string}[] = await manager.query(`
+    SELECT 
+      COUNT(id) > 0 AS is_finished
+    FROM
+      (SELECT 
+          id
+      FROM
+          live_body
+      WHERE
+          game_info_id = (SELECT 
+                  id
+              FROM
+                  game_info
+              WHERE
+                  (away_team_initial = '${team}' OR home_team_initial = '${team}')
+          AND date = '${day}'
+      )
+      AND batting_result LIKE '%試合%'
+    ) AS A;
+  `);
+
+  const { is_finished } = results[0];
+  console.log(is_finished)
+  return Boolean(Number(is_finished));
+}

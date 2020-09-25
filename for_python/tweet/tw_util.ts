@@ -1,6 +1,37 @@
 import * as twitterText from 'twitter-text';
 import { client } from './twitter';
 import * as yargs from 'yargs';
+import * as moment from 'moment';
+import { Tweet } from '../entities';
+import { getRepository } from 'typeorm';
+
+export const SC_RC5 = 'rc5';
+
+/**
+ * 
+ */
+export const genTweetedDay = () => {
+  return moment().format('YYYYMMDD');
+}
+
+/**
+ * 
+ */
+export const findSavedTweeted = async (scriptName, team, tweetedDay) => {
+  return await getRepository(Tweet).findOne({ scriptName, team, tweetedDay });
+}
+
+/**
+ * 
+ */
+export const saveTweeted = async (scriptName, team, tweetedDay) => {
+  const newTweet = new Tweet();
+  newTweet.scriptName = scriptName;
+  newTweet.team = team;
+  newTweet.tweetedDay = tweetedDay;
+
+  await newTweet.save()
+}
 
 /**
  * 
@@ -103,7 +134,6 @@ export const tweetMulti = async (title: string, rows: string[], footer?: string)
 const doTweetMulti = async (status, in_reply_to_status_id) => {
   let res = '';
   try {
-    const param = { status };
     // console.log(status)
     const { id_str } = await client.post('statuses/update', { status, in_reply_to_status_id });
     res = id_str;
