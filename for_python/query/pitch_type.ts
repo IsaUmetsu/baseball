@@ -75,7 +75,7 @@ interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
     const footer = format('\n\n%s', teamHashTags[teamIniEn]);
 
     if (getIsTweet()) {
-      const savedTweeted = await findSavedTweeted(SC_PT, teamIniEn, dayArg);
+      const savedTweeted = await findSavedTweeted(SC_PT, team, dayArg);
       const isLeft = await isLeftMoundStarterByTeam(dayArg, team);
 
       if (! savedTweeted && isLeft) {
