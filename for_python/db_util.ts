@@ -462,7 +462,7 @@ export const isFinishedGame = async (team, day): Promise<boolean> => {
           AND date = '${day}'
       )
       AND batting_result LIKE '%試合%'
-    ) AS A;
+    ) AS A
   `);
 
   const { is_finished } = results[0];
