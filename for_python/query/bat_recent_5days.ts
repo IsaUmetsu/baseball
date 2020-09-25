@@ -79,21 +79,21 @@ import { isFinishedGame } from '../db_util';
     if (getIsTweet()) {
       const tweetedDay = genTweetedDay();
 
-      const savedTweeted = await findSavedTweeted(SC_RC5, teamIniEn, tweetedDay);
-      const isFinished = await isFinishedGame(teamIniEn, tweetedDay);
+      const savedTweeted = await findSavedTweeted(SC_RC5, team, tweetedDay);
+      const isFinished = await isFinishedGame(team, tweetedDay);
 
       if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows, footer);
-        await saveTweeted(SC_RC5, teamIniEn, tweetedDay);
+        await saveTweeted(SC_RC5, team, tweetedDay);
 
         console.log(format(
           '----- [done] date: [%s], team: [%s], script: [%s] -----',
-          tweetedDay, teamIniEn, SC_RC5
+          tweetedDay, team, SC_RC5
         ));
       } else {
         console.log(format(
           '----- date: [%s], team: [%s], script: [%s], not tweeted because: [%s] -----',
-          tweetedDay, teamIniEn, SC_RC5, savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other'
+          tweetedDay, team, SC_RC5, savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other'
         ));
       }
     } else {

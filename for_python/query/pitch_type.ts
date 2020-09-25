@@ -78,16 +78,16 @@ interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
 
       if (! savedTweeted && isLeft) {
         await tweetMulti(title, rows, footer);
-        await saveTweeted(SC_PT, teamIniEn, dayArg);
+        await saveTweeted(SC_PT, team, dayArg);
 
         console.log(format(
           '----- [done] date: [%s], team: [%s], script: [%s] -----',
-          dayArg, teamIniEn, SC_PT
+          dayArg, team, SC_PT
         ));
       } else {
         console.log(format(
           '----- date: [%s], team: [%s], script: [%s], not tweeted because: [%s] -----',
-          dayArg, teamIniEn, SC_PT, savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other'
+          dayArg, team, SC_PT, savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other'
         ));
       }
     } else {
