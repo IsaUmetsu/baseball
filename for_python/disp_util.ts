@@ -1,7 +1,7 @@
 import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
-import { dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, teamArray, teamList } from './constant';
+import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList } from './constant';
 import { countFiles, getJson } from './fs_util';
 import { BatterResult } from './type/jsonType.d';
 
@@ -292,6 +292,42 @@ export const checkArgDay = (dayArgument) => {
     dayArg = format('2020%s', dayArg)
   }
   return dayArg;
+}
+
+/**
+ * 
+ */
+export const checkArgBatOut = (batOutArg) => {
+  let batOut = [];
+  if (!batOutArg) {
+    console.log('BO=[アウト種別(G/F)] の指定がないので両方を出力します');
+    batOut = Object.values(batOuts);
+  } else if (Object.keys(batOuts).indexOf(batOutArg) == -1) {
+    console.log('BO=[アウト種別(G/F)] で指定してください');
+  } else {
+    batOut.push(batOuts[batOutArg]);
+  }
+  return batOut;
+}
+
+/**
+ * 
+ */
+export const checkArgStrikeType = (strikeArg) => {
+  const strikeTypesKeys = Object.keys(strikeTypes);
+  const strikeTypesValues = Object.values(strikeTypes);
+
+  let strikes = []
+  if (! strikeArg) {
+    console.log(format('ST=[ストライク種別(%s)] の指定がないので両方を出力します', strikeTypesKeys.join('/')))
+    strikes = strikeTypesValues;
+  } else if (strikeTypesKeys.indexOf(strikeArg) == -1) {
+    console.log(format('ST=[ストライク種別(%s)] で指定してください', strikeTypesKeys.join('/')));
+  } else {
+    strikes.push(strikeTypes[strikeArg]);
+  }
+
+  return strikes;
 }
 
 /**

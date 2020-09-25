@@ -131,6 +131,9 @@ export const pitcherTypeArgArr = {
   RL: 2
 }
 
+export const strikeTypes = {'SW': 'swing', 'MS': 'missed'};
+export const batOuts = {'G': 'ground', 'F': 'fly'};
+
 export const TOP = 1;
 export const BTM = 2;
 
