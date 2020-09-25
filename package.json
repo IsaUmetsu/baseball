@@ -47,6 +47,8 @@
     "oppo:bat:tw": "ts-node for_python/query/opponent_batting.ts -t",
     "oppo:era": "ts-node for_python/query/opponent_era.ts",
     "oppo:era:tw": "ts-node for_python/query/opponent_era.ts -t",
+    "pitch:gf:s": "ts-node for_python/query/pitch_ground_fly_start.ts",
+    "pitch:gf:s:tw": "ts-node for_python/query/pitch_ground_fly_start.ts -t",
     "pitch:ra:s": "ts-node for_python/query/pitch_ra_per_inning_start.ts",
     "pitch:ra:s:tw": "ts-node for_python/query/pitch_ra_per_inning_start.ts -t",
     "pitch:type": "ts-node for_python/query/pitch_type.ts",
