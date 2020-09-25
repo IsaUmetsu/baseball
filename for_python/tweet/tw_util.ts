@@ -8,6 +8,7 @@ import { getRepository } from 'typeorm';
 export const SC_RC5 = 'bat_rc5';
 export const SC_PT = 'pitch_type';
 export const SC_RC10 = 'pitch_rc10';
+export const SC_PSG = 'pitch_strike_game';
 
 /**
  * 
