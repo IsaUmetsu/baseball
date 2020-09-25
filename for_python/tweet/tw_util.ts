@@ -5,8 +5,9 @@ import * as moment from 'moment';
 import { Tweet } from '../entities';
 import { getRepository } from 'typeorm';
 
-export const SC_RC5 = 'rc5';
+export const SC_RC5 = 'bat_rc5';
 export const SC_PT = 'pitch_type';
+export const SC_RC10 = 'pitch_rc10';
 
 /**
  * 
