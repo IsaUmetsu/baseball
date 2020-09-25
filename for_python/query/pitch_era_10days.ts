@@ -46,7 +46,7 @@ import { isFinishedGame } from '../db_util';
         AND p_team = '${team}'
       GROUP BY name, p_team
       HAVING SUM(outs) > 0
-      ORDER BY SUM(er) * 27 / SUM(outs), game_cnt DESC, inning DESC, win
+      ORDER BY game_cnt DESC, SUM(er) * 27 / SUM(outs), inning DESC, win
     `);
 
     const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == team);
@@ -69,8 +69,8 @@ import { isFinishedGame } from '../db_util';
       let erClause = Number(ra) == 0 && Number(er) == 0 ? '' : format('自%s', er);
 
       rows.push(format(
-        '\n防%s  %s  %s試 %s回 %s失%s %s',
-        era, p_name, game_cnt, inning, resultClause, ra, erClause
+        '\n%s試 防%s  %s  %s回 %s失%s %s',
+        game_cnt, era, p_name, inning, resultClause, ra, erClause
       ));
     }
 
