@@ -3,7 +3,8 @@ import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { checkArgDay, displayResult, checkArgBatOut } from '../disp_util';
-import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+import { findSavedTweeted, getIsTweet, tweetMulti, saveTweeted, SC_GFS } from '../tweet/tw_util';
+import { isLeftMoundStarterAllGame } from '../db_util';
 
 interface Result { team: string, pitcher: string, fly_out_cnt: string, ground_out_cnt: string }
 
@@ -41,7 +42,23 @@ interface Result { team: string, pitcher: string, fly_out_cnt: string, ground_ou
     }
 
     if (getIsTweet()) {
-      await tweetMulti(title, rows);
+      const savedTweeted = await findSavedTweeted(SC_GFS, 'ALL', dayArg);
+      const isLeft = await isLeftMoundStarterAllGame(dayArg);
+
+      if (! savedTweeted && isLeft) {
+        await tweetMulti(title, rows);
+        await saveTweeted(SC_GFS, 'ALL', dayArg);
+
+        console.log(format(
+          '----- [done] date: [%s], team: [%s], script: [%s] -----',
+          dayArg, 'ALL', SC_GFS
+        ));
+      } else {
+        console.log(format(
+          '----- date: [%s], team: [%s], script: [%s], not tweeted because: [%s] -----',
+          dayArg, 'ALL', SC_GFS, savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other'
+        ));
+      }
     } else {
       displayResult(title, rows);
     }
