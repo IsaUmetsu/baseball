@@ -24,7 +24,7 @@ const { importGame, importPitch, importBat } = checkArgI(process.env.I)
 const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
 const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
 const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s/%s.json";
-const cardsJsonPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s/%s.json";
+const cardsJsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
 
 /**
  * 
@@ -59,7 +59,7 @@ const saveData = async (scene: number, gameInfoId: number, data: OutputJson) => 
  */
 const getCardsAndInsert = async (date, gameNo, isNoGame) => {
   const { away, home } = JSON.parse(getJson(format(cardsJsonPath, date, gameNo)));
-  return await insertGameInfo(date, teams[away], teams[home], gameNo, isNoGame);
+  return await insertGameInfo(date, teams[away.team], teams[home.team], gameNo, isNoGame);
 }
 
 /**

@@ -14,9 +14,7 @@ export const insertGameInfo = async (
 
   const gameInfoRepository = getRepository(GameInfo);
 
-  let savedGameInfo = await gameInfoRepository.findOne({
-    date, awayTeamInitial, homeTeamInitial
-  });
+  let savedGameInfo = await gameInfoRepository.findOne({ date, awayTeamInitial, homeTeamInitial });
 
   if (savedGameInfo == null) {
     const gameInfo = new GameInfo();

@@ -42,16 +42,17 @@ interface Result { team: string, pitcher: string, fly_out_cnt: string, ground_ou
     }
 
     if (getIsTweet()) {
-      const savedTweeted = await findSavedTweeted(SC_GFS, 'ALL', dayArg);
+      const scriptName = format('%s_%s', SC_GFS, batOut.slice(0, 1));
+      const savedTweeted = await findSavedTweeted(scriptName, 'ALL', dayArg);
       const isLeft = await isLeftMoundStarterAllGame(dayArg);
 
       if (! savedTweeted && isLeft) {
         await tweetMulti(title, rows);
-        await saveTweeted(SC_GFS, 'ALL', dayArg);
-        console.log(format(MSG_S, dayArg, 'ALL', SC_GFS));
+        await saveTweeted(scriptName, 'ALL', dayArg);
+        console.log(format(MSG_S, dayArg, 'ALL', scriptName));
       } else {
         const cause = savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other';
-        console.log(format(MSG_F, dayArg, 'ALL', SC_GFS, cause));
+        console.log(format(MSG_F, dayArg, 'ALL', scriptName, cause));
       }
     } else {
       displayResult(title, rows);
