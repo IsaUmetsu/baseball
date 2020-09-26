@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamHashTags, teamHalfNames } from '../constant';
 import { checkArgDay, checkArgTMLG, displayResult } from '../disp_util';
-import { getIsTweet, tweetMulti, findSavedTweeted, SC_PT, saveTweeted } from '../tweet/tw_util';
+import { getIsTweet, tweetMulti, findSavedTweeted, SC_PT, saveTweeted, MSG_S, MSG_F } from '../tweet/tw_util';
 import { isLeftMoundStarterByTeam } from '../db_util';
 
 interface Result { team: string, pitcher: string, pitch_type: string, pitch_type_cnt: string }
@@ -81,16 +81,10 @@ interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
       if (! savedTweeted && isLeft) {
         await tweetMulti(title, rows, footer);
         await saveTweeted(SC_PT, team, dayArg);
-
-        console.log(format(
-          '----- [done] date: [%s], team: [%s], script: [%s] -----',
-          dayArg, team, SC_PT
-        ));
+        console.log(format(MSG_S, dayArg, team, SC_PT));
       } else {
-        console.log(format(
-          '----- date: [%s], team: [%s], script: [%s], not tweeted because: [%s] -----',
-          dayArg, team, SC_PT, savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other'
-        ));
+        const cause = savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other';
+        console.log(format(MSG_F, dayArg, team, SC_PT, cause));
       }
     } else {
       displayResult(title, rows, footer);

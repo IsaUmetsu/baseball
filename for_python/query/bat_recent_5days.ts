@@ -3,7 +3,7 @@ import { format } from 'util';
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags } from '../constant';
 import { checkArgTMLG, createBatterResultRows, displayResult } from '../disp_util';
-import { findSavedTweeted, genTweetedDay, getIsTweet, saveTweeted, SC_RC5, tweetMulti } from '../tweet/tw_util';
+import { findSavedTweeted, genTweetedDay, getIsTweet, saveTweeted, SC_RC5, tweetMulti, MSG_S, MSG_F } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame } from '../db_util';
 
@@ -75,16 +75,10 @@ import { isFinishedGame } from '../db_util';
       if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows, footer);
         await saveTweeted(SC_RC5, team, tweetedDay);
-
-        console.log(format(
-          '----- [done] date: [%s], team: [%s], script: [%s] -----',
-          tweetedDay, team, SC_RC5
-        ));
+        console.log(format(MSG_S, tweetedDay, team, SC_RC5));
       } else {
-        console.log(format(
-          '----- date: [%s], team: [%s], script: [%s], not tweeted because: [%s] -----',
-          tweetedDay, team, SC_RC5, savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other'
-        ));
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, tweetedDay, team, SC_RC5, cause));
       }
     } else {
       displayResult(title, rows, footer);
