@@ -32,8 +32,7 @@ export const insertGameInfo = async (
       date, awayTeamInitial, homeTeamInitial
     });
   } else {
-    savedGameInfo.gameNo = gameNo;
-    await savedGameInfo.save();
+    // await savedGameInfo.save();
   }
 
   return savedGameInfo.id;
