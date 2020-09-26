@@ -3,7 +3,8 @@ import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { checkArgDay, displayResult } from '../disp_util';
-import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+import { findSavedTweeted, getIsTweet, MSG_F, MSG_S, saveTweeted, SC_POS, tweetMulti } from '../tweet/tw_util';
+import { isLeftMoundStarterAllGame } from '../db_util';
 
 interface Result { team: string, pitcher: string, ball_cnt: string }
 
@@ -33,7 +34,17 @@ interface Result { team: string, pitcher: string, ball_cnt: string }
   }
 
   if (getIsTweet()) {
-    await tweetMulti(title, rows);
+    const savedTweeted = await findSavedTweeted(SC_POS, 'ALL', dayArg);
+    const isLeft = await isLeftMoundStarterAllGame(dayArg);
+
+    if (! savedTweeted && isLeft) {
+      await tweetMulti(title, rows);
+      await saveTweeted(SC_POS, 'ALL', dayArg);
+      console.log(format(MSG_S, dayArg, 'ALL', SC_POS));
+    } else {
+      const cause = savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other';
+      console.log(format(MSG_F, dayArg, 'ALL', SC_POS, cause));
+    }
   } else {
     displayResult(title, rows);
   }
