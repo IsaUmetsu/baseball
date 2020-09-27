@@ -89,6 +89,54 @@ export const checkArgTMLG = (teamArg: string, leagueArg: string): string[] => {
 /**
  * 
  */
+export const checkArgTMLGForTweet = (teamArg: string, leagueArg: string): string[][] => {
+  const teamInitialArray = Object.keys(teamArray);
+  const leagueInitialArray = Object.keys(leagueList);
+  // TM and LG is none then TM
+  let teams = [];
+  if (teamArg) {
+    if (teamInitialArray.indexOf(teamArg) == -1) {
+      console.log('TM=正しいチームイニシャル を指定してください');
+    } else {
+      teams.push([teamArray[teamArg]]);
+    }
+  }
+  // TM is none and LG then LG
+  if (leagueArg) {
+    if (leagueInitialArray.indexOf(leagueArg) == -1) {
+      console.log('LG=正しいリーグイニシャル[P/C] を指定してください');
+    } else {
+      teams = [teamList[leagueArg]];
+    }
+  }
+  // TM is none and LG is none then NPB
+  if (! teamArg && ! leagueArg) {
+    console.log('TM=[チームイニシャル] LG=[リーグイニシャル] の指定がないため2リーグごとに出力します');
+    const { P, C } = teamList;
+    teams = [P, C];
+  }
+  // TM and LG then error
+  if (teamArg && leagueArg) {
+    console.log('TM=[チームイニシャル] LG=[リーグイニシャル] のどちらかを指定するか、両方指定しないでください');
+    teams = [];
+  }
+
+  return teams;
+}
+
+/**
+ * 
+ */
+export const checkLeague = (teams: string[]) => {
+  let league = '';
+  if (teams.indexOf('ソ') > -1) league = 'P';
+  if (teams.indexOf('巨') > -1) league = 'C';
+  return league;
+}
+
+/**
+ * 
+ */
 export const checkArgM = (month: number) => {
   let monthArg = month;
  
