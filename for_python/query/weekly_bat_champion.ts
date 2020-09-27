@@ -3,7 +3,8 @@ import { format } from 'util';
 import { createConnection, getManager } from 'typeorm';
 import { leagueList, teamNames } from "../constant";
 import { checkArgTargetDay, checkArgTMLGForTweet, displayResult, trimRateZero, checkLeague } from "../disp_util";
-import { getIsTweet, tweetMulti } from "../tweet/tw_util";
+import { genTweetedDay, getIsTweet, tweetMulti, SC_WBC, findSavedTweeted, saveTweeted, MSG_S, MSG_F } from '../tweet/tw_util';
+import { isFinishedGameByLeague } from '../db_util';
 
 // Execute
 (async () => {
@@ -75,7 +76,19 @@ import { getIsTweet, tweetMulti } from "../tweet/tw_util";
     }
 
     if (getIsTweet()) {
-      tweetMulti(title, rows);
+      const tweetedDay = genTweetedDay();
+
+      const savedTweeted = await findSavedTweeted(SC_WBC, leagueArg, tweetedDay);
+      const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+
+      if (! savedTweeted && isFinished) {
+        await tweetMulti(title, rows);
+        await saveTweeted(SC_WBC, leagueArg, tweetedDay);
+        console.log(format(MSG_S, tweetedDay, leagueArg, SC_WBC));
+      } else {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, tweetedDay, leagueArg, SC_WBC, cause));
+      }
     } else {
       displayResult(title, rows);
     }
