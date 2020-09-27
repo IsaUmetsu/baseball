@@ -7,13 +7,13 @@ import { findSavedTweeted, genTweetedDay, getIsTweet, saveTweeted, SC_RC5, tweet
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame } from '../db_util';
 
-// Execute
+/**
+ * Per team
+ */
 (async () => {
   await createConnection('default');
 
-  const teamArg = process.env.TM;
-  const league = process.env.LG;
-  const teams = checkArgTMLG(teamArg, league);
+  const teams = checkArgTMLG(process.env.TM, process.env.LG);
   if (! teams.length) return;
 
   const manager = await getManager();
