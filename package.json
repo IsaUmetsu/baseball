@@ -68,7 +68,7 @@
     "week:bat:champ": "ts-node for_python/query/weekly_bat_champion.ts",
     "week:bat:champ:tw": "ts-node for_python/query/weekly_bat_champion.ts -t",
     "week:stand": "ts-node for_python/query/week_standings.ts",
-    "week:stand:dw": "ts-node for_python/query/week_standings.ts -t",
+    "week:stand:tw": "ts-node for_python/query/week_standings.ts -t",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
