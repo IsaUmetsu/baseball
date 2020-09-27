@@ -231,9 +231,9 @@ export const checkArgDaySeasonEndSpecify = (day, seasonEnd, specify) => {
  * 
  */
 export const checkArgTmOp = async (teamArg, oppoArg) => {
-  
-  const cardsPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s";
-  const cardsJsonPath = "/Users/IsamuUmetsu/dev/py_baseball/cards/%s/%s.json";
+
+  const cardsPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s";
+  const cardsJsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
 
   const targetTeam = [];
 
@@ -244,9 +244,9 @@ export const checkArgTmOp = async (teamArg, oppoArg) => {
     const todayStr = moment().format('YYYYMMDD');
     const totalGameCnt = await countFiles(format(cardsPath, todayStr));
     for (let gameCnt = 1; gameCnt <= totalGameCnt; gameCnt++) {
-      const { away, home } = JSON.parse(getJson(format(cardsJsonPath, todayStr, "0" + String(gameCnt))));
-      console.log(format('対戦カード%s: %s-%s', gameCnt, away, home));
-      targetTeam.push({ team1: away, team2: home })
+      const { away, home } = JSON.parse(getJson(format(cardsJsonPath, todayStr, format('0%s', gameCnt))));
+      console.log(format('対戦カード%s: %s-%s', gameCnt, away.team, home.team));
+      targetTeam.push({ team1: away.team, team2: home.team })
     }
   }
 
