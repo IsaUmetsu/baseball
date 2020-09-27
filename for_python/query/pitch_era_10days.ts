@@ -6,13 +6,13 @@ import { checkArgLG, checkArgTMLG, displayResult } from '../disp_util';
 import { getIsTweet, tweetMulti, SC_RC10, genTweetedDay, findSavedTweeted, saveTweeted, MSG_S, MSG_F } from '../tweet/tw_util';
 import { isFinishedGame } from '../db_util';
 
-// Execute
+/**
+ * Per team
+ */
 (async () => {
   await createConnection('default');
 
-  const teamArg = process.env.TM;
-  const league = process.env.LG;
-  const teams = checkArgTMLG(teamArg, league);
+  const teams = checkArgTMLG(process.env.TM, process.env.LG);
   if (! teams.length) return;
 
   const manager = await getManager();
