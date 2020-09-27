@@ -64,7 +64,7 @@ import { getIsTweet, tweetMulti } from '../tweet/tw_util';
     const { batter, tm, bat, hit, average } = result;
     const teamClause = teamArg ? '' : format('(%s)', tm);
 
-    rows.push(format('\n%s (%s-%s) %s%s', trimRateZero(average), bat, hit, batter, teamClause));
+    rows.push(format('\n%s (%s-%s)  %s%s', trimRateZero(average), bat, hit, batter, teamClause));
   }
 
   if (getIsTweet()) {
