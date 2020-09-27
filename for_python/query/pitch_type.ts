@@ -11,7 +11,9 @@ interface Result { team: string, pitcher: string, pitch_type: string, pitch_type
 interface PitchType { type: string, cnt: number }
 interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
 
-// Execute
+/**
+ * Per team
+ */
 (async () => {
   await createConnection('default');
 

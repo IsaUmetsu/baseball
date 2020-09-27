@@ -8,7 +8,9 @@ import { isLeftMoundStarterAllGame } from '../db_util';
 
 interface Result { team: string, pitcher: string, swing_cnt: string, missed_cnt: string }
 
-// Execute
+/**
+ * All pitcher
+ */
 (async () => {
   await createConnection('default');
 
