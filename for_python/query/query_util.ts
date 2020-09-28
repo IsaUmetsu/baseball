@@ -992,3 +992,131 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
     }
   }
 }
+
+/**
+ * 
+ */
+export const execMonthBatTitle = async (isTweet = true, leagueArg = '', monthArg = '') => {
+  let league = leagueArg;
+  const teamsArray = checkArgTMLGForTweet('', leagueArg);
+  if (! teamsArray.length) return;
+
+  const { monthArg: month, firstDay, lastDay } = checkArgM(Number(monthArg));
+
+  const manager = await getManager();
+  for (const teams of teamsArray) {
+    // except `steam base`
+    const regResults = await manager.query(`
+      SELECT
+        REPLACE(current_batter_name, ' ', '') AS batter,
+        base.b_team AS tm,
+        SUM(is_pa) AS pa,
+        SUM(is_ab) AS bat,
+        SUM(is_hit) AS hit,
+        SUM(is_onbase) AS onbase,
+        ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average,
+        ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase,
+        m.hr,
+        m.rbi,
+        '' AS eol
+      FROM
+        baseball_2020.debug_base base
+      -- 月間試合数 算出
+      LEFT JOIN (
+        SELECT 
+          b_team, COUNT(date) AS game_cnt
+        FROM
+          (SELECT DISTINCT
+            b_team, date
+          FROM
+            debug_base
+          WHERE
+            (date BETWEEN '${firstDay}' AND '${lastDay}') AND 
+            CHAR_LENGTH(b_team) > 0) AS game_cnt_base
+        GROUP BY b_team
+      ) gm ON base.b_team = gm.b_team
+      -- 本塁打、打点
+      LEFT JOIN (
+        SELECT 
+          b_team, name, SUM(hr) AS hr, SUM(rbi) AS rbi, SUM(sb) AS sb
+        FROM
+          baseball_2020.debug_stats_batter
+        WHERE
+          (date BETWEEN '${firstDay}' AND '${lastDay}')
+        GROUP BY name , b_team
+          ) m ON base.b_team = m.b_team AND base.current_batter_name = m.name
+      WHERE
+        is_pa = 1 AND 
+        base.b_team IN ('${teams.join("', '")}') AND 
+        date BETWEEN '${firstDay}' AND '${lastDay}'
+      GROUP BY current_batter_name, base.b_team, game_cnt
+      HAVING SUM(is_pa) >= 3.1 * game_cnt AND SUM(is_ab) > 0
+      ORDER BY average DESC;
+    `);
+
+    // only `steal base`
+    const results = await manager.query(`
+      SELECT
+        b_team AS tm,
+        REPLACE(name, ' ', '') AS batter,
+        SUM(sb) AS sb
+      FROM
+        baseball_2020.debug_stats_batter
+      WHERE
+        (date BETWEEN '${firstDay}' AND '${lastDay}')
+        AND b_team IN ('${teams.join("', '")}')
+      GROUP BY
+        name,
+        b_team
+      ORDER BY sb DESC
+    `);
+
+    let teamTitle = 'NPB';
+    if (league) teamTitle = leagueList[league];
+    if (teams.length == 6) {
+      league = checkLeague(teams);
+      teamTitle = leagueList[league];
+    }
+
+    const title = format("%s %s月 打撃タイトル\n", teamTitle, month);
+    const rows = [];
+
+    const [champion] = regResults;
+    rows.push(format('\n首位打者  %s  %s(%s) %s', trimRateZero(champion.average), champion.batter, champion.tm));
+
+    regResults.sort((a, b) => Number(b.hit) - Number(a.hit));
+    const [bestHitter] = regResults;
+    rows.push(format('\n最多安打  %s安打  %s(%s)', bestHitter.hit, bestHitter.batter, bestHitter.tm));
+
+    regResults.sort((a, b) => Number(b.hr) - Number(a.hr));
+    const [bestArtist] = regResults;
+    rows.push(format('\n最多本塁打  %s本塁打  %s(%s)', bestArtist.hr, bestArtist.batter, bestArtist.tm));
+
+    regResults.sort((a, b) => Number(b.rbi) - Number(a.rbi));
+    const [bestRbi] = regResults;
+    rows.push(format('\n最多打点  %s打点  %s(%s)', bestRbi.rbi, bestRbi.batter, bestRbi.tm));
+
+    regResults.sort((a, b) => Number(b.average_onbase) - Number(a.average_onbase));
+    const [bestOnbase] = regResults;
+    rows.push(format('\n最高出塁率  %s  %s(%s)', trimRateZero(bestOnbase.average_onbase), bestOnbase.batter, bestOnbase.tm));
+
+    const [bestSteal] = results;
+    rows.push(format('\n最多盗塁  %s  %s(%s)', bestSteal.sb, bestSteal.batter, bestSteal.tm));
+
+    if (isTweet) {
+      //  const tweetedDay = genTweetedDay();
+      //  const savedTweeted = await findSavedTweeted(SC_WS, league, tweetedDay);
+      //  const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+      //  if (! savedTweeted && isFinished) {
+        await tweetMulti(title, rows);
+      //    await saveTweeted(SC_WS, league, tweetedDay);
+      //    console.log(format(MSG_S, tweetedDay, league, SC_WS));
+      //  } else {
+      //    const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+      //    console.log(format(MSG_F, tweetedDay, league, SC_WS, cause));
+      //  }
+    } else {
+      displayResult(title, rows);
+    }
+  }
+}

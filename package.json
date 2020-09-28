@@ -44,6 +44,7 @@
     "month:team:era:s:tw": "ts-node for_python/query/month_team_era_start.ts -t",
     "month:team:era:m": "ts-node for_python/query/month_team_era_middle.ts",
     "month:team:era:m:tw": "ts-node for_python/query/month_team_era_middle.ts -t",
+    "month:bat:title": "ts-node for_python/query/month_bat_title.ts",
     "oppo:bat": "ts-node for_python/query/opponent_batting.ts",
     "oppo:bat:tw": "ts-node for_python/query/opponent_batting.ts -t",
     "oppo:era": "ts-node for_python/query/opponent_era.ts",
