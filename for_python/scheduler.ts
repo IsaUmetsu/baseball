@@ -1,6 +1,8 @@
 import { createConnection } from 'typeorm';
 import { schedule } from 'node-cron';
-import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekStand } from './query/query_util';
+import * as moment from 'moment';
+
+import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp } from './query/query_util';
 
 /**
  * 試合終了後 (ナイトゲーム)
@@ -47,12 +49,26 @@ schedule('*/15 13-17 * 9-11 0,6', async () => {
 });
 
 /**
- * 週間、月間チーム成績、首位打者 (毎週日曜日)
+ * 毎週日曜日 試合終了後
  */
 schedule('*/15 16-18,21-23 * 9-11 0', async () => {
   await createConnection('default');
 
   await execWeekStand();
-  await execMonthStand();
-  // 週間、月間打撃成績追加
+  await execWeekBatChamp();
+
+  await execMonthStand();  
+  await execMonthBatChamp();
+});
+
+/**
+ * 毎月末 試合終了後
+ */
+schedule('*/15 16-18,21-23 * 9-11 *', async () => {
+  if (moment().add(1, 'days').format('D') == '1') {
+    await createConnection('default');
+
+    await execMonthStand();
+    await execMonthBatChamp();
+  }
 });
