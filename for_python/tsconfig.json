@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
+    "outDir": "for_python/dist/",
     "target": "es2017",
     "module": "commonjs",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
+    "allowJs": true,
     "experimentalDecorators": true,
     "sourceMap": true
   }
