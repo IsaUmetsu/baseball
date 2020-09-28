@@ -13,13 +13,13 @@ const startGameNo = 1;
 const endGameNo = 6;
 const startSceneCnt = 1;
 
-const { D, SE, S } = process.env;
+const { D, SE, S, I } = process.env;
 let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
 
 const seasonStart = moment(format("2020%s", targetDay), "YYYYMMDD");
 const seasonEnd = moment(format("2020%s", seasonEndArg), "YYYYMMDD");
 
-const { importGame, importPitch, importBat } = checkArgI(process.env.I)
+const { importGame, importPitch, importBat } = checkArgI(I);
 
 const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
 const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
