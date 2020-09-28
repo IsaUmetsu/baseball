@@ -242,12 +242,17 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
       REPLACE(current_pitcher_name, ' ', '') AS pitcher,
       pitch_type,
       COUNT(pitch_type) AS pitch_type_cnt
-    FROM
-      baseball_2020.debug_pitch_base
-    WHERE
-      date = '${day}'
-      AND current_pitcher_order = 1
-      AND p_team IN ('${teams.join("', '")}')
+    FROM (
+      SELECT 
+        p_team, current_pitcher_name, pitch_cnt, pitch_type
+      FROM
+        baseball_2020.debug_pitch_base
+      WHERE
+        date = '${day}'
+        AND current_pitcher_order = 1
+        AND p_team IN ('${teams.join("' , '")}')
+      GROUP BY p_team , current_pitcher_name , pitch_cnt , pitch_type
+    ) AS A
     GROUP BY p_team, current_pitcher_name , pitch_type
     ORDER BY p_team DESC, current_pitcher_name DESC, pitch_type_cnt DESC
   `);
