@@ -25,7 +25,7 @@ export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '
       FROM (
         SELECT
           REPLACE(current_batter_name, ' ', '') AS batter,
-          COUNT(current_batter_name) AS all_bat, SUM(is_pa) AS pa,
+          SUM(is_pa) AS pa,
           b_team,
           SUM(is_ab) AS bat,
           SUM(is_hit) AS hit,
@@ -757,7 +757,7 @@ export const execMonthBatChamp = async (isTweet = true, team = '', league = '', 
       SELECT
         REPLACE(current_batter_name, ' ', '') AS batter,
         base.b_team AS tm,
-        COUNT(current_batter_name) AS all_bat, SUM(is_pa) AS pa,
+        SUM(is_pa) AS pa,
         SUM(is_ab) AS bat,
         SUM(is_hit) AS hit,
         SUM(is_onbase) AS onbase,
@@ -776,7 +776,7 @@ export const execMonthBatChamp = async (isTweet = true, team = '', league = '', 
           FROM
             debug_base
           WHERE
-            (date >= '${firstDay}' AND date <= '${lastDay}') AND 
+            (date BETWEEN '${firstDay}' AND '${lastDay}') AND 
             CHAR_LENGTH(b_team) > 0) AS game_cnt_base
         GROUP BY b_team
       ) gm ON base.b_team = gm.b_team
@@ -845,7 +845,6 @@ export const execWeekBatChamp = async (isTweet = true, team = '', league = '', d
       SELECT
         REPLACE(current_batter_name, ' ', '') AS batter,
         base.b_team AS tm,
-        COUNT(current_batter_name) AS all_bat,
         SUM(is_pa) AS pa,
         SUM(is_ab) AS bat,
         SUM(is_hit) AS hit,
