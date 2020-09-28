@@ -62,6 +62,8 @@
     "pitch:strike:game:tw": "ts-node for_python/query/pitch_strike_sw_ms_game.ts -t",
     "pitch:p:out": "ts-node for_python/query/pitch_per_out.ts",
     "pitch:p:out:tw": "ts-node for_python/query/pitch_per_out.ts -t",
+    "pitch:r:ave": "ts-node for_python/query/pitch_reliever_ave_team.ts",
+    "pitch:r:ave:tw": "ts-node for_python/query/pitch_reliever_ave_team.ts -t",
     "team:r:ra": "ts-node for_python/query/team_runs_runs_allowed.ts",
     "team:r:ra:tw": "ts-node for_python/query/team_runs_runs_allowed.ts -t",
     "team:situ:ob": "ts-node for_python/query/team_situation_onbase.ts",

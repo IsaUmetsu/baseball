@@ -914,3 +914,82 @@ export const execWeekBatChamp = async (isTweet = true, team = '', league = '', d
     }
   }
 }
+
+
+/**
+ * 
+ */
+export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
+  let league = leagueArg;
+  const teamsArray = checkArgTMLGForTweet('', leagueArg);
+  if (! teamsArray.length) return;
+
+  const manager = await getManager();
+  for (const teams of teamsArray) {
+    const results = await manager.query(`
+      SELECT
+        L.team,
+        ROUND(L.reliever_cnt / R.game_cnt, 2) AS ave,
+        L.reliever_cnt,
+        R.game_cnt,
+        '' AS eol
+      FROM
+        (
+          SELECT
+            p_team AS team,
+            COUNT(name) AS reliever_cnt
+          FROM baseball_2020.debug_stats_pitcher sp
+          WHERE sp.order > 1
+          GROUP BY p_team
+        ) L
+        LEFT JOIN
+          (
+            SELECT
+              team_initial_kana AS team,
+              SUM(game_cnt) AS game_cnt
+            FROM baseball_2020.game_cnt_per_month
+            GROUP BY team_initial_kana
+          ) R
+        ON  L.team = R.team
+      WHERE L.team IN('${teams.join("', '")}')
+      ORDER BY L.reliever_cnt / R.game_cnt DESC
+    `);
+
+    let teamTitle = 'NPB';
+    if (league) teamTitle = leagueList[league];
+    if (teams.length == 6) {
+      league = checkLeague(teams);
+      teamTitle = leagueList[league];
+    }
+
+    const title = format("%s球団 1試合平均 中継ぎ投手数\n", teamTitle);
+    const rows = [];
+
+    for (const result of results) {
+      const { team, ave, reliever_cnt, game_cnt } = result;
+      const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == team);
+
+      rows.push(format(
+        "\n%s  %s (%s登板 %s試合) %s",
+        team, ave, reliever_cnt, game_cnt, teamHashTags[teamIniEn]
+      ));  
+
+    }
+
+    if (isTweet) {
+      //  const tweetedDay = genTweetedDay();
+      //  const savedTweeted = await findSavedTweeted(SC_WS, league, tweetedDay);
+      //  const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+      //  if (! savedTweeted && isFinished) {
+        await tweetMulti(title, rows);
+      //    await saveTweeted(SC_WS, league, tweetedDay);
+      //    console.log(format(MSG_S, tweetedDay, league, SC_WS));
+      //  } else {
+      //    const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+      //    console.log(format(MSG_F, tweetedDay, league, SC_WS, cause));
+      //  }
+    } else {
+      displayResult(title, rows);
+    }
+  }
+}
