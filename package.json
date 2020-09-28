@@ -13,6 +13,7 @@
     "import": "ts-node for_python/process.json.ts",
     "import:pitch:stats": "ts-node for_python/process.pitcher.stats.ts",
     "import:bat:stats": "ts-node for_python/process.batter.stats.ts",
+    "schedule": "ts-node for_python/scheduler.ts",
     "update:poc": "ts-node for_python/query/update_plus_out_count.ts",
     "gen:model": "typeorm-model-generator -h localhost -d baseball_2020 -p 3306 -u root -e mysql -o ./for_python/.",
     "gen:query": "ts-node for_python/query/createQuery.ts > ./gen_query.sql",
@@ -99,6 +100,7 @@
   },
   "devDependencies": {
     "@types/node": "^14.6.0",
+    "@types/node-cron": "^2.0.3",
     "@types/sequelize": "^4.28.9",
     "@types/twitter": "^1.7.0",
     "@types/validator": "^13.1.0",
