@@ -23,6 +23,7 @@
     "bat:domain:hand:tw": "ts-node for_python/query/bat_domain_hand.ts -t",
     "bat:major:pos": "ts-node for_python/query/bat_major_position.ts",
     "bat:major:pos:tw": "ts-node for_python/query/bat_major_position.ts -t",
+    "day:bat:team": "ts-node for_python/query/day_bat_team.ts",
     "dow:stand": "ts-node for_python/query/day_of_the_week_standings.ts",
     "dow:stand:tw": "ts-node for_python/query/day_of_the_week_standings.ts -t",
     "dow:bat:champ": "ts-node for_python/query/day_of_the_week_batting_champion.ts",

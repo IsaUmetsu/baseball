@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames, leagueList } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero } from '../disp_util';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, getIsTweet, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC } from '../tweet/tw_util';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, getIsTweet, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../db_util';
 
@@ -1284,6 +1284,118 @@ export const execPitchTitle = async (isTweet = true, leagueArg = '', monthArg = 
       //    const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
       //    console.log(format(MSG_F, tweetedDay, league, SC_WS, cause));
       //  }
+    } else {
+      displayResult(title, rows);
+    }
+  }
+}
+
+/**
+ * 
+ */
+export const execDayBatTeam = async (isTweet = true, leagueArg = '', dayArg = '') => {
+  let league = leagueArg;
+  const teamsArray = checkArgTMLGForTweet('', leagueArg);
+  if (! teamsArray.length) return;
+
+  const day = checkArgDay(dayArg);
+
+  const manager = await getManager();
+  for (const teams of teamsArray) {
+    const results = await manager.query(`
+      SELECT
+        base.*,
+        rbi,
+        run,
+        hr,
+        sp_ab,
+        sp_hit,
+        sp_ave
+      FROM
+        (
+          SELECT
+            b_team,
+            SUM(is_ab) AS ab,
+            SUM(is_hit) AS hit,
+            ROUND(SUM(is_hit) / SUM(is_ab), 3) AS ave,
+            SUM(is_pa) AS pa,
+            SUM(is_onbase) AS onbase,
+            ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS onbase_ave
+          FROM
+            baseball_2020.debug_base
+          WHERE
+            date = '${day}'
+            AND CHAR_LENGTH(b_team) > 0
+          GROUP BY
+            b_team
+        ) base
+        LEFT JOIN (
+          SELECT
+            b_team,
+            SUM(rbi) AS rbi,
+            SUM(run) AS run,
+            SUM(hr) AS hr
+          FROM
+            baseball_2020.debug_stats_batter
+          WHERE
+            date = '${day}'
+          GROUP BY
+            b_team
+        ) spe ON base.b_team = spe.b_team
+        LEFT JOIN (
+          SELECT
+            b_team,
+            SUM(is_ab) AS sp_ab,
+            SUM(is_hit) AS sp_hit,
+            ROUND(SUM(is_hit) / SUM(is_ab), 3) AS sp_ave
+          FROM
+            baseball_2020.debug_base
+          WHERE
+            date = '${day}'
+            AND (
+              base2_player IS NOT NULL
+              OR base3_player IS NOT NULL
+            )
+          GROUP BY
+            b_team
+        ) sc ON base.b_team = sc.b_team
+      WHERE base.b_team IN('${teams.join("', '")}')
+      ORDER BY ave DESC, onbase_ave DESC, sp_ave DESC
+    `);
+
+    let teamTitle = 'NPB';
+    if (league) teamTitle = leagueList[league];
+    if (teams.length == 6) {
+      league = checkLeague(teams);
+      teamTitle = leagueList[league];
+    }
+
+    const title = format("%s %s\n打率・出塁率・得点圏打率\n", teamTitle, moment(day, 'YYYYMMDD').format('M/D'));
+    const rows = [];
+
+    for (const result of results) {
+      const { b_team, ave, onbase_ave, sp_ave, ab, hit, rbi, run, hr } = result;
+      const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == b_team);
+
+      rows.push(format(
+        "\n%s  %s  %s  %s  %s",
+        b_team, trimRateZero(ave), trimRateZero(onbase_ave), trimRateZero(sp_ave), teamHashTags[teamIniEn]
+      ));  
+
+    }
+
+    if (isTweet) {
+       const tweetedDay = genTweetedDay();
+       const savedTweeted = await findSavedTweeted(SC_DBT, league, tweetedDay);
+       const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+       if (! savedTweeted && isFinished) {
+        await tweetMulti(title, rows);
+        await saveTweeted(SC_DBT, league, tweetedDay);
+        console.log(format(MSG_S, tweetedDay, league, SC_DBT));
+       } else {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, tweetedDay, league, SC_DBT, cause));
+       }
     } else {
       displayResult(title, rows);
     }

@@ -2,7 +2,7 @@ import { createConnection } from 'typeorm';
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp } from './query/query_util';
+import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam } from './query/query_util';
 
 /**
  * 試合終了後 (ナイトゲーム)
@@ -12,6 +12,7 @@ schedule('*/15 21-23 * 9-11 *', async () => {
 
   await execBatRc5Team();
   await execPitchRc10Team();
+  await execDayBatTeam();
 });
 
 /**
