@@ -135,16 +135,16 @@ export const execPitchStrikeSwMsGame = async (isTweet = true, dayArg = '', strik
     }
 
     if (isTweet) {
-      const savedTweeted = await findSavedTweeted(SC_PSG, 'ALL', day);
+      const savedTweeted = await findSavedTweeted(SC_PSG, strike, day);
       const isLeft = await isLeftMoundStarterAllGame(day);
 
       if (! savedTweeted && isLeft) {
         await tweetMulti(title, rows);
-        await saveTweeted(SC_PSG, 'ALL', day);
-        console.log(format(MSG_S, day, 'ALL', SC_PSG));
+        await saveTweeted(SC_PSG, strike, day);
+        console.log(format(MSG_S, day, strike, SC_PSG));
       } else {
         const cause = savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other';
-        console.log(format(MSG_F, day, 'ALL', SC_PSG, cause));
+        console.log(format(MSG_F, day, strike, SC_PSG, cause));
       }
     } else {
       displayResult(title, rows);
