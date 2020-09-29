@@ -1078,30 +1078,48 @@ export const execMonthBatTitle = async (isTweet = true, leagueArg = '', monthArg
       teamTitle = leagueList[league];
     }
 
+    /**
+     * 
+     */
+    const dispBestPlayer = (title: string, results: any[]) => {
+      let bestScore = 0;
+      for (const { [title]: item } of results) {
+        if (Number(item) >= bestScore) bestScore = Number(item);
+      }
+      const resultsBestScore = results.filter(({ [title]: item }) => Number(item) == bestScore);
+      let innerRow = '';
+      for (const { tm, batter } of resultsBestScore) {
+        innerRow += format('%s(%s)\n', batter, tm);
+      }
+      return { bestScore, innerRow };
+    }
+
     const title = format("%s %s月 打撃タイトル\n", teamTitle, month);
     const rows = [];
 
-    const [champion] = regResults;
-    rows.push(format('\n首位打者  %s  %s(%s)', trimRateZero(champion.average), champion.batter, champion.tm));
+    // hit
+    const { bestScore: bestAve, innerRow: innerRowAve } = dispBestPlayer('average', regResults);
+    rows.push(format('\n◆首位打者  %s\n%s', trimRateZero(bestAve), innerRowAve));
 
-    regResults.sort((a, b) => Number(b.hit) - Number(a.hit));
-    const [bestHitter] = regResults;
-    rows.push(format('\n最多安打  %s安打  %s(%s)', bestHitter.hit, bestHitter.batter, bestHitter.tm));
+    // hit
+    const { bestScore: bestHit, innerRow: innerRowHit } = dispBestPlayer('hit', regResults);
+    rows.push(format('\n◆最多安打  %s安打\n%s', bestHit, innerRowHit));
 
-    regResults.sort((a, b) => Number(b.hr) - Number(a.hr));
-    const [bestArtist] = regResults;
-    rows.push(format('\n最多本塁打  %s本塁打  %s(%s)', bestArtist.hr, bestArtist.batter, bestArtist.tm));
+    // hr
+    const { bestScore: bestHr, innerRow: innerRowHr } = dispBestPlayer('hr', regResults);
+    rows.push(format('\n◆最多本塁打  %s本塁打\n%s', bestHr, innerRowHr));
 
-    regResults.sort((a, b) => Number(b.rbi) - Number(a.rbi));
-    const [bestRbi] = regResults;
-    rows.push(format('\n最多打点  %s打点  %s(%s)', bestRbi.rbi, bestRbi.batter, bestRbi.tm));
+    // hr
+    const { bestScore: bestRbi, innerRow: innerRowRbi } = dispBestPlayer('rbi', regResults);
+    rows.push(format('\n◆最多打点  %s打点\n%s', bestRbi, innerRowRbi));
 
-    regResults.sort((a, b) => Number(b.average_onbase) - Number(a.average_onbase));
-    const [bestOnbase] = regResults;
-    rows.push(format('\n最高出塁率  %s  %s(%s)', trimRateZero(bestOnbase.average_onbase), bestOnbase.batter, bestOnbase.tm));
+    // onbase
+    const { bestScore: bestAveOnbase, innerRow: innerRowAveOnbase } = dispBestPlayer('average_onbase', regResults);
+    rows.push(format('\n◆最高出塁率  %s\n%s', trimRateZero(bestAveOnbase), innerRowAveOnbase));
 
-    const [bestSteal] = results;
-    rows.push(format('\n最多盗塁  %s  %s(%s)', bestSteal.sb, bestSteal.batter, bestSteal.tm));
+    // sb
+    const { bestScore: bestSb, innerRow: innerRowSb } = dispBestPlayer('sb', results);
+    rows.push(format('\n◆最多盗塁  %s\n%s', bestSb, innerRowSb));
 
     if (isTweet) {
       //  const tweetedDay = genTweetedDay();
