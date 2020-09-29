@@ -4,10 +4,11 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames, leagueList } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero } from '../disp_util';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT } from '../tweet/tw_util';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../db_util';
 import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp } from './query_util';
+import { getPitcher } from '../fs_util';
 
 /**
  * 
@@ -988,6 +989,100 @@ export const execDayBatTeam = async (isTweet = true, leagueArg = '', dayArg = ''
        }
     } else {
       displayResult(title, rows);
+    }
+  }
+}
+
+/**
+ * 
+ */
+export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', nameArg = '') => {
+  const pitcherPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s";
+  const jsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
+
+  let targetPitchers = [];
+
+  if (!teamArg && !nameArg) {
+    console.log('NM=[名前] TM=[チームイニシャル] の指定がないため本日の先発投手を指定します');
+    targetPitchers = await getPitcher(pitcherPath, jsonPath);
+    if (! targetPitchers.length) {
+      console.log('本日の予告先発がいない または ツイート対象の投手がいません');
+      return;
+    }
+  }
+
+  if (teamArg && nameArg) {
+    targetPitchers.push({ team: teamArg, pitcher: nameArg, oppoTeam: '' });
+  }
+
+  const manager = await getManager();
+  for (const { team: targetTeam, pitcher, oppoTeam, isStartGame } of targetPitchers) {
+    const team = teamArray[targetTeam];
+    if (! team) {
+      console.log('正しいチームイニシャル を指定してください');
+      return;
+    }
+
+    const results: any[] = await manager.query(`
+      SELECT
+        ing_num AS inning,
+        SUM(debug_base.plus_score) AS ra
+      FROM
+        baseball_2020.debug_base
+      WHERE
+        (away_team_initial = '${team}' OR home_team_initial = '${team}')
+        AND CASE
+            WHEN away_team_initial = '${team}' THEN inning LIKE '%裏'
+            WHEN home_team_initial = '${team}' THEN inning LIKE '%表'
+        END
+        AND plus_score > 0
+        AND current_pitcher_name like '%${pitcher.split(' ').join('%')}%'
+      GROUP BY
+        ing_num
+    `);
+
+    const longestIp: any[] = await manager.query(`
+      SELECT
+        MAX(ip) AS inning
+      FROM baseball_2020.stats_pitcher WHERE name LIKE '%${pitcher.split(' ').join('%')}%';
+    `);
+
+    if (longestIp.length == 0) {
+      console.log(format("表示可能なデータがありません TM:[%s] NM:[%s]", team, pitcher));
+      return;
+    }
+
+    const { inning } = longestIp[0];
+    let [ intPart, decimalPart ] = inning.split('.');
+    intPart = decimalPart ? Number(intPart) + 1 : Number(intPart)
+    
+    const title = format("2020年 %s投手 イニング別失点数\n", pitcher.split(' ').join(''));
+    const rows = [];
+    
+    for (let ingNum = 1; ingNum <= intPart; ingNum++) {
+      const targetInning = results.find(result => result.inning == ingNum);
+
+      let inning = targetInning ? targetInning.inning : ingNum;
+      let runAllowed = targetInning ? targetInning.ra : 0;
+      rows.push(format("\n%s回 %s", inning, runAllowed));
+    }
+
+    if (intPart + 1 < 10) rows.push(format("\n(%s回以降未登板)", intPart + 1));
+    const footer = format("\n\n%s\n%s", teamHashTags[targetTeam], oppoTeam ? teamHashTags[oppoTeam] : '');
+
+    if (isTweet) {
+      const tweetedDay = genTweetedDay();
+      const savedTweeted = await findSavedTweeted(SC_PRS, targetTeam, tweetedDay);
+      if (! savedTweeted && isStartGame) {
+        await tweet(title, rows, footer);
+        await saveTweeted(SC_PRS, targetTeam, tweetedDay);
+        console.log(format(MSG_S, tweetedDay, targetTeam, SC_PRS));
+      } else {
+        const cause = savedTweeted ? 'done tweet' : isStartGame ? 'not start game' : 'other';
+        console.log(format(MSG_F, tweetedDay, targetTeam, SC_PRS, cause));
+      }
+    } else {
+      displayResult(title, rows, footer);
     }
   }
 }

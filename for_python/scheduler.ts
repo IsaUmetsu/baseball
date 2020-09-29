@@ -2,7 +2,7 @@ import { createConnection } from 'typeorm';
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam } from './query/exec_util';
+import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart } from './query/exec_util';
 
 /**
  * 
@@ -24,6 +24,22 @@ const execAfterLeftMound = async () => {
   await execPitchGroundFlyStart();
   await execPitchPerOut();
 }
+
+/**
+ * 試合終了前 (ナイトゲーム)
+ */
+schedule('5,35 17-18 * 9-11 *', async () => {
+  await createConnection('default');
+  await execPitchRaPerInningStart();
+});
+
+/**
+ * 試合終了前 (土日 デイゲーム)
+ */
+schedule('5,35 13-16 * 9-11 0,6', async () => {
+  await createConnection('default');
+  await execPitchRaPerInningStart();
+});
 
 /**
  * 試合終了後 (ナイトゲーム)
