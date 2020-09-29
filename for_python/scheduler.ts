@@ -5,14 +5,32 @@ import * as moment from 'moment';
 import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam } from './query/exec_util';
 
 /**
+ * 
+ */
+const execAfterGame = async () => {
+  // 各チーム
+  await execBatRc5Team();
+  await execPitchRc10Team();
+  // 各リーグ
+  await execDayBatTeam();
+}
+
+/**
+ * 
+ */
+const execAfterLeftMound = async () => {
+  await execPitchStrikeSwMsGame();
+  await execPitchType();
+  await execPitchGroundFlyStart();
+  await execPitchPerOut();
+}
+
+/**
  * 試合終了後 (ナイトゲーム)
  */
 schedule('*/15 21-23 * 9-11 *', async () => {
   await createConnection('default');
-
-  await execBatRc5Team();
-  await execPitchRc10Team();
-  await execDayBatTeam();
+  await execAfterGame();
 });
 
 /**
@@ -20,9 +38,7 @@ schedule('*/15 21-23 * 9-11 *', async () => {
  */
 schedule('*/15 16-18 * 9-11 0,6', async () => {
   await createConnection('default');
-
-  await execBatRc5Team();
-  await execPitchRc10Team();
+  await execAfterGame();
 });
 
 /**
@@ -30,11 +46,7 @@ schedule('*/15 16-18 * 9-11 0,6', async () => {
  */
 schedule('*/15 19-23 * 9-11 *', async () => {
   await createConnection('default');
-
-  await execPitchStrikeSwMsGame();
-  await execPitchType();
-  await execPitchGroundFlyStart();
-  await execPitchPerOut();
+  await execAfterLeftMound();
 });
 
 /**
@@ -42,11 +54,7 @@ schedule('*/15 19-23 * 9-11 *', async () => {
  */
 schedule('*/15 13-17 * 9-11 0,6', async () => {
   await createConnection('default');
-
-  await execPitchStrikeSwMsGame();
-  await execPitchType();
-  await execPitchGroundFlyStart();
-  await execPitchPerOut();
+  await execAfterLeftMound();
 });
 
 /**
