@@ -1200,6 +1200,22 @@ export const execPitchTitle = async (isTweet = true, leagueArg = '', monthArg = 
       teamTitle = leagueList[league];
     }
 
+    /**
+     * 
+     */
+    const dispBestPlayer = title => {
+      let bestScore = 0;
+      for (const { [title]: item } of results) {
+        if (Number(item) >= bestScore) bestScore = Number(item);
+      }
+      const resultsBestScore = results.filter(({ [title]: item }) => Number(item) == bestScore);
+      let innerRow = '';
+      for (const { tm, pitcher } of resultsBestScore) {
+        innerRow += format('%s(%s)\n', pitcher, tm);
+      }
+      return { bestScore, innerRow };
+    }
+
     const title = format("%s %s月 投手タイトル\n", teamTitle, month);
     const rows = [];
 
@@ -1223,51 +1239,20 @@ export const execPitchTitle = async (isTweet = true, leagueArg = '', monthArg = 
     rows.push(format('\n◆最高勝率  %s (月間3勝以上)\n%s', trimRateZero(bestRate), innerRowWinRate));
 
     // win
-    let bestWin = 0;
-    for (const { win } of results) {
-      if (Number(win) >= bestWin) bestWin = Number(win);
-    }
-    const resultsBestWin = results.filter(({ win }) => Number(win) == bestWin);
-    let innerRowWin = '';
-    for (const { tm, pitcher } of resultsBestWin) {
-      innerRowWin += format('%s(%s)\n', pitcher, tm);
-    }
-    rows.push(format('\n◆最多勝利  %s\n%s', trimRateZero(bestWin), innerRowWin));
+    const { bestScore: bestWin, innerRow: innerRowWin } = dispBestPlayer('win');
+    rows.push(format('\n◆最多勝利  %s\n%s', bestWin, innerRowWin));
 
     // save
-    let bestSave = 0;
-    for (const { save } of results) {
-      if (Number(save) >= bestSave) bestSave = Number(save);
-    }
-    const resultsBestSave = results.filter(({ save }) => Number(save) == bestSave);
-    let innerRowSave = '';
-    for (const { tm, pitcher } of resultsBestSave) {
-      innerRowSave += format('%s(%s)\n', pitcher, tm);
-    }
-    rows.push(format('\n◆最多セーブ  %s\n%s', trimRateZero(bestSave), innerRowSave));
+    const { bestScore: bestSave, innerRow: innerRowSave } = dispBestPlayer('save');
+    rows.push(format('\n◆最多セーブ  %s\n%s', bestSave, innerRowSave));
 
     // hp
-    let bestHp = 0;
-    for (const { hp } of results) {
-      if (Number(hp) >= bestHp) bestHp = Number(hp);
-    }
-    const resultsBestHp = results.filter(({ hp }) => Number(hp) == bestHp);
-    let innerRowHp = '';
-    for (const { tm, pitcher } of resultsBestHp) {
-      innerRowHp += format('%s(%s)\n', pitcher, tm);
-    }
-    rows.push(format('\n◆最優秀中継ぎ  %sHP\n%s', trimRateZero(bestHp), innerRowHp));
+    const { bestScore: bestHp, innerRow: innerRowHp } = dispBestPlayer('hp');
+    rows.push(format('\n◆最優秀中継ぎ  %sホールドポイント\n%s', bestHp, innerRowHp));
 
     // strike out
-    let bestSo = 0;
-    for (const { so } of results) {
-      if (Number(so) >= bestSo) bestSo = Number(so);
-    }
-    const resultsBestSo = results.filter(({ so }) => Number(so) == bestSo);
-    rows.push(format('\n◆最多奪三振  %s\n', trimRateZero(bestSo)));
-    for (const { tm, pitcher } of resultsBestSo) {
-      rows.push(format('%s(%s)', pitcher, tm));
-    }
+    const { bestScore: bestSo, innerRow: innerRowSo } = dispBestPlayer('so');
+    rows.push(format('\n◆最多奪三振  %s\n%s', bestSo, innerRowSo));
 
     if (isTweet) {
       //  const tweetedDay = genTweetedDay();
