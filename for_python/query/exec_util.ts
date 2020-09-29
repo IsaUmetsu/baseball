@@ -1078,7 +1078,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
         await saveTweeted(SC_PRS, targetTeam, tweetedDay);
         console.log(format(MSG_S, tweetedDay, targetTeam, SC_PRS));
       } else {
-        const cause = savedTweeted ? 'done tweet' : isStartGame ? 'not start game' : 'other';
+        const cause = savedTweeted ? 'done tweet' : isStartGame ? 'other' : 'not start game';
         console.log(format(MSG_F, tweetedDay, targetTeam, SC_PRS, cause));
       }
     } else {
