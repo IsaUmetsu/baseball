@@ -1082,7 +1082,7 @@ export const execMonthBatTitle = async (isTweet = true, leagueArg = '', monthArg
     const rows = [];
 
     const [champion] = regResults;
-    rows.push(format('\n首位打者  %s  %s(%s) %s', trimRateZero(champion.average), champion.batter, champion.tm));
+    rows.push(format('\n首位打者  %s  %s(%s)', trimRateZero(champion.average), champion.batter, champion.tm));
 
     regResults.sort((a, b) => Number(b.hit) - Number(a.hit));
     const [bestHitter] = regResults;
@@ -1102,6 +1102,172 @@ export const execMonthBatTitle = async (isTweet = true, leagueArg = '', monthArg
 
     const [bestSteal] = results;
     rows.push(format('\n最多盗塁  %s  %s(%s)', bestSteal.sb, bestSteal.batter, bestSteal.tm));
+
+    if (isTweet) {
+      //  const tweetedDay = genTweetedDay();
+      //  const savedTweeted = await findSavedTweeted(SC_WS, league, tweetedDay);
+      //  const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+      //  if (! savedTweeted && isFinished) {
+        await tweetMulti(title, rows);
+      //    await saveTweeted(SC_WS, league, tweetedDay);
+      //    console.log(format(MSG_S, tweetedDay, league, SC_WS));
+      //  } else {
+      //    const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+      //    console.log(format(MSG_F, tweetedDay, league, SC_WS, cause));
+      //  }
+    } else {
+      displayResult(title, rows);
+    }
+  }
+}
+
+/**
+ * 
+ */
+export const execPitchTitle = async (isTweet = true, leagueArg = '', monthArg = '') => {
+  let league = leagueArg;
+  const teamsArray = checkArgTMLGForTweet('', leagueArg);
+  if (! teamsArray.length) return;
+
+  const { monthArg: month } = checkArgM(Number(monthArg));
+
+  const manager = await getManager();
+  for (const teams of teamsArray) {
+    // about starter era
+    const regResults: any[] = await manager.query(`
+      SELECT
+        p_team AS tm,
+        REPLACE(name, ' ', '') AS pitcher,
+        ROUND(SUM(er) * 27 / SUM(outs), 2) AS era,
+        team_game_cnt,
+        SUM(outs) DIV 3 AS inning_int,
+        '' AS eol
+      FROM
+        baseball_2020.stats_pitcher sp
+        LEFT JOIN game_info gi ON gi.id = sp.game_info_id
+        LEFT JOIN (
+            SELECT
+                team_initial_kana,
+                game_cnt AS team_game_cnt
+            FROM
+                baseball_2020.game_cnt_per_month
+            WHERE
+                month = DATE_FORMAT(NOW(), '%c')
+        ) game ON sp.p_team = game.team_initial_kana
+      WHERE
+        sp.order = 1
+        AND DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${month}
+        AND p_team IN ('${teams.join("', '")}')
+      GROUP BY
+        name,
+        p_team,
+        team_game_cnt
+      HAVING
+        inning_int >= game.team_game_cnt
+      ORDER BY
+        era
+    `);
+
+    // about all
+    const results: any[] = await manager.query(`
+      SELECT
+        p_team AS tm,
+        REPLACE(name, ' ', '') AS pitcher,
+        COUNT(name) AS game_cnt,
+        COUNT(result = '勝' OR NULL) AS win,
+        COUNT(result = '敗' OR NULL) AS lose,
+        IFNULL(ROUND(COUNT(result = '勝' OR NULL) / (COUNT(result = '勝' OR NULL) + COUNT(result = '敗' OR NULL)), 3), '-') AS win_rate,
+        COUNT(result = 'H' OR NULL) AS hold,
+        COUNT(result = '勝' OR NULL) + COUNT(result = 'H' OR NULL) AS hp,
+        COUNT(result = 'S' OR NULL) AS save,
+        SUM(so) AS so,
+        '' AS eol
+      FROM
+        baseball_2020.stats_pitcher sp
+        LEFT JOIN game_info gi ON gi.id = sp.game_info_id
+      WHERE
+        DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${month}
+        AND p_team IN ('${teams.join("', '")}')
+      GROUP BY
+        name,
+        p_team
+    `);
+
+    let teamTitle = 'NPB';
+    if (league) teamTitle = leagueList[league];
+    if (teams.length == 6) {
+      league = checkLeague(teams);
+      teamTitle = leagueList[league];
+    }
+
+    const title = format("%s %s月 投手タイトル\n", teamTitle, month);
+    const rows = [];
+
+    // era
+    const [eraChamp] = regResults;
+    rows.push(format('\n◆最優秀防御率  %s\n%s(%s)\n', eraChamp.era, eraChamp.pitcher, eraChamp.tm));
+
+    // win_rate
+    const baseWin = 3;
+    const resultsMoreThenBase = results.filter(({ win }) => Number(win) >= baseWin);
+    resultsMoreThenBase.sort((a, b) => Number(b.win_rate) - Number(a.win_rate));
+    let bestRate = '0';
+    for (const { win_rate } of resultsMoreThenBase) {
+      if (Number(win_rate) >= Number(bestRate)) bestRate = win_rate;
+    }
+    const resultsBestWinRate = resultsMoreThenBase.filter(({ win_rate }) => win_rate == bestRate);
+    let innerRowWinRate = '';
+    for (const { tm, pitcher } of resultsBestWinRate) {
+      innerRowWinRate += format('%s(%s)\n', pitcher, tm);
+    }
+    rows.push(format('\n◆最高勝率  %s (月間3勝以上)\n%s', trimRateZero(bestRate), innerRowWinRate));
+
+    // win
+    let bestWin = 0;
+    for (const { win } of results) {
+      if (Number(win) >= bestWin) bestWin = Number(win);
+    }
+    const resultsBestWin = results.filter(({ win }) => Number(win) == bestWin);
+    let innerRowWin = '';
+    for (const { tm, pitcher } of resultsBestWin) {
+      innerRowWin += format('%s(%s)\n', pitcher, tm);
+    }
+    rows.push(format('\n◆最多勝利  %s\n%s', trimRateZero(bestWin), innerRowWin));
+
+    // save
+    let bestSave = 0;
+    for (const { save } of results) {
+      if (Number(save) >= bestSave) bestSave = Number(save);
+    }
+    const resultsBestSave = results.filter(({ save }) => Number(save) == bestSave);
+    let innerRowSave = '';
+    for (const { tm, pitcher } of resultsBestSave) {
+      innerRowSave += format('%s(%s)\n', pitcher, tm);
+    }
+    rows.push(format('\n◆最多セーブ  %s\n%s', trimRateZero(bestSave), innerRowSave));
+
+    // hp
+    let bestHp = 0;
+    for (const { hp } of results) {
+      if (Number(hp) >= bestHp) bestHp = Number(hp);
+    }
+    const resultsBestHp = results.filter(({ hp }) => Number(hp) == bestHp);
+    let innerRowHp = '';
+    for (const { tm, pitcher } of resultsBestHp) {
+      innerRowHp += format('%s(%s)\n', pitcher, tm);
+    }
+    rows.push(format('\n◆最優秀中継ぎ  %sHP\n%s', trimRateZero(bestHp), innerRowHp));
+
+    // strike out
+    let bestSo = 0;
+    for (const { so } of results) {
+      if (Number(so) >= bestSo) bestSo = Number(so);
+    }
+    const resultsBestSo = results.filter(({ so }) => Number(so) == bestSo);
+    rows.push(format('\n◆最多奪三振  %s\n', trimRateZero(bestSo)));
+    for (const { tm, pitcher } of resultsBestSo) {
+      rows.push(format('%s(%s)', pitcher, tm));
+    }
 
     if (isTweet) {
       //  const tweetedDay = genTweetedDay();
