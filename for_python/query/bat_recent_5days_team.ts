@@ -1,6 +1,6 @@
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../tweet/tw_util';
-import { execBatRc5Team } from './query_util';
+import { execBatRc5Team } from './exec_util';
 
 /**
  * Per team
