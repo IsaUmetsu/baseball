@@ -7,7 +7,7 @@ import { execMonthBatTitle, execPitchTitle } from "./exec_util";
 (async () => {
   await createConnection('default');
 
-  const { LG, M, T } = process.env;
+  const { TM, LG, M, T } = process.env;
 
   let execBat = false, execPitch = false;
   if (! T) {
@@ -19,6 +19,6 @@ import { execMonthBatTitle, execPitchTitle } from "./exec_util";
     if (! (T == 'B' || T == 'P')) console.log('T=[タイトル種別(B/P) に誤りがあるため実行されません');
   }
 
-  if (execBat) await execMonthBatTitle(getIsTweet(), LG, M);
-  if (execPitch) await execPitchTitle(getIsTweet(), LG, M);
+  if (execBat) await execMonthBatTitle(getIsTweet(), TM, LG, M);
+  if (execPitch) await execPitchTitle(getIsTweet(), TM, LG, M);
 })();

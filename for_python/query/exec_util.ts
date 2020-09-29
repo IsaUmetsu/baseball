@@ -646,9 +646,10 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
 /**
  * 
  */
-export const execMonthBatTitle = async (isTweet = true, leagueArg = '', monthArg = '') => {
+export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg = '', monthArg = '') => {
+  let team = teamArg;
   let league = leagueArg;
-  const teamsArray = checkArgTMLGForTweet('', leagueArg);
+  const teamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
   if (! teamsArray.length) return;
 
   const { monthArg: month, firstDay, lastDay } = checkArgM(Number(monthArg));
@@ -722,10 +723,34 @@ export const execMonthBatTitle = async (isTweet = true, leagueArg = '', monthArg
     `);
 
     let teamTitle = 'NPB';
+    if (team) teamTitle = teamNames[team];
     if (league) teamTitle = leagueList[league];
     if (teams.length == 6) {
       league = checkLeague(teams);
       teamTitle = leagueList[league];
+    }
+
+    /**
+     * 
+     */
+    const createInnerRow = results => {
+      let innerRow = '';
+      for (const { tm, batter } of results) {
+        innerRow += format('%s(%s)\n', batter, tm);
+      }
+      return innerRow;
+    }
+
+    /**
+     * 
+     */
+    const dispBestRatePlayer = (title: string, results: any[]) => {
+      let bestScore = '0';
+      for (const { [title]: item } of results) {
+        if (Number(item) >= Number(bestScore)) bestScore = item;
+      }
+      const resultsBestScore = results.filter(({ [title]: item }) => item == bestScore);
+      return { bestScore, innerRow: createInnerRow(resultsBestScore) };
     }
 
     /**
@@ -737,18 +762,14 @@ export const execMonthBatTitle = async (isTweet = true, leagueArg = '', monthArg
         if (Number(item) >= bestScore) bestScore = Number(item);
       }
       const resultsBestScore = results.filter(({ [title]: item }) => Number(item) == bestScore);
-      let innerRow = '';
-      for (const { tm, batter } of resultsBestScore) {
-        innerRow += format('%s(%s)\n', batter, tm);
-      }
-      return { bestScore, innerRow };
+      return { bestScore, innerRow: createInnerRow(resultsBestScore) };
     }
 
-    const title = format("%s %s月 打撃タイトル\n", teamTitle, month);
+    const title = format("%s %s月 %s打撃タイトル\n", teamTitle, month, team ? 'チーム内' : '');
     const rows = [];
 
-    // hit
-    const { bestScore: bestAve, innerRow: innerRowAve } = dispBestPlayer('average', regResults);
+    // average
+    const { bestScore: bestAve, innerRow: innerRowAve } = dispBestRatePlayer('average', regResults);
     rows.push(format('\n◆首位打者  %s\n%s', trimRateZero(bestAve), innerRowAve));
 
     // hit
@@ -764,7 +785,7 @@ export const execMonthBatTitle = async (isTweet = true, leagueArg = '', monthArg
     rows.push(format('\n◆最多打点  %s打点\n%s', bestRbi, innerRowRbi));
 
     // onbase
-    const { bestScore: bestAveOnbase, innerRow: innerRowAveOnbase } = dispBestPlayer('average_onbase', regResults);
+    const { bestScore: bestAveOnbase, innerRow: innerRowAveOnbase } = dispBestRatePlayer('average_onbase', regResults);
     rows.push(format('\n◆最高出塁率  %s\n%s', trimRateZero(bestAveOnbase), innerRowAveOnbase));
 
     // sb
@@ -792,9 +813,10 @@ export const execMonthBatTitle = async (isTweet = true, leagueArg = '', monthArg
 /**
  * 
  */
-export const execPitchTitle = async (isTweet = true, leagueArg = '', monthArg = '') => {
+export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '', monthArg = '') => {
+  let team = teamArg;
   let league = leagueArg;
-  const teamsArray = checkArgTMLGForTweet('', leagueArg);
+  const teamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
   if (! teamsArray.length) return;
 
   const { monthArg: month } = checkArgM(Number(monthArg));
@@ -862,6 +884,7 @@ export const execPitchTitle = async (isTweet = true, leagueArg = '', monthArg = 
     `);
 
     let teamTitle = 'NPB';
+    if (team) teamTitle = teamNames[team];
     if (league) teamTitle = leagueList[league];
     if (teams.length == 6) {
       league = checkLeague(teams);
@@ -884,12 +907,16 @@ export const execPitchTitle = async (isTweet = true, leagueArg = '', monthArg = 
       return { bestScore, innerRow };
     }
 
-    const title = format("%s %s月 投手タイトル\n", teamTitle, month);
+    const title = format("%s %s月 %s投手タイトル\n", teamTitle, month, team ? 'チーム内' : '');
     const rows = [];
 
     // era
     const [eraChamp] = regResults;
-    rows.push(format('\n◆最優秀防御率  %s\n%s(%s)\n', eraChamp.era, eraChamp.pitcher, eraChamp.tm));
+    if (eraChamp) {
+      rows.push(format('\n◆最優秀防御率  %s\n%s(%s)\n', eraChamp.era, eraChamp.pitcher, eraChamp.tm));
+    } else {
+      rows.push('\n◆最優秀防御率\n該当者なし\n');
+    }
 
     // win_rate
     const baseWin = 3;
@@ -904,7 +931,11 @@ export const execPitchTitle = async (isTweet = true, leagueArg = '', monthArg = 
     for (const { tm, pitcher } of resultsBestWinRate) {
       innerRowWinRate += format('%s(%s)\n', pitcher, tm);
     }
-    rows.push(format('\n◆最高勝率  %s (月間3勝以上)\n%s', trimRateZero(bestRate), innerRowWinRate));
+    if (innerRowWinRate) {
+      rows.push(format('\n◆最高勝率  %s (月間3勝以上)\n%s', trimRateZero(bestRate), innerRowWinRate));
+    } else {
+      rows.push('\n◆最高勝率  (月間3勝以上)\n該当者なし\n');
+    }
 
     // win
     const { bestScore: bestWin, innerRow: innerRowWin } = dispBestPlayer('win');
