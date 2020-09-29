@@ -36,7 +36,7 @@ schedule('5,35 17-18 * 9-11 *', async () => {
 /**
  * 試合終了前 (土日 デイゲーム)
  */
-schedule('5,35 13-16 * 9-11 0,6', async () => {
+schedule('10,40 13-16 * 9-11 0,6', async () => {
   await createConnection('default');
   await execPitchRaPerInningStart();
 });
