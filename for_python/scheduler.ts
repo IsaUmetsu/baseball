@@ -35,7 +35,7 @@ const execAfterLeftMound = async () => {
 }
 
 /**
- * 試合終了前 (ナイトゲーム)
+ * 試合前 (ナイトゲーム)
  */
 schedule('10,40 17-18 * 9-11 *', async () => {
   console.log('\n\n ----- START [before game] -----');
@@ -46,7 +46,7 @@ schedule('10,40 17-18 * 9-11 *', async () => {
 });
 
 /**
- * 試合終了前 (土日 デイゲーム)
+ * 試合前 (土日 デイゲーム)
  */
 schedule('10,40 13-16 * 9-11 0,6', async () => {
   console.log('\n\n ----- START [before game] -----');
