@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames, leagueList } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero } from '../disp_util';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE } from '../tweet/tw_util';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MT } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../db_util';
 import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp } from './query_util';
@@ -736,7 +736,7 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
     const createInnerRow = results => {
       let innerRow = '';
       for (const { tm, batter } of results) {
-        innerRow += format('%s(%s)\n', batter, tm);
+        innerRow += format('%s%s\n', batter, team ? '' : format('(%s)', tm));
       }
       return innerRow;
     }
@@ -792,18 +792,26 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
     const { bestScore: bestSb, innerRow: innerRowSb } = dispBestPlayer('sb', results);
     rows.push(format('\n◆最多盗塁  %s\n%s', bestSb, innerRowSb));
 
+    // add hashtags
+    if (team) rows.push(format('\n%s', teamHashTags[team]));
+
     if (isTweet) {
-      //  const tweetedDay = genTweetedDay();
-      //  const savedTweeted = await findSavedTweeted(SC_WS, league, tweetedDay);
-      //  const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
-      //  if (! savedTweeted && isFinished) {
+      const tweetedDay = genTweetedDay();
+      const scriptName = format('%s_%s', SC_MT, 'pitch');
+      const savedTweeted = await findSavedTweeted(scriptName, team ? team : league, tweetedDay);
+
+      let isFinished = false;
+      if (team) isFinished = await isFinishedGame(teams, tweetedDay);
+      if (league || teams.length == 6) isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+
+      if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows);
-      //    await saveTweeted(SC_WS, league, tweetedDay);
-      //    console.log(format(MSG_S, tweetedDay, league, SC_WS));
-      //  } else {
-      //    const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-      //    console.log(format(MSG_F, tweetedDay, league, SC_WS, cause));
-      //  }
+        await saveTweeted(scriptName, team ? team : league, tweetedDay);
+        console.log(format(MSG_S, tweetedDay, team ? team : league, scriptName));
+      } else {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, tweetedDay, team ? team : league, scriptName, cause));
+      }
     } else {
       displayResult(title, rows);
     }
@@ -902,7 +910,7 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
       const resultsBestScore = results.filter(({ [title]: item }) => Number(item) == bestScore);
       let innerRow = '';
       for (const { tm, pitcher } of resultsBestScore) {
-        innerRow += format('%s(%s)\n', pitcher, tm);
+        innerRow += format('%s%s\n', pitcher, team ? '' : format('(%s)', tm));
       }
       return { bestScore, innerRow };
     }
@@ -913,7 +921,7 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
     // era
     const [eraChamp] = regResults;
     if (eraChamp) {
-      rows.push(format('\n◆最優秀防御率  %s\n%s(%s)\n', eraChamp.era, eraChamp.pitcher, eraChamp.tm));
+      rows.push(format('\n◆最優秀防御率  %s\n%s%s\n', eraChamp.era, eraChamp.pitcher, team ? '' : format('(%s)', eraChamp.tm)));
     } else {
       rows.push('\n◆最優秀防御率\n該当者なし\n');
     }
@@ -953,18 +961,26 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
     const { bestScore: bestSo, innerRow: innerRowSo } = dispBestPlayer('so');
     rows.push(format('\n◆最多奪三振  %s\n%s', bestSo, innerRowSo));
 
+    // add hashtags
+    if (team) rows.push(format('\n%s', teamHashTags[team]));
+
     if (isTweet) {
-      //  const tweetedDay = genTweetedDay();
-      //  const savedTweeted = await findSavedTweeted(SC_WS, league, tweetedDay);
-      //  const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
-      //  if (! savedTweeted && isFinished) {
+      const tweetedDay = genTweetedDay();
+      const scriptName = format('%s_%s', SC_MT, 'bat');
+      const savedTweeted = await findSavedTweeted(scriptName, team ? team : league, tweetedDay);
+
+      let isFinished = false;
+      if (team) isFinished = await isFinishedGame(teams, tweetedDay);
+      if (league || teams.length == 6) isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+
+      if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows);
-      //    await saveTweeted(SC_WS, league, tweetedDay);
-      //    console.log(format(MSG_S, tweetedDay, league, SC_WS));
-      //  } else {
-      //    const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-      //    console.log(format(MSG_F, tweetedDay, league, SC_WS, cause));
-      //  }
+        await saveTweeted(scriptName, team ? team : league, tweetedDay);
+        console.log(format(MSG_S, tweetedDay, team ? team : league, scriptName));
+      } else {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, tweetedDay, team ? team : league, scriptName, cause));
+      }
     } else {
       displayResult(title, rows);
     }
