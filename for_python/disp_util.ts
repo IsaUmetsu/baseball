@@ -2,7 +2,7 @@ import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
 import * as yargs from 'yargs';
-import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames } from './constant';
+import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM } from './constant';
 import { countFiles, getJson } from './fs_util';
 import { BatterResult } from './type/jsonType.d';
 
@@ -432,13 +432,14 @@ export const checkArgPitchType = (pitchTypeArg) => {
 export const createBatterResultRows = (results: BatterResult[]): string[] => {
   const rows = [];
   for (const result of results) {
-    const { batter, bat, hit, average, hr, rbi } = result;
+    const { b_team, batter, bat, hit, average, hr, rbi } = result;
+    const teamClause = b_team ? format(FORMAT_BATTER_TEAM, b_team) : '';
     const hrClause = Number(hr) ? format(FORMAT_BATTER_HR, hr) : '';
     const rbiClause = Number(rbi) ? format(FORMAT_BATTER_RBI, rbi) : '';
   
     rows.push(format(
       FORMAT_BATTER,
-      trimRateZero(average), bat, hit, batter, hrClause, rbiClause
+      trimRateZero(average), bat, hit, batter, teamClause, hrClause, rbiClause
     ));
   }
   return rows;

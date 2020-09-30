@@ -4,16 +4,16 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames, leagueList } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle } from '../disp_util';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT } from '../tweet/tw_util';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../db_util';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam } from './query_util';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All } from './query_util';
 import { getPitcher } from '../fs_util';
 
 /**
  * 
  */
-export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '') => {
+export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '', scriptName = SC_RC5T) => {
   const teams = checkArgTMLG(teamArg, leagueArg);
   if (! teams.length) return;
 
@@ -29,19 +29,61 @@ export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '
     if (isTweet) {
       const tweetedDay = genTweetedDay();
 
-      const savedTweeted = await findSavedTweeted(SC_RC5, team, tweetedDay);
+      const savedTweeted = await findSavedTweeted(scriptName, team, tweetedDay);
       const isFinished = await isFinishedGame(team, tweetedDay);
 
       if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows, footer);
-        await saveTweeted(SC_RC5, team, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, team, SC_RC5));
+        await saveTweeted(scriptName, team, tweetedDay);
+        console.log(format(MSG_S, tweetedDay, team, scriptName));
       } else {
         const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, team, SC_RC5, cause));
+        console.log(format(MSG_F, tweetedDay, team, scriptName, cause));
       }
     } else {
       displayResult(title, rows, footer);
+    }
+  }
+}
+
+/**
+ * 
+ */
+export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', scriptName = SC_RC5A) => {
+  const teams = checkArgTMLGForTweet(teamArg, leagueArg);
+  if (! teams.length) return;
+
+  let sorts = [];
+  if (! sortArg) {
+    sorts = ['DESC', 'ASC'];
+  }
+
+  const manager = await getManager();
+  for (const team of teams) {
+    for (const sort of sorts) {
+      const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, sort));
+
+      const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
+      const title = format('%s打者 最近5試合 打撃成績 %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), sortTitle);
+      const rows = createBatterResultRows(results);
+
+      if (isTweet) {
+        const tweetedDay = genTweetedDay();
+
+        const savedTweeted = await findSavedTweeted(scriptName, team, tweetedDay);
+        const isFinished = await isFinishedGame(team, tweetedDay);
+
+        if (! savedTweeted && isFinished) {
+          await tweetMulti(title, rows);
+          await saveTweeted(scriptName, team, tweetedDay);
+          console.log(format(MSG_S, tweetedDay, team, scriptName));
+        } else {
+          const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+          console.log(format(MSG_F, tweetedDay, team, scriptName, cause));
+        }
+      } else {
+        displayResult(title, rows);
+      }
     }
   }
 }

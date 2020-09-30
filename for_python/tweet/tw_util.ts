@@ -8,7 +8,8 @@ import { getRepository } from 'typeorm';
 export const MSG_S = '----- [done] date: [%s], team: [%s], script: [%s] -----';
 export const MSG_F = '----- date: [%s], team: [%s], script: [%s], not tweeted because: [%s] -----';
 
-export const SC_RC5 = 'bat_rc5';
+export const SC_RC5T = 'bat_rc5_team';
+export const SC_RC5A = 'bat_rc5_all';
 export const SC_DBT= 'day_bat_team';
 export const SC_PT = 'pitch_type';
 export const SC_RC10 = 'pitch_rc10';

@@ -47,6 +47,19 @@ export const getQueryBatRc5Team = team => `
 /**
  * 
  */
+export const getQueryBatRc5All = (teams, sort) => `
+  SELECT 
+    *
+  FROM
+    baseball_2020.debug_bat_rc5_all
+  WHERE b_team IN ('${teams.join("', '")}')
+  ORDER BY average ${sort}
+  LIMIT 10
+`;
+
+/**
+ * 
+ */
 export const getQueryPitch10Team = team => `
   SELECT
     p_team AS tm,

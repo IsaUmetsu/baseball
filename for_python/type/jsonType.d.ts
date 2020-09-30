@@ -219,6 +219,7 @@ export interface ScoreBoard {
 }
 
 export interface BatterResult {
+    b_team?: string
     batter: string,
     bat: string,
     hit: string,

@@ -2,7 +2,7 @@ import { createConnection } from 'typeorm';
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execPitchTitle, execMonthBatTeam } from './query/exec_util';
+import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execPitchTitle, execMonthBatTeam, execBatRc5All } from './query/exec_util';
 import { teamArray } from './constant';
 
 /**
@@ -15,6 +15,7 @@ const execAfterGame = async () => {
   await execPitchRc10Team();
   // 各リーグ
   await execDayBatTeam();
+  await execBatRc5All();
 
   await conn.close();
 }
