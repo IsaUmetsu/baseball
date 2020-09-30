@@ -1126,73 +1126,82 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', pitcherAr
   const teamsArray = checkArgTMLGForTweet('', league);
   if (! teamsArray.length) return;
 
-  let pitcher = pitcherArg;
-  if (! pitcher) {
-    pitcher = 'A';
-    console.log('P=[S/M] の指定がないため先発・中継ぎ両方ののデータを出力します');
-  } else if (pitcher != 'S' && pitcher != 'M') {
-    console.log('P=[投手種別] の指定がないため先発・中継ぎ両方ののデータを出力します')
+  let pitchersArray: string[] = [];
+  if (! pitcherArg) {
+    pitchersArray = ['A', 'S', 'M'];
+    console.log('P=[投手種別(A/S/M)] の指定がないため、全体・先発・中継ぎのデータを出力します');
+  } else if (pitcherArg != 'S' && pitcherArg != 'M') {
+    pitchersArray = ['A', 'S', 'M'];
+    console.log('P=[投手種別(A/S/M)] の指定に誤りがあるため、全体・先発・中継ぎのデータを出力します')
+  } else {
+    pitchersArray = [pitcherArg];
   }
  
   const { monthArg, firstDay, lastDay } = checkArgM(Number(process.env.M));
 
   const manager = await getManager();
   for (const teams of teamsArray) {
-    const results = await manager.query(`
-      SELECT 
-        p_team AS tm,
-        CONCAT(
-          SUM(outs) DIV 3,
-          CASE WHEN SUM(outs) MOD 3 > 0 THEN CONCAT('.', SUM(outs) MOD 3) ELSE '' END
-        ) AS inning,
-        SUM(ra) AS ra,
-        SUM(er) AS er,
-        ROUND(SUM(er) * 27 / SUM(outs), 2) AS era,
-        '' AS eol
-      FROM
-        baseball_2020.stats_pitcher sp
-      LEFT JOIN game_info gi ON sp.game_info_id = gi.id
-      WHERE
-        ${pitcher == 'A' ? '' : `sp.order ${pitcher == 'S' ? '=' : '>'} 1 AND`}
-        gi.date BETWEEN '${firstDay}' AND '${lastDay}' AND
-        p_team IN ('${teams.join("', '")}')
-      GROUP BY p_team
-      ORDER BY era ASC
-    `);
+    for (const pitcher of pitchersArray) {
+      const results = await manager.query(`
+        SELECT 
+          p_team AS tm,
+          CONCAT(
+            SUM(outs) DIV 3,
+            CASE WHEN SUM(outs) MOD 3 > 0 THEN CONCAT('.', SUM(outs) MOD 3) ELSE '' END
+          ) AS inning,
+          SUM(ra) AS ra,
+          SUM(er) AS er,
+          ROUND(SUM(er) * 27 / SUM(outs), 2) AS era,
+          '' AS eol
+        FROM
+          baseball_2020.stats_pitcher sp
+        LEFT JOIN game_info gi ON sp.game_info_id = gi.id
+        WHERE
+          ${pitcher == 'A' ? '' : `sp.order ${pitcher == 'S' ? '=' : '>'} 1 AND`}
+          gi.date BETWEEN '${firstDay}' AND '${lastDay}' AND
+          p_team IN ('${teams.join("', '")}')
+        GROUP BY p_team
+        ORDER BY era ASC
+      `);
 
-    let teamTitle = 'NPB';
-    if (league) teamTitle = leagueList[league];
-    if (teams.length == 6) {
-      league = checkLeague(teams);
-      teamTitle = leagueList[league];
-    }
-
-    const title = format('%s球団 %s月%s 防御率\n', teamTitle, monthArg, pitcher == 'A' ? '' : pitcher == 'S' ? ' 先発' : ' 中継ぎ');
-    const rows = [];
-    for (const result of results) {
-      const { tm, era, inning, ra, er } = result;
-      const [ team_initial ] = Object.entries(teamArray).find(([, value]) => value == tm);
-
-      rows.push(format(
-        '\n%s %s %s回 %s失点 自責%s %s ',
-        tm, era, inning, ra, er, teamHashTags[team_initial]
-      ));  
-    }
-
-    if (isTweet) {
-      const tweetedDay = genTweetedDay();
-      const savedTweeted = await findSavedTweeted(SC_MTE, league, tweetedDay);
-      const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
-      if (! savedTweeted && isFinished) {
-        await tweetMulti(title, rows);
-        await saveTweeted(SC_MTE, league, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, league, SC_MTE));
-      } else {
-        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, league, SC_MTE, cause));
+      let teamTitle = 'NPB';
+      if (league) teamTitle = leagueList[league];
+      if (teams.length == 6) {
+        league = checkLeague(teams);
+        teamTitle = leagueList[league];
       }
-    } else {
-      displayResult(title, rows);
+
+      const pitcherTitle = pitcher == 'A' ? '' : pitcher == 'S' ? '先発' : '中継ぎ';
+
+      const title = format('%s %s月 %s防御率\n(失点 自責点 投球回)\n', teamTitle, monthArg, pitcherTitle);
+      const rows = [];
+      for (const result of results) {
+        const { tm, era, inning, ra, er } = result;
+        const [ team_initial ] = Object.entries(teamArray).find(([, value]) => value == tm);
+
+        rows.push(format(
+          '\n%s %s (%s %s %s) %s ',
+          tm, era, ra, er, inning, teamHashTags[team_initial]
+        ));  
+      }
+
+      if (isTweet) {
+        const tweetedDay = genTweetedDay();
+        const scriptName = format('%s_%s', SC_MTE, pitcher);
+
+        const savedTweeted = await findSavedTweeted(scriptName, league, tweetedDay);
+        const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+        if (! savedTweeted && isFinished) {
+          await tweetMulti(title, rows);
+          await saveTweeted(scriptName, league, tweetedDay);
+          console.log(format(MSG_S, tweetedDay, league, scriptName));
+        } else {
+          const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+          console.log(format(MSG_F, tweetedDay, league, scriptName, cause));
+        }
+      } else {
+        displayResult(title, rows);
+      }
     }
   }
 }
