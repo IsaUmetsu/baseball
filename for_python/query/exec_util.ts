@@ -69,17 +69,18 @@ export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
 
       if (isTweet) {
         const tweetedDay = genTweetedDay();
+        const league = checkLeague(team);
 
-        const savedTweeted = await findSavedTweeted(scriptName, team, tweetedDay);
+        const savedTweeted = await findSavedTweeted(scriptName, league, tweetedDay);
         const isFinished = await isFinishedGame(team, tweetedDay);
 
         if (! savedTweeted && isFinished) {
           await tweetMulti(title, rows);
-          await saveTweeted(scriptName, team, tweetedDay);
-          console.log(format(MSG_S, tweetedDay, team, scriptName));
+          await saveTweeted(scriptName, league, tweetedDay);
+          console.log(format(MSG_S, tweetedDay, league, scriptName));
         } else {
           const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-          console.log(format(MSG_F, tweetedDay, team, scriptName, cause));
+          console.log(format(MSG_F, tweetedDay, league, scriptName, cause));
         }
       } else {
         displayResult(title, rows);
@@ -942,7 +943,7 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
     const resultsBestWinRate = resultsMoreThenBase.filter(({ win_rate }) => win_rate == bestRate);
     let innerRowWinRate = '';
     for (const { tm, pitcher } of resultsBestWinRate) {
-      innerRowWinRate += format('%s(%s)\n', pitcher, tm);
+      innerRowWinRate += format('%s%s\n', pitcher, team ? '' : format('(%s)', tm));
     }
     if (innerRowWinRate) {
       rows.push(format('\n◆最高勝率  %s (月間3勝以上)\n%s', trimRateZero(bestRate), innerRowWinRate));

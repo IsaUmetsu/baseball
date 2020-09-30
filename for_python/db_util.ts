@@ -516,8 +516,12 @@ export const isFinishedGameByLeague = async (teams, day): Promise<boolean> => {
       ) AS R ON L.date = R.date
   `);
 
-  const { is_finished } = results[0];
-  return Boolean(Number(is_finished));
+  let result = false;
+  if (results && results.length > 0) {
+    const { is_finished } = results[0];
+    result = Boolean(Number(is_finished));
+  }
+  return result;
 }
 
 /**
@@ -540,8 +544,12 @@ export const isFinishedGameById = async (gameInfoId): Promise<boolean> => {
     ) AS A;
   `);
 
-  const { is_finished } = results[0];
-  return Boolean(Number(is_finished));
+  let result = false;
+  if (results && results.length > 0) {
+    const { is_finished } = results[0];
+    result = Boolean(Number(is_finished));
+  }
+  return result;
 }
 
 /**
@@ -598,6 +606,10 @@ export const isLeftMoundStarterByTeam = async (day, team): Promise<boolean> => {
       AND p_team = '${team}'
   `);
 
-  const { is_left } = results[0];
-  return Boolean(Number(is_left));
+  let result = false;
+  if (results && results.length > 0) {
+    const { is_left } = results[0];
+    result = Boolean(Number(is_left));
+  }
+  return result;
 }
