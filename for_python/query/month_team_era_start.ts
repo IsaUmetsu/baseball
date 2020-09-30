@@ -22,7 +22,7 @@ import { tweetMulti, getIsTweet } from '../tweet/tw_util';
   }
   pitcherArg = 'S';
  
-  const { monthArg } = checkArgM(Number(process.env.M));
+  const { monthArg } = checkArgM(process.env.M);
 
   const manager = await getManager();
   const results = await manager.query(`
