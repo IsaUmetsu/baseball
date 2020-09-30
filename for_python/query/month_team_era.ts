@@ -7,6 +7,6 @@ import { execMonthTeamEra } from './exec_util';
 (async () => {
   await createConnection('default');
 
-  const { LG, P } = process.env;
-  await execMonthTeamEra(getIsTweet(), LG, P);
+  const { LG, P, M } = process.env;
+  await execMonthTeamEra(getIsTweet(), LG, P, M);
 })();

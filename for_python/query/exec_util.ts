@@ -407,7 +407,7 @@ export const execMonthStand = async (isTweet = true, leagueArg = '', monthArg = 
   const teamsArray = checkArgTMLGForTweet('', league);
   if (! teamsArray.length) return;
 
-  const { monthArg: month, firstDay, lastDay } = checkArgM(Number(monthArg));
+  const { monthArg: month, firstDay, lastDay } = checkArgM(monthArg);
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -467,7 +467,7 @@ export const execMonthBatChamp = async (isTweet = true, team = '', league = '', 
   const teamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
   if (! teamsArray.length) return;
 
-  const { monthArg, firstDay, lastDay } = checkArgM(Number(month));
+  const { monthArg, firstDay, lastDay } = checkArgM(month);
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -652,7 +652,7 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
   const teamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
   if (! teamsArray.length) return;
 
-  const { monthArg: month, firstDay, lastDay } = checkArgM(Number(monthArg));
+  const { monthArg: month, firstDay, lastDay } = checkArgM(monthArg);
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -827,7 +827,7 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
   const teamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
   if (! teamsArray.length) return;
 
-  const { monthArg: month } = checkArgM(Number(monthArg));
+  const { monthArg: month } = checkArgM(monthArg);
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1137,7 +1137,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
 /**
  * 
  */
-export const execMonthTeamEra = async (isTweet = true, leagueArg = '', pitcherArg = '') => {
+export const execMonthTeamEra = async (isTweet = true, leagueArg = '', pitcherArg = '', monthArg = '') => {
   let league = leagueArg;
   const teamsArray = checkArgTMLGForTweet('', league);
   if (! teamsArray.length) return;
@@ -1153,7 +1153,7 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', pitcherAr
     pitchersArray = [pitcherArg];
   }
  
-  const { monthArg, firstDay, lastDay } = checkArgM(Number(process.env.M));
+  const { monthArg: month, firstDay, lastDay } = checkArgM(monthArg);
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1189,7 +1189,7 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', pitcherAr
 
       const pitcherTitle = pitcher == 'A' ? '' : pitcher == 'S' ? '先発' : '中継ぎ';
 
-      const title = format('%s %s月 %s防御率\n(失点 自責点 投球回)\n', teamTitle, monthArg, pitcherTitle);
+      const title = format('%s %s月 %s防御率\n(失点 自責点 投球回)\n', teamTitle, month, pitcherTitle);
       const rows = [];
       for (const result of results) {
         const { tm, era, inning, ra, er } = result;
