@@ -7,6 +7,7 @@ export const getQueryBatRc5Team = team => `
     base.batter,
     base.pa,
     base.bat,
+    base.hit,
     base.average,
     other.hr,
     other.rbi
