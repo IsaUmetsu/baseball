@@ -4,6 +4,7 @@ import * as yargs from 'yargs';
 import * as moment from 'moment';
 import { Tweet } from '../entities';
 import { getRepository } from 'typeorm';
+import { format } from 'util';
 
 export const MSG_S = '----- [done] date: [%s], team: [%s], script: [%s] -----';
 export const MSG_F = '----- date: [%s], team: [%s], script: [%s], not tweeted because: [%s] -----';
@@ -160,4 +161,20 @@ const doTweetMulti = async (status, in_reply_to_status_id) => {
     console.log(err);
   }
   return res;
+}
+
+/**
+ * 
+ */
+export const outputLogStart = msg => {
+  const currentDatetime = moment().format('YYYY/MM/DD HH:mm:ss');
+  console.log(format('\n\n ----- START [%s] at %s -----', msg, currentDatetime));
+}
+
+/**
+ * 
+ */
+export const outputLogEnd = msg => {
+  const currentDatetime = moment().format('YYYY/MM/DD HH:mm:ss');
+  console.log(format('----- END [%s] at %s -----', msg, currentDatetime));
 }

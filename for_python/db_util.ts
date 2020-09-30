@@ -1,9 +1,26 @@
-import { getRepository, getManager } from 'typeorm';
+import { getRepository, getManager, getConnection, Connection } from 'typeorm';
 
 import { LiveHeaderJson, LiveBodyJson, PitchInfoJson, TeamInfoJson, BenchMemberInfoType, SavedBallCount } from './type/jsonType.d';
 import { GameInfo, LiveHeader, LiveBody, PitchInfo, PitchCourse, PitchDetails, PitcherBatter, TeamInfo, GameOrder, BenchMemberInfo, BenchMaster, BatteryInfo, HomerunInfo } from './entities';
 import { judgePlateAppearance, judgeAtBat, judgeHit, judgeOnbase, judgeError, judgeFc, judgePlayerChange, judgeIsBall, judgeIsStrike, judgePlusScore, judgePlusOutCount, calcTotalBase, indexOfAnd } from './liveBody_util';
 import { teamNameFullToIni, TOP, BTM, HM, AW } from './constant';
+import { createConnection } from 'typeorm';
+
+/**
+ * 
+ */
+export const generateConnection = async () => {
+  let conn: Connection;
+  try {
+    conn = await createConnection('default');
+  } catch (err) {
+    if (err.name == 'AlreadyHasActiveConnectionError') {
+      console.log('err')
+      conn = await getConnection('default');
+    }
+  }
+  return conn;
+}
 
 /**
  * 試合情報保存
