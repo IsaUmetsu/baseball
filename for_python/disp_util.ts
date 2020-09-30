@@ -2,7 +2,7 @@ import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
 import * as yargs from 'yargs';
-import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes } from './constant';
+import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames } from './constant';
 import { countFiles, getJson } from './fs_util';
 import { BatterResult } from './type/jsonType.d';
 
@@ -442,4 +442,18 @@ export const createBatterResultRows = (results: BatterResult[]): string[] => {
     ));
   }
   return rows;
+}
+
+/**
+ * 
+ */
+export const getTeamTitle = (league, teams, team = '') => {
+  let teamTitle = 'NPB';
+  if (team) teamTitle = teamNames[team];
+  if (league) teamTitle = leagueList[league];
+  if (teams.length == 6) {
+    league = checkLeague(teams);
+    teamTitle = leagueList[league];
+  }
+  return teamTitle;
 }

@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames, leagueList } from '../constant';
-import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero } from '../disp_util';
+import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle } from '../disp_util';
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../db_util';
@@ -354,15 +354,8 @@ export const execWeekStand = async (isTweet = true, leagueArg = '', dayArg = '')
   for (const teams of teamsArray) {
     const results = await manager.query(getQueryWeekStand(teams, firstDayOfWeekStr, lastDayOfWeekStr));
 
-    let teamTitle = 'NPB';
-    if (league) teamTitle = leagueList[league];
-    if (teams.length == 6) {
-      league = checkLeague(teams);
-      teamTitle = leagueList[league];
-    }
-
     let prevTeamSavings = 0;
-    const title = format("%s球団 %s〜%s 成績\n", teamTitle, firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D'));
+    const title = format("%s %s〜%s 成績\n", getTeamTitle(league, teams), firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D'));
     const rows = [];
 
     for (let idx in results) {
@@ -412,16 +405,9 @@ export const execMonthStand = async (isTweet = true, leagueArg = '', monthArg = 
   const manager = await getManager();
   for (const teams of teamsArray) {
     const results = await manager.query(getQueryMonthStand(teams, month, firstDay, lastDay));
-
-    let teamTitle = 'NPB';
-    if (league) teamTitle = leagueList[league];
-    if (teams.length == 6) {
-      league = checkLeague(teams);
-      teamTitle = leagueList[league];
-    }
     
     let prevTeamSavings = 0;
-    const title = format("%s球団 %s月 成績\n", teamTitle, month);
+    const title = format("%s %s月 成績\n", getTeamTitle(league, teams), month);
     const rows = [];
     for (let idx in results) {
       const { team_initial_kana, team_initial, win_count, lose_count, draw_count, win_rate } = results[idx];
@@ -604,14 +590,7 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
       ORDER BY L.reliever_cnt / R.game_cnt DESC
     `);
 
-    let teamTitle = 'NPB';
-    if (league) teamTitle = leagueList[league];
-    if (teams.length == 6) {
-      league = checkLeague(teams);
-      teamTitle = leagueList[league];
-    }
-
-    const title = format("%s球団 1試合平均 中継ぎ投手数\n", teamTitle);
+    const title = format("%s 1試合平均 中継ぎ投手数\n", getTeamTitle(league, teams));
     const rows = [];
 
     for (const result of results) {
@@ -722,14 +701,6 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
       ORDER BY sb DESC
     `);
 
-    let teamTitle = 'NPB';
-    if (team) teamTitle = teamNames[team];
-    if (league) teamTitle = leagueList[league];
-    if (teams.length == 6) {
-      league = checkLeague(teams);
-      teamTitle = leagueList[league];
-    }
-
     /**
      * 
      */
@@ -765,7 +736,7 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
       return { bestScore, innerRow: createInnerRow(resultsBestScore) };
     }
 
-    const title = format("%s %s月 %s打撃タイトル\n", teamTitle, month, team ? 'チーム内' : '');
+    const title = format("%s %s月 %s打撃タイトル\n", getTeamTitle(league, teams, team), month, team ? 'チーム内' : '');
     const rows = [];
 
     // average
@@ -891,14 +862,6 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
         p_team
     `);
 
-    let teamTitle = 'NPB';
-    if (team) teamTitle = teamNames[team];
-    if (league) teamTitle = leagueList[league];
-    if (teams.length == 6) {
-      league = checkLeague(teams);
-      teamTitle = leagueList[league];
-    }
-
     /**
      * 
      */
@@ -915,7 +878,7 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
       return { bestScore, innerRow };
     }
 
-    const title = format("%s %s月 %s投手タイトル\n", teamTitle, month, team ? 'チーム内' : '');
+    const title = format("%s %s月 %s投手タイトル\n", getTeamTitle(league, teams, team), month, team ? 'チーム内' : '');
     const rows = [];
 
     // era
@@ -1001,14 +964,7 @@ export const execDayBatTeam = async (isTweet = true, leagueArg = '', dayArg = ''
   for (const teams of teamsArray) {
     const results = await manager.query(getQueryDayBatTeam(teams, day));
 
-    let teamTitle = 'NPB';
-    if (league) teamTitle = leagueList[league];
-    if (teams.length == 6) {
-      league = checkLeague(teams);
-      teamTitle = leagueList[league];
-    }
-
-    const title = format("%s %s\n打率・出塁率・得点圏打率\n", teamTitle, moment(day, 'YYYYMMDD').format('M/D'));
+    const title = format("%s %s\n打率・出塁率・得点圏打率\n", getTeamTitle(league, teams), moment(day, 'YYYYMMDD').format('M/D'));
     const rows = [];
 
     for (const result of results) {
@@ -1052,16 +1008,9 @@ export const execMonthBatTeam = async (isTweet = true, leagueArg = '', monthArg 
 
   const manager = await getManager();
   for (const teams of teamsArray) {
-    const results = await manager.query(getQueryMonthBatTeam(teams, month));
+    const results = await manager.query(getQueryMonthBatTeam(teams, month));    
 
-    let teamTitle = 'NPB';
-    if (league) teamTitle = leagueList[league];
-    if (teams.length == 6) {
-      league = checkLeague(teams);
-      teamTitle = leagueList[league];
-    }
-
-    const title = format('%s %s月\n打率・出塁率・得点圏打率\n', teamTitle, month);
+    const title = format('%s %s月\n打率・出塁率・得点圏打率\n', getTeamTitle(league, teams), month);
     const rows = [];
 
     for (const result of results) {
@@ -1233,16 +1182,9 @@ export const execMonthTeamEraDiv = async (isTweet = true, leagueArg = '', pitche
         ORDER BY era ASC
       `);
 
-      let teamTitle = 'NPB';
-      if (league) teamTitle = leagueList[league];
-      if (teams.length == 6) {
-        league = checkLeague(teams);
-        teamTitle = leagueList[league];
-      }
-
       const pitcherTitle = pitcher == 'A' ? '' : pitcher == 'S' ? '先発' : '中継ぎ';
 
-      const title = format('%s %s月 %s防御率\n(失点 自責点 投球回)\n', teamTitle, month, pitcherTitle);
+      const title = format('%s %s月 %s防御率\n(失点 自責点 投球回)\n', getTeamTitle(league, teams), month, pitcherTitle);
       const rows = [];
       for (const result of results) {
         const { tm, era, inning, ra, er } = result;
@@ -1289,14 +1231,7 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', monthArg 
   for (const teams of teamsArray) {
     const results = await manager.query(getQueryMonthTeamEra(teams, month));
 
-    let teamTitle = 'NPB';
-    if (league) teamTitle = leagueList[league];
-    if (teams.length == 6) {
-      league = checkLeague(teams);
-      teamTitle = leagueList[league];
-    }
-
-    const title = format('%s %s月 防御率\n(全体 先発 中継ぎ)\n', teamTitle, month);
+    const title = format('%s %s月 防御率\n(全体 先発 中継ぎ)\n', getTeamTitle(league, teams), month);
     const rows = [];
     for (const result of results) {
       const { tm, era, s_era, m_era } = result;
