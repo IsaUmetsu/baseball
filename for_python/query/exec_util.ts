@@ -1061,7 +1061,7 @@ export const execMonthBatTeam = async (isTweet = true, leagueArg = '', monthArg 
       teamTitle = leagueList[league];
     }
 
-    const title = format('%s球団 %s月\n打率・出塁率・得点圏打率\n', league ? leagueList[league] + '6' : 'NPB12', month);
+    const title = format('%s %s月\n打率・出塁率・得点圏打率\n', teamTitle, month);
     const rows = [];
 
     for (const result of results) {
