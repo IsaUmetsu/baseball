@@ -9,17 +9,18 @@ export const MSG_S = '----- [done] date: [%s], team: [%s], script: [%s] -----';
 export const MSG_F = '----- date: [%s], team: [%s], script: [%s], not tweeted because: [%s] -----';
 
 export const SC_RC5 = 'bat_rc5';
+export const SC_DBT= 'day_bat_team';
 export const SC_PT = 'pitch_type';
 export const SC_RC10 = 'pitch_rc10';
 export const SC_PSG = 'pitch_strike_game';
 export const SC_GFS = 'pitch_gf_start';
 export const SC_POS = 'pitch_per_out';
+export const SC_PRS= 'pitch_ra_start';
 export const SC_MBC= 'month_bat_champ';
 export const SC_MS= 'month_stand';
+export const SC_MTE = 'month_team_era';
 export const SC_WBC= 'week_bat_champ';
 export const SC_WS= 'week_stand';
-export const SC_DBT= 'day_bat_team';
-export const SC_PRS= 'pitch_ra_start';
 
 /**
  * 

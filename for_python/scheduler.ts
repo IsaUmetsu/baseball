@@ -2,7 +2,7 @@ import { createConnection } from 'typeorm';
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart } from './query/exec_util';
+import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra } from './query/exec_util';
 
 /**
  * 
@@ -89,6 +89,7 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
 
   await execMonthStand();  
   await execMonthBatChamp();
+  await execMonthTeamEra();
 
   await connection.close();
 });
@@ -102,6 +103,7 @@ schedule('*/15 16-18,21-23 * 9-11 *', async () => {
 
     await execMonthStand();
     await execMonthBatChamp();
+    await execMonthTeamEra();
 
     await connection.close();
   }
