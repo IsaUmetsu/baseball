@@ -7,7 +7,7 @@ import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTar
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../db_util';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra } from './query_util';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam } from './query_util';
 import { getPitcher } from '../fs_util';
 
 /**
@@ -1009,6 +1009,59 @@ export const execDayBatTeam = async (isTweet = true, leagueArg = '', dayArg = ''
     }
 
     const title = format("%s %s\n打率・出塁率・得点圏打率\n", teamTitle, moment(day, 'YYYYMMDD').format('M/D'));
+    const rows = [];
+
+    for (const result of results) {
+      const { b_team, ave, onbase_ave, sp_ave, ab, hit, rbi, run, hr } = result;
+      const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == b_team);
+
+      rows.push(format(
+        "\n%s  %s  %s  %s  %s",
+        b_team, trimRateZero(ave), trimRateZero(onbase_ave), trimRateZero(sp_ave), teamHashTags[teamIniEn]
+      ));  
+
+    }
+
+    if (isTweet) {
+       const tweetedDay = genTweetedDay();
+       const savedTweeted = await findSavedTweeted(SC_DBT, league, tweetedDay);
+       const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+       if (! savedTweeted && isFinished) {
+        await tweetMulti(title, rows);
+        await saveTweeted(SC_DBT, league, tweetedDay);
+        console.log(format(MSG_S, tweetedDay, league, SC_DBT));
+       } else {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, tweetedDay, league, SC_DBT, cause));
+       }
+    } else {
+      displayResult(title, rows);
+    }
+  }
+}
+
+/**
+ * 
+ */
+export const execMonthBatTeam = async (isTweet = true, leagueArg = '', monthArg = '') => {
+  let league = leagueArg;
+  const teamsArray = checkArgTMLGForTweet('', leagueArg);
+  if (! teamsArray.length) return;
+
+  const { monthArg: month } = checkArgM(monthArg);
+
+  const manager = await getManager();
+  for (const teams of teamsArray) {
+    const results = await manager.query(getQueryMonthBatTeam(teams, month));
+
+    let teamTitle = 'NPB';
+    if (league) teamTitle = leagueList[league];
+    if (teams.length == 6) {
+      league = checkLeague(teams);
+      teamTitle = leagueList[league];
+    }
+
+    const title = format('%s球団 %s月\n打率・出塁率・得点圏打率\n', league ? leagueList[league] + '6' : 'NPB12', month);
     const rows = [];
 
     for (const result of results) {

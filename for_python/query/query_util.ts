@@ -343,7 +343,23 @@ export const getQueryBatChamp = (teams: string[], firstDay: string, lastDay: str
 /**
  * 
  */
-export const getQueryDayBatTeam = (teams: string[], day: string) => `
+export const getQueryDayBatTeam = (teams: string[], day: string) => {
+  const dateClause = `date = '${day}'`;
+  return getQueryBatTeam(teams, dateClause);
+}
+
+/**
+ * 
+ */
+export const getQueryMonthBatTeam = (teams: string[], month: number) => {
+  const dateClause = `DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}`;
+  return getQueryBatTeam(teams, dateClause);
+}
+
+/**
+ * 
+ */
+const getQueryBatTeam = (teams: string[], dateClause: string) => `
   SELECT
     base.*,
     rbi,
@@ -365,7 +381,7 @@ export const getQueryDayBatTeam = (teams: string[], day: string) => `
       FROM
         baseball_2020.debug_base
       WHERE
-        date = '${day}'
+        ${dateClause}
         AND CHAR_LENGTH(b_team) > 0
       GROUP BY
         b_team
@@ -379,7 +395,7 @@ export const getQueryDayBatTeam = (teams: string[], day: string) => `
       FROM
         baseball_2020.debug_stats_batter
       WHERE
-        date = '${day}'
+        ${dateClause}
       GROUP BY
         b_team
     ) spe ON base.b_team = spe.b_team
@@ -392,7 +408,7 @@ export const getQueryDayBatTeam = (teams: string[], day: string) => `
       FROM
         baseball_2020.debug_base
       WHERE
-        date = '${day}'
+        ${dateClause}
         AND (
           base2_player IS NOT NULL
           OR base3_player IS NOT NULL
