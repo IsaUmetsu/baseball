@@ -19,6 +19,7 @@ export const SC_PRS= 'pitch_ra_start';
 export const SC_MBC= 'month_bat_champ';
 export const SC_MS= 'month_stand';
 export const SC_MT= 'month_title';
+export const SC_MTED = 'month_team_era_div';
 export const SC_MTE = 'month_team_era';
 export const SC_WBC= 'week_bat_champ';
 export const SC_WS= 'week_stand';

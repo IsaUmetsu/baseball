@@ -45,6 +45,8 @@
     "month:team:ave:sp": "ts-node for_python/query/month_team_average_scoring.ts",
     "month:team:era": "ts-node for_python/query/month_team_era.ts",
     "month:team:era:tw": "ts-node for_python/query/month_team_era.ts -t",
+    "month:team:era:div": "ts-node for_python/query/month_team_era.ts -d",
+    "month:team:era:div:tw": "ts-node for_python/query/month_team_era.ts -d -t",
     "month:bat:title": "T=B ts-node for_python/query/month_title_holder.ts",
     "month:title": "ts-node for_python/query/month_title_holder.ts",
     "oppo:bat": "ts-node for_python/query/opponent_batting.ts",

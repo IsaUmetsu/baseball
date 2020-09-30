@@ -403,3 +403,59 @@ export const getQueryDayBatTeam = (teams: string[], day: string) => `
   WHERE base.b_team IN('${teams.join("', '")}')
   ORDER BY ave DESC, onbase_ave DESC, sp_ave DESC
 `;
+
+/**
+ * 
+ */
+export const getQueryMonthTeamEra = (teams: string[], month: number) => `
+  SELECT
+    a.*,
+    s.era AS s_era,
+    m.era AS m_era
+  FROM
+    (
+      SELECT
+        p_team AS tm,
+        SUM(ra) AS ra,
+        SUM(er) AS er,
+        ROUND(SUM(er) * 27 / SUM(outs), 2) AS era
+      FROM
+        baseball_2020.debug_stats_pitcher sp
+      WHERE
+        DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}
+        AND p_team IN ('${teams.join("', '")}')
+      GROUP BY
+        p_team
+    ) a
+    LEFT JOIN (
+      SELECT
+        p_team AS tm,
+        SUM(ra) AS ra,
+        SUM(er) AS er,
+        ROUND(SUM(er) * 27 / SUM(outs), 2) AS era
+      FROM
+        baseball_2020.debug_stats_pitcher sp
+      WHERE
+        sp.order = 1
+        AND DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}
+        AND p_team IN ('${teams.join("', '")}')
+      GROUP BY
+        p_team
+    ) s ON a.tm = s.tm
+    LEFT JOIN (
+      SELECT
+        p_team AS tm,
+        SUM(ra) AS ra,
+        SUM(er) AS er,
+        ROUND(SUM(er) * 27 / SUM(outs), 2) AS era
+      FROM
+        baseball_2020.debug_stats_pitcher sp
+      WHERE
+        sp.order > 1
+        AND DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}
+        AND p_team IN ('${teams.join("', '")}')
+      GROUP BY
+        p_team
+    ) m ON a.tm = m.tm
+    ORDER BY a.era
+`;

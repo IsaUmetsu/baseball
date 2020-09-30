@@ -4,10 +4,10 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames, leagueList } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero } from '../disp_util';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MT } from '../tweet/tw_util';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../db_util';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp } from './query_util';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra } from './query_util';
 import { getPitcher } from '../fs_util';
 
 /**
@@ -1137,7 +1137,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
 /**
  * 
  */
-export const execMonthTeamEra = async (isTweet = true, leagueArg = '', pitcherArg = '', monthArg = '') => {
+export const execMonthTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', monthArg = '') => {
   let league = leagueArg;
   const teamsArray = checkArgTMLGForTweet('', league);
   if (! teamsArray.length) return;
@@ -1203,7 +1203,7 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', pitcherAr
 
       if (isTweet) {
         const tweetedDay = genTweetedDay();
-        const scriptName = format('%s_%s', SC_MTE, pitcher);
+        const scriptName = format('%s_%s', SC_MTED, pitcher);
 
         const savedTweeted = await findSavedTweeted(scriptName, league, tweetedDay);
         const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
@@ -1218,6 +1218,57 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', pitcherAr
       } else {
         displayResult(title, rows);
       }
+    }
+  }
+}
+
+/**
+ * 
+ */
+export const execMonthTeamEra = async (isTweet = true, leagueArg = '', monthArg = '') => {
+  let league = leagueArg;
+  const teamsArray = checkArgTMLGForTweet('', league);
+  if (! teamsArray.length) return;
+ 
+  const { monthArg: month } = checkArgM(monthArg);
+
+  const manager = await getManager();
+  for (const teams of teamsArray) {
+    const results = await manager.query(getQueryMonthTeamEra(teams, month));
+
+    let teamTitle = 'NPB';
+    if (league) teamTitle = leagueList[league];
+    if (teams.length == 6) {
+      league = checkLeague(teams);
+      teamTitle = leagueList[league];
+    }
+
+    const title = format('%s %s月 防御率\n(全体 先発 中継ぎ)\n', teamTitle, month);
+    const rows = [];
+    for (const result of results) {
+      const { tm, era, s_era, m_era } = result;
+      const [ team_initial ] = Object.entries(teamArray).find(([, value]) => value == tm);
+
+      rows.push(format(
+        '\n%s  %s  %s  %s  %s',
+        tm, era, s_era, m_era, teamHashTags[team_initial]
+      ));  
+    }
+
+    if (isTweet) {
+      const tweetedDay = genTweetedDay();
+      const savedTweeted = await findSavedTweeted(SC_MTE, league, tweetedDay);
+      const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+      if (! savedTweeted && isFinished) {
+        await tweetMulti(title, rows);
+        await saveTweeted(SC_MTE, league, tweetedDay);
+        console.log(format(MSG_S, tweetedDay, league, SC_MTE));
+      } else {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, tweetedDay, league, SC_MTE, cause));
+      }
+    } else {
+      displayResult(title, rows);
     }
   }
 }

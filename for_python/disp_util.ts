@@ -1,9 +1,17 @@
 import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
+import * as yargs from 'yargs';
 import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes } from './constant';
 import { countFiles, getJson } from './fs_util';
 import { BatterResult } from './type/jsonType.d';
+
+/**
+ * 
+ */
+export const getIsDevide = () => {
+  return yargs.count('devide').alias('d', 'devide').argv.devide > 0;
+}
 
 /**
  * 
