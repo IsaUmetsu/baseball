@@ -13,6 +13,7 @@
     "import": "ts-node for_python/process.json.ts",
     "import:pitch:stats": "ts-node for_python/process.pitcher.stats.ts",
     "import:bat:stats": "ts-node for_python/process.batter.stats.ts",
+    "forever:test": "ts-node for_python/scheduler.ts",
     "forever": "forever start -v -c ts-node for_python/scheduler.ts",
     "update:poc": "ts-node for_python/query/update_plus_out_count.ts",
     "gen:model": "typeorm-model-generator -h localhost -d baseball_2020 -p 3306 -u root -e mysql -o ./for_python/.",

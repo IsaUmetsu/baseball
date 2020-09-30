@@ -5,13 +5,17 @@ import * as moment from 'moment';
 import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execPitchTitle, execMonthBatTeam, execBatRc5All } from './query/exec_util';
 import { teamArray } from './constant';
 
+(async () => {
+  // await createConnection('default');
+})();
+
 /**
  * 
  */
 const execAfterGame = async () => {
   const conn = await createConnection('default');
   // 各チーム
-  await execBatRc5Team();
+  // await execBatRc5Team();
   await execPitchRc10Team();
   // 各リーグ
   await execDayBatTeam();
