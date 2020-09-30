@@ -2,7 +2,7 @@ import { createConnection } from 'typeorm';
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execPitchTitle } from './query/exec_util';
+import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execPitchTitle, execMonthBatTeam } from './query/exec_util';
 import { teamArray } from './constant';
 
 /**
@@ -120,6 +120,7 @@ schedule('*/15 16-18,21-23 * 9-11 *', async () => {
     await execMonthStand();
     await execMonthBatChamp();
     await execMonthTeamEra();
+    await execMonthBatTeam();
     // per league
     await execMonthBatTitle();
     await execPitchTitle();
