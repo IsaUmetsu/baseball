@@ -4,7 +4,10 @@
  */
 export const getQueryBatRc5Team = team => `
   SELECT
-    base.*,
+    base.batter,
+    base.pa,
+    base.bat,
+    base.average,
     other.hr,
     other.rbi
   FROM (
