@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execBatRc5Team, execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execPitchTitle, execMonthBatTeam, execBatRc5All } from './query/exec_util';
+import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execPitchTitle, execMonthBatTeam, execBatRc5All } from './query/exec_util';
 import { teamArray } from './constant';
 import { generateConnection } from './db_util';
 import { outputLogStart, outputLogEnd } from './tweet/tw_util';
@@ -17,7 +17,6 @@ const execAfterGame = async () => {
   await generateConnection();
 
   // 各チーム
-  // await execBatRc5Team();
   await execPitchRc10Team();
   // 各リーグ
   await execDayBatTeam();
@@ -30,8 +29,10 @@ const execAfterGame = async () => {
 const execAfterLeftMound = async () => {
   await generateConnection();
 
-  await execPitchStrikeSwMsGame();
+  // per team
   await execPitchType();
+  // all pitchers
+  await execPitchStrikeSwMsGame();
   await execPitchGroundFlyStart();
   await execPitchPerOut();
 }
