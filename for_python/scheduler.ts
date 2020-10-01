@@ -41,6 +41,7 @@ const execAfterLeftMound = async () => {
  */
 schedule('10,40 17-18 * 9-11 *', async () => {
   outputLogStart('before game');
+  await generateConnection();
   await execPitchRaPerInningStart();
   outputLogEnd('before game');
 });
@@ -50,6 +51,7 @@ schedule('10,40 17-18 * 9-11 *', async () => {
  */
 schedule('10,40 13-16 * 9-11 0,6', async () => {
   outputLogStart('before game');
+  await generateConnection();
   await execPitchRaPerInningStart();
   outputLogEnd('before game');
 });
@@ -95,6 +97,7 @@ schedule('4,19,34,49 13-17 * 9-11 0,6', async () => {
  */
 schedule('*/15 16-18,21-23 * 9-11 0', async () => {
   outputLogStart('after game weekend');
+  await generateConnection();
 
   await execWeekStand();
   await execWeekBatChamp();
@@ -112,6 +115,7 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
 schedule('*/15 16-18,21-23 * 9-11 *', async () => {
   if (moment().add(1, 'days').format('D') == '1') {
     outputLogStart('after game month-end');
+    await generateConnection();
 
     await execMonthStand();
     await execMonthBatChamp();
