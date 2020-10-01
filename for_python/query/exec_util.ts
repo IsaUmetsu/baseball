@@ -205,8 +205,26 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
   interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
 
   const day = checkArgDay(dayArg);
+  const prevTeams = checkArgTMLG(teamArg, leagueArg);
+  let teams = [];
 
-  const teams = checkArgTMLG(teamArg, leagueArg);
+  // check tweetable
+  if (isTweet) {
+    for (const team of prevTeams) {
+      const savedTweeted = await findSavedTweeted(SC_PT, team, day);
+      const isLeft = await isLeftMoundStarterByTeam(day, team);
+
+      if (savedTweeted || !isLeft) {
+        const cause = savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other';
+        console.log(format(MSG_F, day, team, SC_PT, cause));
+      } else {
+        teams.push(team);
+      }
+    }
+  } else {
+    teams = prevTeams;
+  }
+
   if (! teams.length) return;
 
   const manager = await getManager();
@@ -269,17 +287,9 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
     const footer = format('\n\n%s', teamHashTags[teamIniEn]);
 
     if (isTweet) {
-      const savedTweeted = await findSavedTweeted(SC_PT, team, day);
-      const isLeft = await isLeftMoundStarterByTeam(day, team);
-
-      if (! savedTweeted && isLeft) {
-        await tweetMulti(title, rows, footer);
-        await saveTweeted(SC_PT, team, day);
-        console.log(format(MSG_S, day, team, SC_PT));
-      } else {
-        const cause = savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other';
-        console.log(format(MSG_F, day, team, SC_PT, cause));
-      }
+      await tweetMulti(title, rows, footer);
+      await saveTweeted(SC_PT, team, day);
+      console.log(format(MSG_S, day, team, SC_PT));
     } else {
       displayResult(title, rows, footer);
     }
