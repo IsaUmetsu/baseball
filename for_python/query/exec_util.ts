@@ -156,11 +156,11 @@ export const execPitchRc10Team = async (isTweet = true, teamArg = '', leagueArg 
       );
       resultClause = resultClause.length > 0 ? resultClause + ' ' : resultClause;
 
-      let erClause = Number(ra) == 0 && Number(er) == 0 ? '' : format('自%s', er);
+      let raErClause = format('失%s%s', ra, Number(ra) == 0 && Number(er) == 0 ? '' : format(' 自%s', er));
 
       rows.push(format(
-        '\n%s試 防%s  %s  %s回 %s失%s %s',
-        game_cnt, era, p_name, inning, resultClause, ra, erClause
+        '\n%s試 防%s  %s  %s回 %s%s',
+        game_cnt, era, p_name, inning, resultClause, raErClause
       ));
     }
 

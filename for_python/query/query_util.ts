@@ -64,7 +64,7 @@ export const getQueryBatRc5All = (teams, sort) => `
 /**
  * 
  */
-export const getQueryPitch10Team = team => `
+export const getQueryPitch10Team = (team: string, limit = 6) => `
   SELECT
     p_team AS tm,
     REPLACE(name, ' ', '') AS p_name,
@@ -94,6 +94,7 @@ export const getQueryPitch10Team = team => `
   GROUP BY name, p_team
   HAVING SUM(outs) > 0
   ORDER BY game_cnt DESC, SUM(er) * 27 / SUM(outs), inning DESC, win
+  LIMIT ${limit}
 `;
 
 /**
