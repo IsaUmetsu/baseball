@@ -14,7 +14,26 @@ import { getPitcher } from '../fs_util';
  * 
  */
 export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '', scriptName = SC_RC5T) => {
-  const teams = checkArgTMLG(teamArg, leagueArg);
+  const prevTeams = checkArgTMLG(teamArg, leagueArg);
+  let teams = []
+
+  // check tweetable
+  if (isTweet) {
+    for (const team of prevTeams) {
+      const savedTweeted = await findSavedTweeted(scriptName, team, genTweetedDay());
+      const isFinished = await isFinishedGame(team, genTweetedDay());
+
+      if (savedTweeted || !isFinished) {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, genTweetedDay(), team, scriptName, cause));
+      } else {
+        teams.push(team);
+      }
+    }
+  } else {
+    teams = prevTeams;
+  }
+
   if (! teams.length) return;
 
   const manager = await getManager();
@@ -27,19 +46,9 @@ export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '
     const footer = format('\n\n%s', teamHashTags[teamIniEn]);
 
     if (isTweet) {
-      const tweetedDay = genTweetedDay();
-
-      const savedTweeted = await findSavedTweeted(scriptName, team, tweetedDay);
-      const isFinished = await isFinishedGame(team, tweetedDay);
-
-      if (! savedTweeted && isFinished) {
-        await tweetMulti(title, rows, footer);
-        await saveTweeted(scriptName, team, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, team, scriptName));
-      } else {
-        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, team, scriptName, cause));
-      }
+      await tweetMulti(title, rows, footer);
+      await saveTweeted(scriptName, team, genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), team, scriptName));
     } else {
       displayResult(title, rows, footer);
     }
@@ -50,13 +59,34 @@ export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '
  * 
  */
 export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', scriptName = SC_RC5A) => {
-  const teams = checkArgTMLGForTweet(teamArg, leagueArg);
-  if (! teams.length) return;
+  const prevTeams = checkArgTMLGForTweet(teamArg, leagueArg);
+  let teams = [];
 
-  let sorts = [];
-  if (! sortArg) {
-    sorts = ['DESC', 'ASC'];
+  let sorts = [], prevSorts = [];
+  if (! sortArg) prevSorts = ['DESC', 'ASC'];
+
+  // check tweetable
+  if (isTweet) {
+    for (const team of prevTeams) {
+      for (const sort of prevSorts) {
+        const sn = format('%s_%s', scriptName, sort);
+
+        const savedTweeted = await findSavedTweeted(sn, checkLeague(team), genTweetedDay());
+        const isFinished = await isFinishedGame(team, genTweetedDay());
+
+        if (savedTweeted || !isFinished) {
+          const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+          console.log(format(MSG_F, genTweetedDay(), checkLeague(team), sn, cause));
+        } else {
+          teams.push(team); sorts.push(sort);
+        }
+      }
+    }
+  } else {
+    teams = prevTeams; sorts = prevSorts;
   }
+
+  if (! (teams.length || sorts.length)) return;
 
   const manager = await getManager();
   for (const team of teams) {
@@ -68,21 +98,11 @@ export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
       const rows = createBatterResultRows(results);
 
       if (isTweet) {
-        const tweetedDay = genTweetedDay();
-        const league = checkLeague(team);
         const sn = format('%s_%s', scriptName, sort);
 
-        const savedTweeted = await findSavedTweeted(sn, league, tweetedDay);
-        const isFinished = await isFinishedGame(team, tweetedDay);
-
-        if (! savedTweeted && isFinished) {
-          await tweetMulti(title, rows);
-          await saveTweeted(sn, league, tweetedDay);
-          console.log(format(MSG_S, tweetedDay, league, sn));
-        } else {
-          const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-          console.log(format(MSG_F, tweetedDay, league, sn, cause));
-        }
+        await tweetMulti(title, rows);
+        await saveTweeted(sn, checkLeague(team), genTweetedDay());
+        console.log(format(MSG_S, genTweetedDay(), checkLeague(team), sn));
       } else {
         displayResult(title, rows);
       }
@@ -94,7 +114,26 @@ export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
  * 
  */
 export const execPitchRc10Team = async (isTweet = true, teamArg = '', leagueArg = '') => {
-  const teams = checkArgTMLG(teamArg, leagueArg);
+  const prevTeams = checkArgTMLG(teamArg, leagueArg);
+  let teams = [];
+
+  // check tweetable
+  if (isTweet) {
+    for (const team of prevTeams) {
+      const savedTweeted = await findSavedTweeted(SC_RC10, team, genTweetedDay());
+      const isFinished = await isFinishedGame(team, genTweetedDay());
+
+      if (! savedTweeted && isFinished) {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, genTweetedDay(), team, SC_RC10, cause));
+      } else {
+        teams.push(team);
+      }
+    }
+  } else {
+    teams = prevTeams;
+  }
+
   if (! teams.length) return;
 
   const manager = await getManager();
@@ -126,19 +165,9 @@ export const execPitchRc10Team = async (isTweet = true, teamArg = '', leagueArg 
     }
 
     if (isTweet) {
-      const tweetedDay = genTweetedDay();
-
-      const savedTweeted = await findSavedTweeted(SC_RC10, team, tweetedDay);
-      const isFinished = await isFinishedGame(team, tweetedDay);
-
-      if (! savedTweeted && isFinished) {
-        await tweetMulti(title, rows, footer);
-        await saveTweeted(SC_RC10, team, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, team, SC_RC10));
-      } else {
-        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, team, SC_RC10, cause));
-      }
+      await tweetMulti(title, rows, footer);
+      await saveTweeted(SC_RC10, team, genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), team, SC_RC10));
     } else {
       displayResult(title, rows, footer);
     }
@@ -1035,17 +1064,34 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
  * 
  */
 export const execDayBatTeam = async (isTweet = true, leagueArg = '', dayArg = '') => {
-  let league = leagueArg;
-  const teamsArray = checkArgTMLGForTweet('', leagueArg);
-  if (! teamsArray.length) return;
 
   const day = checkArgDay(dayArg);
+  const prevTeamsArray = checkArgTMLGForTweet('', leagueArg);
+  let teamsArray = [];
+
+  // check tweetable
+  if (isTweet) {
+    for (const teams of prevTeamsArray) {
+      const savedTweeted = await findSavedTweeted(SC_DBT, checkLeague(teams), genTweetedDay());
+      const isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
+      if (savedTweeted || !isFinished) {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, genTweetedDay(), checkLeague(teams), SC_DBT, cause));
+      } else {
+        teamsArray.push(teams);
+      }
+    }
+  } else {
+    teamsArray = prevTeamsArray;
+  }
+
+  if (! teamsArray.length) return;
 
   const manager = await getManager();
   for (const teams of teamsArray) {
     const results = await manager.query(getQueryDayBatTeam(teams, day));
 
-    const title = format("%s %s\n打率・出塁率・得点圏打率\n", getTeamTitle(league, teams), moment(day, 'YYYYMMDD').format('M/D'));
+    const title = format("%s %s\n打率・出塁率・得点圏打率\n", getTeamTitle(leagueArg, teams), moment(day, 'YYYYMMDD').format('M/D'));
     const rows = [];
 
     for (const result of results) {
@@ -1060,17 +1106,9 @@ export const execDayBatTeam = async (isTweet = true, leagueArg = '', dayArg = ''
     }
 
     if (isTweet) {
-       const tweetedDay = genTweetedDay();
-       const savedTweeted = await findSavedTweeted(SC_DBT, league, tweetedDay);
-       const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
-       if (! savedTweeted && isFinished) {
-        await tweetMulti(title, rows);
-        await saveTweeted(SC_DBT, league, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, league, SC_DBT));
-       } else {
-        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, league, SC_DBT, cause));
-       }
+      await tweetMulti(title, rows);
+      await saveTweeted(SC_DBT, checkLeague(teams), genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), checkLeague(teams), SC_DBT));
     } else {
       displayResult(title, rows);
     }
