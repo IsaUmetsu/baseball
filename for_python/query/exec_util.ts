@@ -72,7 +72,7 @@ export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
         const sn = format('%s_%s', scriptName, sort);
 
         const savedTweeted = await findSavedTweeted(sn, checkLeague(team));
-        const isFinished = await isFinishedGame(team, genTweetedDay());
+        const isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
 
         if (savedTweeted || !isFinished) {
           const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
@@ -123,7 +123,7 @@ export const execPitchRc10Team = async (isTweet = true, teamArg = '', leagueArg 
       const savedTweeted = await findSavedTweeted(SC_RC10, team);
       const isFinished = await isFinishedGame(team, genTweetedDay());
 
-      if (! savedTweeted && isFinished) {
+      if (savedTweeted || !isFinished) {
         const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
         console.log(format(MSG_F, genTweetedDay(), team, SC_RC10, cause));
       } else {
