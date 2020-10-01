@@ -218,7 +218,7 @@ export const checkArgDow = (dayOfWeekArg: number) => {
  * 
  */
 export const trimRateZero = (rate: string): string => {
-  return Number(rate) < 1 ? String(rate).slice(1) : rate;
+  return rate ? (Number(rate) < 1 ? String(rate).slice(1) : rate) : '  - ';
 }
 
 /**
