@@ -1188,7 +1188,18 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
     const team = teamArray[targetTeam];
     if (! team) {
       console.log('正しいチームイニシャル を指定してください');
-      return;
+      continue;
+    }
+
+    // check tweetable
+    if (isTweet) {
+      const tweetedDay = genTweetedDay();
+      const savedTweeted = await findSavedTweeted(SC_PRS, targetTeam, tweetedDay);
+      if (savedTweeted || !isStartGame) {
+        const cause = savedTweeted ? 'done tweet' : isStartGame ? 'other' : 'not start game';
+        console.log(format(MSG_F, tweetedDay, targetTeam, SC_PRS, cause));
+        continue;
+      }
     }
 
     const results: any[] = await manager.query(`
@@ -1239,16 +1250,9 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
     const footer = format("\n\n%s\n%s", teamHashTags[targetTeam], oppoTeam ? teamHashTags[oppoTeam] : '');
 
     if (isTweet) {
-      const tweetedDay = genTweetedDay();
-      const savedTweeted = await findSavedTweeted(SC_PRS, targetTeam, tweetedDay);
-      if (! savedTweeted && isStartGame) {
-        await tweet(title, rows, footer);
-        await saveTweeted(SC_PRS, targetTeam, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, targetTeam, SC_PRS));
-      } else {
-        const cause = savedTweeted ? 'done tweet' : isStartGame ? 'other' : 'not start game';
-        console.log(format(MSG_F, tweetedDay, targetTeam, SC_PRS, cause));
-      }
+      await tweet(title, rows, footer);
+      await saveTweeted(SC_PRS, targetTeam, genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), targetTeam, SC_PRS));
     } else {
       displayResult(title, rows, footer);
     }
