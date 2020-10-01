@@ -20,7 +20,7 @@ export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '
   // check tweetable
   if (isTweet) {
     for (const team of prevTeams) {
-      const savedTweeted = await findSavedTweeted(scriptName, team, genTweetedDay());
+      const savedTweeted = await findSavedTweeted(scriptName, team);
       const isFinished = await isFinishedGame(team, genTweetedDay());
 
       if (savedTweeted || !isFinished) {
@@ -71,7 +71,7 @@ export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
       for (const sort of prevSorts) {
         const sn = format('%s_%s', scriptName, sort);
 
-        const savedTweeted = await findSavedTweeted(sn, checkLeague(team), genTweetedDay());
+        const savedTweeted = await findSavedTweeted(sn, checkLeague(team));
         const isFinished = await isFinishedGame(team, genTweetedDay());
 
         if (savedTweeted || !isFinished) {
@@ -120,7 +120,7 @@ export const execPitchRc10Team = async (isTweet = true, teamArg = '', leagueArg 
   // check tweetable
   if (isTweet) {
     for (const team of prevTeams) {
-      const savedTweeted = await findSavedTweeted(SC_RC10, team, genTweetedDay());
+      const savedTweeted = await findSavedTweeted(SC_RC10, team);
       const isFinished = await isFinishedGame(team, genTweetedDay());
 
       if (! savedTweeted && isFinished) {
@@ -187,7 +187,7 @@ export const execPitchStrikeSwMsGame = async (isTweet = true, dayArg = '', strik
   // check tweetable
   if (isTweet) {
     for (const strike of prevStrikes) {
-      const savedTweeted = await findSavedTweeted(SC_PSG, strike, day);
+      const savedTweeted = await findSavedTweeted(SC_PSG, strike);
       const isLeft = await isLeftMoundStarterAllGame(day);
 
       if (savedTweeted || !isLeft) {
@@ -251,7 +251,7 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
   // check tweetable
   if (isTweet) {
     for (const team of prevTeams) {
-      const savedTweeted = await findSavedTweeted(SC_PT, team, day);
+      const savedTweeted = await findSavedTweeted(SC_PT, team);
       const isLeft = await isLeftMoundStarterByTeam(day, team);
 
       if (savedTweeted || !isLeft) {
@@ -350,7 +350,7 @@ export const execPitchGroundFlyStart = async (isTweet = true, dayArg = '', batOu
   if (isTweet) {
     for (const batOut of prevBatOuts) {
       const scriptName = format('%s_%s', SC_GFS, batOut.slice(0, 1));
-      const savedTweeted = await findSavedTweeted(scriptName, 'ALL', day);
+      const savedTweeted = await findSavedTweeted(scriptName, 'ALL');
       const isLeft = await isLeftMoundStarterAllGame(day);
 
       if (savedTweeted || !isLeft) {
@@ -412,7 +412,7 @@ export const execPitchPerOut = async (isTweet = true, dayArg = '') => {
 
   // check tweetable
   if (isTweet) {
-    const savedTweeted = await findSavedTweeted(SC_POS, 'ALL', day);
+    const savedTweeted = await findSavedTweeted(SC_POS, 'ALL');
     const isLeft = await isLeftMoundStarterAllGame(day);
 
     if (savedTweeted || !isLeft) {
@@ -485,7 +485,7 @@ export const execWeekStand = async (isTweet = true, leagueArg = '', dayArg = '')
     if (isTweet) {
       const tweetedDay = genTweetedDay();
 
-      const savedTweeted = await findSavedTweeted(SC_WS, league, tweetedDay);
+      const savedTweeted = await findSavedTweeted(SC_WS, league);
       const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
 
       if (! savedTweeted && isFinished) {
@@ -536,7 +536,7 @@ export const execMonthStand = async (isTweet = true, leagueArg = '', monthArg = 
     if (isTweet) {
       const tweetedDay = genTweetedDay();
 
-      const savedTweeted = await findSavedTweeted(SC_MS, league, tweetedDay);
+      const savedTweeted = await findSavedTweeted(SC_MS, league);
       const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
 
       if (! savedTweeted && isFinished) {
@@ -589,7 +589,7 @@ export const execMonthBatChamp = async (isTweet = true, team = '', league = '', 
     if (isTweet) {
       const tweetedDay = genTweetedDay();
 
-      const savedTweeted = await findSavedTweeted(SC_MBC, leagueArg, tweetedDay);
+      const savedTweeted = await findSavedTweeted(SC_MBC, leagueArg);
       const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
 
       if (! savedTweeted && isFinished) {
@@ -643,7 +643,7 @@ export const execWeekBatChamp = async (isTweet = true, team = '', league = '', d
     if (isTweet) {
       const tweetedDay = genTweetedDay();
 
-      const savedTweeted = await findSavedTweeted(SC_WBC, leagueArg, tweetedDay);
+      const savedTweeted = await findSavedTweeted(SC_WBC, leagueArg);
       const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
 
       if (! savedTweeted && isFinished) {
@@ -716,7 +716,7 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
 
     if (isTweet) {
       //  const tweetedDay = genTweetedDay();
-      //  const savedTweeted = await findSavedTweeted(SC_WS, league, tweetedDay);
+      //  const savedTweeted = await findSavedTweeted(SC_WS, league);
       //  const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
       //  if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows);
@@ -879,7 +879,7 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
     if (isTweet) {
       const tweetedDay = genTweetedDay();
       const scriptName = format('%s_%s', SC_MT, 'pitch');
-      const savedTweeted = await findSavedTweeted(scriptName, team ? team : league, tweetedDay);
+      const savedTweeted = await findSavedTweeted(scriptName, team ? team : league);
 
       let isFinished = false;
       if (team) isFinished = await isFinishedGame(teams, tweetedDay);
@@ -1040,7 +1040,7 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
     if (isTweet) {
       const tweetedDay = genTweetedDay();
       const scriptName = format('%s_%s', SC_MT, 'bat');
-      const savedTweeted = await findSavedTweeted(scriptName, team ? team : league, tweetedDay);
+      const savedTweeted = await findSavedTweeted(scriptName, team ? team : league);
 
       let isFinished = false;
       if (team) isFinished = await isFinishedGame(teams, tweetedDay);
@@ -1072,7 +1072,7 @@ export const execDayBatTeam = async (isTweet = true, leagueArg = '', dayArg = ''
   // check tweetable
   if (isTweet) {
     for (const teams of prevTeamsArray) {
-      const savedTweeted = await findSavedTweeted(SC_DBT, checkLeague(teams), genTweetedDay());
+      const savedTweeted = await findSavedTweeted(SC_DBT, checkLeague(teams));
       const isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
       if (savedTweeted || !isFinished) {
         const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
@@ -1145,7 +1145,7 @@ export const execMonthBatTeam = async (isTweet = true, leagueArg = '', monthArg 
 
     if (isTweet) {
        const tweetedDay = genTweetedDay();
-       const savedTweeted = await findSavedTweeted(SC_DBT, league, tweetedDay);
+       const savedTweeted = await findSavedTweeted(SC_DBT, league);
        const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
        if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows);
@@ -1194,7 +1194,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
     // check tweetable
     if (isTweet) {
       const tweetedDay = genTweetedDay();
-      const savedTweeted = await findSavedTweeted(SC_PRS, targetTeam, tweetedDay);
+      const savedTweeted = await findSavedTweeted(SC_PRS, targetTeam);
       if (savedTweeted || !isStartGame) {
         const cause = savedTweeted ? 'done tweet' : isStartGame ? 'other' : 'not start game';
         console.log(format(MSG_F, tweetedDay, targetTeam, SC_PRS, cause));
@@ -1323,7 +1323,7 @@ export const execMonthTeamEraDiv = async (isTweet = true, leagueArg = '', pitche
         const tweetedDay = genTweetedDay();
         const scriptName = format('%s_%s', SC_MTED, pitcher);
 
-        const savedTweeted = await findSavedTweeted(scriptName, league, tweetedDay);
+        const savedTweeted = await findSavedTweeted(scriptName, league);
         const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
         if (! savedTweeted && isFinished) {
           await tweetMulti(title, rows);
@@ -1368,7 +1368,7 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', monthArg 
 
     if (isTweet) {
       const tweetedDay = genTweetedDay();
-      const savedTweeted = await findSavedTweeted(SC_MTE, league, tweetedDay);
+      const savedTweeted = await findSavedTweeted(SC_MTE, league);
       const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
       if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows);

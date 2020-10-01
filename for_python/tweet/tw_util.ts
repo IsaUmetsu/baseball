@@ -36,7 +36,7 @@ export const genTweetedDay = () => {
 /**
  * 
  */
-export const findSavedTweeted = async (scriptName, team, tweetedDay) => {
+export const findSavedTweeted = async (scriptName, team, tweetedDay = genTweetedDay()) => {
   return await getRepository(Tweet).findOne({ scriptName, team, tweetedDay });
 }
 
