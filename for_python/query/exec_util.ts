@@ -7,7 +7,7 @@ import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTar
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../db_util';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All } from './query_util';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo } from './query_util';
 import { getPitcher } from '../fs_util';
 
 /**
@@ -1202,7 +1202,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
       }
     }
 
-    const results: any[] = await manager.query(`
+    const results: { inning: string, ra: string }[] = await manager.query(`
       SELECT
         ing_num AS inning,
         SUM(debug_base.plus_score) AS ra
@@ -1220,18 +1220,15 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
         ing_num
     `);
 
-    const longestIp: any[] = await manager.query(`
-      SELECT
-        MAX(ip) AS inning
-      FROM baseball_2020.stats_pitcher WHERE name LIKE '%${pitcher.split(' ').join('%')}%';
-    `);
+    interface OtherInfo { inning, ave_inning, ave_np };
+    const otherInfo: OtherInfo[] = await manager.query(getQueryStarterOtherInfo(pitcher));
 
-    if (longestIp.length == 0) {
+    if (! otherInfo.length) {
       console.log(format("表示可能なデータがありません TM:[%s] NM:[%s]", team, pitcher));
-      return;
+      continue;
     }
 
-    const { inning } = longestIp[0];
+    const { inning, ave_inning, ave_np } = otherInfo[0];
     let [ intPart, decimalPart ] = inning.split('.');
     intPart = decimalPart ? Number(intPart) + 1 : Number(intPart)
     
@@ -1239,7 +1236,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
     const rows = [];
     
     for (let ingNum = 1; ingNum <= intPart; ingNum++) {
-      const targetInning = results.find(result => result.inning == ingNum);
+      const targetInning = results.find(result => Number(result.inning) == ingNum);
 
       let inning = targetInning ? targetInning.inning : ingNum;
       let runAllowed = targetInning ? targetInning.ra : 0;
@@ -1247,6 +1244,8 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
     }
 
     if (intPart + 1 < 10) rows.push(format("\n(%s回以降未登板)", intPart + 1));
+    rows.push(format("\n\n直近3登板平均\n投球回 %s\n投球数 %s", ave_inning, ave_np));
+
     const footer = format("\n\n%s\n%s", teamHashTags[targetTeam], oppoTeam ? teamHashTags[oppoTeam] : '');
 
     if (isTweet) {

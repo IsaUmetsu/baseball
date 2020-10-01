@@ -493,3 +493,54 @@ export const getQueryMonthTeamEra = (teams: string[], month: number) => `
     ) m ON a.tm = m.tm
     ORDER BY a.era
 `;
+
+/**
+ * 
+ */
+export const getQueryStarterOtherInfo = (pitcher) => `
+  SELECT
+    L.inning,
+    R.ave_inning,
+    R.ave_np
+  FROM
+    (
+      SELECT
+        name,
+        MAX(ip) AS inning
+      FROM
+        baseball_2020.stats_pitcher sp
+      WHERE
+        name LIKE '%${pitcher.split(' ').join('%')}%'
+        AND sp.order = 1
+      GROUP BY
+        name
+    ) AS L
+    LEFT JOIN (
+      SELECT
+        name,
+        CONCAT(
+          AVG(outs) DIV 3,
+          CASE
+            WHEN TRUNCATE(AVG(outs), 0) MOD 3 > 0 THEN CONCAT('.', TRUNCATE(AVG(outs), 0) MOD 3)
+            ELSE ''
+          END
+        ) AS ave_inning,
+        TRUNCATE(AVG(np), 0) AS ave_np
+      FROM
+        (
+          SELECT
+            *
+          FROM
+            baseball_2020.debug_stats_pitcher sp
+          WHERE
+            name LIKE '%${pitcher.split(' ').join('%')}%'
+            AND sp.order = 1
+          ORDER BY
+            date DESC
+          LIMIT
+            3
+        ) AS A
+      GROUP BY
+        name
+    ) AS R ON L.name = R.name
+`
