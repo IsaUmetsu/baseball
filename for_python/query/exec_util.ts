@@ -72,7 +72,7 @@ export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
         const sn = format('%s_%s', scriptName, sort);
 
         const savedTweeted = await findSavedTweeted(sn, checkLeague(team));
-        const isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
+        const isFinished = await isFinishedGameByLeague(team, genTweetedDay());
 
         if (savedTweeted || !isFinished) {
           const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
