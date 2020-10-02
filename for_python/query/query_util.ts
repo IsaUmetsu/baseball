@@ -233,11 +233,11 @@ export const getQueryMonthStand = (teams: string[], month: number, firstDay: str
   SELECT
     base.team_initial_kana,
     base.team_initial,
-    base.game_cnt,
-    away.win_count_away + home.win_count_home AS win_count,
-    away.lose_count_away + home.lose_count_home AS lose_count,
-    away.draw_count_away + home.draw_count_home AS draw_count,
-    ROUND((away.win_count_away + home.win_count_home) / (base.game_cnt - (away.draw_count_away + home.draw_count_home)), 3) AS win_rate,
+    IFNULL(base.game_cnt, 0) AS game_cnt,
+    IFNULL(away.win_count_away, 0) + IFNULL(home.win_count_home, 0) AS win_count,
+    IFNULL(away.lose_count_away, 0) + IFNULL(home.lose_count_home, 0) AS lose_count,
+    IFNULL(away.draw_count_away, 0) + IFNULL(home.draw_count_home, 0) AS draw_count,
+    ROUND((IFNULL(away.win_count_away, 0) + IFNULL(home.win_count_home, 0)) / (IFNULL(base.game_cnt, 0) - (IFNULL(away.draw_count_away, 0) + IFNULL(home.draw_count_home, 0))), 3) AS win_rate,
     '' AS eol
   FROM
     game_cnt_per_month base
