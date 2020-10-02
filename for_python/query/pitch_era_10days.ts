@@ -1,6 +1,6 @@
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execPitchRc10Team } from './exec_util';
+import { execPitchRc10Team } from '../util/execute';
 
 /**
  * Per team

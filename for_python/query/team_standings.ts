@@ -1,7 +1,7 @@
 
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execMonthStand, execWeekStand } from './exec_util';
+import { execMonthStand, execWeekStand } from '../util/execute';
 
 // Execute
 (async () => {

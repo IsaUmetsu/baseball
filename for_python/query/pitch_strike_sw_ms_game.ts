@@ -1,6 +1,6 @@
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execPitchStrikeSwMsGame } from './exec_util';
+import { execPitchStrikeSwMsGame } from '../util/execute';
 
 /**
  * All pitcher

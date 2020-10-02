@@ -1,6 +1,6 @@
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execPitchPerOut } from './exec_util';
+import { execPitchPerOut } from '../util/execute';
 
 
 // Execute

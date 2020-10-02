@@ -1,7 +1,7 @@
 
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execWeekBatChamp, execMonthBatChamp } from './exec_util';
+import { execWeekBatChamp, execMonthBatChamp } from '../util/execute';
 
 // Execute
 (async () => {

@@ -1,6 +1,6 @@
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execRelieverAve } from './exec_util';
+import { execRelieverAve } from '../util/execute';
 
 /**
  * All pitcher

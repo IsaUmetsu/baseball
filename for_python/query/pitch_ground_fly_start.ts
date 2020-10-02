@@ -1,6 +1,6 @@
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execPitchGroundFlyStart } from './exec_util';
+import { execPitchGroundFlyStart } from '../util/execute';
 
 
 /**
