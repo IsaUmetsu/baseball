@@ -1358,12 +1358,28 @@ export const execMonthTeamEraDiv = async (isTweet = true, leagueArg = '', pitche
 /**
  * 
  */
-export const execMonthTeamEra = async (isTweet = true, leagueArg = '', monthArg = '') => {
-  let league = leagueArg;
-  const teamsArray = checkArgTMLGForTweet('', league);
-  if (! teamsArray.length) return;
- 
+export const execMonthTeamEra = async (isTweet = true, leagueArg = '', monthArg = '', scriptName = SC_MTE) => {
+  let league = leagueArg, teamsArray = [];
+  const prevTeamsArray = checkArgTMLGForTweet('', league);
   const { monthArg: month } = checkArgM(monthArg);
+
+  // check tweetable
+  if (isTweet) {
+    for (const teams of prevTeamsArray) {
+      const savedTweeted = await findSavedTweeted(scriptName, league);
+      const isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
+      if (savedTweeted || !isFinished) {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, genTweetedDay(), league, scriptName, cause));
+      } else {
+        teamsArray.push(teams);
+      }
+    }
+  } else {
+    teamsArray = prevTeamsArray;
+  }
+
+  if (! teamsArray.length) return;  
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1382,17 +1398,9 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', monthArg 
     }
 
     if (isTweet) {
-      const tweetedDay = genTweetedDay();
-      const savedTweeted = await findSavedTweeted(SC_MTE, league);
-      const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
-      if (! savedTweeted && isFinished) {
-        await tweetMulti(title, rows);
-        await saveTweeted(SC_MTE, league, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, league, SC_MTE));
-      } else {
-        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, league, SC_MTE, cause));
-      }
+      await tweetMulti(title, rows);
+      await saveTweeted(scriptName, league, genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), league, scriptName));
     } else {
       displayResult(title, rows);
     }
