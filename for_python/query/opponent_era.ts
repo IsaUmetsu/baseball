@@ -3,7 +3,7 @@ import { format } from 'util';
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, PT_STARTER, pitcherTypeArgArr } from '../constant';
 import { checkArgTmOp, displayResult } from '../util/display';
-import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+import { getIsTweet, tweetMulti } from '../util/tweet';
 
 /**
  * 対戦チームにおける先発・中継ぎ陣の防御率

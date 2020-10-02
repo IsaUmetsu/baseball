@@ -3,7 +3,7 @@ import { format } from 'util';
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, dayOfWeekArr } from '../constant';
 import { checkArgDow, checkArgLG, displayResult, trimRateZero } from '../util/display';
-import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+import { getIsTweet, tweetMulti } from '../util/tweet';
 
 /**
  * 曜日ごとの対戦成績出力

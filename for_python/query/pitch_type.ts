@@ -1,5 +1,5 @@
 import { createConnection } from 'typeorm';
-import { getIsTweet } from '../tweet/tw_util';
+import { getIsTweet } from '../util/tweet';
 import { execPitchType } from './exec_util';
 
 /**

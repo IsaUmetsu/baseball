@@ -1,5 +1,5 @@
 import * as twitterText from 'twitter-text';
-import { client } from './twitter';
+import { client } from '../tweet/twitter';
 import * as yargs from 'yargs';
 import * as moment from 'moment';
 import { Tweet } from '../entities';

@@ -1,6 +1,6 @@
 
 import { createConnection } from 'typeorm';
-import { getIsTweet } from '../tweet/tw_util';
+import { getIsTweet } from '../util/tweet';
 import { execMonthTeamEra, execMonthTeamEraDiv } from './exec_util';
 import { getIsDevide } from '../util/display';
 

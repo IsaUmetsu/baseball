@@ -3,7 +3,7 @@ import { format } from "util";
 import { createConnection, getManager } from 'typeorm';
 import { leagueList, posFullDic, posArgDic } from '../constant';
 import { checkArgPs, checkArgTMLG, displayResult, trimRateZero } from "../util/display";
-import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+import { getIsTweet, tweetMulti } from '../util/tweet';
 
 // Execute
 (async () => {

@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, teamArray } from '../constant';
 import { checkArgLG, displayResult, trimRateZero } from '../util/display';
-import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+import { getIsTweet, tweetMulti } from '../util/tweet';
 
 // Execute
 (async () => {

@@ -3,7 +3,7 @@ import { format } from 'util';
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamHashTags, dayOfWeekArr, teamNameFullToIni } from '../constant';
 import { checkArgDow, trimRateZero, displayResult, checkArgTMLG } from '../util/display';
-import { getIsTweet, tweetMulti } from '../tweet/tw_util';
+import { getIsTweet, tweetMulti } from '../util/tweet';
 
 /**
  * 曜日ごとの打率(出力単位: チーム単体)
