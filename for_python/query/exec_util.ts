@@ -149,7 +149,7 @@ export const execOnbaseRc5All = async (isTweet = true, teamArg = '', leagueArg =
       const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, 'average_onbase', sort));
 
       const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
-      const title = format('%s打者 最近5試合 出塁率 %s10\n(打席数-出塁数(16打席以上))\n', getTeamTitle(leagueArg, team), sortTitle);
+      const title = format('%s打者 最近5試合 出塁率 %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), sortTitle);
       const rows = createBatterOnbaseResultRows(results);
 
       if (isTweet) {

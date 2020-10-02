@@ -142,11 +142,13 @@ export const BTM = 2;
 export const HM = 'home';
 export const AW = 'away';
 
-export const FORMAT_BATTER = '\n%s (%s-%s)  %s%s%s%s';
+export const FORMAT_BATTER = '\n%s (%s-%s)  %s%s %s%s';
 export const FORMAT_BATTER_TEAM = '(%s)';
 export const FORMAT_BATTER_HR = ' %s本';
 export const FORMAT_BATTER_RBI = ' %s打点';
-export const FORMAT_BATTER_ONBASE = '\n%s (%s-%s)  %s%s%s%s%s';
+
+export const FORMAT_BATTER_ONBASE = '\n%s  %s%s%s %s%s%s';
+export const FORMAT_BATTER_OB = '  %s出塁';
 export const FORMAT_BATTER_HIT = ' %s安';
 export const FORMAT_BATTER_BB = ' %s四';
 export const FORMAT_BATTER_HBP = ' %s死';
