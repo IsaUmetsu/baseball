@@ -2,9 +2,9 @@ import { format } from 'util';
 import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags, teamHalfNames, leagueList } from '../constant';
+import { teamArray, teamNames, teamHashTags, teamHalfNames } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows } from '../disp_util';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_ORC5A, SC_BRC5A } from '../tweet/tw_util';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../db_util';
 import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo } from './query_util';
@@ -340,30 +340,6 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
   `);
 
   // total info TODO
-  const totalResult: Result[] = await manager.query(`
-    SELECT
-      p_team AS team,
-      REPLACE(current_pitcher_name, ' ', '') AS pitcher,
-      pitch_type,
-      COUNT(pitch_type) AS pitch_type_cnt
-    FROM
-      baseball_2020.debug_pitch_base
-    WHERE
-      current_pitcher_order = 1
-      AND (p_team, current_pitcher_name) IN (
-        SELECT
-          p_team,
-          name
-        FROM
-          baseball_2020.debug_stats_pitcher sp
-        WHERE
-          date = '${day}'
-          AND sp.order = 1
-          AND p_team IN ('${teams.join("' , '")}')
-      )
-    GROUP BY pitch_type, p_team, current_pitcher_name
-    ORDER BY p_team DESC, current_pitcher_name DESC, pitch_type_cnt DESC
-  `);
 
   if (! results.length) console.log('出力対象のデータがありません');
 
@@ -1117,7 +1093,7 @@ export const execDayBatTeam = async (isTweet = true, leagueArg = '', dayArg = ''
     const rows = [];
 
     for (const result of results) {
-      const { b_team, ave, onbase_ave, sp_ave, ab, hit, rbi, run, hr } = result;
+      const { b_team, ave, onbase_ave, sp_ave } = result;
       const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == b_team);
 
       rows.push(format(
@@ -1140,12 +1116,28 @@ export const execDayBatTeam = async (isTweet = true, leagueArg = '', dayArg = ''
 /**
  * 
  */
-export const execMonthBatTeam = async (isTweet = true, leagueArg = '', monthArg = '') => {
-  let league = leagueArg;
-  const teamsArray = checkArgTMLGForTweet('', leagueArg);
-  if (! teamsArray.length) return;
-
+export const execMonthBatTeam = async (isTweet = true, leagueArg = '', monthArg = '', scriptName = SC_DBT) => {
+  let league = leagueArg, teamsArray = [];
+  const prevTeamsArray = checkArgTMLGForTweet('', leagueArg);
   const { monthArg: month } = checkArgM(monthArg);
+
+  // check tweetable
+  if (isTweet) {
+    for (const teams of prevTeamsArray) {
+      const savedTweeted = await findSavedTweeted(scriptName, league);
+      const isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
+      if (savedTweeted || !isFinished) {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, genTweetedDay(), league, scriptName, cause));
+      } else {
+        teamsArray.push(teams);
+      }
+    }
+  } else {
+    teamsArray = prevTeamsArray;
+  }
+
+  if (! teamsArray.length) return;
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1155,7 +1147,7 @@ export const execMonthBatTeam = async (isTweet = true, leagueArg = '', monthArg 
     const rows = [];
 
     for (const result of results) {
-      const { b_team, ave, onbase_ave, sp_ave, ab, hit, rbi, run, hr } = result;
+      const { b_team, ave, onbase_ave, sp_ave } = result;
       const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == b_team);
 
       rows.push(format(
@@ -1166,17 +1158,9 @@ export const execMonthBatTeam = async (isTweet = true, leagueArg = '', monthArg 
     }
 
     if (isTweet) {
-       const tweetedDay = genTweetedDay();
-       const savedTweeted = await findSavedTweeted(SC_DBT, league);
-       const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
-       if (! savedTweeted && isFinished) {
-        await tweetMulti(title, rows);
-        await saveTweeted(SC_DBT, league, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, league, SC_DBT));
-       } else {
-        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, league, SC_DBT, cause));
-       }
+      await tweetMulti(title, rows);
+      await saveTweeted(scriptName, league, genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), league, scriptName));
     } else {
       displayResult(title, rows);
     }
