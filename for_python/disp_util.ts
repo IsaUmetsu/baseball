@@ -455,7 +455,7 @@ export const createBatterOnbaseResultRows = (results: BatterResult[]): string[] 
     const { b_team, batter, onbase, average_onbase, hit, bb, hbp } = result;
     const teamClause = b_team ? format(FORMAT_BATTER_TEAM, b_team) : '';
 
-    const obClause = Number(hit) ? format(FORMAT_BATTER_OB, onbase) : '';
+    const obClause = Number(onbase) ? format(FORMAT_BATTER_OB, onbase) : '';
     const hitClause = Number(hit) ? format(FORMAT_BATTER_HIT, hit) : '';
     const bbClause = Number(bb) ? format(FORMAT_BATTER_BB, bb) : '';
     const hbpClause = Number(hbp) ? format(FORMAT_BATTER_HBP, hbp) : '';
