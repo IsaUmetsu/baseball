@@ -1,7 +1,7 @@
 
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../tweet/tw_util';
-import { execMonthBatTitle, execPitchTitle } from "./exec_util";
+import { execMonthBatTitle, execMonthPitchTitle } from "./exec_util";
 
 // Execute
 (async () => {
@@ -20,5 +20,5 @@ import { execMonthBatTitle, execPitchTitle } from "./exec_util";
   }
 
   if (execBat) await execMonthBatTitle(getIsTweet(), TM, LG, M);
-  if (execPitch) await execPitchTitle(getIsTweet(), TM, LG, M);
+  if (execPitch) await execMonthPitchTitle(getIsTweet(), TM, LG, M);
 })();

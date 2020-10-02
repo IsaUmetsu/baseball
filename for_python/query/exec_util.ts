@@ -751,13 +751,32 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
 /**
  * 
  */
-export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg = '', monthArg = '') => {
-  let team = teamArg;
-  let league = leagueArg;
-  const teamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
-  if (! teamsArray.length) return;
-
+export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg = '', monthArg = '', scriptName = format('%s_%s', SC_MT, 'pitch')) => {
+  let team = teamArg, league = leagueArg, teamsArray = [];
+  const prevTeamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
   const { monthArg: month, firstDay, lastDay } = checkArgM(monthArg);
+
+  // check tweetable
+  if (isTweet) {
+    for (const teams of prevTeamsArray) {
+      const savedTweeted = await findSavedTweeted(scriptName, team ? team : league);
+
+      let isFinished = false;
+      if (team) isFinished = await isFinishedGame(teams, genTweetedDay());
+      if (league || teams.length == 6) isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
+
+      if (savedTweeted || !isFinished) {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, genTweetedDay(), team ? team : league, scriptName, cause));
+      } else {
+        teamsArray.push(teams);
+      }
+    }
+  } else {
+    teamsArray = prevTeamsArray;
+  }
+
+  if (! teamsArray.length) return;
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -893,22 +912,9 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
     if (team) rows.push(format('\n%s', teamHashTags[team]));
 
     if (isTweet) {
-      const tweetedDay = genTweetedDay();
-      const scriptName = format('%s_%s', SC_MT, 'pitch');
-      const savedTweeted = await findSavedTweeted(scriptName, team ? team : league);
-
-      let isFinished = false;
-      if (team) isFinished = await isFinishedGame(teams, tweetedDay);
-      if (league || teams.length == 6) isFinished = await isFinishedGameByLeague(teams, tweetedDay);
-
-      if (! savedTweeted && isFinished) {
-        await tweetMulti(title, rows);
-        await saveTweeted(scriptName, team ? team : league, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, team ? team : league, scriptName));
-      } else {
-        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, team ? team : league, scriptName, cause));
-      }
+      await tweetMulti(title, rows);
+      await saveTweeted(scriptName, team ? team : league, genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), team ? team : league, scriptName));
     } else {
       displayResult(title, rows);
     }
@@ -918,10 +924,30 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
 /**
  * 
  */
-export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '', monthArg = '') => {
-  let team = teamArg;
-  let league = leagueArg;
-  const teamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
+export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '', monthArg = '', scriptName = format('%s_%s', SC_MT, 'bat')) => {
+  let team = teamArg, league = leagueArg, teamsArray = [];
+  const prevTeamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
+
+  // check tweetable
+  if (isTweet) {
+    for (const teams of prevTeamsArray) {
+      const savedTweeted = await findSavedTweeted(scriptName, team ? team : league);
+
+      let isFinished = false;
+      if (team) isFinished = await isFinishedGame(teams, genTweetedDay());
+      if (league || teams.length == 6) isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
+
+      if (savedTweeted || !isFinished) {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, genTweetedDay(), team ? team : league, scriptName, cause));
+      } else {
+        teamsArray.push(teams);
+      }
+    }
+  } else {
+    teamsArray = prevTeamsArray;
+  }
+
   if (! teamsArray.length) return;
 
   const { monthArg: month } = checkArgM(monthArg);
@@ -941,26 +967,21 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
         baseball_2020.stats_pitcher sp
         LEFT JOIN game_info gi ON gi.id = sp.game_info_id
         LEFT JOIN (
-            SELECT
-                team_initial_kana,
-                game_cnt AS team_game_cnt
-            FROM
-                baseball_2020.game_cnt_per_month
-            WHERE
-                month = DATE_FORMAT(NOW(), '%c')
+          SELECT
+            team_initial_kana,
+            game_cnt AS team_game_cnt
+          FROM
+            baseball_2020.game_cnt_per_month
+          WHERE
+            month = ${month}
         ) game ON sp.p_team = game.team_initial_kana
       WHERE
         sp.order = 1
         AND DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${month}
         AND p_team IN ('${teams.join("', '")}')
-      GROUP BY
-        name,
-        p_team,
-        team_game_cnt
-      HAVING
-        inning_int >= game.team_game_cnt
-      ORDER BY
-        era
+      GROUP BY name, p_team, team_game_cnt
+      HAVING inning_int >= game.team_game_cnt
+      ORDER BY era
     `);
 
     // about all
@@ -983,9 +1004,7 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
       WHERE
         DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${month}
         AND p_team IN ('${teams.join("', '")}')
-      GROUP BY
-        name,
-        p_team
+      GROUP BY name, p_team
     `);
 
     /**
@@ -1054,22 +1073,9 @@ export const execPitchTitle = async (isTweet = true, teamArg = '', leagueArg = '
     if (team) rows.push(format('\n%s', teamHashTags[team]));
 
     if (isTweet) {
-      const tweetedDay = genTweetedDay();
-      const scriptName = format('%s_%s', SC_MT, 'bat');
-      const savedTweeted = await findSavedTweeted(scriptName, team ? team : league);
-
-      let isFinished = false;
-      if (team) isFinished = await isFinishedGame(teams, tweetedDay);
-      if (league || teams.length == 6) isFinished = await isFinishedGameByLeague(teams, tweetedDay);
-
-      if (! savedTweeted && isFinished) {
-        await tweetMulti(title, rows);
-        await saveTweeted(scriptName, team ? team : league, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, team ? team : league, scriptName));
-      } else {
-        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, team ? team : league, scriptName, cause));
-      }
+      await tweetMulti(title, rows);
+      await saveTweeted(scriptName, team ? team : league, genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), team ? team : league, scriptName));
     } else {
       displayResult(title, rows);
     }

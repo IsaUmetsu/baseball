@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All } from './query/exec_util';
+import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All } from './query/exec_util';
 import { teamArray } from './constant';
 import { generateConnection } from './db_util';
 import { outputLogStart, outputLogEnd } from './tweet/tw_util';
@@ -106,7 +106,7 @@ schedule('*/15 16-18,21-23 * 9-11 *', async () => {
     await execMonthBatTeam();
     // per league
     await execMonthBatTitle();
-    await execPitchTitle();
+    await execMonthPitchTitle();
     // per team
     // for (const team of Object.keys(teamArray)) {
     //   await execMonthBatTitle(true, team);
