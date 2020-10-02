@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { leagueList } from '../constant';
-import { checkArgTMLG, displayResult, trimRateZero } from '../disp_util';
+import { checkArgTMLG, displayResult, trimRateZero } from '../util/display';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 // Execute

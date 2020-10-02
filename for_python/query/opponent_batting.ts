@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags } from '../constant';
-import { displayResult, checkArgTmOp, createBatterResultRows } from '../disp_util';
+import { displayResult, checkArgTmOp, createBatterResultRows } from '../util/display';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 

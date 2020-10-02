@@ -3,7 +3,7 @@ import { format } from 'util';
 
 import { OutputJson } from './type/jsonType';
 import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
-import { checkArgDaySeasonEndSpecify } from "./disp_util";
+import { checkArgDaySeasonEndSpecify } from "./util/display";
 
 const startGameNo = 1;
 const endGameNo = 6;
@@ -44,7 +44,7 @@ const doCheck = async (gameNo, dateStr) => {
   //   const lastJson: OutputJson = JSON.parse(getJson(format(jsonPath, dateStr, targetGameNo, sceneCnt)));
   //   if (! ["試合終了", "試合中止", "ノーゲーム"].includes(lastJson.liveHeader.inning)) {
   //     console.log(format('----- finished: date: [%s], gameNo: [%s] but not imported [because not complete game] -----', dateStr, targetGameNo));
-  //     return;import { checkArgDaySeasonEndSpecify } from './disp_util';
+  //     return;import { checkArgDaySeasonEndSpecify } from './display';
 
   //   }
   //   isNoGame = ["試合中止", "ノーゲーム"].includes(lastJson.liveHeader.inning);

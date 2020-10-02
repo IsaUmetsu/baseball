@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, PT_STARTER, pitcherTypeArgArr } from '../constant';
-import { checkArgTmOp, displayResult } from '../disp_util';
+import { checkArgTmOp, displayResult } from '../util/display';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 /**

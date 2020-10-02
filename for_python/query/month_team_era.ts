@@ -2,7 +2,7 @@
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../tweet/tw_util';
 import { execMonthTeamEra, execMonthTeamEraDiv } from './exec_util';
-import { getIsDevide } from '../disp_util';
+import { getIsDevide } from '../util/display';
 
 // Execute
 (async () => {

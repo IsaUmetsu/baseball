@@ -2,7 +2,7 @@ import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
-import { displayResult } from '../disp_util';
+import { displayResult } from '../util/display';
 import { getIsScoringPos } from '../tweet/tw_util';
 
 const isScoringPos = getIsScoringPos();

@@ -2,9 +2,9 @@ import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
 import * as yargs from 'yargs';
-import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM, FORMAT_BATTER_ONBASE, FORMAT_BATTER_BB, FORMAT_BATTER_HBP, FORMAT_BATTER_HIT } from './constant';
-import { countFiles, getJson } from './fs_util';
-import { BatterResult } from './type/jsonType.d';
+import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM, FORMAT_BATTER_ONBASE, FORMAT_BATTER_BB, FORMAT_BATTER_HBP, FORMAT_BATTER_HIT } from '../constant';
+import { countFiles, getJson } from '../fs_util';
+import { BatterResult } from '../type/jsonType';
 
 /**
  * 

@@ -4,7 +4,7 @@ import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
 import { RunsRunsAllowed } from '../type/jsonType';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
-import { displayResult } from '../disp_util';
+import { displayResult } from '../util/display';
 
 // Execute
 (async () => {

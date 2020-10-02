@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, teamArray } from '../constant';
-import { checkArgLG, displayResult, trimRateZero } from '../disp_util';
+import { checkArgLG, displayResult, trimRateZero } from '../util/display';
 
 // Execute
 (async () => {

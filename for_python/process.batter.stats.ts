@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import { format } from 'util';
 
-import { checkArgDaySeasonEndSpecify } from "./disp_util";
+import { checkArgDaySeasonEndSpecify } from "./util/display";
 import { createConnection } from "typeorm";
 import { saveBatAndScoreData } from "./process_util";
 

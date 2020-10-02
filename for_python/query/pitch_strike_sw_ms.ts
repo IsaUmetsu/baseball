@@ -1,7 +1,7 @@
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
-import { checkArgPitcher, checkArgPitchType, checkArgStrikeType, displayResult } from '../disp_util';
+import { checkArgPitcher, checkArgPitchType, checkArgStrikeType, displayResult } from '../util/display';
 import { getIsTweet, tweetMulti } from '../tweet/tw_util';
 
 interface Result { team: string, pitcher: string, pitch_type: string, swing_cnt: string, missed_cnt: string }
