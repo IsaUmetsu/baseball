@@ -225,5 +225,10 @@ export interface BatterResult {
     hit: string,
     average: string,
     hr: string,
-    rbi: string
+    rbi: string,
+    average_onbase?: string,
+    pa?: string,
+    onbase?: string,
+    bb?: string,
+    hbp?: string
 }

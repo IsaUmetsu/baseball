@@ -51,13 +51,13 @@ export const getQueryBatRc5Team = team => `
 /**
  * 
  */
-export const getQueryBatRc5All = (teams, sort) => `
+export const getQueryBatRc5All = (teams, sort, order) => `
   SELECT 
     *
   FROM
-    baseball_2020.debug_bat_rc5_all
+    baseball_2020.debug_game_recent_5days
   WHERE b_team IN ('${teams.join("', '")}')
-  ORDER BY average ${sort}
+  ORDER BY ${sort} ${order}
   LIMIT 10
 `;
 

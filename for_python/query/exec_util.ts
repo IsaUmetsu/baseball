@@ -3,8 +3,8 @@ import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames, leagueList } from '../constant';
-import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle } from '../disp_util';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A } from '../tweet/tw_util';
+import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows } from '../disp_util';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_ORC5A, SC_BRC5A } from '../tweet/tw_util';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../db_util';
 import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo } from './query_util';
@@ -91,11 +91,66 @@ export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
   const manager = await getManager();
   for (const team of teams) {
     for (const sort of sorts) {
-      const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, sort));
+      const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, 'average', sort));
 
       const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
       const title = format('%s打者 最近5試合 打撃成績 %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), sortTitle);
       const rows = createBatterResultRows(results);
+
+      if (isTweet) {
+        const sn = format('%s_%s', scriptName, sort);
+
+        await tweetMulti(title, rows);
+        await saveTweeted(sn, checkLeague(team), genTweetedDay());
+        console.log(format(MSG_S, genTweetedDay(), checkLeague(team), sn));
+      } else {
+        displayResult(title, rows);
+      }
+    }
+  }
+}
+
+/**
+ * 
+ */
+export const execOnbaseRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', scriptName = SC_BRC5A) => {
+  const prevTeams = checkArgTMLGForTweet(teamArg, leagueArg);
+  let teams = [];
+
+  let sorts = [], prevSorts = [];
+  if (! sortArg) prevSorts = ['DESC', 'ASC'];
+
+  // check tweetable
+  if (isTweet) {
+    for (const team of prevTeams) {
+      for (const sort of prevSorts) {
+        const sn = format('%s_%s', scriptName, sort);
+
+        const savedTweeted = await findSavedTweeted(sn, checkLeague(team));
+        const isFinished = await isFinishedGameByLeague(team, genTweetedDay());
+
+        if (savedTweeted || !isFinished) {
+          const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+          console.log(format(MSG_F, genTweetedDay(), checkLeague(team), sn, cause));
+        } else {
+          teams.push(team); sorts.push(sort);
+        }
+      }
+    }
+  } else {
+    teams = prevTeams; sorts = prevSorts;
+  }
+
+  if (! (teams.length || sorts.length)) return;
+
+  const manager = await getManager();
+  for (const team of teams) {
+    for (const sort of sorts) {
+      const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, 'average_onbase', sort));
+
+      const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
+      const title = format('%s打者 最近5試合 出塁率 %s10\n(打席数-出塁数(16打席以上))\n', getTeamTitle(leagueArg, team), sortTitle);
+      const rows = createBatterOnbaseResultRows(results);
 
       if (isTweet) {
         const sn = format('%s_%s', scriptName, sort);
