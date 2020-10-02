@@ -2,7 +2,7 @@ import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
 import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All } from './query/exec_util';
-import { generateConnection } from './db_util';
+import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './tweet/tw_util';
 
 const BEFORE_GAME_NIGHT       = '10,40 17-18 * 9-11 *';

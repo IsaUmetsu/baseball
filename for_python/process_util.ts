@@ -7,7 +7,7 @@ import { TeamPitchStats, TeamBatStats, TotalBatStats } from './type/jsonType.d';
 import { teamArray, posArgDic } from './constant';
 import { getRepository } from "typeorm";
 import { GameInfo, StatsPitcher, StatsScoreboard, StatsBatter } from "./entities";
-import { isFinishedGameById } from './db_util';
+import { isFinishedGameById } from './util/db';
 
 const startGameNo = 1;
 const endGameNo = 6;
