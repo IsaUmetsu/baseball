@@ -4,7 +4,7 @@ import { createConnection } from 'typeorm';
 
 import { OutputJson, TeamInfoJson } from './type/jsonType.d';
 import { insertGameInfo, insertLiveHeader, insertLiveBody, insertPitchInfo, insertAwayTeamInfo, insertHomeTeamInfo, executeUpdatePlusOutCount } from './util/db';
-import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
+import { checkGameDir, getJson, countFiles, checkDateDir } from './util/fs';
 import { checkArgDaySeasonEndSpecify, checkArgI } from "./util/display";
 import { savePitchData, saveBatAndScoreData } from "./process_util";
 import { teamArray as teams, TOP } from "./constant";

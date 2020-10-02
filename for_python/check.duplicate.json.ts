@@ -2,7 +2,7 @@ import * as moment from "moment";
 import { format } from 'util';
 
 import { OutputJson } from './type/jsonType';
-import { checkGameDir, getJson, countFiles, checkDateDir } from './fs_util';
+import { checkGameDir, getJson, countFiles, checkDateDir } from './util/fs';
 import { checkArgDaySeasonEndSpecify } from "./util/display";
 
 const startGameNo = 1;

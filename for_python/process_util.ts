@@ -2,7 +2,7 @@ import * as moment from "moment";
 import { format } from 'util';
 
 import { BatStats, PitchStats, ScoreBoard, TotalPitchStats } from './type/jsonType';
-import { getJson, checkDateDir, checkGameJson } from './fs_util';
+import { getJson, checkDateDir, checkGameJson } from './util/fs';
 import { TeamPitchStats, TeamBatStats, TotalBatStats } from './type/jsonType.d';
 import { teamArray, posArgDic } from './constant';
 import { getRepository } from "typeorm";

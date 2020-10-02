@@ -8,7 +8,7 @@ import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F,
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from '../util/db';
 import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo } from './query_util';
-import { getPitcher } from '../fs_util';
+import { getPitcher } from '../util/fs';
 
 /**
  * 
