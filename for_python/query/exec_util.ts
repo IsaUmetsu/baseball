@@ -59,16 +59,15 @@ export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '
  * 
  */
 export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', scriptName = SC_RC5A) => {
-  const prevTeams = checkArgTMLGForTweet(teamArg, leagueArg);
-  let teams = [];
+  const teams = checkArgTMLGForTweet(teamArg, leagueArg);
 
-  let sorts = [], prevSorts = [];
-  if (! sortArg) prevSorts = ['DESC', 'ASC'];
+  let dispTargets = [], sorts = [];
+  if (! sortArg) sorts = ['DESC', 'ASC'];
 
   // check tweetable
-  if (isTweet) {
-    for (const team of prevTeams) {
-      for (const sort of prevSorts) {
+  for (const team of teams) {
+    for (const sort of sorts) {
+      if (isTweet) {
         const sn = format('%s_%s', scriptName, sort);
 
         const savedTweeted = await findSavedTweeted(sn, checkLeague(team));
@@ -78,34 +77,32 @@ export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
           const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
           console.log(format(MSG_F, genTweetedDay(), checkLeague(team), sn, cause));
         } else {
-          teams.push(team); sorts.push(sort);
+          dispTargets.push({ team, sort });
         }
+      } else {
+        dispTargets.push({ team, sort });
       }
     }
-  } else {
-    teams = prevTeams; sorts = prevSorts;
   }
 
-  if (! (teams.length || sorts.length)) return;
+  if (! dispTargets.length) return;
 
   const manager = await getManager();
-  for (const team of teams) {
-    for (const sort of sorts) {
-      const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, 'average', sort));
+  for (const { team, sort } of dispTargets) {
+    const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, 'average', sort));
 
-      const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
-      const title = format('%s打者 最近5試合 打撃成績 %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), sortTitle);
-      const rows = createBatterResultRows(results);
+    const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
+    const title = format('%s打者 最近5試合 打撃成績 %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), sortTitle);
+    const rows = createBatterResultRows(results);
 
-      if (isTweet) {
-        const sn = format('%s_%s', scriptName, sort);
+    if (isTweet) {
+      const sn = format('%s_%s', scriptName, sort);
 
-        await tweetMulti(title, rows);
-        await saveTweeted(sn, checkLeague(team), genTweetedDay());
-        console.log(format(MSG_S, genTweetedDay(), checkLeague(team), sn));
-      } else {
-        displayResult(title, rows);
-      }
+      await tweetMulti(title, rows);
+      await saveTweeted(sn, checkLeague(team), genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), checkLeague(team), sn));
+    } else {
+      displayResult(title, rows);
     }
   }
 }
@@ -114,16 +111,15 @@ export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
  * 
  */
 export const execOnbaseRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', scriptName = SC_BRC5A) => {
-  const prevTeams = checkArgTMLGForTweet(teamArg, leagueArg);
-  let teams = [];
+  const teams = checkArgTMLGForTweet(teamArg, leagueArg);
 
-  let sorts = [], prevSorts = [];
-  if (! sortArg) prevSorts = ['DESC', 'ASC'];
+  let dispTargets = [], sorts = [];
+  if (! sortArg) sorts = ['DESC', 'ASC'];
 
   // check tweetable
-  if (isTweet) {
-    for (const team of prevTeams) {
-      for (const sort of prevSorts) {
+  for (const team of teams) {
+    for (const sort of sorts) {
+      if (isTweet) {
         const sn = format('%s_%s', scriptName, sort);
 
         const savedTweeted = await findSavedTweeted(sn, checkLeague(team));
@@ -133,34 +129,32 @@ export const execOnbaseRc5All = async (isTweet = true, teamArg = '', leagueArg =
           const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
           console.log(format(MSG_F, genTweetedDay(), checkLeague(team), sn, cause));
         } else {
-          teams.push(team); sorts.push(sort);
+          dispTargets.push({ team, sort });
         }
+      } else {
+        dispTargets.push({ team, sort });
       }
     }
-  } else {
-    teams = prevTeams; sorts = prevSorts;
   }
 
-  if (! (teams.length || sorts.length)) return;
+  if (! dispTargets.length) return;
 
   const manager = await getManager();
-  for (const team of teams) {
-    for (const sort of sorts) {
-      const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, 'average_onbase', sort));
+  for (const { team, sort } of dispTargets) {
+    const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, 'average_onbase', sort));
 
-      const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
-      const title = format('%s打者 最近5試合 出塁率 %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), sortTitle);
-      const rows = createBatterOnbaseResultRows(results);
+    const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
+    const title = format('%s打者 最近5試合 出塁率 %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), sortTitle);
+    const rows = createBatterOnbaseResultRows(results);
 
-      if (isTweet) {
-        const sn = format('%s_%s', scriptName, sort);
+    if (isTweet) {
+      const sn = format('%s_%s', scriptName, sort);
 
-        await tweetMulti(title, rows);
-        await saveTweeted(sn, checkLeague(team), genTweetedDay());
-        console.log(format(MSG_S, genTweetedDay(), checkLeague(team), sn));
-      } else {
-        displayResult(title, rows);
-      }
+      await tweetMulti(title, rows);
+      await saveTweeted(sn, checkLeague(team), genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), checkLeague(team), sn));
+    } else {
+      displayResult(title, rows);
     }
   }
 }
