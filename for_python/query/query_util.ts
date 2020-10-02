@@ -322,7 +322,7 @@ export const getQueryMonthStand = (teams: string[], month: number, firstDay: str
 /**
  * 
  */
-export const getQueryBatChamp = (teams: string[], firstDay: string, lastDay: string, teamArg: string) => `
+export const getQueryBatChamp = (teams: string[], firstDay: string, lastDay: string, teamArg: string, order = 'DESC', limit = 10) => `
   SELECT
     REPLACE(current_batter_name, ' ', '') AS batter,
     base.b_team AS tm,
@@ -355,7 +355,8 @@ export const getQueryBatChamp = (teams: string[], firstDay: string, lastDay: str
     date BETWEEN '${firstDay}' AND '${lastDay}'
   GROUP BY current_batter_name, base.b_team, game_cnt
   HAVING SUM(is_pa) >= ${teamArg ? 2 : 3.1} * game_cnt AND SUM(is_ab) > 0
-  ORDER BY average DESC
+  ORDER BY average ${order}
+  LIMIT ${limit}
 `;
 
 /**
