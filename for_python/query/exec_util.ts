@@ -317,6 +317,7 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
   if (! teams.length) return;
 
   const manager = await getManager();
+  // target day info
   const results: Result[] = await manager.query(`
     SELECT 
       p_team AS team,
@@ -335,6 +336,32 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
       GROUP BY p_team , current_pitcher_name , pitch_cnt , pitch_type
     ) AS A
     GROUP BY p_team, current_pitcher_name , pitch_type
+    ORDER BY p_team DESC, current_pitcher_name DESC, pitch_type_cnt DESC
+  `);
+
+  // total info TODO
+  const totalResult: Result[] = await manager.query(`
+    SELECT
+      p_team AS team,
+      REPLACE(current_pitcher_name, ' ', '') AS pitcher,
+      pitch_type,
+      COUNT(pitch_type) AS pitch_type_cnt
+    FROM
+      baseball_2020.debug_pitch_base
+    WHERE
+      current_pitcher_order = 1
+      AND (p_team, current_pitcher_name) IN (
+        SELECT
+          p_team,
+          name
+        FROM
+          baseball_2020.debug_stats_pitcher sp
+        WHERE
+          date = '${day}'
+          AND sp.order = 1
+          AND p_team IN ('${teams.join("' , '")}')
+      )
+    GROUP BY pitch_type, p_team, current_pitcher_name
     ORDER BY p_team DESC, current_pitcher_name DESC, pitch_type_cnt DESC
   `);
 
@@ -502,16 +529,17 @@ export const execPitchPerOut = async (isTweet = true, dayArg = '') => {
 /**
  * 
  */
-export const execWeekStand = async (isTweet = true, leagueArg = '', dayArg = '') => {
+export const execWeekStand = async (isTweet = true, leagueArg = '', dayArg = '', scriptName = SC_WS) => {
   let league = leagueArg;
   const teamsArray = checkArgTMLGForTweet('', leagueArg);
   if (! teamsArray.length) return;
 
   const { firstDayOfWeek, lastDayOfWeek, firstDayOfWeekStr, lastDayOfWeekStr } = checkArgTargetDay(dayArg);
+  const getQuery = teams => getQueryWeekStand(teams, firstDayOfWeekStr, lastDayOfWeekStr);
 
   const manager = await getManager();
   for (const teams of teamsArray) {
-    const results = await manager.query(getQueryWeekStand(teams, firstDayOfWeekStr, lastDayOfWeekStr));
+    const results = await manager.query(getQuery(teams));
 
     let prevTeamSavings = 0;
     const title = format("%s %s〜%s 成績\n", getTeamTitle(league, teams), firstDayOfWeek.format('M/D'), lastDayOfWeek.format('M/D'));
@@ -532,18 +560,16 @@ export const execWeekStand = async (isTweet = true, leagueArg = '', dayArg = '')
     }
 
     if (isTweet) {
-      const tweetedDay = genTweetedDay();
-
-      const savedTweeted = await findSavedTweeted(SC_WS, league);
-      const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+      const savedTweeted = await findSavedTweeted(scriptName, league);
+      const isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
 
       if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows);
-        await saveTweeted(SC_WS, league, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, league, SC_WS));
+        await saveTweeted(scriptName, league, genTweetedDay());
+        console.log(format(MSG_S, genTweetedDay(), league, scriptName));
       } else {
         const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, league, SC_WS, cause));
+        console.log(format(MSG_F, genTweetedDay(), league, scriptName, cause));
       }
     } else {
       displayResult(title, rows);
@@ -554,16 +580,17 @@ export const execWeekStand = async (isTweet = true, leagueArg = '', dayArg = '')
 /**
  * 
  */
-export const execMonthStand = async (isTweet = true, leagueArg = '', monthArg = '') => {
+export const execMonthStand = async (isTweet = true, leagueArg = '', monthArg = '', scriptName = SC_MS) => {
   let league = leagueArg;
   const teamsArray = checkArgTMLGForTweet('', league);
   if (! teamsArray.length) return;
 
   const { monthArg: month, firstDay, lastDay } = checkArgM(monthArg);
+  const getQuery = teams => getQueryMonthStand(teams, month, firstDay, lastDay);
 
   const manager = await getManager();
   for (const teams of teamsArray) {
-    const results = await manager.query(getQueryMonthStand(teams, month, firstDay, lastDay));
+    const results = await manager.query(getQuery(teams));
     
     let prevTeamSavings = 0;
     const title = format("%s %s月 成績\n", getTeamTitle(league, teams), month);
@@ -583,18 +610,16 @@ export const execMonthStand = async (isTweet = true, leagueArg = '', monthArg = 
     }
 
     if (isTweet) {
-      const tweetedDay = genTweetedDay();
-
-      const savedTweeted = await findSavedTweeted(SC_MS, league);
-      const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
+      const savedTweeted = await findSavedTweeted(scriptName, league);
+      const isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
 
       if (! savedTweeted && isFinished) {
         await tweetMulti(title, rows);
-        await saveTweeted(SC_MS, league, tweetedDay);
-        console.log(format(MSG_S, tweetedDay, league, SC_MS));
+        await saveTweeted(scriptName, league, genTweetedDay());
+        console.log(format(MSG_S, genTweetedDay(), league, scriptName));
       } else {
         const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, tweetedDay, league, SC_MS, cause));
+        console.log(format(MSG_F, genTweetedDay(), league, scriptName, cause));
       }
     } else {
       displayResult(title, rows);
