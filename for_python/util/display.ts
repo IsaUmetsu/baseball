@@ -2,7 +2,7 @@ import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
 import * as yargs from 'yargs';
-import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM, FORMAT_BATTER_ONBASE, FORMAT_BATTER_BB, FORMAT_BATTER_HBP, FORMAT_BATTER_HIT } from '../constant';
+import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM, FORMAT_BATTER_ONBASE, FORMAT_BATTER_BB, FORMAT_BATTER_HBP, FORMAT_BATTER_HIT, sortType } from '../constant';
 import { countFiles, getJson } from './fs';
 import { BatterResult } from '../type/jsonType';
 
@@ -479,4 +479,24 @@ export const getTeamTitle = (league, teams, team = '') => {
     teamTitle = leagueList[league];
   }
   return teamTitle;
+}
+
+/**
+ * 
+ */
+export const checkArgSort = (sortArg) => {
+  const sortKeys = Object.keys(sortType);
+  const sortValues = Object.values(sortType);
+
+  let elems = []
+  if (! sortArg) {
+    console.log(format('PT=[球種種別(%s)] の指定がないので両方を出力します', sortKeys.join('/')))
+    elems = sortValues;
+  } else if (sortKeys.indexOf(sortArg) == -1) {
+    console.log(format('PT=[球種種別(%s)] で指定してください', sortKeys.join('/')));
+  } else {
+    elems.push(sortType[sortArg]);
+  }
+
+  return elems;
 }

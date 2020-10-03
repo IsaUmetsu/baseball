@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames } from '../constant';
-import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows } from './display';
+import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort } from './display';
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from './db';
@@ -58,11 +58,9 @@ export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '
 /**
  * 
  */
-export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', scriptName = SC_RC5A) => {
+export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', scriptName = SC_RC5A) => {
   const teams = checkArgTMLGForTweet(teamArg, leagueArg);
-
-  let dispTargets = [], sorts = [];
-  if (! sortArg) sorts = ['DESC', 'ASC'];
+  let dispTargets = [], sorts = checkArgSort(sortArg);
 
   // check tweetable
   for (const team of teams) {
@@ -110,11 +108,9 @@ export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
 /**
  * 
  */
-export const execOnbaseRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', scriptName = SC_BRC5A) => {
+export const execOnbaseRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', scriptName = SC_BRC5A) => {
   const teams = checkArgTMLGForTweet(teamArg, leagueArg);
-
-  let dispTargets = [], sorts = [];
-  if (! sortArg) sorts = ['DESC', 'ASC'];
+  let dispTargets = [], sorts = checkArgSort(sortArg);
 
   // check tweetable
   for (const team of teams) {
