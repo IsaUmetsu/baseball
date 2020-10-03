@@ -52,6 +52,8 @@
     "month:team:era:div:tw": "ts-node for_python/query/month_team_era.ts -d -t",
     "month:bat:title": "T=B ts-node for_python/query/month_title_holder.ts",
     "month:title": "ts-node for_python/query/month_title_holder.ts",
+    "ob:rc5:all": "ts-node for_python/query/onbase_recent_5days.ts",
+    "ob:rc5:all:tw": "ts-node for_python/query/onbase_recent_5days.ts -t",
     "oppo:bat": "ts-node for_python/query/opponent_batting.ts",
     "oppo:bat:tw": "ts-node for_python/query/opponent_batting.ts -t",
     "oppo:era": "ts-node for_python/query/opponent_era.ts",
