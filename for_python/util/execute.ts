@@ -1227,7 +1227,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
     `);
 
     interface OtherInfo { inning, ave_inning, ave_np };
-    const otherInfo: OtherInfo[] = await manager.query(getQueryStarterOtherInfo(pitcher));
+    const otherInfo: OtherInfo[] = await manager.query(getQueryStarterOtherInfo(pitcher, moment().format('YYYYMMDD')));
 
     if (! otherInfo.length) {
       console.log(format("表示可能なデータがありません TM:[%s] NM:[%s]", team, pitcher));

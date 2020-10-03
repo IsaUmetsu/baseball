@@ -498,7 +498,7 @@ export const getQueryMonthTeamEra = (teams: string[], month: number) => `
 /**
  * 
  */
-export const getQueryStarterOtherInfo = (pitcher) => `
+export const getQueryStarterOtherInfo = (pitcher, day) => `
   SELECT
     L.inning,
     R.ave_inning,
@@ -536,6 +536,7 @@ export const getQueryStarterOtherInfo = (pitcher) => `
           WHERE
             name LIKE '%${pitcher.split(' ').join('%')}%'
             AND sp.order = 1
+            AND sp.date < ${day}
           ORDER BY
             date DESC
           LIMIT

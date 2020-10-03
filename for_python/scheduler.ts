@@ -5,8 +5,8 @@ import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
-const BEFORE_GAME_NIGHT       = '10,40 17-18 * 9-11 *';
-const BEFORE_GAME_DAY_HOLIDAY = '10,40 13-16 * 9-11 0,6';
+const BEFORE_GAME_NIGHT       = '5,35 17-18 * 9-11 *';
+const BEFORE_GAME_DAY_HOLIDAY = '5,35 13-16 * 9-11 0,6';
 const AFTER_GAME_NIGHT        = '2,17,32,47 21-23 * 9-11 *';
 const AFTER_GAME_DAY_HOLIDAY  = '2,17,32,47 16-18 * 9-11 0,6';
 const AFTER_LEAVE_MOUND_STARTER_NIGHT       = '4,19,34,49 19-23 * 9-11 *';
