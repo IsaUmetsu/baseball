@@ -83,6 +83,7 @@
     "team:situ:sp": "ts-node for_python/query/team_situation_onbase.ts -s",
     "week:bat:champ": "PR=W ts-node for_python/query/bat_champion.ts",
     "week:bat:champ:tw": "PR=W ts-node for_python/query/bat_champion.ts -t",
+    "week:bat:team": "PR=W ts-node for_python/query/bat_team.ts",
     "week:stand": "PR=W ts-node for_python/query/team_standings.ts",
     "week:stand:tw": "PR=W ts-node for_python/query/team_standings.ts -t",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -370,6 +370,14 @@ export const getQueryDayBatTeam = (teams: string[], day: string) => {
 /**
  * 
  */
+export const getQueryWeekBatTeam = (teams: string[], firstDay: string, lastDay: string) => {
+  const dateClause = `date BETWEEN '${firstDay}' AND '${lastDay}'`;
+  return getQueryBatTeam(teams, dateClause);
+}
+
+/**
+ * 
+ */
 export const getQueryMonthBatTeam = (teams: string[], month: number) => {
   const dateClause = `DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}`;
   return getQueryBatTeam(teams, dateClause);
