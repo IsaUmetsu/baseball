@@ -152,4 +152,6 @@ export const FORMAT_BATTER_HIT = ' %s安';
 export const FORMAT_BATTER_BB = ' %s四';
 export const FORMAT_BATTER_HBP = ' %s死';
 
+export const FORMAT_BATTER_OPS = '\n%s %s%s (%s %s)';
+
 export const sortType = {'D': 'DESC', 'A': 'ASC'};

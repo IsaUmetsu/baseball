@@ -3,8 +3,8 @@ import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames } from '../constant';
-import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort } from './display';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A } from './tweet';
+import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows } from './display';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from './db';
 import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo } from './query';
@@ -78,7 +78,17 @@ export const execOnbaseRc5All = async (isTweet = true, teamArg = '', leagueArg =
 /**
  * 
  */
-const execRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', titlePart = '', col = '', createRows: (results: BatterResult[]) => string[], scriptName = '') => {
+export const execOpsRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', scriptName = SC_ORC5A) => {
+  const titlePart = 'OPS', col = 'ops';
+  const createRows = (results: BatterResult[]) => createBatterOpsResultRows(results);
+
+  await execRc5All(isTweet, teamArg, leagueArg, sortArg, titlePart, col, createRows, scriptName, '(出塁率 長打率)');
+}
+
+/**
+ * 
+ */
+const execRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', titlePart = '', col = '', createRows: (results: BatterResult[]) => string[], scriptName = '', titleOption = '') => {
   const teams = checkArgTMLGForTweet(teamArg, leagueArg);
   let dispTargets = [], sorts = checkArgSort(sortArg);  
 
@@ -110,7 +120,7 @@ const execRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg 
     const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, col, sort));
 
     const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
-    const title = format('%s打者 最近5試合 %s %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), titlePart, sortTitle);
+    const title = format('%s打者 最近5試合 %s %s10\n(16打席以上%s)\n', getTeamTitle(leagueArg, team), titlePart, sortTitle, titleOption ? format('、%s', titleOption) : '');
     const rows = createRows(results);
 
     if (isTweet) {

@@ -231,5 +231,7 @@ export interface BatterResult {
     pa?: string,
     onbase?: string,
     bb?: string,
-    hbp?: string
+    hbp?: string,
+    slugging?: string,
+    ops?: string
 }

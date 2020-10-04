@@ -2,7 +2,7 @@ import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
 import * as yargs from 'yargs';
-import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM, FORMAT_BATTER_ONBASE, FORMAT_BATTER_BB, FORMAT_BATTER_HBP, FORMAT_BATTER_HIT, sortType } from '../constant';
+import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM, FORMAT_BATTER_ONBASE, FORMAT_BATTER_BB, FORMAT_BATTER_HBP, FORMAT_BATTER_HIT, sortType, FORMAT_BATTER_OPS } from '../constant';
 import { countFiles, getJson } from './fs';
 import { BatterResult } from '../type/jsonType';
 
@@ -462,6 +462,23 @@ export const createBatterOnbaseResultRows = (results: BatterResult[]): string[] 
     rows.push(format(
       FORMAT_BATTER_ONBASE,
       trimRateZero(average_onbase), bat_onbase, onbase, batter, teamClause, hitClause, bbClause, hbpClause
+    ));
+  }
+  return rows;
+}
+
+/**
+ * 
+ */
+export const createBatterOpsResultRows = (results: BatterResult[]): string[] => {
+  const rows = [];
+  for (const result of results) {
+    const { b_team, batter, average_onbase, slugging, ops } = result;
+    const teamClause = b_team ? format(FORMAT_BATTER_TEAM, b_team) : '';
+  
+    rows.push(format(
+      FORMAT_BATTER_OPS,
+      trimRateZero(ops), batter, teamClause, trimRateZero(average_onbase), trimRateZero(slugging)
     ));
   }
   return rows;
