@@ -59,7 +59,7 @@ export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '
  * 
  */
 export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', scriptName = SC_RC5A) => {
-  const titlePart = '打撃成績', col = 'average';
+  const titlePart = '打率', col = 'average';
   const createRows = (results: BatterResult[]) => createBatterResultRows(results);
 
   await execRc5All(isTweet, teamArg, leagueArg, sortArg, titlePart, col, createRows, scriptName);
@@ -603,16 +603,11 @@ const execBatChamp = async (isTweet = true, team = '', league = '', firstDay = '
 
   const manager = await getManager();
   for (const teams of teamsArray) {
-    const results = await manager.query(getQueryBatChamp(teams, firstDay, lastDay, team));
+    const results: BatterResult[] = await manager.query(getQueryBatChamp(teams, firstDay, lastDay, team));
 
     const title = format("%s打者 %s 打率 トップ10\n", getTeamTitle(league, teams, team), periodClause);
-    const rows = [];
-    for (const result of results) {
-      const { batter, tm, bat, hit, average } = result;
-      const teamClause = team ? '' : format('(%s)', tm);
 
-      rows.push(format("\n%s (%s-%s)  %s%s", trimRateZero(average), bat, hit, batter, teamClause));
-    }
+    const rows = createBatterResultRows(results);
 
     if (isTweet) {
       await tweetMulti(title, rows);
