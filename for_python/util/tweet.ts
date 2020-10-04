@@ -28,6 +28,7 @@ export const SC_MTE = 'month_team_era';
 export const SC_WBC= 'week_bat_champ';
 export const SC_WBT= 'week_bat_team';
 export const SC_WS= 'week_stand';
+export const SC_WTE = 'week_team_era';
 
 /**
  * 
