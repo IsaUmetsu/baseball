@@ -450,7 +450,23 @@ const getQueryBatTeam = (teams: string[], dateClause: string) => `
 /**
  * 
  */
-export const getQueryMonthTeamEra = (teams: string[], month: number) => `
+export const getQueryMonthTeamEra = (teams: string[], month: number) => {
+  const dateClause = `DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}`;
+  return getQueryTeamEra(teams, dateClause);
+}
+
+/**
+ * 
+ */
+export const getQueryWeekTeamEra = (teams: string[], firstDay: string, lastDay: string) => {
+  const dateClause = `date BETWEEN '${firstDay}' AND '${lastDay}'`;
+  return getQueryTeamEra(teams, dateClause);
+}
+
+/**
+ * 
+ */
+const getQueryTeamEra = (teams: string[], dateClause: string) => `
   SELECT
     a.*,
     s.era AS s_era,
@@ -465,7 +481,7 @@ export const getQueryMonthTeamEra = (teams: string[], month: number) => `
       FROM
         baseball_2020.debug_stats_pitcher sp
       WHERE
-        DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}
+        ${dateClause}
         AND p_team IN ('${teams.join("', '")}')
       GROUP BY
         p_team
@@ -480,7 +496,7 @@ export const getQueryMonthTeamEra = (teams: string[], month: number) => `
         baseball_2020.debug_stats_pitcher sp
       WHERE
         sp.order = 1
-        AND DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}
+        AND ${dateClause}
         AND p_team IN ('${teams.join("', '")}')
       GROUP BY
         p_team
@@ -495,14 +511,13 @@ export const getQueryMonthTeamEra = (teams: string[], month: number) => `
         baseball_2020.debug_stats_pitcher sp
       WHERE
         sp.order > 1
-        AND DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}
+        AND ${dateClause}
         AND p_team IN ('${teams.join("', '")}')
       GROUP BY
         p_team
     ) m ON a.tm = m.tm
     ORDER BY a.era
 `;
-
 /**
  * 
  */

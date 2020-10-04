@@ -7,7 +7,7 @@ import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTar
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from './db';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam } from './query';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra } from './query';
 import { getPitcher } from './fs';
 
 /**
@@ -1305,18 +1305,40 @@ export const execMonthTeamEraDiv = async (isTweet = true, leagueArg = '', pitche
  * 
  */
 export const execMonthTeamEra = async (isTweet = true, leagueArg = '', monthArg = '', scriptName = SC_MTE) => {
-  let league = leagueArg, teamsArray = [];
-  const prevTeamsArray = checkArgTMLGForTweet('', league);
-  const { monthArg: month } = checkArgM(monthArg);
 
+  const { monthArg: month } = checkArgM(monthArg);
+  const getQuery = (teams: string[]) => getQueryMonthTeamEra(teams, month);
+  const titlePart = format('%s月', month);
+
+  await execTeamEra(isTweet, leagueArg, getQuery, titlePart, scriptName);
+}
+
+/**
+ * 
+ */
+export const execWeekTeamEra = async (isTweet = true, leagueArg = '', dayArg = '', scriptName = SC_MTE) => {
+
+  const { firstDayOfWeek: firstDay, lastDayOfWeek: lastDay, firstDayOfWeekStr: firstDayStr, lastDayOfWeekStr: lastDayStr } = checkArgTargetDay(dayArg);
+  const getQuery = (teams) => getQueryWeekTeamEra(teams, firstDayStr, lastDayStr);
+  const titlePart = format('%s〜%s', firstDay.format('M/D'), lastDay.format('M/D'));
+
+  await execTeamEra(isTweet, leagueArg, getQuery, titlePart, scriptName);
+}
+
+/**
+ * 
+ */
+const execTeamEra = async (isTweet = true, leagueArg = '', getQuery: (teams: string[]) => string, titlePart = '', scriptName = SC_MTE) => {
+  let teamsArray = [];
+  const prevTeamsArray = checkArgTMLGForTweet('', leagueArg);
   // check tweetable
   if (isTweet) {
     for (const teams of prevTeamsArray) {
-      const savedTweeted = await findSavedTweeted(scriptName, league);
+      const savedTweeted = await findSavedTweeted(scriptName, checkLeague(teams));
       const isFinished = await isFinishedGameByLeague(teams, genTweetedDay());
       if (savedTweeted || !isFinished) {
         const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-        console.log(format(MSG_F, genTweetedDay(), league, scriptName, cause));
+        console.log(format(MSG_F, genTweetedDay(), checkLeague(teams), scriptName, cause));
       } else {
         teamsArray.push(teams);
       }
@@ -1329,9 +1351,9 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', monthArg 
 
   const manager = await getManager();
   for (const teams of teamsArray) {
-    const results = await manager.query(getQueryMonthTeamEra(teams, month));
+    const results = await manager.query(getQuery(teams));
 
-    const title = format('%s %s月 防御率\n(全体 先発 中継ぎ)\n', getTeamTitle(league, teams), month);
+    const title = format('%s %s 防御率\n(全体 先発 中継ぎ)\n', getTeamTitle(leagueArg, teams), titlePart);
     const rows = [];
     for (const result of results) {
       const { tm, era, s_era, m_era } = result;
@@ -1345,8 +1367,8 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', monthArg 
 
     if (isTweet) {
       await tweetMulti(title, rows);
-      await saveTweeted(scriptName, league, genTweetedDay());
-      console.log(format(MSG_S, genTweetedDay(), league, scriptName));
+      await saveTweeted(scriptName, checkLeague(teams), genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), checkLeague(teams), scriptName));
     } else {
       displayResult(title, rows);
     }
