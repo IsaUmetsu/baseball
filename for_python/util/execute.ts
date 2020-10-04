@@ -59,58 +59,28 @@ export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '
  * 
  */
 export const execBatRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', scriptName = SC_RC5A) => {
-  const teams = checkArgTMLGForTweet(teamArg, leagueArg);
-  let dispTargets = [], sorts = checkArgSort(sortArg);
+  const titlePart = '打撃成績', col = 'average';
+  const createRows = (results: BatterResult[]) => createBatterResultRows(results);
 
-  // check tweetable
-  for (const team of teams) {
-    for (const sort of sorts) {
-      if (isTweet) {
-        const sn = format('%s_%s', scriptName, sort);
-
-        const savedTweeted = await findSavedTweeted(sn, checkLeague(team));
-        const isFinished = await isFinishedGameByLeague(team, genTweetedDay());
-
-        if (savedTweeted || !isFinished) {
-          const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
-          console.log(format(MSG_F, genTweetedDay(), checkLeague(team), sn, cause));
-        } else {
-          dispTargets.push({ team, sort });
-        }
-      } else {
-        dispTargets.push({ team, sort });
-      }
-    }
-  }
-
-  if (! dispTargets.length) return;
-
-  const manager = await getManager();
-  for (const { team, sort } of dispTargets) {
-    const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, 'average', sort));
-
-    const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
-    const title = format('%s打者 最近5試合 打撃成績 %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), sortTitle);
-    const rows = createBatterResultRows(results);
-
-    if (isTweet) {
-      const sn = format('%s_%s', scriptName, sort);
-
-      await tweetMulti(title, rows);
-      await saveTweeted(sn, checkLeague(team), genTweetedDay());
-      console.log(format(MSG_S, genTweetedDay(), checkLeague(team), sn));
-    } else {
-      displayResult(title, rows);
-    }
-  }
+  await execRc5All(isTweet, teamArg, leagueArg, sortArg, titlePart, col, createRows, scriptName);
 }
 
 /**
  * 
  */
 export const execOnbaseRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', scriptName = SC_BRC5A) => {
+  const titlePart = '出塁率', col = 'average_onbase';
+  const createRows = (results: BatterResult[]) => createBatterOnbaseResultRows(results);
+
+  await execRc5All(isTweet, teamArg, leagueArg, sortArg, titlePart, col, createRows, scriptName);
+}
+
+/**
+ * 
+ */
+const execRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', titlePart = '', col = '', createRows: (results: BatterResult[]) => string[], scriptName = '') => {
   const teams = checkArgTMLGForTweet(teamArg, leagueArg);
-  let dispTargets = [], sorts = checkArgSort(sortArg);
+  let dispTargets = [], sorts = checkArgSort(sortArg);  
 
   // check tweetable
   for (const team of teams) {
@@ -137,11 +107,11 @@ export const execOnbaseRc5All = async (isTweet = true, teamArg = '', leagueArg =
 
   const manager = await getManager();
   for (const { team, sort } of dispTargets) {
-    const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, 'average_onbase', sort));
+    const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, col, sort));
 
     const sortTitle = sort == 'ASC' ? 'ワースト' : 'トップ';
-    const title = format('%s打者 最近5試合 出塁率 %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), sortTitle);
-    const rows = createBatterOnbaseResultRows(results);
+    const title = format('%s打者 最近5試合 %s %s10\n(16打席以上)\n', getTeamTitle(leagueArg, team), titlePart, sortTitle);
+    const rows = createRows(results);
 
     if (isTweet) {
       const sn = format('%s_%s', scriptName, sort);
