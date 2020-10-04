@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames } from '../constant';
-import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDay, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows } from './display';
+import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows } from './display';
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from './db';
@@ -482,8 +482,8 @@ export const execPitchPerOut = async (isTweet = true, dayArg = '') => {
  * 
  */
 export const execWeekStand = async (isTweet = true, leagueArg = '', dayArg = '', scriptName = SC_WS) => {
-  const { firstDayOfWeek: firstDay, lastDayOfWeek: lastDay, firstDayOfWeekStr, lastDayOfWeekStr } = checkArgTargetDay(dayArg);
-  const getQuery = (teams: string[]) => getQueryWeekStand(teams, firstDayOfWeekStr, lastDayOfWeekStr);
+  const { firstDay, lastDay, firstDayStr, lastDayStr } = checkArgTargetDayOfWeek(dayArg);
+  const getQuery = (teams: string[]) => getQueryWeekStand(teams, firstDayStr, lastDayStr);
   const periodClause = format('%s〜%s', firstDay.format('M/D'), lastDay.format('M/D'));
 
   await execStand(isTweet, leagueArg, periodClause, getQuery, scriptName);
@@ -559,12 +559,7 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
  * 
  */
 export const execWeekBatChamp = async (isTweet = true, team = '', league = '', day = '', scriptName = SC_WBC) => {
-  const {
-    firstDayOfWeek: firstDay,
-    lastDayOfWeek: lastDay,
-    firstDayOfWeekStr: firstDayStr,
-    lastDayOfWeekStr: lastDayStr
-  } = checkArgTargetDay(day);
+  const { firstDay, lastDay, firstDayStr, lastDayStr } = checkArgTargetDayOfWeek(day);
   const periodClause = format('%s〜%s', firstDay.format('M/D'), lastDay.format('M/D'));
 
   await execBatChamp(isTweet, team, league, firstDayStr, lastDayStr, periodClause, scriptName);
@@ -1051,7 +1046,7 @@ export const execDayBatTeam = async (isTweet = true, leagueArg = '', dayArg = ''
  */
 export const execWeekBatTeam = async (isTweet = true, leagueArg = '', dayArg = '', scriptName = SC_WBT) => {
 
-  const { firstDayOfWeek: firstDay, lastDayOfWeek: lastDay, firstDayOfWeekStr: firstDayStr, lastDayOfWeekStr: lastDayStr } = checkArgTargetDay(dayArg);
+  const { firstDay, lastDay, firstDayStr, lastDayStr } = checkArgTargetDayOfWeek(dayArg);
   const getQuery = (teams) => getQueryWeekBatTeam(teams, firstDayStr, lastDayStr);
   const titlePart = format('%s〜%s', firstDay.format('M/D'), lastDay.format('M/D'));
 
@@ -1318,7 +1313,7 @@ export const execMonthTeamEra = async (isTweet = true, leagueArg = '', monthArg 
  */
 export const execWeekTeamEra = async (isTweet = true, leagueArg = '', dayArg = '', scriptName = SC_MTE) => {
 
-  const { firstDayOfWeek: firstDay, lastDayOfWeek: lastDay, firstDayOfWeekStr: firstDayStr, lastDayOfWeekStr: lastDayStr } = checkArgTargetDay(dayArg);
+  const { firstDay, lastDay, firstDayStr, lastDayStr } = checkArgTargetDayOfWeek(dayArg);
   const getQuery = (teams) => getQueryWeekTeamEra(teams, firstDayStr, lastDayStr);
   const titlePart = format('%s〜%s', firstDay.format('M/D'), lastDay.format('M/D'));
 

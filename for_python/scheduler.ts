@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execOpsRc5All, execWeekBatTeam } from './util/execute';
+import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execOpsRc5All, execWeekBatTeam, execWeekTeamEra } from './util/execute';
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
@@ -85,6 +85,7 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
   await execWeekStand();
   await execWeekBatTeam();
   await execWeekBatChamp();
+  await execWeekTeamEra();
 
   // 2週に1度に変更
   // await execMonthStand();  

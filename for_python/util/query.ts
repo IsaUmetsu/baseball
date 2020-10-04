@@ -100,7 +100,7 @@ export const getQueryPitch10Team = (team: string, limit = 6) => `
 /**
  * 
  */
-export const getQueryWeekStand = (teams: string[], firstDayOfWeekStr: string, lastDayOfWeekStr: string) => `
+export const getQueryWeekStand = (teams: string[], firstDayStr: string, lastDayStr: string) => `
   SELECT
     base.team_initial_kana,
     base.team_initial,
@@ -128,7 +128,7 @@ export const getQueryWeekStand = (teams: string[], firstDayOfWeekStr: string, la
             FROM
               baseball_2020.game_info
             WHERE
-              (date BETWEEN '${firstDayOfWeekStr}' AND '${lastDayOfWeekStr}')
+              (date BETWEEN '${firstDayStr}' AND '${lastDayStr}')
               AND no_game = 0
             GROUP BY
               away_team_initial
@@ -141,7 +141,7 @@ export const getQueryWeekStand = (teams: string[], firstDayOfWeekStr: string, la
           FROM
             baseball_2020.game_info
           WHERE
-            (date BETWEEN '${firstDayOfWeekStr}' AND '${lastDayOfWeekStr}')
+            (date BETWEEN '${firstDayStr}' AND '${lastDayStr}')
             AND no_game = 0
           GROUP BY
             home_team_initial
@@ -180,7 +180,7 @@ export const getQueryWeekStand = (teams: string[], firstDayOfWeekStr: string, la
         WHERE
             no_game = 0
             AND batting_result = '試合終了'
-            AND (date >= '${firstDayOfWeekStr}' AND date <= '${lastDayOfWeekStr}')
+            AND (date >= '${firstDayStr}' AND date <= '${lastDayStr}')
         GROUP BY
             away_initial
     ) away ON away.team_initial = base.team_initial_kana
@@ -216,7 +216,7 @@ export const getQueryWeekStand = (teams: string[], firstDayOfWeekStr: string, la
         WHERE
             no_game = 0
             AND batting_result = '試合終了'
-            AND (date >= '${firstDayOfWeekStr}' AND date <= '${lastDayOfWeekStr}')
+            AND (date >= '${firstDayStr}' AND date <= '${lastDayStr}')
         GROUP BY
             home_initial
     ) home ON home.team_initial = base.team_initial_kana

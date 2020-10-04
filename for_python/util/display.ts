@@ -168,7 +168,7 @@ export const checkArgM = (month: string) => {
 /**
  * 
  */
-export const checkArgTargetDay = (dayArg: string) => {
+export const checkArgTargetDayOfWeek = (dayArg: string) => {
   let targetDay;
   if (! process.env.D) {
     console.log('D=[日付] の指定がないため実行日を指定します');
@@ -178,25 +178,25 @@ export const checkArgTargetDay = (dayArg: string) => {
   }
 
   // [週始] 指定日が日曜なら前の週の月曜を指定、月曜〜土曜ならその週の月曜指定
-  let firstDayOfWeek: moment.Moment;
+  let firstDay: moment.Moment;
   if (targetDay.day() > 0) {
-    firstDayOfWeek = moment(targetDay).day(1);
+    firstDay = moment(targetDay).day(1);
   } else {
-    firstDayOfWeek = moment(targetDay).add(-7, 'days').day(1);
+    firstDay = moment(targetDay).add(-7, 'days').day(1);
   }
   // [週終] 指定日が日曜なら前の週の土曜を指定、月曜〜土曜ならその次の週の日曜を指定
-  let lastDayOfWeek: moment.Moment;
+  let lastDay: moment.Moment;
   if (targetDay.day() > 0) {
-    lastDayOfWeek = moment(targetDay).add(7, 'days').day(0);
+    lastDay = moment(targetDay).add(7, 'days').day(0);
   } else {
-    lastDayOfWeek = moment(targetDay);
+    lastDay = moment(targetDay);
   }
 
   return {
-    firstDayOfWeek,
-    lastDayOfWeek,
-    firstDayOfWeekStr: firstDayOfWeek.format('YYYYMMDD'),
-    lastDayOfWeekStr: lastDayOfWeek.format('YYYYMMDD')
+    firstDay,
+    lastDay,
+    firstDayStr: firstDay.format('YYYYMMDD'),
+    lastDayStr: lastDay.format('YYYYMMDD')
   }
 }
 
