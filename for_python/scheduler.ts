@@ -96,11 +96,15 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
 });
 
 /**
- * 毎月末 試合終了後
+ * 毎月中旬 試合終了後
  */
-schedule('*/15 16-18,21-23 * 9-11 *', async () => {
-  if (moment().add(1, 'days').format('D') == '1') {
-    outputLogStart('after game month-end');
+schedule('*/15 16-18,21-23 14-16 9-11 *', async () => {
+  const today = moment().format('D');
+  const thisMonthMaxDay = moment().endOf('month').format('D');
+
+  if (Number(today) == Math.ceil(Number(thisMonthMaxDay))) {
+    const LOG_MSG = 'after game mid-month';
+    outputLogStart(LOG_MSG);
     await generateConnection();
 
     await execMonthStand();
@@ -111,6 +115,27 @@ schedule('*/15 16-18,21-23 * 9-11 *', async () => {
     await execMonthBatTitle();
     await execMonthPitchTitle();
 
-    outputLogEnd('after game month-end');
+    outputLogEnd(LOG_MSG);
+  }
+});
+
+/**
+ * 毎月末 試合終了後
+ */
+schedule('*/15 16-18,21-23 28-31 9-11 *', async () => {
+  if (moment().add(1, 'days').format('D') == '1') {
+    const LOG_MSG = 'after game month-end';
+    outputLogStart(LOG_MSG);
+    await generateConnection();
+
+    await execMonthStand();
+    await execMonthBatChamp();
+    await execMonthTeamEra();
+    await execMonthBatTeam();
+    // per league
+    await execMonthBatTitle();
+    await execMonthPitchTitle();
+
+    outputLogEnd(LOG_MSG);
   }
 });
