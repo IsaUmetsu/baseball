@@ -87,11 +87,6 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
   await execWeekBatChamp();
   await execWeekTeamEra();
 
-  // 2週に1度に変更
-  // await execMonthStand();  
-  // await execMonthBatChamp();
-  // await execMonthTeamEra();
-
   outputLogEnd('after game weekend');
 });
 
