@@ -1,7 +1,7 @@
 
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execMonthTeamEra, execMonthTeamEraDiv, execWeekTeamEra } from '../util/execute';
+import { execMonthTeamEra, execMonthTeamEraDiv, execWeekTeamEra, execWeekTeamEraDiv } from '../util/execute';
 import { getIsDevide } from '../util/display';
 
 // Execute
@@ -17,6 +17,10 @@ import { getIsDevide } from '../util/display';
       await execMonthTeamEra(getIsTweet(), LG, M);
     }
   } else if (PR == 'W') {
-    await execWeekTeamEra(getIsTweet(), LG, D);
+    if (getIsDevide()) {
+      await execWeekTeamEraDiv(getIsTweet(), LG, P, D);
+    } else {
+      await execWeekTeamEra(getIsTweet(), LG, D);
+    }
   }
 })();
