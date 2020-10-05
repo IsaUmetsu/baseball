@@ -14,6 +14,7 @@ export const SC_RC5A = 'bat_rc5_all';
 export const SC_BRC5A = 'onbase_rc5_all';
 export const SC_ORC5A = 'ops_rc5_all';
 export const SC_DBT= 'day_bat_team';
+export const SC_DBC= 'day_of_week_bat_champ';
 export const SC_PT = 'pitch_type';
 export const SC_RC10 = 'pitch_rc10';
 export const SC_PSG = 'pitch_strike_game';

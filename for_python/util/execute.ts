@@ -2,9 +2,9 @@ import { format } from 'util';
 import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags, teamHalfNames } from '../constant';
-import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows } from './display';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED } from './tweet';
+import { teamArray, teamNames, teamHashTags, teamHalfNames, dayOfWeekArr } from '../constant';
+import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow } from './display';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from './db';
 import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra } from './query';
@@ -559,11 +559,23 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
 /**
  * 
  */
+export const execDayOfWeebBatChamp = async (isTweet = true, team = '', league = '', dayOfWeekArg = '', scriptName = SC_DBC) => {
+  const dayOfWeek = checkArgDow(Number(dayOfWeekArg));
+  const periodClause = format('%s', dayOfWeekArr[dayOfWeek]);
+  const dateClause = `DAYOFWEEK(date) = ${dayOfWeek}`;
+
+  await execBatChamp(isTweet, team, league, dateClause, periodClause, scriptName);
+}
+
+/**
+ * 
+ */
 export const execWeekBatChamp = async (isTweet = true, team = '', league = '', day = '', scriptName = SC_WBC) => {
   const { firstDay, lastDay, firstDayStr, lastDayStr } = checkArgTargetDayOfWeek(day);
   const periodClause = format('%s〜%s', firstDay.format('M/D'), lastDay.format('M/D'));
+  const dateClause = `date BETWEEN '${firstDayStr}' AND '${lastDayStr}'`;
 
-  await execBatChamp(isTweet, team, league, firstDayStr, lastDayStr, periodClause, scriptName);
+  await execBatChamp(isTweet, team, league, dateClause, periodClause, scriptName);
 }
 
 /**
@@ -572,14 +584,15 @@ export const execWeekBatChamp = async (isTweet = true, team = '', league = '', d
 export const execMonthBatChamp = async (isTweet = true, team = '', league = '', month = '', scriptName = SC_MBC) => {
   const { monthArg, firstDay, lastDay } = checkArgM(month);
   const periodClause = format('%s月', monthArg);
+  const dateClause = `date BETWEEN '${firstDay}' AND '${lastDay}'`;
 
-  await execBatChamp(isTweet, team, league, firstDay, lastDay, periodClause, scriptName);
+  await execBatChamp(isTweet, team, league, dateClause, periodClause, scriptName);
 }
 
 /**
  * 
  */
-const execBatChamp = async (isTweet = true, team = '', league = '', firstDay = '', lastDay = '', periodClause = '', scriptName = '') => {
+const execBatChamp = async (isTweet = true, team = '', league = '', dateClause = '', periodClause = '', scriptName = '') => {
   let teamsArray = [];
   const prevTeamsArray = checkArgTMLGForTweet(team, league);
 
@@ -604,7 +617,7 @@ const execBatChamp = async (isTweet = true, team = '', league = '', firstDay = '
 
   const manager = await getManager();
   for (const teams of teamsArray) {
-    const results: BatterResult[] = await manager.query(getQueryBatChamp(teams, firstDay, lastDay, team));
+    const results: BatterResult[] = await manager.query(getQueryBatChamp(teams, dateClause, team));
 
     const title = format("%s打者 %s 打率 トップ10\n", getTeamTitle(league, teams, team), periodClause);
 

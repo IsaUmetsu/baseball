@@ -322,7 +322,7 @@ export const getQueryMonthStand = (teams: string[], month: number, firstDay: str
 /**
  * 
  */
-export const getQueryBatChamp = (teams: string[], firstDay: string, lastDay: string, teamArg: string, order = 'DESC', limit = 10) => `
+export const getQueryBatChamp = (teams: string[], dateClause: string, teamArg: string, order = 'DESC', limit = 10) => `
   SELECT
     REPLACE(current_batter_name, ' ', '') AS batter,
     base.b_team,
@@ -347,7 +347,7 @@ export const getQueryBatChamp = (teams: string[], firstDay: string, lastDay: str
       FROM
         debug_base
       WHERE
-        (date BETWEEN '${firstDay}' AND '${lastDay}') AND 
+        ${dateClause} AND 
         CHAR_LENGTH(b_team) > 0) AS game_cnt_base
     GROUP BY b_team
   ) gm ON base.b_team = gm.b_team
@@ -363,13 +363,13 @@ export const getQueryBatChamp = (teams: string[], firstDay: string, lastDay: str
 			baseball_2020.debug_stats_batter sb
 		WHERE
 			sb.b_team IN ('${teams.join("', '")}')
-			AND sb.date BETWEEN '${firstDay}' AND '${lastDay}'
+			AND ${dateClause}
 		GROUP BY sb.name, sb.b_team
 	) other ON (base.current_batter_name = other.name AND base.b_team = other.b_team)
   WHERE
     is_pa = 1 AND 
     base.b_team IN ('${teams.join("', '")}') AND 
-    date BETWEEN '${firstDay}' AND '${lastDay}'
+    ${dateClause}
   GROUP BY current_batter_name, base.b_team, game_cnt, other.hr, other.rbi
   HAVING SUM(is_pa) >= ${teamArg ? 2 : 3.1} * game_cnt AND SUM(is_ab) > 0
   ORDER BY average ${order}
