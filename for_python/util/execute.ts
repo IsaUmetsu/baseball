@@ -1214,16 +1214,6 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
 /**
  * 
  */
-export const execWeekTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', dayArg = '', scriptName = SC_WTED) => {
-  const { firstDay, lastDay, firstDayStr, lastDayStr } = checkArgTargetDayOfWeek(dayArg);
-  const titlePart = format('%s〜%s', firstDay.format('M/D'), lastDay.format('M/D'));
-
-  await execTeamEraDiv(isTweet, leagueArg, pitcherArg, titlePart, scriptName, firstDayStr, lastDayStr);
-}
-
-/**
- * 
- */
 const execTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', titlePart = '', scriptName = '', firstDay = '', lastDay = '') => {
   
   const teamsArray = checkArgTMLGForTweet('', leagueArg);
@@ -1311,6 +1301,20 @@ const execTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', t
       displayResult(title, rows);
     }
   }
+}
+
+/**
+ * 
+ */
+export const execWeekTeamEraDiv = async (isTweet = true, isDevide = true, leagueArg = '', pitcherArg = '', dayArg = '') => {
+  await execWeekTeamEra(isTweet, isDevide, leagueArg, pitcherArg, dayArg);
+}
+
+/**
+ * 
+ */
+export const execMonthTeamEraDiv = async (isTweet = true, isDevide = true, leagueArg = '', pitcherArg = '', dayArg = '') => {
+  await execMonthTeamEra(isTweet, isDevide, leagueArg, pitcherArg, dayArg);
 }
 
 /**

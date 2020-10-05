@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execOpsRc5All, execWeekBatTeam, execWeekTeamEra } from './util/execute';
+import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execOpsRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv } from './util/execute';
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
@@ -86,6 +86,7 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
   await execWeekBatTeam();
   await execWeekBatChamp();
   await execWeekTeamEra();
+  await execWeekTeamEraDiv();
 
   outputLogEnd('after game weekend');
 });
@@ -103,9 +104,10 @@ schedule('*/15 16-18,21-23 14-16 9-11 *', async () => {
     await generateConnection();
 
     await execMonthStand();
+    await execMonthBatTeam();
     await execMonthBatChamp();
     await execMonthTeamEra();
-    await execMonthBatTeam();
+    await execMonthTeamEraDiv();
     // per league
     await execMonthBatTitle();
     await execMonthPitchTitle();

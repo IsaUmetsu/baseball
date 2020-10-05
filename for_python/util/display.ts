@@ -170,7 +170,7 @@ export const checkArgM = (month: string) => {
  */
 export const checkArgTargetDayOfWeek = (dayArg: string) => {
   let targetDay;
-  if (! process.env.D) {
+  if (! dayArg) {
     console.log('D=[日付] の指定がないため実行日を指定します');
     targetDay = moment();
   } else {
