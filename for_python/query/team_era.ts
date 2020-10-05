@@ -1,7 +1,7 @@
 
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execMonthTeamEra, execMonthTeamEraDiv, execWeekTeamEra, execWeekTeamEraDiv } from '../util/execute';
+import { execMonthTeamEra, execWeekTeamEra } from '../util/execute';
 import { getIsDevide } from '../util/display';
 
 // Execute
@@ -11,16 +11,8 @@ import { getIsDevide } from '../util/display';
   const { PR, LG, P, M, D } = process.env;
 
   if (PR == 'M') {
-    if (getIsDevide()) {
-      await execMonthTeamEraDiv(getIsTweet(), LG, P, M);
-    } else {
-      await execMonthTeamEra(getIsTweet(), LG, M);
-    }
+    await execMonthTeamEra(getIsTweet(), getIsDevide(), LG, P, M);
   } else if (PR == 'W') {
-    if (getIsDevide()) {
-      await execWeekTeamEraDiv(getIsTweet(), LG, P, D);
-    } else {
-      await execWeekTeamEra(getIsTweet(), LG, D);
-    }
+    await execWeekTeamEra(getIsTweet(), getIsDevide(), LG, P, D);
   }
 })();
