@@ -145,21 +145,21 @@ export const checkLeague = (teams: string[]) => {
 /**
  * 
  */
-export const checkArgM = (month: string) => {
-  let monthArg = Number(month);
+export const checkArgM = (monthArg: string) => {
+  let month = Number(monthArg);
 
-  if (! month) {
-    monthArg = Number(moment().format('M'));
-    console.log(format('M=[月] を指定がないため今月(%d月)のデータを出力します', monthArg));
-  } else if (monthArg < 6 || 12 < monthArg) {
+  if (! monthArg) {
+    month = Number(moment().format('M'));
+    console.log(format('M=[月] を指定がないため今月(%d月)のデータを出力します', month));
+  } else if (month < 6 || 12 < month) {
     console.log('M=[月] は6〜12月の間で入力してください');
-    monthArg = 0;
+    month = 0;
   }
 
-  const fmYYYYM = format("2020%d", monthArg);
+  const fmYYYYM = format("2020%d", month);
 
   return {
-    monthArg,
+    month,
     firstDay: moment(fmYYYYM, "YYYYM").startOf('month').format('YYYYMMDD'),
     lastDay: moment(fmYYYYM, "YYYYM").endOf('month').format('YYYYMMDD')
   }

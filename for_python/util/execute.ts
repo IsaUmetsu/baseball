@@ -4,12 +4,11 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames, dayOfWeekArr } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow } from './display';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC } from './tweet';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from './db';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryMonthStand, getQueryPitch10Team, getQueryWeekStand, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra } from './query';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand } from './query';
 import { getPitcher } from './fs';
-import { isContext } from 'vm';
 
 /**
  * 
@@ -482,29 +481,40 @@ export const execPitchPerOut = async (isTweet = true, dayArg = '') => {
 /**
  * 
  */
+export const execDayOfWeekStand = async (isTweet = true, leagueArg = '', dayOfWeekArg = '', scriptName = SC_DS) => {
+  const dayOfWeek = checkArgDow(Number(dayOfWeekArg));
+  const datecClause = `DAYOFWEEK(date) = ${dayOfWeek}`;
+  const periodClause = format('%s', dayOfWeekArr[dayOfWeek]);
+
+  await execStand(isTweet, leagueArg, periodClause, datecClause, scriptName);
+}
+
+/**
+ * 
+ */
 export const execWeekStand = async (isTweet = true, leagueArg = '', dayArg = '', scriptName = SC_WS) => {
   const { firstDay, lastDay, firstDayStr, lastDayStr } = checkArgTargetDayOfWeek(dayArg);
-  const getQuery = (teams: string[]) => getQueryWeekStand(teams, firstDayStr, lastDayStr);
+  const dateClause = `date BETWEEN '${firstDayStr}' AND '${lastDayStr}'`;
   const periodClause = format('%s〜%s', firstDay.format('M/D'), lastDay.format('M/D'));
 
-  await execStand(isTweet, leagueArg, periodClause, getQuery, scriptName);
+  await execStand(isTweet, leagueArg, periodClause, dateClause, scriptName);
 }
 
 /**
  * 
  */
 export const execMonthStand = async (isTweet = true, leagueArg = '', monthArg = '', scriptName = SC_MS) => {
-  const { monthArg: month, firstDay, lastDay } = checkArgM(monthArg);
-  const getQuery = (teams: string[]) => getQueryMonthStand(teams, month, firstDay, lastDay);
+  const { month } = checkArgM(monthArg);
+  const dateClause = `DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}`;
   const periodClause = format('%s月', month);
 
-  await execStand(isTweet, leagueArg, periodClause, getQuery, scriptName);
+  await execStand(isTweet, leagueArg, periodClause, dateClause, scriptName);
 }
 
 /**
  * 
  */
-const execStand = async (isTweet: boolean, league: string, periodClause: string, getQuery: (teams: string[]) => string, scriptName: string) => {
+const execStand = async (isTweet: boolean, league: string, periodClause: string, dateClause: string, scriptName: string) => {
   let teamsArray = [];
   const prevTeamsArray = checkArgTMLGForTweet('', league);
   // check tweetable
@@ -528,7 +538,7 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
 
   const manager = await getManager();
   for (const teams of teamsArray) {
-    const results = await manager.query(getQuery(teams));
+    const results = await manager.query(getQueryStand(teams, dateClause));
     
     let prevTeamSavings = 0;
     const title = format("%s %s 成績\n", getTeamTitle(league, teams), periodClause);
@@ -581,9 +591,9 @@ export const execWeekBatChamp = async (isTweet = true, team = '', league = '', d
 /**
  * 
  */
-export const execMonthBatChamp = async (isTweet = true, team = '', league = '', month = '', scriptName = SC_MBC) => {
-  const { monthArg, firstDay, lastDay } = checkArgM(month);
-  const periodClause = format('%s月', monthArg);
+export const execMonthBatChamp = async (isTweet = true, team = '', league = '', monthArg = '', scriptName = SC_MBC) => {
+  const { month, firstDay, lastDay } = checkArgM(monthArg);
+  const periodClause = format('%s月', month);
   const dateClause = `date BETWEEN '${firstDay}' AND '${lastDay}'`;
 
   await execBatChamp(isTweet, team, league, dateClause, periodClause, scriptName);
@@ -710,7 +720,7 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
 export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg = '', monthArg = '', scriptName = format('%s_%s', SC_MT, 'pitch')) => {
   let team = teamArg, league = leagueArg, teamsArray = [];
   const prevTeamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
-  const { monthArg: month, firstDay, lastDay } = checkArgM(monthArg);
+  const { month, firstDay, lastDay } = checkArgM(monthArg);
 
   // check tweetable
   if (isTweet) {
@@ -906,7 +916,7 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
 
   if (! teamsArray.length) return;
 
-  const { monthArg: month } = checkArgM(monthArg);
+  const { month } = checkArgM(monthArg);
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1067,7 +1077,7 @@ export const execWeekBatTeam = async (isTweet = true, leagueArg = '', dayArg = '
  */
 export const execMonthBatTeam = async (isTweet = true, leagueArg = '', monthArg = '', scriptName = SC_DBT) => {
 
-  const { monthArg: month } = checkArgM(monthArg);
+  const { month } = checkArgM(monthArg);
   const getQuery = (teams: string[]) => getQueryMonthBatTeam(teams, month);
   const titlePart = format('%s月', month);
 
@@ -1351,7 +1361,7 @@ export const execWeekTeamEra = async (isTweet = true, isDevide = false, leagueAr
  */
 export const execMonthTeamEra = async (isTweet = true, isDevide = false, leagueArg = '', pitcherArg = '', monthArg = '') => {
 
-  const { monthArg: month, firstDay, lastDay } = checkArgM(monthArg);
+  const { month, firstDay, lastDay } = checkArgM(monthArg);
   const titlePart = format('%s月', month);
 
   if (isDevide) {

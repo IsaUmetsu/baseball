@@ -100,7 +100,7 @@ export const getQueryPitch10Team = (team: string, limit = 6) => `
 /**
  * 
  */
-export const getQueryWeekStand = (teams: string[], firstDayStr: string, lastDayStr: string) => `
+export const getQueryStand = (teams: string[], dateClause: string) => `
   SELECT
     base.team_initial_kana,
     base.team_initial,
@@ -128,7 +128,7 @@ export const getQueryWeekStand = (teams: string[], firstDayStr: string, lastDayS
             FROM
               baseball_2020.game_info
             WHERE
-              (date BETWEEN '${firstDayStr}' AND '${lastDayStr}')
+              ${dateClause}
               AND no_game = 0
             GROUP BY
               away_team_initial
@@ -141,7 +141,7 @@ export const getQueryWeekStand = (teams: string[], firstDayStr: string, lastDayS
           FROM
             baseball_2020.game_info
           WHERE
-            (date BETWEEN '${firstDayStr}' AND '${lastDayStr}')
+            (${dateClause})
             AND no_game = 0
           GROUP BY
             home_team_initial
@@ -180,7 +180,7 @@ export const getQueryWeekStand = (teams: string[], firstDayStr: string, lastDayS
         WHERE
             no_game = 0
             AND batting_result = '試合終了'
-            AND (date >= '${firstDayStr}' AND date <= '${lastDayStr}')
+            AND (${dateClause})
         GROUP BY
             away_initial
     ) away ON away.team_initial = base.team_initial_kana
@@ -216,7 +216,7 @@ export const getQueryWeekStand = (teams: string[], firstDayStr: string, lastDayS
         WHERE
             no_game = 0
             AND batting_result = '試合終了'
-            AND (date >= '${firstDayStr}' AND date <= '${lastDayStr}')
+            AND (${dateClause})
         GROUP BY
             home_initial
     ) home ON home.team_initial = base.team_initial_kana
@@ -224,99 +224,6 @@ export const getQueryWeekStand = (teams: string[], firstDayStr: string, lastDayS
     base.team_initial_kana IN ('${teams.join("', '")}')
   ORDER BY
     win_rate DESC, win_count DESC
-`;
-
-/**
- * 
- */
-export const getQueryMonthStand = (teams: string[], month: number, firstDay: string, lastDay: string) => `
-  SELECT
-    base.team_initial_kana,
-    base.team_initial,
-    IFNULL(base.game_cnt, 0) AS game_cnt,
-    IFNULL(away.win_count_away, 0) + IFNULL(home.win_count_home, 0) AS win_count,
-    IFNULL(away.lose_count_away, 0) + IFNULL(home.lose_count_home, 0) AS lose_count,
-    IFNULL(away.draw_count_away, 0) + IFNULL(home.draw_count_home, 0) AS draw_count,
-    ROUND((IFNULL(away.win_count_away, 0) + IFNULL(home.win_count_home, 0)) / (IFNULL(base.game_cnt, 0) - (IFNULL(away.draw_count_away, 0) + IFNULL(home.draw_count_home, 0))), 3) AS win_rate,
-    '' AS eol
-  FROM
-    game_cnt_per_month base
-    LEFT JOIN (
-        SELECT
-            away_initial AS team_initial,
-            COUNT(
-                away_initial = CASE
-                    WHEN home_score > away_score THEN home_initial
-                    WHEN home_score < away_score THEN away_initial
-                    ELSE NULL
-                END
-                OR NULL
-            ) AS win_count_away,
-            COUNT(
-                away_initial = CASE
-                    WHEN home_score < away_score THEN home_initial
-                    WHEN home_score > away_score THEN away_initial
-                    ELSE NULL
-                END
-                OR NULL
-            ) AS lose_count_away,
-            COUNT(
-                away_initial = CASE
-                    WHEN home_score = away_score THEN away_initial
-                    ELSE NULL
-                END
-                OR NULL
-            ) AS draw_count_away,
-            eol
-        FROM
-            baseball_2020.debug_base
-        WHERE
-            no_game = 0
-            AND batting_result = '試合終了'
-            AND (date >= '${firstDay}' AND date <= '${lastDay}')
-        GROUP BY
-            away_initial
-    ) away ON away.team_initial = base.team_initial_kana
-    LEFT JOIN (
-        SELECT
-            home_initial AS team_initial,
-            COUNT(
-                home_initial = CASE
-                    WHEN home_score > away_score THEN home_initial
-                    WHEN home_score < away_score THEN away_initial
-                    ELSE NULL
-                END
-                OR NULL
-            ) AS win_count_home,
-            COUNT(
-                home_initial = CASE
-                    WHEN home_score < away_score THEN home_initial
-                    WHEN home_score > away_score THEN away_initial
-                    ELSE NULL
-                END
-                OR NULL
-            ) AS lose_count_home,
-            COUNT(
-                home_initial = CASE
-                    WHEN home_score = away_score THEN home_initial
-                    ELSE NULL
-                END
-                OR NULL
-            ) AS draw_count_home,
-            eol
-        FROM
-            baseball_2020.debug_base
-        WHERE
-            no_game = 0
-            AND batting_result = '試合終了'
-            AND (date >= '${firstDay}' AND date <= '${lastDay}')
-        GROUP BY
-            home_initial
-    ) home ON home.team_initial = base.team_initial_kana
-  WHERE
-    base.month = ${month} AND base.team_initial_kana IN ('${teams.join("', '")}')
-  ORDER BY
-    win_rate DESC
 `;
 
 /**
