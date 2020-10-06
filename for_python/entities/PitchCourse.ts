@@ -9,6 +9,9 @@ export class PitchCourse extends BaseEntity {
   @Column("int", { name: "pitch_info_id" })
   pitchInfoId: number;
 
+  @Column("smallint", { name: "pitch_cnt", nullable: true })
+  pitchCnt: number | null;
+
   @Column("smallint", { name: "top", nullable: true })
   top: number | null;
 
