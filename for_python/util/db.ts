@@ -455,6 +455,52 @@ export const executeUpdatePlusOutCount = async () => {
 /**
  * 
  */
+export const isFinishedAllGame = async (day): Promise<boolean> => {
+
+  const manager = await getManager();
+  const results: {is_finished: string}[] = await manager.query(`
+    SELECT
+      L.game_cnt = R.game_cnt AS is_finished
+    FROM
+      -- 開催試合数
+      (
+        SELECT
+          date,
+          COUNT(id) AS game_cnt
+        FROM game_info
+        WHERE date = '${day}'
+        GROUP BY date
+      ) AS L
+      -- 終了試合数
+      LEFT JOIN (
+        SELECT
+          date,
+          COUNT(g_id) AS game_cnt
+        FROM
+          debug_base
+        WHERE
+          g_id IN (
+            SELECT
+              id
+            FROM game_info
+            WHERE date = '${day}'
+          )
+          AND batting_result LIKE '%試合%'
+        GROUP BY date
+      ) AS R ON L.date = R.date
+  `);
+
+  let result = false;
+  if (results && results.length > 0) {
+    const { is_finished } = results[0];
+    result = Boolean(Number(is_finished));
+  }
+  return result;
+}
+
+/**
+ * 
+ */
 export const isFinishedGame = async (team, day): Promise<boolean> => {
 
   const manager = await getManager();
@@ -479,8 +525,12 @@ export const isFinishedGame = async (team, day): Promise<boolean> => {
     ) AS A
   `);
 
-  const { is_finished } = results[0];
-  return Boolean(Number(is_finished));
+  let result = false;
+  if (results && results.length > 0) {
+    const { is_finished } = results[0];
+    result = Boolean(Number(is_finished));
+  }
+  return result;
 }
 
 /**
