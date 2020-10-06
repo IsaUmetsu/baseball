@@ -1,14 +1,16 @@
 
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execDayOfWeekStand, execMonthStand, execWeekStand } from '../util/execute';
+import { execDayOfWeekStand, execDayOfWeekStandPerResultTue, execMonthStand, execWeekStand } from '../util/execute';
 
 // Execute
 (async () => {
   await createConnection('default');
 
-  const { PR, LG, D, M, DO } = process.env;
+  const { PR, TM, LG, D, M, DO } = process.env;
   if (PR == 'W') await execWeekStand(getIsTweet(), LG, D);
   if (PR == 'M') await execMonthStand(getIsTweet(), LG, M);
   if (PR == 'D') await execDayOfWeekStand(getIsTweet(), LG, DO);
+  // result after tuesday
+  if (PR == 'RATU') await execDayOfWeekStandPerResultTue(TM, LG, DO);
 })();

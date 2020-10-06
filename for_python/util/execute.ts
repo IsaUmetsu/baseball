@@ -7,7 +7,7 @@ import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTar
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam } from './db';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand } from './query';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue } from './query';
 import { getPitcher } from './fs';
 
 /**
@@ -561,6 +561,58 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
       await tweetMulti(title, rows);
       await saveTweeted(scriptName, league, genTweetedDay());
     } else {
+      displayResult(title, rows);
+    }
+  }
+}
+
+/**
+ * 
+ */
+export const execDayOfWeekStandPerResultTue = async (team = '', league = '', dayOfWeekArg = '3') => {
+  const dayOfWeek = checkArgDow(Number(dayOfWeekArg));
+  const periodClause = format('%s', dayOfWeekArr[dayOfWeek]);
+  let teamsArray = checkArgTMLGForTweet(team, league);
+  
+  if (! teamsArray.length) return;
+  const manager = await getManager();
+
+  for (const res of ['win', 'lose']) {
+    for (const teams of teamsArray) {
+      const results = [];
+      for (const team of teams) {
+        const getDateClause = async () => {
+          const results: { date: string }[] = await manager.query(getQueryResultTue(team, res));
+
+          const dateClauses = [];
+          for (const { date } of results) {
+            const thisWeekWed = moment(date, 'YYYYMMDD').add(1, 'days').format('YYYYMMDD');
+            const nextWeekSun = moment(date, 'YYYYMMDD').add(1, 'weeks').day(0).format('YYYYMMDD');
+            dateClauses.push(`(date BETWEEN ${thisWeekWed} AND ${nextWeekSun})`);
+          }
+
+          return dateClauses.join(' OR ');
+        }
+        
+        const result: any[] = await manager.query(getQueryStandTue(team, await getDateClause()));
+        if (result.length) for (const row of result) { results.push(row); }
+      }
+      // sort by win_rate DESC
+      results.sort((a, b) => Number(b.win_rate) - Number(a.win_rate));
+
+      const title = format("%s %sに%s週の残り5試合成績\n", getTeamTitle(league, teams, team), periodClause, res == 'win' ? '勝った' : '負けた');
+      const rows = [];
+      for (let idx in results) {
+        const { team_initial_kana, team_initial, game_cnt, win_count, lose_count, draw_count, win_rate } = results[idx];
+
+        rows.push(format(
+          "\n%s  %s試 %s勝%s敗%s %s %s",
+          team_initial_kana, game_cnt, win_count, lose_count,
+          draw_count > 0 ? format("%s分", draw_count) : '',
+          trimRateZero(win_rate), teamHashTags[team_initial]
+        ));  
+      }
+
       displayResult(title, rows);
     }
   }

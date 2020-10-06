@@ -90,6 +90,7 @@
     "week:team:era:tw": "PR=W ts-node for_python/query/team_era.ts -t",
     "week:team:era:div": "PR=W ts-node for_python/query/team_era.ts -d",
     "week:team:era:div:tw": "PR=W ts-node for_python/query/team_era.ts -t -d",
+    "ratu:stand": "PR=RATU ts-node for_python/query/team_standings.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

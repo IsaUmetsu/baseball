@@ -1,3 +1,4 @@
+import { teamArray } from "../constant";
 
 /**
  * 
@@ -96,6 +97,57 @@ export const getQueryPitch10Team = (team: string, limit = 6) => `
   ORDER BY game_cnt DESC, SUM(er) * 27 / SUM(outs), inning DESC, win
   LIMIT ${limit}
 `;
+
+/**
+ * 
+ */
+export const getQueryResultTue = (team: string, result: string) => `
+  SELECT 
+    gi.date
+  FROM
+    baseball_2020.game_info gi
+  LEFT JOIN
+    (SELECT 
+      *
+    FROM
+      baseball_2020.debug_base
+    WHERE
+      batting_result = '試合終了') db ON gi.id = db.g_id
+  WHERE
+    DAYOFWEEK(gi.date) = 3
+    ${result == 'win' ? `
+      AND CASE
+        WHEN away_score < home_score THEN home_initial
+        WHEN away_score > home_score THEN away_initial
+    ` : `
+      AND CASE
+        WHEN away_score > home_score THEN home_initial
+        WHEN away_score < home_score THEN away_initial
+    `}
+    
+    END = '${team}';
+`;
+
+/**
+ * 
+ */
+export const getQueryStandTue = (team: string, dateClause: string) => {
+  if (dateClause) {
+    return getQueryStand([team], dateClause);
+  } else {
+    const [ teamIniEn ] = Object.entries(teamArray).find(([, value]) => value == team);
+    return `
+      SELECT
+        '${team}' AS team_initial_kana,
+        '${teamIniEn}' AS team_initial,
+        0 AS game_cnt,
+        0 AS win_count,
+        0 AS lose_count,
+        0 AS draw_count,
+        '-' AS win_rate
+    `;
+  }
+}
 
 /**
  * 
