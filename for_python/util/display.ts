@@ -517,3 +517,11 @@ export const checkArgSort = (sortArg) => {
 
   return elems;
 }
+
+/**
+ * 
+ */
+export const getTeamIniEn = (teamInitialKana: string) => {
+  const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == teamInitialKana);
+  return teamIniEn;
+}

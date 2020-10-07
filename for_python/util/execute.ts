@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, teamHalfNames, dayOfWeekArr, courseTypes, teamFullNames, rankCircle } from '../constant';
-import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow } from './display';
+import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn } from './display';
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame } from './db';
@@ -603,17 +603,22 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
     const results = await manager.query(getQueryStand(teams, dateClause));
     
     let prevTeamSavings = 0;
-    const title = format("%s %s 成績\n", getTeamTitle(league, teams), periodClause);
+    const title = format('%s %s 成績\n', getTeamTitle(league, teams), periodClause);
     const rows = [];
+
+    const winRateArray: number[] = results.map(({ win_rate }) => Number(win_rate));
+    winRateArray.sort((a, b) => b - a);
+
     for (let idx in results) {
       const { team_initial_kana, team_initial, win_count, lose_count, draw_count, win_rate } = results[idx];
       const nowTeamSavings = Number(win_count) - Number(lose_count);
+      const teamIniEn = getTeamIniEn(team_initial_kana);
 
       rows.push(format(
-        "\n%s %s勝%s敗%s %s %s %s ",
-        team_initial_kana, win_count, lose_count,
-        draw_count > 0 ? format("%s分", draw_count) : '', trimRateZero(win_rate),
-        Number(idx) > 0 ? (prevTeamSavings - nowTeamSavings) / 2 : '-', teamHashTags[team_initial]
+        '\n%s %s %s\n%s勝%s敗%s  %s  %s\n',
+        rankCircle[winRateArray.indexOf(Number(win_rate)) + 1], teamFullNames[teamIniEn], teamHashTags[team_initial], win_count, lose_count,
+        draw_count > 0 ? format('%s分', draw_count) : '', trimRateZero(win_rate),
+        Number(idx) > 0 ? (prevTeamSavings - nowTeamSavings) / 2 : '-'
       ));  
 
       prevTeamSavings = nowTeamSavings;
@@ -1241,7 +1246,7 @@ const execBatTeam = async (isTweet = true, leagueArg = '', getQuery: (teams: str
 
     for (const result of results) {
       const { b_team, ave, onbase_ave, sp_ave } = result;
-      const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == b_team);
+      const teamIniEn = getTeamIniEn(b_team);
 
       rows.push(format(
         "\n%s %s \n%s%s  %s%s  %s%s\n",
