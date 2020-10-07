@@ -1,7 +1,7 @@
 
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execWeekBatChamp, execMonthBatChamp, execDayOfWeebBatChamp } from '../util/execute';
+import { execWeekBatChamp, execMonthBatChamp, execDayOfWeekBatChamp } from '../util/execute';
 
 // Execute
 (async () => {
@@ -10,5 +10,5 @@ import { execWeekBatChamp, execMonthBatChamp, execDayOfWeebBatChamp } from '../u
   const { PR, TM, LG, D, M, DO } = process.env;
   if (PR == 'W') await execWeekBatChamp(getIsTweet(), TM, LG, D);
   if (PR == 'M') await execMonthBatChamp(getIsTweet(), TM, LG, M); 
-  if (PR == 'DO') await execDayOfWeebBatChamp(getIsTweet(), TM, LG, DO);
+  if (PR == 'DO') await execDayOfWeekBatChamp(getIsTweet(), TM, LG, DO);
 })();

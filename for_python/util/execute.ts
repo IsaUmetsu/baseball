@@ -683,7 +683,7 @@ export const execDayOfWeekStandPerResultTue = async (team = '', league = '', day
 /**
  * 
  */
-export const execDayOfWeebBatChamp = async (isTweet = true, team = '', league = '', dayOfWeekArg = '', scriptName = SC_DBC) => {
+export const execDayOfWeekBatChamp = async (isTweet = true, team = '', league = '', dayOfWeekArg = '', scriptName = SC_DBC) => {
   const dayOfWeek = checkArgDow(Number(dayOfWeekArg));
   const periodClause = format('%s', dayOfWeekArr[dayOfWeek]);
   const dateClause = `DAYOFWEEK(date) = ${dayOfWeek}`;
