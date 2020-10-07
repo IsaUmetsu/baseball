@@ -264,7 +264,7 @@ export const execPitchStrikeSwMsGame = async (isTweet = true, dayArg = '', strik
 /**
  * 
  */
-export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '') => {
+export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PT) => {
   interface Result { team: string, pitcher: string, pitch_type: string, pitch_type_cnt: string }
   interface PitchType { type: string, cnt: number }
   interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
@@ -276,12 +276,12 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
   // check tweetable
   if (isTweet) {
     for (const team of prevTeams) {
-      const savedTweeted = await findSavedTweeted(SC_PT, team);
+      const savedTweeted = await findSavedTweeted(scriptName, team);
       const isLeft = await isLeftMoundStarterByTeam(day, team);
 
       if (savedTweeted || !isLeft) {
         const cause = savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other';
-        console.log(format(MSG_F, day, team, SC_PT, cause));
+        console.log(format(MSG_F, day, team, scriptName, cause));
       } else {
         teams.push(team);
       }
@@ -356,8 +356,8 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
 
     if (isTweet) {
       await tweetMulti(title, rows, footer);
-      await saveTweeted(SC_PT, team, day);
-      console.log(format(MSG_S, day, team, SC_PT));
+      await saveTweeted(scriptName, team, day);
+      console.log(format(MSG_S, day, team, scriptName));
     } else {
       displayResult(title, rows, footer);
     }
