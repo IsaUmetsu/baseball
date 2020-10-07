@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execOpsRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execDayOfWeekStand } from './util/execute';
+import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execOpsRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execDayOfWeekStand, execPitchCourse } from './util/execute';
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
@@ -38,6 +38,7 @@ const execAfterLeftMound = async (msg = 'after leave mound') => {
   await execPitchStrikeSwMsGame();  // 2
   await execPitchGroundFlyStart();  // 2
   await execPitchPerOut();          // 1
+  await execPitchCourse();          // 4
   outputLogEnd(msg);
 }
 

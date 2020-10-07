@@ -544,4 +544,34 @@ export const getQueryStarterOtherInfo = (pitcher, day) => `
       GROUP BY
         name
     ) AS R ON L.name = R.name
-`
+`;
+
+/**
+ * 
+ */
+export const getQueryPitchCourse = (day: string) => `
+  SELECT 
+    p_team AS team,
+    REPLACE(current_pitcher_name, ' ', '') AS pitcher,
+    COUNT(((top < 30) OR ((30 <= top AND top < 67) AND (A.left < 20 OR 115 <= A.left))) OR NULL) AS b_high,
+    COUNT(((30 <= top AND top < 67) AND (20<= A.left AND A.left < 115)) OR NULL) AS s_high,
+    COUNT(((67 <= top AND top < 104) AND (20<= A.left AND A.left < 115)) OR NULL) AS s_mid,
+    COUNT(((67 <= top AND top < 104) AND (A.left < 20 OR 115 <= A.left)) OR NULL) AS b_mid,
+    COUNT(((105 <= top AND top < 145) AND (20<= A.left AND A.left < 115)) OR NULL) AS s_low,
+    COUNT(((146 < top) OR ((105 <= top AND top < 145) AND (A.left < 20 OR 115 <= A.left))) OR NULL) AS b_low
+  FROM
+    (SELECT 
+      p_team,
+      current_pitcher_name,
+      pitch_cnt,
+      pitch_type,
+      top,
+      pb.left
+    FROM
+      baseball_2020.debug_pitch_base pb
+    WHERE
+      date = '${day}'
+      AND current_pitcher_order = 1
+    GROUP BY p_team , current_pitcher_name , pitch_cnt , pitch_type , top , pb.left) AS A
+  GROUP BY p_team , current_pitcher_name
+`;
