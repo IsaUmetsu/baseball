@@ -155,3 +155,12 @@ export const FORMAT_BATTER_HBP = ' %s死';
 export const FORMAT_BATTER_OPS = '\n%s %s%s (%s %s)';
 
 export const sortType = {'D': 'DESC', 'A': 'ASC'};
+
+export const courseTypes = {
+  s_low: 'ストライク 低め',
+  s_high: 'ストライク 高め',
+  s_mid: 'ストライク 高さ真ん中',
+  b_high: 'ボール 高め',
+  b_low: 'ボール 低め',
+  b_mid: 'ボール 高さ真ん中'
+};

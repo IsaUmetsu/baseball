@@ -2,7 +2,7 @@ import { format } from 'util';
 import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags, teamHalfNames, dayOfWeekArr } from '../constant';
+import { teamArray, teamNames, teamHashTags, teamHalfNames, dayOfWeekArr, courseTypes } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow } from './display';
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS } from './tweet';
 import { BatterResult } from '../type/jsonType';
@@ -361,6 +361,96 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
     } else {
       displayResult(title, rows, footer);
     }
+  }
+}
+
+/**
+ * 
+ */
+export const execPitchCourse = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PT) => {
+  interface Result { team: string, pitcher: string, b_high: string, s_high: string, b_mid: string, s_mid: string, b_low: string, s_low: string, total: number, target_ave: number }
+
+  const day = checkArgDay(dayArg);
+  const prevTeams = checkArgTMLG(teamArg, leagueArg);
+  let teams = [];
+
+  // check tweetable
+  if (isTweet) {
+    for (const team of prevTeams) {
+      const savedTweeted = await findSavedTweeted(scriptName, team);
+      const isLeft = await isLeftMoundStarterByTeam(day, team);
+
+      if (savedTweeted || !isLeft) {
+        const cause = savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other';
+        console.log(format(MSG_F, day, team, scriptName, cause));
+      } else {
+        teams.push(team);
+      }
+    }
+  } else {
+    teams = prevTeams;
+  }
+
+  if (! teams.length) return;
+
+  const manager = await getManager();
+  for (const course of Object.keys(courseTypes)) {
+    // target day info
+    const results: Result[] = await manager.query(`
+      SELECT 
+        p_team AS team,
+        REPLACE(current_pitcher_name, ' ', '') AS pitcher,
+        COUNT(((top < 30) OR ((30 <= top AND top < 67) AND (A.left < 20 OR 115 <= A.left))) OR NULL) AS b_high,
+        COUNT(((30 <= top AND top < 67) AND (20<= A.left AND A.left < 115)) OR NULL) AS s_high,
+        COUNT(((67 <= top AND top < 104) AND (20<= A.left AND A.left < 115)) OR NULL) AS s_mid,
+        COUNT(((67 <= top AND top < 104) AND (A.left < 20 OR 115 <= A.left)) OR NULL) AS b_mid,
+        COUNT(((105 <= top AND top < 145) AND (20<= A.left AND A.left < 115)) OR NULL) AS s_low,
+        COUNT(((146 < top) OR ((105 <= top AND top < 145) AND (A.left < 20 OR 115 <= A.left))) OR NULL) AS b_low
+      FROM
+        (SELECT 
+          p_team,
+          current_pitcher_name,
+          pitch_cnt,
+          pitch_type,
+          top,
+          pb.left
+        FROM
+          baseball_2020.debug_pitch_base pb
+        WHERE
+          date = '${day}'
+          AND current_pitcher_order = 1
+        GROUP BY p_team , current_pitcher_name , pitch_cnt , pitch_type , top , pb.left) AS A
+      GROUP BY p_team , current_pitcher_name
+    `);
+
+    // total info TODO
+
+    if (! results.length) console.log('出力対象のデータがありません');
+
+    for (const idx in results) {
+      const { b_high, s_high, b_mid, s_mid, s_low, b_low } = results[idx];
+      results[idx].total = Number(b_high) + Number(s_high) + Number(b_mid) + Number(s_mid) + Number(s_low) + Number(b_low);
+      results[idx].target_ave = Math.round(Number(results[idx][course]) * 100 / results[idx].total * 10) / 10;
+    }
+
+    // sort by high average
+    results.sort((a, b) => b.target_ave - a.target_ave);
+
+    const title = format('%s 先発投手\n%s 投球率\n', moment(day, 'YYYYMMDD').format('M/D'), courseTypes[course]);
+    let rows: string[] = [];
+    for (const result of results) {
+      const { team, pitcher, s_low, total, target_ave } = result;
+      rows.push(format('\n%s% (%s/%s) %s(%s)', target_ave, result[course], total, pitcher, team));
+
+      // if (isTweet) {
+      //   await tweetMulti(title, rows);
+      //   await saveTweeted(scriptName, team, day);
+      //   console.log(format(MSG_S, day, team, scriptName));
+      // } else {
+        
+      // }
+    }
+    displayResult(title, rows);
   }
 }
 
