@@ -265,7 +265,7 @@ export const insertPitchInfo = async (
   const pcRepo = getRepository(PitchCourse);
   let savedPitchCourses = await pcRepo.find({ pitchInfoId });
 
-  if (savedPitchCourses == null) {
+  if (savedPitchCourses == null || savedPitchCourses.length == 0) {
     for (const idx in pitchInfo.allPitchCourse) {
       const { top, left } = pitchInfo.allPitchCourse[idx];
       const newPitchCourse = new PitchCourse();
