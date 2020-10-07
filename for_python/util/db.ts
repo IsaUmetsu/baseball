@@ -231,6 +231,7 @@ export const insertPitchInfo = async (
   // about `pitch_details`
   const pdRepo = getRepository(PitchDetails);
   let savedPitcherDetails = await pdRepo.find({ pitchInfoId });
+  let pitchCnts = [];
 
   if (savedPitcherDetails == null || savedPitcherDetails.length == 0) {
     for (const detail of pitchInfo.pitchDetails) {
@@ -248,30 +249,39 @@ export const insertPitchInfo = async (
       newPitchDetails.isMissed = Number(pitchJudgeDetail.indexOf('見') > -1);
 
       await newPitchDetails.save();
+      // update pitch_cnt array
+      pitchCnts.push(Number(pitchCnt));
     }
   } else {
     // for (const savedPitcherDetail of savedPitcherDetails) {
     //   const detail = pitchInfo.pitchDetails.find(detail => Number(detail.pitchCnt) == savedPitcherDetail.pitchCnt);
     //   const { pitchJudgeDetail } = detail;
     //   await savedPitcherDetail.save();
+    //   pitchCnts.push(Number(savedPitcherDetail.pitchCnt));
     // }
   }
 
   // about `pitch_course`
   const pcRepo = getRepository(PitchCourse);
-  let savedPitchCourse = await pcRepo.findOne({ pitchInfoId });
+  let savedPitchCourses = await pcRepo.find({ pitchInfoId });
 
-  if (savedPitchCourse == null) {
-    for (const pitchCourse of pitchInfo.allPitchCourse) {
-      const { top, left } = pitchCourse;
+  if (savedPitchCourses == null) {
+    for (const idx in pitchInfo.allPitchCourse) {
+      const { top, left } = pitchInfo.allPitchCourse[idx];
       const newPitchCourse = new PitchCourse();
 
       newPitchCourse.pitchInfoId = pitchInfoId;
+      newPitchCourse.pitchCnt = pitchCnts[idx];
       newPitchCourse.top = Number(top);
       newPitchCourse.left = Number(left);
 
       await newPitchCourse.save();
     }
+  } else {
+    // for (const idx in savedPitchCourses) {
+    //   savedPitchCourses[idx].pitchCnt = pitchCnts[idx];
+    //   await savedPitchCourses[idx].save();
+    // }
   }
 }
 
