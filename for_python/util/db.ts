@@ -292,6 +292,14 @@ const insertTeamInfo = async (
   gameInfoId: number, scene: number, teamInfo: TeamInfoJson, homeAway: string
 ): Promise<void> => {
 
+  /**
+   * 
+   */
+  const getCurrentPlayer = (allPlayers: string) => {
+    const players = allPlayers.split('、');
+    return players[players.length - 1];
+  }
+
   if (! teamInfo) return;
   const { batteryInfo, homerunInfo, name } = teamInfo;
   // about `battery_info`
@@ -305,10 +313,16 @@ const insertTeamInfo = async (
       const newRecord = new BatteryInfo();
       newRecord.gameInfoId = gameInfoId;
       newRecord.scene = scene;
+      newRecord.currentP = getCurrentPlayer(pitcher);
+      newRecord.currentC = getCurrentPlayer(catcher);
       newRecord.pitcher = pitcher;
       newRecord.catcher = catcher;
       await newRecord.save();
       savedBatteryInfo = await batteryInfoRepo.findOne({ gameInfoId, pitcher, catcher });
+    } else {
+      // savedBatteryInfo.currentP = getCurrentPlayer(pitcher);
+      // savedBatteryInfo.currentC = getCurrentPlayer(catcher);
+      // await savedBatteryInfo.save();
     }
 
     batteryInfoId = savedBatteryInfo.id;
@@ -565,6 +579,7 @@ export const isFinishedGameByLeague = async (teams, day): Promise<boolean> => {
             away_team_initial IN ('${teams.join("', '")}') OR home_team_initial IN ('${teams.join("', '")}')
           )
           AND date = '${day}'
+          AND no_game = 0
         GROUP BY
           date
       ) AS L
@@ -586,6 +601,7 @@ export const isFinishedGameByLeague = async (teams, day): Promise<boolean> => {
                 away_team_initial IN ('${teams.join("', '")}') OR home_team_initial IN ('${teams.join("', '")}')
               )
               AND date = '${day}'
+              AND no_game = 0
           )
           AND batting_result LIKE '%試合%'
         GROUP BY
