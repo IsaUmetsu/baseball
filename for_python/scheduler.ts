@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execOpsRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execDayOfWeekStand, execPitchCourse, execDayOfWeekBatChamp } from './util/execute';
+import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execDayOfWeekStand, execPitchCourse, execDayOfWeekBatChamp, execOpsRc5All } from './util/execute';
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
@@ -49,15 +49,15 @@ const execAfterGame = async (msg = 'after game') => {
   outputLogStart(msg);
   await generateConnection();
   // 各チーム
-  await execPitchRc10Team();  // 12
+  // await execPitchRc10Team();  // 12
   // 各リーグ
   await execDayBatTeam();     // 4 (2*2)
   await execBatRc5All();      // 4 (2*2)
   await execOnbaseRc5All();   // 4 (2*2)
-  await execOpsRc5All();      // 4 (2*2)
+  // await execOpsRc5All();      // 4 (2*2)
   // day of the week
-  await execDayOfWeekStand(); // 2
-  await execDayOfWeekBatChamp(); // 4
+  await execDayOfWeekStand();     // 4 (2*2)
+  await execDayOfWeekBatChamp();  // 4 (2*2)
   outputLogEnd(msg);
 }
 
