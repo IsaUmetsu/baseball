@@ -12,6 +12,12 @@ export class BatteryInfo extends BaseEntity {
   @Column("smallint", { name: "scene" })
   scene: number;
 
+  @Column("varchar", { name: "current_p", nullable: true, length: 20 })
+  currentP: string | null;
+
+  @Column("varchar", { name: "current_c", nullable: true, length: 20 })
+  currentC: string | null;
+
   @Column("varchar", { name: "pitcher", nullable: true, length: 100 })
   pitcher: string | null;
 
