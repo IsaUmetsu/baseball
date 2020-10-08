@@ -1302,6 +1302,9 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
       continue;
     }
 
+    // 雨天中止 or ノーゲーム時
+    if (! pitcher) continue;
+
     // check tweetable
     if (isTweet) {
       const tweetedDay = genTweetedDay();
@@ -1343,7 +1346,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
     let [ intPart, decimalPart ] = inning.split('.');
     intPart = decimalPart ? Number(intPart) + 1 : Number(intPart)
     
-    const title = format("2020年 %s投手 イニング別失点数\n", pitcher.split(' ').join(''));
+    const title = format("2020年 %s\n%s投手 イニング別失点数\n", teamFullNames[getTeamIniEn(team)], pitcher.split(' ').join(''));
     const rows = [];
     
     for (let ingNum = 1; ingNum <= intPart; ingNum++) {
