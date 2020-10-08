@@ -2,7 +2,7 @@ import { format } from 'util';
 import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags, teamHalfNames, dayOfWeekArr, courseTypes, teamFullNames, rankCircle } from '../constant';
+import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn } from './display';
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC } from './tweet';
 import { BatterResult } from '../type/jsonType';
@@ -344,7 +344,7 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
     const total = types.reduce((a, x) => a + x.cnt, 0);
     const [ teamIniEn ] = Object.entries(teamArray).find(([, value]) => value == team);
 
-    rows.push(format('\n%s\n%s投手 (投球数 %s)\n', teamHalfNames[teamIniEn], pitcher, total));
+    rows.push(format('\n%s\n%s投手 (投球数 %s)\n', teamFullNames[teamIniEn], pitcher, total));
 
     for (const typeUnit of types) {
       const { type, cnt } = typeUnit;
@@ -600,7 +600,7 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
 
   const manager = await getManager();
   for (const teams of teamsArray) {
-    const results = await manager.query(getQueryStand(teams, dateClause));
+    const results: any[] = await manager.query(getQueryStand(teams, dateClause));
     
     let prevTeamSavings = 0;
     const title = format('%s %s 成績\n', getTeamTitle(league, teams), periodClause);
@@ -615,7 +615,7 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
       const teamIniEn = getTeamIniEn(team_initial_kana);
 
       rows.push(format(
-        '\n%s %s %s\n%s勝%s敗%s  %s  %s\n',
+        '\n%s %s %s\n%s勝%s敗%s 率%s 差%s\n',
         rankCircle[winRateArray.indexOf(Number(win_rate)) + 1], teamFullNames[teamIniEn], teamHashTags[team_initial], win_count, lose_count,
         draw_count > 0 ? format('%s分', draw_count) : '', trimRateZero(win_rate),
         Number(idx) > 0 ? (prevTeamSavings - nowTeamSavings) / 2 : '-'
@@ -624,11 +624,14 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
       prevTeamSavings = nowTeamSavings;
     }
 
+    // split top3 and bottom 3
+    const newRows = [rows.slice(0, 3).join(''), rows.slice(3, 6).join('')];
+
     if (isTweet) {
-      await tweetMulti(title, rows);
+      await tweetMulti(title, newRows);
       await saveTweeted(scriptName, league, genTweetedDay());
     } else {
-      displayResult(title, rows);
+      displayResult(title, newRows);
     }
   }
 }
@@ -1255,15 +1258,16 @@ const execBatTeam = async (isTweet = true, leagueArg = '', getQuery: (teams: str
         trimRateZero(onbase_ave), rankCircle[onBaseAveArray.indexOf(Number(onbase_ave)) + 1],
         trimRateZero(sp_ave), rankCircle[spAveArray.indexOf(Number(sp_ave)) + 1]
       ));  
-
     }
 
+    const newRows = [rows.slice(0, 3).join(''), rows.slice(3, 6).join('')];
+
     if (isTweet) {
-      await tweetMulti(title, rows);
+      await tweetMulti(title, newRows);
       await saveTweeted(scriptName, checkLeague(teams), genTweetedDay());
       console.log(format(MSG_S, genTweetedDay(), checkLeague(teams), scriptName));
     } else {
-      displayResult(title, rows);
+      displayResult(title, newRows);
     }
   }
 }
