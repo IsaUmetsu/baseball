@@ -18,6 +18,7 @@ export const SC_ORC5A = 'ops_rc5_all';
 export const SC_ORC5N = 'ops_rc5_npb';
 export const SC_DBT= 'day_bat_team';
 export const SC_DBC= 'day_of_week_bat_champ';
+export const SC_DBCN= 'day_of_week_bat_champ_npb';
 export const SC_DS= 'day_of_week_stand';
 export const SC_PT = 'pitch_type';
 export const SC_PC = 'pitch_course';

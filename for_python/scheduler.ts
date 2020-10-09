@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execDayOfWeekStand, execPitchCourse, execDayOfWeekBatChamp, execOpsRc5All, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb } from './util/execute';
+import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execDayOfWeekStand, execPitchCourse, execDayOfWeekBatChamp, execOpsRc5All, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb, execDayOfWeekBatChampNpb } from './util/execute';
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
@@ -60,7 +60,7 @@ const execAfterGame = async (msg = 'after game') => {
   await execPitchRc10Npb();   // 1〜4
   // day of the week
   await execDayOfWeekStand();     // 4 (2*2)
-  await execDayOfWeekBatChamp();  // 4 (2*2)
+  await execDayOfWeekBatChampNpb();  // 4 (2*2)
   outputLogEnd(msg);
 }
 

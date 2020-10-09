@@ -342,6 +342,65 @@ export const getQueryBatChamp = (teams: string[], dateClause: string, teamArg: s
 /**
  * 
  */
+export const getQueryBatChampNpb = (teams: string[], dateClause: string, base = '') => `
+  SELECT
+    REPLACE(current_batter_name, ' ', '') AS batter,
+    base.b_team,
+    SUM(is_pa) AS pa,
+    SUM(is_ab) AS bat,
+    SUM(is_hit) AS hit,
+    SUM(is_onbase) AS onbase,
+    ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average,
+    ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase,
+    other.hr,
+    other.rbi,
+    '' AS eol
+  FROM
+    baseball_2020.debug_base base
+  -- 月間試合数 算出
+  LEFT JOIN (
+    SELECT 
+      b_team, COUNT(date) AS game_cnt
+    FROM
+      (SELECT DISTINCT
+        b_team, date
+      FROM
+        debug_base
+      WHERE
+        ${dateClause}
+        AND CHAR_LENGTH(b_team) > 0) AS game_cnt_base
+    GROUP BY b_team
+  ) gm ON base.b_team = gm.b_team
+	LEFT JOIN (
+		SELECT
+			sb.b_team AS b_team,
+			sb.name AS name,
+			SUM(sb.rbi) AS rbi,
+			SUM(sb.hr) AS hr,
+			SUM(sb.bb) AS bb,
+			SUM(sb.hbp) AS hbp
+		FROM
+			baseball_2020.debug_stats_batter sb
+		WHERE
+			sb.b_team IN ('${teams.join("', '")}')
+			AND ${dateClause}
+		GROUP BY sb.name, sb.b_team
+	) other ON (base.current_batter_name = other.name AND base.b_team = other.b_team)
+  WHERE
+    is_pa = 1
+    AND base.b_team IN ('${teams.join("', '")}')
+    AND ${dateClause}
+  GROUP BY current_batter_name, base.b_team, game_cnt, other.hr, other.rbi
+  HAVING
+    SUM(is_pa) >= 3.1 * game_cnt
+    AND SUM(is_ab) > 0
+    AND ROUND(SUM(is_hit) / SUM(is_ab), 3) >= ${base}
+  ORDER BY average DESC
+`;
+
+/**
+ * 
+ */
 export const getQueryDayBatTeam = (teams: string[], day: string) => {
   const dateClause = `date = '${day}'`;
   return getQueryBatTeam(teams, dateClause);
