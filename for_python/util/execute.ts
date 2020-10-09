@@ -13,7 +13,7 @@ import { getPitcher } from './fs';
 /**
  * 
  */
-export const execBatRc5Team = async (isTweet = true, teamArg = '', leagueArg = '', scriptName = SC_RC5T) => {
+export const execBatRc5Team = async (teamArg = '', leagueArg = '', isTweet = true, scriptName = SC_RC5T) => {
   const prevTeams = checkArgTMLG(teamArg, leagueArg);
   let teams = []
 
@@ -138,7 +138,7 @@ const execRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg 
 /**
  * 
  */
-export const execPitchRc10Team = async (isTweet = true, teamArg = '', leagueArg = '') => {
+export const execPitchRc10Team = async (teamArg = '', leagueArg = '', isTweet = true) => {
   const prevTeams = checkArgTMLG(teamArg, leagueArg);
   let teams = [];
 

@@ -7,5 +7,6 @@ import { execPitchRc10Team } from '../util/execute';
  */
 (async () => {
   await createConnection('default');
-  await execPitchRc10Team(getIsTweet(), process.env.TM, process.env.LG);
+  const { TM, LG } = process.env;
+  await execPitchRc10Team(TM, LG, getIsTweet());
 })();

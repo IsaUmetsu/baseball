@@ -11,7 +11,7 @@ import { execBatRc5All, execBatRc5Team, execOnbaseRc5All, execOpsRc5All } from '
   const { K, T, TM, LG, S } = process.env;
   // average
   if (K == 'bat') {
-    if (T == 'team') await execBatRc5Team(getIsTweet(), TM, LG);
+    if (T == 'team') await execBatRc5Team(TM, LG, getIsTweet());
     if (T == 'all') await execBatRc5All(getIsTweet(), TM, LG, S);
   // onbase_average
   } else if (K == 'ob') {

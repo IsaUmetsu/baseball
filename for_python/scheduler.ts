@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execDayOfWeekStand, execPitchCourse, execDayOfWeekBatChamp, execOpsRc5All } from './util/execute';
+import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execDayOfWeekStand, execPitchCourse, execDayOfWeekBatChamp, execOpsRc5All, execBatRc5Team } from './util/execute';
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
@@ -48,10 +48,12 @@ const execAfterLeftMound = async (msg = 'after leave mound') => {
 const execAfterGame = async (msg = 'after game') => {
   outputLogStart(msg);
   await generateConnection();
-  // 各チーム
-  // await execPitchRc10Team();  // 12
+  // 各チーム (only hawks)
+  await execBatRc5Team('H');    // 1
+  await execPitchRc10Team('H'); // 1
   // 各リーグ
   await execDayBatTeam();     // 4 (2*2)
+  // NPB
   await execBatRc5All();      // 4 (2*2)
   await execOnbaseRc5All();   // 4 (2*2)
   // await execOpsRc5All();      // 4 (2*2)
