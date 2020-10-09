@@ -1601,22 +1601,26 @@ const execTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', t
         gi.date BETWEEN '${firstDay}' AND '${lastDay}' AND
         p_team IN ('${teams.join("', '")}')
       GROUP BY p_team
-      ORDER BY era ASC
+      ORDER BY era ASC, inning DESC
     `);
 
     const pitcherTitle = pitcher == 'A' ? '' : pitcher == 'S' ? '先発' : '中継ぎ';
 
-    const title = format('%s %s\n%s防御率 (失点 自責点 投球回)\n', getTeamTitle(leagueArg, teams), titlePart, pitcherTitle);
-    const rows = [];
+    const title = format('%s %s %s防御率\n', getTeamTitle(leagueArg, teams), titlePart, pitcherTitle);
+    const eraArr = getAscSortedArray(results, 'era');
+    const tmpRows = [];
     for (const result of results) {
       const { tm, era, inning, ra, er } = result;
-      const [ team_initial ] = Object.entries(teamArray).find(([, value]) => value == tm);
+      const [ teamIniEn ] = Object.entries(teamArray).find(([, value]) => value == tm);
 
-      rows.push(format(
-        '\n%s  %s (%s %s %s) %s ',
-        tm, era, ra, er, inning, teamHashTags[team_initial]
+      tmpRows.push(format(
+        '\n%s %s\n%s%s  %s回 %s失点 自責%s\n',
+        teamFullNames[teamIniEn], teamHashTags[teamIniEn],
+        era, getRank(eraArr, era), inning, ra, er
       ));  
     }
+
+    const rows = devideTmpRows(tmpRows);
 
     if (isTweet) {
       const scNm = format('%s_%s', scriptName, pitcher);

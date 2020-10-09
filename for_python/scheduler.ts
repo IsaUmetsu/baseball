@@ -92,8 +92,8 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
   await execWeekStand();
   await execWeekBatTeam();
   await execWeekBatChamp();
-  await execWeekTeamEra();
-  await execWeekTeamEraDiv();
+  await execWeekTeamEra();    // 2*2(P,C)
+  await execWeekTeamEraDiv(); // 2*3(total, starter, middle)*2(P,C)
 
   outputLogEnd('after game weekend');
 });
