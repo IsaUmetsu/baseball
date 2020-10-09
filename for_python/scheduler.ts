@@ -60,7 +60,7 @@ const execAfterGame = async (msg = 'after game') => {
   await execPitchRc10Npb();   // 1〜4
   // day of the week
   await execDayOfWeekStand();     // 4 (2*2)
-  await execDayOfWeekBatChampNpb();  // 4 (2*2)
+  await execDayOfWeekBatChampNpb();  // 1〜3
   outputLogEnd(msg);
 }
 
