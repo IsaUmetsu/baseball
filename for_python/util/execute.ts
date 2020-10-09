@@ -4,10 +4,10 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle, DOW_BAT_NPB_BASE, RC5_BAT_NPB_BASE, RC5_OB_NPB_BASE, RC5_OPS_NPB_BASE } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn, getRank, getAscSortedArray, devideTmpRows, getDescSortedArray } from './display';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN } from './tweet';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN, SC_DTED, SC_DTE } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame } from './db';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb, getQueryPitch10TeamNpb, getQueryBatChampNpb } from './query';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb, getQueryPitch10TeamNpb, getQueryBatChampNpb, getQueryDayTeamEra } from './query';
 import { getPitcher } from './fs';
 
 /**
@@ -1646,6 +1646,22 @@ export const execWeekTeamEraDiv = async (isTweet = true, isDevide = true, league
  */
 export const execMonthTeamEraDiv = async (isTweet = true, isDevide = true, leagueArg = '', pitcherArg = '', dayArg = '') => {
   await execMonthTeamEra(isTweet, isDevide, leagueArg, pitcherArg, dayArg);
+}
+
+/**
+ * 
+ */
+export const execDayTeamEra = async (isTweet = true, isDevide = false, leagueArg = '', pitcherArg = '', dayArg = '') => {
+
+  const day = checkArgDay(dayArg);
+  const titlePart = format('%s', moment(day, 'YYYYMMDD').format('M/D'));
+
+  if (isDevide) {
+    await execTeamEraDiv(isTweet, leagueArg, pitcherArg, titlePart, SC_DTED, day, day);
+  } else {
+    const getQuery = (teams) => getQueryDayTeamEra(teams, day);
+    await execTeamEra(isTweet, leagueArg, getQuery, titlePart, SC_DTE);
+  }
 }
 
 /**

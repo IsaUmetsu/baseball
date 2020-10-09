@@ -505,6 +505,14 @@ export const getQueryWeekTeamEra = (teams: string[], firstDay: string, lastDay: 
 /**
  * 
  */
+export const getQueryDayTeamEra = (teams: string[], day: string) => {
+  const dateClause = `date = ${day}`;
+  return getQueryTeamEra(teams, dateClause);
+}
+
+/**
+ * 
+ */
 const getQueryTeamEra = (teams: string[], dateClause: string) => `
   SELECT
     a.*,

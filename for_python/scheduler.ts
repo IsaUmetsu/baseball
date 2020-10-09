@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execDayOfWeekStand, execPitchCourse, execDayOfWeekBatChamp, execOpsRc5All, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb, execDayOfWeekBatChampNpb } from './util/execute';
+import { execMonthStand, execPitchGroundFlyStart, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execBatRc5All, execOnbaseRc5All, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execDayOfWeekStand, execPitchCourse, execDayOfWeekBatChamp, execOpsRc5All, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb, execDayOfWeekBatChampNpb, execDayTeamEra } from './util/execute';
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
@@ -36,9 +36,9 @@ const execAfterLeftMound = async (msg = 'after leave mound') => {
   await execPitchType();    // 12
   // all pitchers
   await execPitchStrikeSwMsGame();  // 2
-  await execPitchGroundFlyStart();  // 2
+  // await execPitchGroundFlyStart();  // 2
   await execPitchPerOut();          // 1
-  await execPitchCourse();          // 4
+  await execPitchCourse();          // 2*2
   outputLogEnd(msg);
 }
 
@@ -53,6 +53,7 @@ const execAfterGame = async (msg = 'after game') => {
   await execPitchRc10Team('H'); // 1
   // 各リーグ
   await execDayBatTeam();     // 4 (2*2)
+  await execDayTeamEra();     // 4 (2*2)
   // NPB
   await execBatRc5Npb();      // 1〜3
   await execOnbaseRc5Npb();   // 1〜3
