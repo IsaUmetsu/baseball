@@ -650,7 +650,7 @@ export const getQueryPitchCourse = (day: string) => `
 /**
  * 
  */
-export const getQueryDayLob = (day: string) => `
+export const getQueryDayLob = (dateClause: string) => `
   SELECT
     L.*,
     R.runs
@@ -669,7 +669,7 @@ export const getQueryDayLob = (day: string) => `
       FROM
         baseball_2020.debug_base
       WHERE
-        date = '${day}'
+        ${dateClause}
         AND after_count_out = 3
       GROUP BY
         b_team
@@ -681,7 +681,7 @@ export const getQueryDayLob = (day: string) => `
       FROM
         baseball_2020.debug_stats_batter
       WHERE
-        date = '${day}'
+        ${dateClause}
       GROUP BY
         b_team
     ) R ON L.b_team = R.b_team

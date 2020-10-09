@@ -1760,6 +1760,40 @@ const execTeamEra = async (isTweet = true, leagueArg = '', getQuery: (teams: str
  */
 export const execDayLostOnBase = async (isTweet = true, dayArg = '', scriptName = SC_DLOB) => {
   const day = checkArgDay(dayArg);
+  const dateClause = `date = '${day}'`;
+  const periodClause = format('%s', moment(day, 'YYYYMMDD').format('M/D'));
+
+  await execLostOnBase(isTweet, day, dateClause, periodClause, scriptName);
+}
+
+/**
+ * 
+ */
+export const execWeekLostOnBase = async (isTweet = true, dayArg = '', scriptName = SC_DLOB) => {
+  const { firstDay, lastDay, firstDayStr, lastDayStr } = checkArgTargetDayOfWeek(dayArg);
+  const day = checkArgDay(dayArg);
+  const dateClause = `date BETWEEN '${firstDayStr}' AND '${lastDayStr}'`;
+  const periodClause = format('%s〜%s', firstDay.format('M/D'), lastDay.format('M/D'));
+
+  await execLostOnBase(isTweet, day, dateClause, periodClause, scriptName);
+}
+
+/**
+ * 
+ */
+export const execMonthLostOnBase = async (isTweet = true, monthArg = '', scriptName = SC_DLOB) => {
+  const { month } = checkArgM(monthArg);
+  const day = checkArgDay('');
+  const dateClause = `DATE_FORMAT(STR_TO_DATE(date, '%Y%m%d'), '%c') = ${month}`;
+  const periodClause = format('%s月', month);
+
+  await execLostOnBase(isTweet, day, dateClause, periodClause, scriptName);
+}
+
+/**
+ * 
+ */
+const execLostOnBase = async (isTweet = true, day = '', dateClause = '', periodClause = '', scriptName = '') => {
 
   // check tweetable
   if (isTweet) {
@@ -1774,9 +1808,9 @@ export const execDayLostOnBase = async (isTweet = true, dayArg = '', scriptName 
   }
 
   const manager = await getManager();
-  const results: any[] = await manager.query(getQueryDayLob(day));
+  const results: any[] = await manager.query(getQueryDayLob(dateClause));
 
-  const title = format('%s チーム別 残塁数 (得点)\n', moment(day, 'YYYYMMDD').format('M/D'));
+  const title = format('%s チーム別 残塁数 (得点)\n', periodClause);
   const rows = [];
   for (const result of results) {
     const { b_team, lob, runs } = result;

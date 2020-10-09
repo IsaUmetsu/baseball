@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execPitchCourse, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb, execDayOfWeekBatChampNpb, execDayTeamEra, execDayLostOnBase } from './util/execute';
+import { execMonthStand, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execPitchCourse, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb, execDayOfWeekBatChampNpb, execDayTeamEra, execDayLostOnBase, execWeekLostOnBase, execMonthLostOnBase } from './util/execute';
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
@@ -90,11 +90,14 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
   outputLogStart('after game weekend');
   await generateConnection();
 
+  // per league
   await execWeekStand();
   await execWeekBatTeam();
   await execWeekBatChamp();
   await execWeekTeamEra();    // 2*2(P,C)
   await execWeekTeamEraDiv(); // 2*3(total, starter, middle)*2(P,C)
+  // NPB
+  await execWeekLostOnBase(); // 1
 
   outputLogEnd('after game weekend');
 });
@@ -140,6 +143,8 @@ schedule('*/15 16-18,21-23 28-31 9-11 *', async () => {
     // per league
     await execMonthBatTitle();
     await execMonthPitchTitle();
+    // NPB
+    await execMonthLostOnBase();  // 1
 
     outputLogEnd(LOG_MSG);
   }
