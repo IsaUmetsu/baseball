@@ -2,7 +2,7 @@ import { format } from 'util';
 import * as moment from 'moment';
 import * as twitter from "twitter-text";
 import * as yargs from 'yargs';
-import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM, FORMAT_BATTER_ONBASE, FORMAT_BATTER_BB, FORMAT_BATTER_HBP, FORMAT_BATTER_HIT, sortType, FORMAT_BATTER_OPS } from '../constant';
+import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM, FORMAT_BATTER_ONBASE, FORMAT_BATTER_BB, FORMAT_BATTER_HBP, FORMAT_BATTER_HIT, sortType, FORMAT_BATTER_OPS, rankCircle } from '../constant';
 import { countFiles, getJson } from './fs';
 import { BatterResult } from '../type/jsonType';
 
@@ -524,4 +524,42 @@ export const checkArgSort = (sortArg) => {
 export const getTeamIniEn = (teamInitialKana: string) => {
   const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == teamInitialKana);
   return teamIniEn;
+}
+
+/**
+ * 
+ */
+export const getAscSortedArray = (results: any[], column: string) => {
+  const targetArray: number[] = results.map(result => result[column]);
+  targetArray.sort((a, b) => a - b);
+  return targetArray;
+}
+
+/**
+ * 
+ */
+export const getDescSortedArray = (results: any[], column: string) => {
+  const targetArray: number[] = results.map(result => result[column]);
+  targetArray.sort((a, b) => b - a);
+  return targetArray;
+}
+
+/**
+ * 
+ */
+export const devideTmpRows = (tmpRows: string[]) => {
+  const rowsCnt = tmpRows.length, rowsCntHalf = tmpRows.length / 2;
+  const rows = [
+    tmpRows.slice(0, rowsCntHalf).join(''),
+    tmpRows.slice(rowsCntHalf, rowsCnt).join('')
+  ];
+
+  return rows;
+}
+
+/**
+ * 
+ */
+export const getRank = (targetArray: number[], val: any) => {
+  return rankCircle[targetArray.indexOf(val) + 1];
 }
