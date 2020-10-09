@@ -646,3 +646,45 @@ export const getQueryPitchCourse = (day: string) => `
     GROUP BY p_team , current_pitcher_name , pitch_cnt , pitch_type , top , pb.left) AS A
   GROUP BY p_team , current_pitcher_name
 `;
+
+/**
+ * 
+ */
+export const getQueryDayLob = (day: string) => `
+  SELECT
+    L.*,
+    R.runs
+  FROM
+    (
+      SELECT
+        debug_base.b_team,
+        SUM(
+          CASE WHEN base1_player IS NULL THEN 0 ELSE 1 END
+          + CASE WHEN base2_player IS NULL THEN 0 ELSE 1 END
+          + CASE WHEN base3_player IS NULL THEN 0 ELSE 1 END
+          - CASE WHEN pitching_result LIKE '%盗塁失敗%' THEN 1 ELSE 0 END
+          - CASE WHEN batting_result LIKE '%併殺%' OR pitching_result LIKE '%併殺%' THEN 1 ELSE 0 END
+          - CASE WHEN pitching_result LIKE '%牽制%アウト%' THEN 1 ELSE 0 END
+        ) AS lob
+      FROM
+        baseball_2020.debug_base
+      WHERE
+        date = '${day}'
+        AND after_count_out = 3
+      GROUP BY
+        b_team
+    ) L
+    LEFT JOIN (
+      SELECT
+        b_team,
+        SUM(run) AS runs
+      FROM
+        baseball_2020.debug_stats_batter
+      WHERE
+        date = '${day}'
+      GROUP BY
+        b_team
+    ) R ON L.b_team = R.b_team
+  ORDER BY
+    L.lob DESC, R.runs DESC
+`;

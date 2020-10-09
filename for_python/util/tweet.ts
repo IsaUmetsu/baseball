@@ -22,6 +22,7 @@ export const SC_DBCN= 'day_of_week_bat_champ_npb';
 export const SC_DS= 'day_of_week_stand';
 export const SC_DTE = 'day_team_era';
 export const SC_DTED = 'day_team_era_div';
+export const SC_DLOB = 'day_left_on_base';
 export const SC_PT = 'pitch_type';
 export const SC_PC = 'pitch_course';
 export const SC_RC10 = 'pitch_rc10';
