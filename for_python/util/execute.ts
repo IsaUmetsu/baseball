@@ -38,7 +38,7 @@ export const execBatRc5Team = async (teamArg = '', leagueArg = '', isTweet = tru
 
   const manager = await getManager();
   for (const team of teams) {
-    const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == team);
+    const teamIniEn = getTeamIniEn(team);
     const results: BatterResult[] = await manager.query(getQueryBatRc5Team(team));
 
     const title = format('%s打者 最近5試合 打撃成績\n', teamNames[teamIniEn]);
@@ -240,7 +240,7 @@ export const execPitchRc10Team = async (teamArg = '', leagueArg = '', isTweet = 
 
   const manager = await getManager();
   for (const team of teams) {
-    const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == team);
+    const teamIniEn = getTeamIniEn(team);
     const results = await manager.query(getQueryPitch10Team(team));
 
     const title = format('%s 中継ぎ投手 最近10試合 成績\n', teamNames[teamIniEn]);
@@ -469,7 +469,7 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
     const { team, pitcher, types } = newResult;
 
     const total = types.reduce((a, x) => a + x.cnt, 0);
-    const [ teamIniEn ] = Object.entries(teamArray).find(([, value]) => value == team);
+    const teamIniEn = getTeamIniEn(team);
 
     rows.push(format('\n%s\n%s投手 (投球数 %s)\n', teamFullNames[teamIniEn], pitcher, total));
 
@@ -980,7 +980,7 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
 
     for (const result of results) {
       const { team, ave, reliever_cnt, game_cnt } = result;
-      const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == team);
+      const teamIniEn = getTeamIniEn(team);
 
       rows.push(format(
         "\n%s  %s (%s登板 %s試合) %s",
@@ -1611,7 +1611,7 @@ const execTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', t
     const tmpRows = [];
     for (const result of results) {
       const { tm, era, inning, ra, er } = result;
-      const [ teamIniEn ] = Object.entries(teamArray).find(([, value]) => value == tm);
+      const teamIniEn = getTeamIniEn(tm);
 
       tmpRows.push(format(
         '\n%s %s\n%s%s  %s回 %s失点 自責%s\n',
@@ -1732,7 +1732,7 @@ const execTeamEra = async (isTweet = true, leagueArg = '', getQuery: (teams: str
     const tmpRows = [];
     for (const result of results) {
       const { tm, era, s_era, m_era } = result;
-      const [ teamIniEn ] = Object.entries(teamArray).find(([, value]) => value == tm);
+      const teamIniEn = getTeamIniEn(tm);
 
       tmpRows.push(format(
         '\n%s %s\n%s%s  %s%s  %s%s\n',
