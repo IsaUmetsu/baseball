@@ -2,7 +2,7 @@ CREATE
     ALGORITHM = UNDEFINED 
     DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
-VIEW `debug_game_recent_5days` AS
+VIEW `debug_game_bat_rc5` AS
     SELECT 
         `base`.`batter` AS `batter`,
         `base`.`all_bat` AS `all_bat`,

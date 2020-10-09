@@ -4,10 +4,10 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn } from './display';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N } from './tweet';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame } from './db';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb } from './query';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb, getQueryPitch10TeamNpb } from './query';
 import { getPitcher } from './fs';
 
 /**
@@ -273,6 +273,56 @@ export const execPitchRc10Team = async (teamArg = '', leagueArg = '', isTweet = 
     } else {
       displayResult(title, rows, footer);
     }
+  }
+}
+
+/**
+ * 
+ */
+export const execPitchRc10Npb = async (isTweet = true, teamArg = '', leagueArg = '', baseGameCnt = 3, scriptName = SC_RC10N) => {
+  const teams = checkArgTMLG(teamArg, leagueArg);
+
+  // check tweetable
+  if (isTweet) {
+    const savedTweeted = await findSavedTweeted(scriptName, 'ALL');
+    const isFinished = await isFinishedGame('ALL', genTweetedDay());
+
+    if (savedTweeted || !isFinished) {
+      const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+      console.log(format(MSG_F, genTweetedDay(), 'ALL', scriptName, cause));
+      return;
+    }
+  }
+
+  const manager = await getManager();
+  const results = await manager.query(getQueryPitch10TeamNpb(teams, baseGameCnt));
+
+  const title = format('NPB 最近10試合 優秀中継ぎ投手\n(%s登板以上連続無失点)\n', baseGameCnt);
+  const rows = [];
+
+  for (const result of results) {
+    const { tm, p_name, hold, save, win, lose, game_cnt, inning } = result;
+
+    let resultClause = format('%s%s%s%s',
+      Number(win) > 0 ? format('%s勝', win) : '',
+      Number(lose) > 0 ? format('%s敗', lose) : '',
+      Number(hold) > 0 ? format('%sH', hold) : '',
+      Number(save) > 0 ? format('%sS', save) : ''
+    );
+    resultClause = resultClause.length > 0 ? resultClause + ' ' : resultClause;
+
+    rows.push(format(
+      '\n%s試  %s(%s)  %s回 %s',
+      game_cnt, p_name, tm, inning, resultClause
+    ));
+  }
+
+  if (isTweet) {
+    await tweetMulti(title, rows);
+    await saveTweeted(scriptName, 'ALL', genTweetedDay());
+    console.log(format(MSG_S, genTweetedDay(), 'ALL', scriptName));
+  } else {
+    displayResult(title, rows);
   }
 }
 

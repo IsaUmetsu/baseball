@@ -56,7 +56,7 @@ export const getQueryBatRc5Npb = (teams, sort, order, base) => `
   SELECT 
     *
   FROM
-    baseball_2020.debug_game_recent_5days
+    baseball_2020.debug_game_bat_rc5
   WHERE b_team IN ('${teams.join("', '")}') AND ${sort} >= ${base}
   ORDER BY ${sort} ${order}
   LIMIT 10
@@ -69,7 +69,7 @@ export const getQueryBatRc5All = (teams, sort, order) => `
   SELECT 
     *
   FROM
-    baseball_2020.debug_game_recent_5days
+    baseball_2020.debug_game_bat_rc5
   WHERE b_team IN ('${teams.join("', '")}')
   ORDER BY ${sort} ${order}
   LIMIT 10
@@ -78,36 +78,27 @@ export const getQueryBatRc5All = (teams, sort, order) => `
 /**
  * 
  */
+export const getQueryPitch10TeamNpb = (teams: string[], baseGameCnt = 0) => `
+  SELECT
+    *
+  FROM debug_game_pitch_mid_rc10
+  WHERE
+    era = 0.00
+    AND ra = 0
+    AND game_cnt >= ${baseGameCnt}
+    AND tm = ('${teams.join("', '")}')
+  ORDER BY game_cnt DESC, inning DESC
+`;
+
+/**
+ * 
+ */
 export const getQueryPitch10Team = (team: string, limit = 6) => `
   SELECT
-    p_team AS tm,
-    REPLACE(name, ' ', '') AS p_name,
-    COUNT(name) AS game_cnt,
-    COUNT(result = '勝' or null) AS win,
-    COUNT(result = '敗' or null) AS lose,
-    COUNT(result = 'H' or null) AS hold,
-    COUNT(result = 'S' or null) AS save,
-    ROUND(SUM(er) * 27 / SUM(outs), 2) AS era,
-    CONCAT(
-        SUM(outs) DIV 3,
-        CASE
-            WHEN SUM(outs) MOD 3 > 0 THEN CONCAT('.', SUM(outs) MOD 3)
-            ELSE ''
-        END
-    ) AS inning,
-    SUM(ra) AS ra,
-    SUM(er) AS er,
-    '' AS eol
-  FROM
-    baseball_2020.stats_pitcher sp
-    LEFT JOIN game_info gi ON gi.id = sp.game_info_id
-  WHERE
-    sp.order > 1
-    AND game_info_id IN (SELECT id FROM game_id_recent_10days WHERE team = '${team}')
-    AND p_team = '${team}'
-  GROUP BY name, p_team
-  HAVING SUM(outs) > 0
-  ORDER BY game_cnt DESC, SUM(er) * 27 / SUM(outs), inning DESC, win
+    *
+  FROM debug_game_pitch_mid_rc10
+  WHERE tm = '${team}'
+  ORDER BY game_cnt DESC, era, inning DESC, win
   LIMIT ${limit}
 `;
 
