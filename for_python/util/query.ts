@@ -52,6 +52,19 @@ export const getQueryBatRc5Team = team => `
 /**
  * 
  */
+export const getQueryBatRc5Npb = (teams, sort, order, base) => `
+  SELECT 
+    *
+  FROM
+    baseball_2020.debug_game_recent_5days
+  WHERE b_team IN ('${teams.join("', '")}') AND ${sort} >= ${base}
+  ORDER BY ${sort} ${order}
+  LIMIT 10
+`;
+
+/**
+ * 
+ */
 export const getQueryBatRc5All = (teams, sort, order) => `
   SELECT 
     *

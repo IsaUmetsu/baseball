@@ -11,8 +11,11 @@ export const MSG_F = '----- date: [%s], team: [%s], script: [%s], not tweeted be
 
 export const SC_RC5T = 'bat_rc5_team';
 export const SC_RC5A = 'bat_rc5_all';
+export const SC_RC5N = 'bat_rc5_npb';
 export const SC_BRC5A = 'onbase_rc5_all';
+export const SC_BRC5N = 'onbase_rc5_npb';
 export const SC_ORC5A = 'ops_rc5_all';
+export const SC_ORC5N = 'ops_rc5_npb';
 export const SC_DBT= 'day_bat_team';
 export const SC_DBC= 'day_of_week_bat_champ';
 export const SC_DS= 'day_of_week_stand';

@@ -492,7 +492,7 @@ export const isFinishedAllGame = async (day): Promise<boolean> => {
           date,
           COUNT(id) AS game_cnt
         FROM game_info
-        WHERE date = '${day}'
+        WHERE date = '${day}' AND no_game = 0
         GROUP BY date
       ) AS L
       -- 終了試合数
@@ -507,7 +507,7 @@ export const isFinishedAllGame = async (day): Promise<boolean> => {
             SELECT
               id
             FROM game_info
-            WHERE date = '${day}'
+            WHERE date = '${day}' AND no_game = 0
           )
           AND batting_result LIKE '%試合%'
         GROUP BY date

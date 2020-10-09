@@ -4,10 +4,10 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn } from './display';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC } from './tweet';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame } from './db';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse } from './query';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb } from './query';
 import { getPitcher } from './fs';
 
 /**
@@ -51,6 +51,83 @@ export const execBatRc5Team = async (teamArg = '', leagueArg = '', isTweet = tru
       console.log(format(MSG_S, genTweetedDay(), team, scriptName));
     } else {
       displayResult(title, rows, footer);
+    }
+  }
+}
+
+/**
+ * 
+ */
+export const execBatRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', base = '0.400', scriptName = SC_RC5N) => {
+  const titlePart = '打率', col = 'average';
+  const createRows = (results: BatterResult[]) => createBatterResultRows(results);
+
+  await execRc5Npb(isTweet, teamArg, leagueArg, sortArg, titlePart, col, createRows, scriptName, base, format('打率%s以上', trimRateZero(base)));
+}
+
+/**
+ * 
+ */
+export const execOnbaseRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', base = '0.450', scriptName = SC_BRC5N) => {
+  const titlePart = '出塁率', col = 'average_onbase';
+  const createRows = (results: BatterResult[]) => createBatterOnbaseResultRows(results);
+
+  await execRc5Npb(isTweet, teamArg, leagueArg, sortArg, titlePart, col, createRows, scriptName, base, format('出塁率%s以上', trimRateZero(base)));
+}
+
+/**
+ * 
+ */
+export const execOpsRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', base = '1.100', scriptName = SC_ORC5N) => {
+  const titlePart = 'OPS', col = 'ops';
+  const createRows = (results: BatterResult[]) => createBatterOpsResultRows(results);
+
+  await execRc5Npb(isTweet, teamArg, leagueArg, sortArg, titlePart, col, createRows, scriptName, base, format('OPS%s以上 (出塁率 長打率)', base));
+}
+
+/**
+ * 
+ */
+const execRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', titlePart = '', col = '', createRows: (results: BatterResult[]) => string[], scriptName = '', base = '', titleOption = '') => {
+  const teams = checkArgTMLG(teamArg, leagueArg);
+  let dispTargets = [], sorts = checkArgSort(sortArg);  
+
+  // check tweetable
+  for (const sort of sorts) {
+    if (isTweet) {
+      const sn = format('%s_%s', scriptName, sort);
+
+      const savedTweeted = await findSavedTweeted(sn, 'ALL');
+      const isFinished = await isFinishedAllGame(genTweetedDay());
+
+      if (savedTweeted || !isFinished) {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, genTweetedDay(), 'ALL', sn, cause));
+      } else {
+        dispTargets.push({ sort });
+      }
+    } else {
+      dispTargets.push({ sort });
+    }
+  }
+
+  if (! dispTargets.length) return;
+
+  const manager = await getManager();
+  for (const { sort } of dispTargets) {
+    const results: BatterResult[] = await manager.query(getQueryBatRc5Npb(teams, col, sort, base));
+
+    const title = format('NPB 最近5試合 優秀%s打者\n(16打席以上%s)\n', titlePart, titleOption ? format('、%s', titleOption) : '');
+    const rows = createRows(results);
+
+    if (isTweet) {
+      const sn = format('%s_%s', scriptName, sort);
+
+      await tweetMulti(title, rows);
+      await saveTweeted(sn, 'ALL', genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), 'ALL', sn));
+    } else {
+      displayResult(title, rows);
     }
   }
 }
