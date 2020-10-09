@@ -2,7 +2,7 @@ import { format } from 'util';
 import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
-import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle } from '../constant';
+import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle, DOW_BAT_NPB_BASE, RC5_BAT_NPB_BASE, RC5_OB_NPB_BASE, RC5_OPS_NPB_BASE } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn } from './display';
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN } from './tweet';
 import { BatterResult } from '../type/jsonType';
@@ -58,7 +58,7 @@ export const execBatRc5Team = async (teamArg = '', leagueArg = '', isTweet = tru
 /**
  * 
  */
-export const execBatRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', base = '0.400', scriptName = SC_RC5N) => {
+export const execBatRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', base = RC5_BAT_NPB_BASE, scriptName = SC_RC5N) => {
   const titlePart = '打率', col = 'average';
   const createRows = (results: BatterResult[]) => createBatterResultRows(results);
 
@@ -68,7 +68,7 @@ export const execBatRc5Npb = async (isTweet = true, teamArg = '', leagueArg = ''
 /**
  * 
  */
-export const execOnbaseRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', base = '0.450', scriptName = SC_BRC5N) => {
+export const execOnbaseRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', base = RC5_OB_NPB_BASE, scriptName = SC_BRC5N) => {
   const titlePart = '出塁率', col = 'average_onbase';
   const createRows = (results: BatterResult[]) => createBatterOnbaseResultRows(results);
 
@@ -78,7 +78,7 @@ export const execOnbaseRc5Npb = async (isTweet = true, teamArg = '', leagueArg =
 /**
  * 
  */
-export const execOpsRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', base = '1.100', scriptName = SC_ORC5N) => {
+export const execOpsRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = 'D', base = RC5_OPS_NPB_BASE, scriptName = SC_ORC5N) => {
   const titlePart = 'OPS', col = 'ops';
   const createRows = (results: BatterResult[]) => createBatterOpsResultRows(results);
 
@@ -818,7 +818,7 @@ export const execDayOfWeekStandPerResultTue = async (team = '', league = '', day
 /**
  * 
  */
-export const execDayOfWeekBatChampNpb = async (isTweet = true, team = '', league = '', dayOfWeekArg = '', base = '0.350', scriptName = SC_DBCN) => {
+export const execDayOfWeekBatChampNpb = async (isTweet = true, team = '', league = '', dayOfWeekArg = '', base = DOW_BAT_NPB_BASE, scriptName = SC_DBCN) => {
   const dayOfWeek = checkArgDow(Number(dayOfWeekArg));
   const periodClause = format('%s', dayOfWeekArr[dayOfWeek]);
   const dateClause = `DAYOFWEEK(date) = ${dayOfWeek}`;

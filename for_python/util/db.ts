@@ -3,7 +3,7 @@ import { getRepository, getManager, getConnection, Connection } from 'typeorm';
 import { LiveHeaderJson, LiveBodyJson, PitchInfoJson, TeamInfoJson, BenchMemberInfoType, SavedBallCount } from '../type/jsonType';
 import { GameInfo, LiveHeader, LiveBody, PitchInfo, PitchCourse, PitchDetails, PitcherBatter, TeamInfo, GameOrder, BenchMemberInfo, BenchMaster, BatteryInfo, HomerunInfo } from '../entities';
 import { judgePlateAppearance, judgeAtBat, judgeHit, judgeOnbase, judgeError, judgeFc, judgePlayerChange, judgeIsBall, judgeIsStrike, judgePlusScore, judgePlusOutCount, calcTotalBase, indexOfAnd } from './liveBody';
-import { teamNameFullToIni, TOP, BTM, HM, AW } from '../constant';
+import { teamNameHalfToIni, TOP, BTM, HM, AW } from '../constant';
 import { createConnection } from 'typeorm';
 
 /**
@@ -354,7 +354,7 @@ const insertTeamInfo = async (
     newRecord.scene = scene;
     newRecord.homeAway = homeAway;
     newRecord.teamName = name;
-    newRecord.teamInitialKana = teamNameFullToIni[name];
+    newRecord.teamInitialKana = teamNameHalfToIni[name];
     newRecord.batteryInfoId = batteryInfoId;
     newRecord.homerunInfoId = homerunInfoId;
 

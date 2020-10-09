@@ -1,7 +1,7 @@
 import { format } from 'util';
 
 import { createConnection, getManager } from 'typeorm';
-import { teamArray, teamHashTags, dayOfWeekArr, teamNameFullToIni } from '../constant';
+import { teamArray, teamHashTags, dayOfWeekArr, teamNameHalfToIni } from '../constant';
 import { checkArgDow, trimRateZero, displayResult, checkArgTMLG } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
 
@@ -51,7 +51,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
       ORDER BY average DESC
     `);
 
-    const [ teamName ] = Object.entries(teamNameFullToIni).find(([,value]) => value == targetTeam);
+    const [ teamName ] = Object.entries(teamNameHalfToIni).find(([,value]) => value == targetTeam);
     const [ teamIniEn ] = Object.entries(teamArray).find(([,value]) => value == targetTeam);
     
     const title = format('%s打者 %s 打率\n', teamName, dayOfWeekArr[dayOfWeek]);

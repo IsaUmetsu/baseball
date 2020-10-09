@@ -43,7 +43,7 @@ export const teamNames = {
   'S': 'ヤクルト'
 }
 
-export const teamNameFullToIni = {
+export const teamNameHalfToIni = {
   'ソフトバンク': 'ソ',
   'ロッテ': 'ロ',
   '楽天': '楽',
@@ -56,21 +56,6 @@ export const teamNameFullToIni = {
   '中日': '中',
   '広島': '広',
   'ヤクルト': 'ヤ'
-}
-
-export const teamHalfNames = {
-  'H': 'ソフトバンクホークス',
-  'M': 'ロッテマリーンズ',
-  'E': '楽天イーグルス',
-  'F': '日本ハムファイターズ',
-  'L': '西武ライオンズ',
-  'B': 'オリックスバファローズ',
-  'G': '読売ジャイアンツ',
-  'T': '阪神タイガーズ',
-  'De': 'DeNAベイスターズ',
-  'D': '中日ドラゴンズ',
-  'C': '広島カープ',
-  'S': 'ヤクルトスワローズ'
 }
 
 export const teamFullNames = {
@@ -188,3 +173,8 @@ export const courseTypes = {
   b_low: 'ボール 低め',
   b_mid: 'ボール 高さ真ん中'
 };
+
+export const RC5_BAT_NPB_BASE = '0.400';
+export const RC5_OB_NPB_BASE = '0.450';
+export const RC5_OPS_NPB_BASE = '1.100';
+export const DOW_BAT_NPB_BASE = '0.350';
