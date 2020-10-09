@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle, DOW_BAT_NPB_BASE, RC5_BAT_NPB_BASE, RC5_OB_NPB_BASE, RC5_OPS_NPB_BASE } from '../constant';
-import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn, getRank, getAscSortedArray, devideTmpRows } from './display';
+import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn, getRank, getAscSortedArray, devideTmpRows, getDescSortedArray } from './display';
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame } from './db';
@@ -1404,41 +1404,36 @@ const execBatTeam = async (isTweet = true, leagueArg = '', getQuery: (teams: str
 
   const manager = await getManager();
   for (const teams of teamsArray) {
-    const results = await manager.query(getQuery(teams));    
+    const results = await manager.query(getQuery(teams));
+
+    const aveArr = getDescSortedArray(results, 'ave');
+    const obArr = getDescSortedArray(results, 'onbase_ave');
+    const spAveArr = getDescSortedArray(results, 'sp_ave');
 
     const title = format('%s %s\n打率・出塁率・得点圏打率\n', getTeamTitle(leagueArg, teams), titlePart);
-    const rows = [];
-
-    const aveArray: number[] = results.map(({ ave }) => Number(ave));
-    aveArray.sort((a, b) => b - a);
-
-    const onBaseAveArray: number[] = results.map(({ onbase_ave }) => Number(onbase_ave));
-    onBaseAveArray.sort((a, b) => b - a);
-
-    const spAveArray: number[] = results.map(({ sp_ave }) => Number(sp_ave));
-    spAveArray.sort((a, b) => b - a);
+    const tmpRows = [];
 
     for (const result of results) {
       const { b_team, ave, onbase_ave, sp_ave } = result;
       const teamIniEn = getTeamIniEn(b_team);
 
-      rows.push(format(
-        "\n%s %s \n%s%s  %s%s  %s%s\n",
+      tmpRows.push(format(
+        "\n%s %s\n%s%s  %s%s  %s%s\n",
         teamFullNames[teamIniEn], teamHashTags[teamIniEn],
-        trimRateZero(ave), rankCircle[aveArray.indexOf(Number(ave)) + 1],
-        trimRateZero(onbase_ave), rankCircle[onBaseAveArray.indexOf(Number(onbase_ave)) + 1],
-        trimRateZero(sp_ave), rankCircle[spAveArray.indexOf(Number(sp_ave)) + 1]
+        trimRateZero(ave), getRank(aveArr, ave),
+        trimRateZero(onbase_ave), getRank(obArr, onbase_ave),
+        trimRateZero(sp_ave), getRank(spAveArr, sp_ave)
       ));
     }
 
-    const newRows = [rows.slice(0, 3).join(''), rows.slice(3, 6).join('')];
+    const rows = devideTmpRows(tmpRows);
 
     if (isTweet) {
-      await tweetMulti(title, newRows);
+      await tweetMulti(title, rows);
       await saveTweeted(scriptName, checkLeague(teams), genTweetedDay());
       console.log(format(MSG_S, genTweetedDay(), checkLeague(teams), scriptName));
     } else {
-      displayResult(title, newRows);
+      displayResult(title, rows);
     }
   }
 }
