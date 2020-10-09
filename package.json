@@ -28,6 +28,7 @@
     "bat:major:pos": "ts-node for_python/query/bat_major_position.ts",
     "bat:major:pos:tw": "ts-node for_python/query/bat_major_position.ts -t",
     "day:bat:team": "PR=D ts-node for_python/query/bat_team.ts",
+    "day:lob": "PR=D ts-node for_python/query/left_on_base.ts",
     "dow:stand": "PR=D ts-node for_python/query/team_standings.ts",
     "dow:stand:tw": "PR=D ts-node for_python/query/team_standings.ts -t",
     "dow:bat:champ": "PR=DO ts-node for_python/query/bat_champion.ts",
@@ -52,6 +53,7 @@
     "month:team:era:tw": "PR=M ts-node for_python/query/team_era.ts -t",
     "month:team:era:div": "PR=M ts-node for_python/query/team_era.ts -d",
     "month:team:era:div:tw": "PR=M ts-node for_python/query/team_era.ts -d -t",
+    "month:lob": "PR=M ts-node for_python/query/left_on_base.ts",
     "month:bat:title": "T=B ts-node for_python/query/month_title_holder.ts",
     "month:title": "ts-node for_python/query/month_title_holder.ts",
     "ob:rc5:all": "K=ob T=all ts-node for_python/query/recent_5days.ts",
@@ -93,6 +95,7 @@
     "week:team:era:tw": "PR=W ts-node for_python/query/team_era.ts -t",
     "week:team:era:div": "PR=W ts-node for_python/query/team_era.ts -d",
     "week:team:era:div:tw": "PR=W ts-node for_python/query/team_era.ts -t -d",
+    "week:lob": "PR=W ts-node for_python/query/left_on_base.ts",
     "ratu:stand": "PR=RATU ts-node for_python/query/team_standings.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
