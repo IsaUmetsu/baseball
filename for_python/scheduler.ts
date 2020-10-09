@@ -48,19 +48,18 @@ const execAfterLeftMound = async (msg = 'after leave mound') => {
 const execAfterGame = async (msg = 'after game') => {
   outputLogStart(msg);
   await generateConnection();
-  // 各チーム (only hawks)
+  // per team (only hawks)
   await execBatRc5Team('H');    // 1
   await execPitchRc10Team('H'); // 1
-  // 各リーグ
+  // per league
   await execDayBatTeam();     // 4 (2*2)
   await execDayTeamEra();     // 4 (2*2)
+  await execDayOfWeekStand();     // 4 (2*2)
   // NPB
   await execBatRc5Npb();      // 1〜3
   await execOnbaseRc5Npb();   // 1〜3
   await execOpsRc5Npb();      // 1〜3
   await execPitchRc10Npb();   // 1〜4
-  // day of the week
-  await execDayOfWeekStand();     // 4 (2*2)
   await execDayOfWeekBatChampNpb();  // 1〜3
   outputLogEnd(msg);
 }
