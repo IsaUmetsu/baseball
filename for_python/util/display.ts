@@ -259,7 +259,7 @@ export const displayResult = (title: string, rows: string[], footer?: string) =>
 /**
  * 
  */
-export const checkArgDaySeasonEndSpecify = (day, seasonEnd, specify) => {
+export const checkArgDaySeasonEndSpecify = (day = '', seasonEnd = '', specify = '') => {
   let targetDay = day;
   let seasonEndArg = seasonEnd;
   let specifyArg = specify;

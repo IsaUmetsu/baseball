@@ -123,7 +123,7 @@ const saveGame = async () => {
 
     if (importGame) {
       await saveGame();
-      await executeUpdatePlusOutCount();
+      await executeUpdatePlusOutCount(format("2020%s", targetDay), format("2020%s", seasonEndArg));
     }
 
     if (importPitch) await savePitchData(targetDay, seasonStart, seasonEnd, specifyArg);

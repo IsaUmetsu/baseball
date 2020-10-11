@@ -442,19 +442,20 @@ export const insertAwayTeamInfo = async (
 /**
  * 
  */
-export const executeUpdatePlusOutCount = async () => {
+export const executeUpdatePlusOutCount = async (fromDate = '', toDate = '') => {
 
   const manager = await getManager();
   const results: any[] = await manager.query(`
     SELECT 
-        lb_id,
-        prev_count_out,
-        after_count_out,
-        plus_out_count,
-        plus_out_count_new,
-        after_count_out - plus_out_count_new AS prev_count_out_new
+      lb_id,
+      prev_count_out,
+      after_count_out,
+      plus_out_count,
+      plus_out_count_new,
+      after_count_out - plus_out_count_new AS prev_count_out_new
     FROM
-        check_not_match_plus_out
+      check_not_match_plus_out
+    WHERE date BETWEEN '${fromDate}' AND '${toDate}'
   `);
 
   console.log(`----- update plus_out_count target count: ${results.length} -----`);
