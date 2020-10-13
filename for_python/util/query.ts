@@ -1,4 +1,4 @@
-import { teamArray } from "../constant";
+import { PT_STARTER, teamArray } from "../constant";
 
 /**
  * 
@@ -687,4 +687,150 @@ export const getQueryDayLob = (dateClause: string) => `
     ) R ON L.b_team = R.b_team
   ORDER BY
     L.lob DESC, R.runs DESC
+`;
+
+/**
+ * 
+ */
+export const getQueryOppoEra = (pitcherType = 0, team = '', oppo = '') => `
+  SELECT 
+    p_team,
+      COUNT(result = '勝' OR NULL) AS win,
+      COUNT(result = '敗' OR NULL) AS lose,
+      ROUND(SUM(er) * 27 / SUM(outs), 2) AS era,
+      CONCAT(
+      SUM(outs) DIV 3,
+      CASE
+        WHEN SUM(outs) MOD 3 > 0 THEN CONCAT('.', SUM(outs) MOD 3)
+        ELSE ''
+      END
+    ) AS inning,
+    SUM(np) AS np,
+      SUM(bf) AS bf,
+      SUM(so) AS so,
+    SUM(ha) AS ha,
+      SUM(hra) AS hra,
+      SUM(bb) AS bb,
+      SUM(ra) AS ra,
+      SUM(er) AS er
+  FROM
+      baseball_2020.stats_pitcher sp
+  WHERE
+    ${pitcherType ? `sp.order ${pitcherType == PT_STARTER ? '=' : '>'} 1 AND ` : ``}
+    game_info_id IN (
+    SELECT 
+      id
+    FROM
+      baseball_2020.game_info
+    WHERE
+      (away_team_initial = '${team}' AND home_team_initial = '${oppo}') OR 
+      (home_team_initial = '${team}' AND away_team_initial = '${oppo}')
+    )
+  GROUP BY
+    p_team
+`;
+
+/**
+ * 
+ */
+export const getQueryOppoEraForPicture = (team = '', oppo = '') => `
+  SELECT 
+      tm.team_name, total.*, st.*, md.*, tm.hashtag
+  FROM
+      (SELECT 
+          p_team,
+              COUNT(result = '勝' OR NULL) AS win,
+              COUNT(result = '敗' OR NULL) AS lose,
+              ROUND(SUM(er) * 27 / SUM(outs), 2) AS era,
+              CONCAT(SUM(outs) DIV 3, CASE
+                  WHEN SUM(outs) MOD 3 > 0 THEN CONCAT('.', SUM(outs) MOD 3)
+                  ELSE ''
+              END) AS inning,
+              SUM(np) AS np,
+              SUM(bf) AS bf,
+              SUM(so) AS so,
+              SUM(ha) AS ha,
+              SUM(hra) AS hra,
+              SUM(bb) AS bb,
+              SUM(ra) AS ra,
+              SUM(er) AS er
+      FROM
+          baseball_2020.stats_pitcher sp
+      WHERE
+          game_info_id IN (SELECT 
+                  id
+              FROM
+                  baseball_2020.game_info
+              WHERE
+                  (away_team_initial = '${team}'
+                      AND home_team_initial = '${oppo}')
+                      OR (home_team_initial = '${team}'
+                      AND away_team_initial = '${oppo}'))
+      GROUP BY p_team) total
+          LEFT JOIN
+      (SELECT 
+          p_team,
+              COUNT(result = '勝' OR NULL) AS win,
+              COUNT(result = '敗' OR NULL) AS lose,
+              ROUND(SUM(er) * 27 / SUM(outs), 2) AS era,
+              CONCAT(SUM(outs) DIV 3, CASE
+                  WHEN SUM(outs) MOD 3 > 0 THEN CONCAT('.', SUM(outs) MOD 3)
+                  ELSE ''
+              END) AS inning,
+              SUM(np) AS np,
+              SUM(bf) AS bf,
+              SUM(so) AS so,
+              SUM(ha) AS ha,
+              SUM(hra) AS hra,
+              SUM(bb) AS bb,
+              SUM(ra) AS ra,
+              SUM(er) AS er
+      FROM
+          baseball_2020.stats_pitcher sp
+      WHERE
+          sp.order = 1
+              AND game_info_id IN (SELECT 
+                  id
+              FROM
+                  baseball_2020.game_info
+              WHERE
+                  (away_team_initial = '${team}'
+                      AND home_team_initial = '${oppo}')
+                      OR (home_team_initial = '${team}'
+                      AND away_team_initial = '${oppo}'))
+      GROUP BY p_team) st ON total.p_team = st.p_team
+          LEFT JOIN
+      (SELECT 
+          p_team,
+              COUNT(result = '勝' OR NULL) AS win,
+              COUNT(result = '敗' OR NULL) AS lose,
+              ROUND(SUM(er) * 27 / SUM(outs), 2) AS era,
+              CONCAT(SUM(outs) DIV 3, CASE
+                  WHEN SUM(outs) MOD 3 > 0 THEN CONCAT('.', SUM(outs) MOD 3)
+                  ELSE ''
+              END) AS inning,
+              SUM(np) AS np,
+              SUM(bf) AS bf,
+              SUM(so) AS so,
+              SUM(ha) AS ha,
+              SUM(hra) AS hra,
+              SUM(bb) AS bb,
+              SUM(ra) AS ra,
+              SUM(er) AS er
+      FROM
+          baseball_2020.stats_pitcher sp
+      WHERE
+          sp.order > 1
+              AND game_info_id IN (SELECT 
+                  id
+              FROM
+                  baseball_2020.game_info
+              WHERE
+                  (away_team_initial = '${team}'
+                      AND home_team_initial = '${oppo}')
+                      OR (home_team_initial = '${team}'
+                      AND away_team_initial = '${oppo}'))
+      GROUP BY p_team) md ON total.p_team = md.p_team
+          LEFT JOIN
+      team_master tm ON tm.team_initial_kana = total.p_team
 `;
