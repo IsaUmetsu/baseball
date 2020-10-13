@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execPitchCourse, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb, execDayOfWeekBatChampNpb, execDayTeamEra, execDayLostOnBase, execWeekLostOnBase, execMonthLostOnBase } from './util/execute';
+import { execMonthStand, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execPitchCourse, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb, execDayOfWeekBatChampNpb, execDayTeamEra, execDayLostOnBase, execWeekLostOnBase, execMonthLostOnBase, execPitchTypeStarter3innings, execPitchTypeStarter6innings } from './util/execute';
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
@@ -11,6 +11,8 @@ const AFTER_GAME_NIGHT        = '2,17,32,47 21-23 * 9-11 *';
 const AFTER_GAME_DAY_HOLIDAY  = '2,17,32,47 16-18 * 9-11 0,6';
 const AFTER_LEAVE_MOUND_STARTER_NIGHT       = '4,19,34,49 19-23 * 9-11 *';
 const AFTER_LEAVE_MOUND_STARTER_DAY_HOLIDAY = '4,19,34,49 13-17 * 9-11 0,6';
+const DURING_GAME_NIGHT       = '7,22,37,52 18-21 * 9-11 *';
+const DURING_GAME_DAY_HOLIDAY = '7,22,37,52 13-17 * 9-11 0,6';
 
 (async () => {
   // await generateConnection();
@@ -23,6 +25,17 @@ const execBeforeGame = async (msg = 'before game') => {
   outputLogStart(msg);
   await generateConnection();
   await execPitchRaPerInningStart();  // 12
+  outputLogEnd(msg);
+}
+
+/**
+ * 
+ */
+const execDuringGame = async (msg = 'during game') => {
+  outputLogStart(msg);
+  await generateConnection();
+  await execPitchTypeStarter3innings();  // 12
+  await execPitchTypeStarter6innings();  // 12
   outputLogEnd(msg);
 }
 
@@ -77,6 +90,12 @@ schedule(AFTER_GAME_NIGHT, async () => await execAfterGame());
 // 試合開始直後 (土日 デイゲーム)
 schedule(AFTER_GAME_DAY_HOLIDAY, async () => await execAfterGame());
 
+// 試合中 (ナイトゲーム)
+schedule(DURING_GAME_NIGHT, async () => await execDuringGame());
+
+// 試合中 (土日 デイゲーム)
+schedule(DURING_GAME_DAY_HOLIDAY, async () => await execDuringGame());
+
 // 先発投手降板後 (ナイトゲーム)
 schedule(AFTER_LEAVE_MOUND_STARTER_NIGHT, async () => await execAfterLeftMound());
 
@@ -91,11 +110,11 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
   await generateConnection();
 
   // per league
-  await execWeekStand();
-  await execWeekBatTeam();
+  // await execWeekStand();
+  // await execWeekBatTeam();
   await execWeekBatChamp();
-  await execWeekTeamEra();    // 2*2(P,C)
-  await execWeekTeamEraDiv(); // 2*3(total, starter, middle)*2(P,C)
+  // await execWeekTeamEra();    // 2*2(P,C)
+  // await execWeekTeamEraDiv(); // 2*3(total, starter, middle)*2(P,C)
   // NPB
   await execWeekLostOnBase(); // 1
 

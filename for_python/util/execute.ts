@@ -4,9 +4,9 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle, DOW_BAT_NPB_BASE, RC5_BAT_NPB_BASE, RC5_OB_NPB_BASE, RC5_OPS_NPB_BASE } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn, getRank, getAscSortedArray, devideTmpRows, getDescSortedArray } from './display';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN, SC_DTED, SC_DTE, SC_DLOB } from './tweet';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN, SC_DTED, SC_DTE, SC_DLOB, SC_PTS3, SC_PTS6 } from './tweet';
 import { BatterResult } from '../type/jsonType';
-import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame } from './db';
+import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame, isFinishedInningPitchStarterByTeam } from './db';
 import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb, getQueryPitch10TeamNpb, getQueryBatChampNpb, getQueryDayTeamEra, getQueryDayLob } from './query';
 import { getPitcher } from './fs';
 
@@ -391,10 +391,34 @@ export const execPitchStrikeSwMsGame = async (isTweet = true, dayArg = '', strik
 /**
  * 
  */
+export const execPitchTypeStarter3innings = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PTS3) => {
+  
+  const isGetFinished = async (day = '', team = '') => await isFinishedInningPitchStarterByTeam(day, team, 3);
+  await doExecPitchType(isTweet, dayArg, teamArg, leagueArg, scriptName, isGetFinished, 'not finished 3innings starter', ' (3回終了時点)');
+}
+
+/**
+ * 
+ */
+export const execPitchTypeStarter6innings = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PTS6) => {
+  
+  const isGetFinished = async (day = '', team = '') => await isFinishedInningPitchStarterByTeam(day, team, 6);
+  await doExecPitchType(isTweet, dayArg, teamArg, leagueArg, scriptName, isGetFinished, 'not finished 6innings starter', ' (6回終了時点)');
+}
+
+/**
+ * 
+ */
 export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PT) => {
-  interface Result { team: string, pitcher: string, pitch_type: string, pitch_type_cnt: string }
-  interface PitchType { type: string, cnt: number }
-  interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
+
+  const isGetFinished = async (day, team) => await isLeftMoundStarterByTeam(day, team);
+  await doExecPitchType(isTweet, dayArg, teamArg, leagueArg, scriptName, isGetFinished, 'not left mound starter');
+}
+
+/**
+ * 
+ */
+const doExecPitchType = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PT, isGetFinished, logMsg = '', option = '') => {
 
   const day = checkArgDay(dayArg);
   const prevTeams = checkArgTMLG(teamArg, leagueArg);
@@ -404,10 +428,10 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
   if (isTweet) {
     for (const team of prevTeams) {
       const savedTweeted = await findSavedTweeted(scriptName, team);
-      const isLeft = await isLeftMoundStarterByTeam(day, team);
+      const isLeft = await isGetFinished(day, team);
 
       if (savedTweeted || !isLeft) {
-        const cause = savedTweeted ? 'done tweet' : !isLeft ? 'not left mound starter' : 'other';
+        const cause = savedTweeted ? 'done tweet' : !isLeft ? logMsg : 'other';
         console.log(format(MSG_F, day, team, scriptName, cause));
       } else {
         teams.push(team);
@@ -418,6 +442,10 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
   }
 
   if (! teams.length) return;
+
+  interface Result { team: string, pitcher: string, pitch_type: string, pitch_type_cnt: string }
+  interface PitchType { type: string, cnt: number }
+  interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
 
   const manager = await getManager();
   // target day info
@@ -471,7 +499,7 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
     const total = types.reduce((a, x) => a + x.cnt, 0);
     const teamIniEn = getTeamIniEn(team);
 
-    rows.push(format('\n%s\n%s投手 (投球数 %s)\n', teamFullNames[teamIniEn], pitcher, total));
+    rows.push(format('\n%s\n%s投手 (投球数 %s)%s\n', teamFullNames[teamIniEn], pitcher, total, option));
 
     for (const typeUnit of types) {
       const { type, cnt } = typeUnit;

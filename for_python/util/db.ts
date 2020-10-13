@@ -686,7 +686,33 @@ export const isLeftMoundStarterAllGame = async (day): Promise<boolean> => {
 /**
  * 
  */
-export const isLeftMoundStarterByTeam = async (day, team): Promise<boolean> => {
+export const isFinishedInningPitchStarterByTeam = async (day = '', team = '', ip = 0): Promise<boolean> => {
+
+  const manager = await getManager();
+  const results: { is_finished: string }[] = await manager.query(`
+    SELECT 
+      COUNT(sp.name) AS is_finished
+    FROM
+      baseball_2020.debug_stats_pitcher sp
+    WHERE
+      date = '${day}'
+      AND ip >= ${ip}
+      AND sp.order = 1
+      AND p_team = '${team}'
+  `);
+
+  let result = false;
+  if (results && results.length > 0) {
+    const { is_finished } = results[0];
+    result = Boolean(Number(is_finished));
+  }
+  return result;
+}
+
+/**
+ * 
+ */
+export const isLeftMoundStarterByTeam = async (day = '', team = ''): Promise<boolean> => {
 
   const manager = await getManager();
   const results: { is_left: string }[] = await manager.query(`
