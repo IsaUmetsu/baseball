@@ -11,10 +11,9 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
 (async () => {
   await createConnection('default');
 
-  const teamArg = process.env.TM;
-  const oppoArg = process.env.OP;
+  const { TM: teamArg, OP: oppoArg, D: dayArg } = process.env;
 
-  const targetTeam = await checkArgTmOp(teamArg, oppoArg);
+  const targetTeam = await checkArgTmOp(teamArg, oppoArg, dayArg);
 
   if (teamArg && oppoArg) {
     targetTeam.push({ team1: teamArg, team2: oppoArg });

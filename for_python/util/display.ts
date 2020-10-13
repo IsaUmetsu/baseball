@@ -286,7 +286,7 @@ export const checkArgDaySeasonEndSpecify = (day = '', seasonEnd = '', specify = 
 /**
  * 
  */
-export const checkArgTmOp = async (teamArg, oppoArg) => {
+export const checkArgTmOp = async (teamArg = '', oppoArg = '', dayArg = '') => {
 
   const cardsPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s";
   const cardsJsonPath = "/Users/IsamuUmetsu/dev/py_baseball/starter/%s/%s.json";
@@ -296,8 +296,8 @@ export const checkArgTmOp = async (teamArg, oppoArg) => {
   /**
    * 実行日の対戦カード取得
    */
-  const getCards = async targetTeam => {
-    const todayStr = moment().format('YYYYMMDD');
+  const getCards = async (targetTeam: any[], dayArg = '') => {
+    const todayStr = dayArg ? moment(format('2020%s', dayArg)).format('YYYYMMDD') : moment().format('YYYYMMDD');
     const totalGameCnt = await countFiles(format(cardsPath, todayStr));
     for (let gameCnt = 1; gameCnt <= totalGameCnt; gameCnt++) {
       const { away, home } = JSON.parse(getJson(format(cardsJsonPath, todayStr, format('0%s', gameCnt))));
@@ -309,13 +309,13 @@ export const checkArgTmOp = async (teamArg, oppoArg) => {
   if (! teamArg) {
     console.log('TM=[チームイニシャル] の指定がないため実行日の対戦カードについて取得します');
     // 実行日の対戦カード取得
-    if (targetTeam.length == 0) await getCards(targetTeam);
+    if (targetTeam.length == 0) await getCards(targetTeam, dayArg);
   }
 
   if (! oppoArg) {
     console.log('OP=[対戦相手チームイニシャル] の指定がないため実行日の対戦カードについて取得します');
     // 実行日の対戦カード取得
-    if (targetTeam.length == 0) await getCards(targetTeam);
+    if (targetTeam.length == 0) await getCards(targetTeam, dayArg);
   }
 
   return targetTeam;
