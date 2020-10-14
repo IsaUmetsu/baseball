@@ -394,7 +394,8 @@ export const execPitchStrikeSwMsGame = async (isTweet = true, dayArg = '', strik
 export const execPitchTypeStarter3innings = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PTS3) => {
   
   const isGetFinished = async (day = '', team = '') => await isFinishedInningPitchStarterByTeam(day, team, 3);
-  await doExecPitchType(isTweet, dayArg, teamArg, leagueArg, scriptName, isGetFinished, 'not finished 3innings starter', ' (3回終了時点)');
+  const whereIngNum = 'AND ing_num BETWEEN 1 AND 3';
+  await doExecPitchType(isTweet, dayArg, teamArg, leagueArg, scriptName, isGetFinished, 'not finished 3innings starter', ' (3回終了時点)', whereIngNum);
 }
 
 /**
@@ -403,7 +404,8 @@ export const execPitchTypeStarter3innings = async (isTweet = true, dayArg = '', 
 export const execPitchTypeStarter6innings = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PTS6) => {
   
   const isGetFinished = async (day = '', team = '') => await isFinishedInningPitchStarterByTeam(day, team, 6);
-  await doExecPitchType(isTweet, dayArg, teamArg, leagueArg, scriptName, isGetFinished, 'not finished 6innings starter', ' (6回終了時点)');
+  const whereIngNum = 'AND ing_num BETWEEN 1 AND 6';
+  await doExecPitchType(isTweet, dayArg, teamArg, leagueArg, scriptName, isGetFinished, 'not finished 6innings starter', ' (6回終了時点)', whereIngNum);
 }
 
 /**
@@ -418,7 +420,7 @@ export const execPitchType = async (isTweet = true, dayArg = '', teamArg = '', l
 /**
  * 
  */
-const doExecPitchType = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PT, isGetFinished, logMsg = '', option = '') => {
+const doExecPitchType = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PT, isGetFinished, logMsg = '', option = '', whereIngNum = '') => {
 
   const day = checkArgDay(dayArg);
   const prevTeams = checkArgTMLG(teamArg, leagueArg);
@@ -464,6 +466,7 @@ const doExecPitchType = async (isTweet = true, dayArg = '', teamArg = '', league
         date = '${day}'
         AND current_pitcher_order = 1
         AND p_team IN ('${teams.join("' , '")}')
+        ${whereIngNum}
       GROUP BY p_team , current_pitcher_name , pitch_cnt , pitch_type
     ) AS A
     GROUP BY p_team, current_pitcher_name , pitch_type
