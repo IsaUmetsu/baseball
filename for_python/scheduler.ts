@@ -62,14 +62,14 @@ const execAfterGame = async (msg = 'after game') => {
   outputLogStart(msg);
   await generateConnection();
   // per team (only hawks)
-  await execBatRc5Team('H');    // 1
-  await execPitchRc10Team('H'); // 1
+  await execBatRc5Team();    // 12 (1*12)
+  await execPitchRc10Team(); // 12 (1*12)
   // per league
-  await execDayBatTeam();     // 4 (2*2)
-  await execDayTeamEra();     // 4 (2*2)
+  // await execDayBatTeam();     // 4 (2*2)
+  // await execDayTeamEra();     // 4 (2*2)
   // await execDayOfWeekStand();     // 4 (2*2)
   // NPB
-  await execDayLostOnBase();  // 1
+  // await execDayLostOnBase();  // 1
   await execBatRc5Npb();      // 1〜3
   await execOnbaseRc5Npb();   // 1〜3
   await execOpsRc5Npb();      // 1〜3
