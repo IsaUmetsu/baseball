@@ -86,7 +86,7 @@ export const getQueryPitch10TeamNpb = (teams: string[], baseGameCnt = 0) => `
     era = 0.00
     AND ra = 0
     AND game_cnt >= ${baseGameCnt}
-    AND tm = ('${teams.join("', '")}')
+    AND tm IN ('${teams.join("', '")}')
   ORDER BY game_cnt DESC, inning DESC
 `;
 

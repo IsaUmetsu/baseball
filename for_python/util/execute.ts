@@ -285,7 +285,7 @@ export const execPitchRc10Npb = async (isTweet = true, teamArg = '', leagueArg =
   // check tweetable
   if (isTweet) {
     const savedTweeted = await findSavedTweeted(scriptName, 'ALL');
-    const isFinished = await isFinishedGame('ALL', genTweetedDay());
+    const isFinished = await isFinishedAllGame(genTweetedDay());
 
     if (savedTweeted || !isFinished) {
       const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';

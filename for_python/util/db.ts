@@ -480,7 +480,7 @@ export const executeUpdatePlusOutCount = async (fromDate = '', toDate = '') => {
 /**
  * 
  */
-export const isFinishedAllGame = async (day): Promise<boolean> => {
+export const isFinishedAllGame = async (day = ''): Promise<boolean> => {
 
   const manager = await getManager();
   const results: {is_finished: string}[] = await manager.query(`
