@@ -43,6 +43,9 @@ const saveData = async (scene: number, gameInfoId: number, data: OutputJson) => 
   // get all
   const { liveHeader, liveBody, pitchInfo, homeTeamInfo, awayTeamInfo } = data;
 
+  // if nogame, return
+  if (liveHeader.away == undefined) return;
+
   // insert into `live_header`
   const { ballCount, topBtm } = await insertLiveHeader(gameInfoId, scene, liveHeader);
   // insert into `live_body`
