@@ -279,7 +279,7 @@ export const execPitchRc10Team = async (teamArg = '', leagueArg = '', isTweet = 
 /**
  * 
  */
-export const execPitchRc10Npb = async (isTweet = true, teamArg = '', leagueArg = '', baseGameCnt = 3, scriptName = SC_RC10N) => {
+export const execPitchRc10Npb = async (isTweet = true, teamArg = '', leagueArg = '', baseGameCnt = 4, scriptName = SC_RC10N) => {
   const teams = checkArgTMLG(teamArg, leagueArg);
 
   // check tweetable

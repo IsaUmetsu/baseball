@@ -30,7 +30,7 @@ export const getQueryBatRc5Team = team => `
       b_team = '${team}' AND 
       g_id IN (SELECT id FROM game_id_recent_5days WHERE team = '${team}')
     GROUP BY current_batter_name, b_team 
-    HAVING pa >= 2 * 5
+    HAVING pa >= 3.1 * 5
   ) AS base
   LEFT JOIN (
     SELECT 
