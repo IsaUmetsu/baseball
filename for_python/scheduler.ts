@@ -51,7 +51,7 @@ const execAfterLeftMound = async (msg = 'after leave mound') => {
   await execPitchStrikeSwMsGame();  // 2
   // await execPitchGroundFlyStart();  // 2
   await execPitchPerOut();          // 1
-  await execPitchCourse();          // 2*2
+  // await execPitchCourse();          // 2*2
   outputLogEnd(msg);
 }
 
