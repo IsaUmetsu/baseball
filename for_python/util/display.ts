@@ -17,21 +17,22 @@ export const getIsDevide = () => {
  * 
  */
 export const checkArgI = (importArg: string) => {
-  let importGame = false, importPitch = false, importBat = false;
+  let importGame = false, importText = false, importPitch = false, importBat = false;
   if (! importArg) {
-    importGame = true, importPitch = true, importBat = true;
+    importGame = true, importText = true, importPitch = true, importBat = true;
   } else {
     const importTypes = importArg.split('');
     for (let idx in importTypes) {
       const importType = importTypes[idx];
       if (importType == 'G') importGame = true;
+      if (importType == 'T') importText = true;
       if (importType == 'P') importPitch = true;
       if (importType == 'B') importBat = true;
     }
-    if (! (importGame || importPitch || importBat)) console.log('I=[インポート種別(G/P/B)] に誤りがあるためインポートは実行されません');
+    if (! (importGame || importText || importPitch || importBat)) console.log('I=[インポート種別(G/T/P/B)] に誤りがあるためインポートは実行されません');
   }
 
-  return { importGame, importPitch, importBat };
+  return { importGame, importText, importPitch, importBat };
 }
 
 /**

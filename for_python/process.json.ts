@@ -6,7 +6,7 @@ import { OutputJson, TeamInfoJson } from './type/jsonType.d';
 import { insertGameInfo, insertLiveHeader, insertLiveBody, insertPitchInfo, insertAwayTeamInfo, insertHomeTeamInfo, executeUpdatePlusOutCount } from './util/db';
 import { checkGameDir, getJson, countFiles, checkDateDir } from './util/fs';
 import { checkArgDaySeasonEndSpecify, checkArgI } from "./util/display";
-import { savePitchData, saveBatAndScoreData } from "./util/process";
+import { savePitchData, saveBatAndScoreData, saveText } from "./util/process";
 import { teamArray as teams, TOP } from "./constant";
 
 const startGameNo = 1;
@@ -19,7 +19,7 @@ let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE,
 const seasonStart = moment(format("2020%s", targetDay), "YYYYMMDD");
 const seasonEnd = moment(format("2020%s", seasonEndArg), "YYYYMMDD");
 
-const { importGame, importPitch, importBat } = checkArgI(I);
+const { importGame, importText, importPitch, importBat } = checkArgI(I);
 
 const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
 const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
@@ -129,6 +129,7 @@ const saveGame = async () => {
       await executeUpdatePlusOutCount(format("2020%s", targetDay), format("2020%s", seasonEndArg));
     }
 
+    if (importText) await saveText(targetDay, seasonStart, seasonEnd, specifyArg);
     if (importPitch) await savePitchData(targetDay, seasonStart, seasonEnd, specifyArg);
     if (importBat) await saveBatAndScoreData(targetDay, seasonStart, seasonEnd, specifyArg);
   } catch (err) {
