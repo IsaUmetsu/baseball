@@ -1,8 +1,8 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn, BaseEntity } from "typeorm";
 
-@Index("idx_summary_point", ["gameInfoId"], {})
+@Index("idx_summary_point", ["gameInfoId", "inning", "no"], {})
 @Entity("summary_point", { schema: "baseball_2020" })
-export class SummaryPoint {
+export class SummaryPoint extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
 
@@ -14,6 +14,9 @@ export class SummaryPoint {
 
   @Column("varchar", { name: "team", nullable: true, length: 10 })
   team: string | null;
+
+  @Column("varchar", { name: "no", nullable: true, length: 3 })
+  no: string | null;
 
   @Column("varchar", { name: "order", nullable: true, length: 3 })
   order: string | null;
