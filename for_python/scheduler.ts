@@ -117,7 +117,7 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
   // await execWeekTeamEra();    // 2*2(P,C)
   // await execWeekTeamEraDiv(); // 2*3(total, starter, middle)*2(P,C)
   // NPB
-  await execWeekLostOnBase(); // 1
+  // await execWeekLostOnBase(); // 1
 
   outputLogEnd('after game weekend');
 });
