@@ -1879,11 +1879,11 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
       return;
     }
   }
-  
+
   interface TotalResult { team: string, batter: string, rbi_hit: number };
   interface TodayResult { team: string, batter: string, inning: string };
   const manager = await getManager();
-  
+
   const totalResults: TotalResult[] = await manager.query(`
     SELECT 
       tm.team_initial_kana AS team, batter, SUM(is_rbi_hit) AS rbi_hit
