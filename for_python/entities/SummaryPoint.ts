@@ -26,4 +26,7 @@ export class SummaryPoint extends BaseEntity {
 
   @Column("varchar", { name: "detail", nullable: true, length: 100 })
   detail: string | null;
+
+  @Column("tinyint", { name: "is_rbi_hit", nullable: true })
+  isRbiHit: number | null;
 }
