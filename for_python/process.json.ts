@@ -6,7 +6,7 @@ import { OutputJson, TeamInfoJson } from './type/jsonType.d';
 import { insertGameInfo, insertLiveHeader, insertLiveBody, insertPitchInfo, insertAwayTeamInfo, insertHomeTeamInfo, executeUpdatePlusOutCount } from './util/db';
 import { checkGameDir, getJson, countFiles, checkDateDir } from './util/fs';
 import { checkArgDaySeasonEndSpecify, checkArgI } from "./util/display";
-import { savePitchData, saveBatAndScoreData } from "./process_util";
+import { savePitchData, saveBatAndScoreData } from "./util/process";
 import { teamArray as teams, TOP } from "./constant";
 
 const startGameNo = 1;
