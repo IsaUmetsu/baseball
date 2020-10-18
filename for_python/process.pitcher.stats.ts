@@ -3,7 +3,7 @@ import { format } from 'util';
 
 import { checkArgDaySeasonEndSpecify } from "./util/display";
 import { createConnection } from "typeorm";
-import { savePitchData } from "./process_util";
+import { savePitchData } from "./util/process";
 
 const { D, SE, S } = process.env;
 let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
