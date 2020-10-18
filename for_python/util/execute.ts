@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle, DOW_BAT_NPB_BASE, RC5_BAT_NPB_BASE, RC5_OB_NPB_BASE, RC5_OPS_NPB_BASE } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn, getRank, getAscSortedArray, devideTmpRows, getDescSortedArray } from './display';
-import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN, SC_DTED, SC_DTE, SC_DLOB, SC_PTS3, SC_PTS6 } from './tweet';
+import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN, SC_DTED, SC_DTE, SC_DLOB, SC_PTS3, SC_PTS6, SC_DRH } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame, isFinishedInningPitchStarterByTeam } from './db';
 import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb, getQueryPitch10TeamNpb, getQueryBatChampNpb, getQueryDayTeamEra, getQueryDayLob } from './query';
@@ -1855,6 +1855,82 @@ const execLostOnBase = async (isTweet = true, day = '', dateClause = '', periodC
   if (isTweet) {
     await tweetMulti(title, rows);
     await saveTweeted(scriptName, 'ALL', genTweetedDay());
+  } else {
+    displayResult(title, rows);
+  }
+}
+
+/**
+ * 
+ */
+export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_DRH) => {
+  const prevTeams = checkArgTMLG(teamArg, leagueArg);
+  const day = checkArgDay(dayArg);
+  const prevDay = moment(day, 'YYYYMMDD').add(-1, 'days').format('YYYYMMDD');
+
+  // check tweetable
+  if (isTweet) {
+    const savedTweeted = await findSavedTweeted(scriptName, 'ALL');
+    const isFinished = await isFinishedAllGame(day);
+
+    if (savedTweeted || !isFinished) {
+      const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not finished game' : 'other';
+      console.log(format(MSG_F, day, 'ALL', scriptName, cause));
+      return;
+    }
+  }
+  
+  interface TotalResult { team: string, batter: string, rbi_hit: number };
+  interface TodayResult { team: string, batter: string, inning: string };
+  const manager = await getManager();
+  
+  const totalResults: TotalResult[] = await manager.query(`
+    SELECT 
+      tm.team_initial_kana AS team, batter, SUM(is_rbi_hit) AS rbi_hit
+    FROM
+        baseball_2020.summary_point sp
+    LEFT JOIN game_info gi ON sp.game_info_id = gi.id
+    LEFT JOIN team_master tm ON sp.team = tm.team_name
+    WHERE
+        is_rbi_hit = 1 AND
+        (gi.date BETWEEN 20200619 AND ${prevDay})
+    GROUP BY tm.team_initial_kana, batter
+    ORDER BY rbi_hit DESC
+  `);
+
+  const todayResults: TodayResult[] = await manager.query(`
+    SELECT 
+        inning, tm.team_initial_kana AS team, batter
+    FROM
+        baseball_2020.summary_point sp
+    LEFT JOIN game_info gi ON sp.game_info_id = gi.id
+    LEFT JOIN team_master tm ON sp.team = tm.team_name
+    WHERE
+        is_rbi_hit = 1 AND
+        gi.date = ${day}
+  `);
+
+  const title = format('%s 本日のタイムリーヒット\n', moment(day, 'YYYYMMDD').format('M/D'));
+  const rows = [];
+  for (const todayResult of todayResults) {
+    const totalResult = totalResults.find(({ batter, team }) => batter == todayResult.batter && team == todayResult.team);    
+    const totalRbiHit = totalResult ? Number(totalResult.rbi_hit) : 0;
+
+    const { inning, team, batter } = todayResult;
+    rows.push(format('\n%s(%s)  %s本目 (%s)', batter, team, totalRbiHit + 1, inning));
+
+    if (totalResult) {
+      const idx = totalResults.indexOf(totalResult);
+      totalResults[idx].rbi_hit = totalRbiHit + 1;
+    } else {
+      totalResults.push({ team, batter, rbi_hit: 1 });
+    }
+  }
+
+  if (isTweet) {
+    await tweetMulti(title, rows);
+    await saveTweeted(scriptName, 'ALL', day);
+    console.log(format(MSG_S, day, 'ALL', scriptName));
   } else {
     displayResult(title, rows);
   }

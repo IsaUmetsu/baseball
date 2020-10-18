@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 import * as moment from 'moment';
 
-import { execMonthStand, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execPitchCourse, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb, execDayOfWeekBatChampNpb, execDayTeamEra, execDayLostOnBase, execWeekLostOnBase, execMonthLostOnBase, execPitchTypeStarter3innings, execPitchTypeStarter6innings } from './util/execute';
+import { execMonthStand, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execPitchCourse, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb, execDayOfWeekBatChampNpb, execDayTeamEra, execDayLostOnBase, execWeekLostOnBase, execMonthLostOnBase, execPitchTypeStarter3innings, execPitchTypeStarter6innings, execDayRbiHit } from './util/execute';
 import { generateConnection } from './util/db';
 import { outputLogStart, outputLogEnd } from './util/tweet';
 
@@ -62,8 +62,9 @@ const execAfterGame = async (msg = 'after game') => {
   outputLogStart(msg);
   await generateConnection();
   // per team (only hawks)
-  await execBatRc5Team();    // 12 (1*12)
-  await execPitchRc10Team(); // 12 (1*12)
+  await execBatRc5Team();     // 12 (1*12)
+  await execPitchRc10Team();  // 12 (1*12)
+  await execDayRbiHit();      // 1~4
   // per league
   // await execDayBatTeam();     // 4 (2*2)
   // await execDayTeamEra();     // 4 (2*2)

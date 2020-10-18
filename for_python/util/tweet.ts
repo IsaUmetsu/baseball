@@ -23,6 +23,7 @@ export const SC_DS= 'day_of_week_stand';
 export const SC_DTE = 'day_team_era';
 export const SC_DTED = 'day_team_era_div';
 export const SC_DLOB = 'day_left_on_base';
+export const SC_DRH = 'day_rbi_hit';
 export const SC_PT = 'pitch_type';
 export const SC_PTS3 = 'pitch_type_starter_3';
 export const SC_PTS6 = 'pitch_type_starter_6';
