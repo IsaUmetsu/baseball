@@ -1886,7 +1886,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
 
   const totalResults: TotalResult[] = await manager.query(`
     SELECT 
-      tm.team_initial_kana AS team, batter, SUM(is_rbi_hit) AS rbi_hit
+      tm.team_initial_kana AS team, replace(batter, ' ', '') AS batter, SUM(is_rbi_hit) AS rbi_hit
     FROM
         baseball_2020.summary_point sp
     LEFT JOIN game_info gi ON sp.game_info_id = gi.id
@@ -1900,7 +1900,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
 
   const todayResults: TodayResult[] = await manager.query(`
     SELECT 
-        inning, tm.team_initial_kana AS team, batter
+        inning, tm.team_initial_kana AS team, replace(batter, ' ', '') AS batter
     FROM
         baseball_2020.summary_point sp
     LEFT JOIN game_info gi ON sp.game_info_id = gi.id
