@@ -32,6 +32,7 @@
     "day:team:era": "PR=D ts-node for_python/query/team_era.ts",
     "day:lob": "PR=D ts-node for_python/query/left_on_base.ts",
     "day:rbi:hit": "PR=D ts-node for_python/query/rbi_hit.ts",
+    "day:rbi:hit:tw": "PR=D ts-node for_python/query/rbi_hit.ts -t",
     "dow:stand": "PR=D ts-node for_python/query/team_standings.ts",
     "dow:stand:tw": "PR=D ts-node for_python/query/team_standings.ts -t",
     "dow:bat:champ": "PR=DO ts-node for_python/query/bat_champion.ts",
