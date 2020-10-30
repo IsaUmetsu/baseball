@@ -1881,7 +1881,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
   }
 
   interface TotalResult { team: string, batter: string, rbi_hit: number };
-  interface TodayResult { team: string, batter: string, inning: string };
+  interface TodayResult { team: string, batter: string, inning: string, is_first: boolean, is_tie: boolean, is_win: boolean, is_reversal: boolean };
   const manager = await getManager();
 
   const totalResults: TotalResult[] = await manager.query(`
@@ -1900,7 +1900,13 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
 
   const todayResults: TodayResult[] = await manager.query(`
     SELECT 
-        inning, tm.team_initial_kana AS team, replace(batter, ' ', '') AS batter
+        inning,
+        tm.team_initial_kana AS team,
+        replace(batter, ' ', '') AS batter,
+        is_first,
+        is_tie,
+        is_win,
+        is_reversal
     FROM
         baseball_2020.summary_point sp
     LEFT JOIN game_info gi ON sp.game_info_id = gi.id
@@ -1911,13 +1917,28 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
   `);
 
   const title = format('%s 本日のタイムリーヒット\n', moment(day, 'YYYYMMDD').format('M/D'));
-  const rows = [];
+  const rows: string[] = [];
   for (const todayResult of todayResults) {
     const totalResult = totalResults.find(({ batter, team }) => batter == todayResult.batter && team == todayResult.team);    
     const totalRbiHit = totalResult ? Number(totalResult.rbi_hit) : 0;
 
-    const { inning, team, batter } = todayResult;
-    rows.push(format('\n%s(%s)  %s本目 (%s)', batter, team, totalRbiHit + 1, inning));
+    const { inning, team, batter, is_first, is_tie, is_win, is_reversal } = todayResult;
+
+    let flag = '';
+    if (is_first) flag = ' 先制';
+    if (is_tie) flag = ' 同点';
+    if (is_win) flag = ' 勝ち越し';
+    if (is_reversal) flag = ' 逆転';
+
+    const batterPart = format('%s(%s)', batter, team);
+    const rbiPart = format('%s本目 (%s%s)', totalRbiHit + 1, inning, flag);
+
+    const dupRow = rows.find(row => row.indexOf(batterPart) > -1);
+    if (dupRow) {
+      rows[rows.indexOf(dupRow)] = format('%s、%s', dupRow, rbiPart);
+    } else {
+      rows.push(format('\n%s  %s', batterPart, rbiPart));
+    }
 
     if (totalResult) {
       const idx = totalResults.indexOf(totalResult);
