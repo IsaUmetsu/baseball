@@ -312,7 +312,7 @@ interface ResultText {
 /**
  * 
  */
-const doSaveRecord = async (record: SummaryPoint, gameInfoId: number, json: ResultText) => {
+const doSaveTextRecord = async (record: SummaryPoint, gameInfoId: number, json: ResultText) => {
 
   record.gameInfoId = gameInfoId;
   record.inning = json.inning;
@@ -329,7 +329,7 @@ const doSaveRecord = async (record: SummaryPoint, gameInfoId: number, json: Resu
 /**
  * 
  */
-const doSave = async (gameNo: string, dateStr: string) => {
+const doSaveText = async (gameNo: string, dateStr: string) => {
   // define game no
   const targetGameNo = format("0%d", gameNo);
   // 日付・ゲーム番号ディレクトリがない場合スキップ
@@ -346,7 +346,7 @@ const doSave = async (gameNo: string, dateStr: string) => {
   for (const json of jsonArray) {
     const { inning, no } = json;
     const savedSummaryPoint = await getRepository(SummaryPoint).findOne({ gameInfoId, inning, no: no.replace(/：/g, '') });  
-    await doSaveRecord(savedSummaryPoint ?? new SummaryPoint(), gameInfoId, json);
+    await doSaveTextRecord(savedSummaryPoint ?? new SummaryPoint(), gameInfoId, json);
   }
 
   console.log(format('----- [text] finished: date: [%s], gameNo: [%s] %s-----', dateStr, targetGameNo, isFinished ? '' : 'but not complete because not complete game '));
@@ -366,10 +366,10 @@ export const saveText = async (targetDay, seasonStart, seasonEnd, specifyArg) =>
     if (! existDateDir) { day.add(1, "days"); continue; }
 
     if (specifyArg) {
-      await doSave(format("0%d", Number(specifyArg)), dateStr);
+      await doSaveText(format("0%d", Number(specifyArg)), dateStr);
     } else {
       for (let gameNo = startGameNo; gameNo <= endGameNo; gameNo++) {
-        await doSave(format("0%d", gameNo), dateStr);
+        await doSaveText(format("0%d", gameNo), dateStr);
       }
     }
     day.add(1, "days");
