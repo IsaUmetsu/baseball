@@ -37,6 +37,9 @@ export class SummaryPoint extends BaseEntity {
   @Column("tinyint", { name: "is_tie", nullable: true })
   isTie: number | null;
 
+  @Column("tinyint", { name: "is_win", nullable: true })
+  isWin: number | null;
+
   @Column("tinyint", { name: "is_reversal", nullable: true })
   isReversal: number | null;
 }
