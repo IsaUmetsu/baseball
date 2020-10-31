@@ -59,6 +59,7 @@
     "month:team:era:div:tw": "PR=M ts-node for_python/query/team_era.ts -d -t",
     "month:lob": "PR=M ts-node for_python/query/left_on_base.ts",
     "month:bat:title": "T=B ts-node for_python/query/month_title_holder.ts",
+    "month:pitch:title": "T=P ts-node for_python/query/month_title_holder.ts",
     "month:title": "ts-node for_python/query/month_title_holder.ts",
     "ob:rc5:all": "K=ob T=all ts-node for_python/query/recent_5days.ts",
     "ob:rc5:all:tw": "K=ob T=all ts-node for_python/query/recent_5days.ts -t",
