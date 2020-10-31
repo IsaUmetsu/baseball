@@ -1142,9 +1142,9 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
     const createInnerRow = results => {
       let innerRow = '';
       for (const { tm, batter } of results) {
-        innerRow += format('%s%s\n', batter, team ? '' : format('(%s)', tm));
+        innerRow += format('%s%s、', batter, team ? '' : format('(%s)', tm));
       }
-      return innerRow;
+      return innerRow.slice(0, -1);
     }
 
     /**
@@ -1176,27 +1176,27 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
 
     // average
     const { bestScore: bestAve, innerRow: innerRowAve } = dispBestRatePlayer('average', regResults);
-    rows.push(format('\n◆首位打者  %s\n%s', trimRateZero(bestAve), innerRowAve));
+    rows.push(format('\n首位打者  %s  %s', trimRateZero(bestAve), innerRowAve));
 
     // hit
     const { bestScore: bestHit, innerRow: innerRowHit } = dispBestPlayer('hit', regResults);
-    rows.push(format('\n◆最多安打  %s安打\n%s', bestHit, innerRowHit));
+    rows.push(format('\n最多安打  %s安打  %s', bestHit, innerRowHit));
 
     // hr
     const { bestScore: bestHr, innerRow: innerRowHr } = dispBestPlayer('hr', regResults);
-    rows.push(format('\n◆最多本塁打  %s本塁打\n%s', bestHr, innerRowHr));
+    rows.push(format('\n最多本塁打  %s本塁打  %s', bestHr, innerRowHr));
 
     // hr
     const { bestScore: bestRbi, innerRow: innerRowRbi } = dispBestPlayer('rbi', regResults);
-    rows.push(format('\n◆最多打点  %s打点\n%s', bestRbi, innerRowRbi));
+    rows.push(format('\n最多打点  %s打点  %s', bestRbi, innerRowRbi));
 
     // onbase
     const { bestScore: bestAveOnbase, innerRow: innerRowAveOnbase } = dispBestRatePlayer('average_onbase', regResults);
-    rows.push(format('\n◆最高出塁率  %s\n%s', trimRateZero(bestAveOnbase), innerRowAveOnbase));
+    rows.push(format('\n最高出塁率  %s  %s', trimRateZero(bestAveOnbase), innerRowAveOnbase));
 
     // sb
     const { bestScore: bestSb, innerRow: innerRowSb } = dispBestPlayer('sb', results);
-    rows.push(format('\n◆最多盗塁  %s\n%s', bestSb, innerRowSb));
+    rows.push(format('\n最多盗塁  %s  %s', bestSb, innerRowSb));
 
     // add hashtags
     if (team) rows.push(format('\n%s', teamHashTags[team]));
@@ -1338,9 +1338,9 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
       innerRowWinRate += format('%s%s\n', pitcher, team ? '' : format('(%s)', tm));
     }
     if (innerRowWinRate) {
-      rows.push(format('\n◆最高勝率  %s (月間3勝以上)\n%s', trimRateZero(bestRate), innerRowWinRate));
+      rows.push(format('\n◆最高勝率(月間3勝以上)  %s\n%s', trimRateZero(bestRate), innerRowWinRate));
     } else {
-      rows.push('\n◆最高勝率  (月間3勝以上)\n該当者なし\n');
+      rows.push('\n◆最高勝率(月間3勝以上)\n該当者なし\n');
     }
 
     // win
@@ -1353,7 +1353,7 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
 
     // hp
     const { bestScore: bestHp, innerRow: innerRowHp } = dispBestPlayer('hp');
-    rows.push(format('\n◆最優秀中継ぎ  %sホールドポイント\n%s', bestHp, innerRowHp));
+    rows.push(format('\n◆最優秀中継ぎ  %sHP\n%s', bestHp, innerRowHp));
 
     // strike out
     const { bestScore: bestSo, innerRow: innerRowSo } = dispBestPlayer('so');
