@@ -321,11 +321,18 @@ const doSaveTextRecord = async (record: SummaryPoint, gameInfoId: number, json: 
   record.order = json.order.replace(/番/g, '');
   record.batter = json.batter;
   record.detail = json.detail;
-  record.isRbiHit = Number(json.detail.indexOf('タイムリー') > -1);
+  record.isRbiHit = Number(
+    json.detail.indexOf('タイムリー') > -1 ||
+    json.detail.indexOf('サヨナラヒット') > -1 ||
+    json.detail.indexOf('サヨナラツーベース') > -1 ||
+    json.detail.indexOf('サヨナラスリーベース') > -1
+  );
   record.isFirst = Number(json.detail.indexOf('先制') > -1);
   record.isTie = Number(json.detail.indexOf('同点') > -1);
   record.isWin = Number(json.detail.indexOf('勝ち越し') > -1);
   record.isReversal = Number(json.detail.indexOf('逆転') > -1);
+  record.isWalkoff = Number(json.detail.indexOf('サヨナラ') > -1);
+  record.isHr = Number(json.detail.indexOf('ホームラン') > -1);
 
   await record.save();
 }

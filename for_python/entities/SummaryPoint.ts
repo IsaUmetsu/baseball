@@ -42,4 +42,10 @@ export class SummaryPoint extends BaseEntity {
 
   @Column("tinyint", { name: "is_reversal", nullable: true })
   isReversal: number | null;
+
+  @Column("tinyint", { name: "is_walkoff", nullable: true })
+  isWalkoff: number | null;
+
+  @Column("tinyint", { name: "is_hr", nullable: true })
+  isHr: number | null;
 }
