@@ -4,22 +4,20 @@ import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, PT_STARTER, pitcherTypeArgArr } from '../constant';
 import { checkArgTmOp, displayResult } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
+import { getQueryOppoEra, getQueryOppoEraForPicture } from '../util/query';
 
 /**
  * 対戦チームにおける先発・中継ぎ陣の防御率
  */
 (async () => {
   await createConnection('default');
-
-  const { TM: teamArg, OP: oppoArg, D: dayArg } = process.env;
+  const { TM: teamArg, OP: oppoArg, D: dayArg, P: pitcherTypeArg } = process.env;
 
   const targetTeam = await checkArgTmOp(teamArg, oppoArg, dayArg);
-
   if (teamArg && oppoArg) {
     targetTeam.push({ team1: teamArg, team2: oppoArg });
   }
 
-  const pitcherTypeArg = process.env.P;
   let pitcherType = 0;
   if (! pitcherTypeArg) {
     console.log('P=[投手種別 ST(先発)/RV(中継ぎ)] の指定がないため先発・中継ぎを合わせた内容ついて取得します');
@@ -29,6 +27,8 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
   } else {
     pitcherType = pitcherTypeArgArr[pitcherTypeArg];
   }
+
+  const queries = [];
 
   /**
    * 実行メイン関数
@@ -46,44 +46,10 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
       return;
     }
 
+    queries.push(getQueryOppoEraForPicture(team, oppo));
+
     const manager = await getManager();
-    const results = await manager.query(`
-      SELECT 
-        p_team,
-          COUNT(result = '勝' OR NULL) AS win,
-          COUNT(result = '敗' OR NULL) AS lose,
-          ROUND(SUM(er) * 27 / SUM(outs), 2) AS era,
-          CONCAT(
-          SUM(outs) DIV 3,
-          CASE
-            WHEN SUM(outs) MOD 3 > 0 THEN CONCAT('.', SUM(outs) MOD 3)
-            ELSE ''
-          END
-        ) AS inning,
-        SUM(np) AS np,
-          SUM(bf) AS bf,
-          SUM(so) AS so,
-        SUM(ha) AS ha,
-          SUM(hra) AS hra,
-          SUM(bb) AS bb,
-          SUM(ra) AS ra,
-          SUM(er) AS er
-      FROM
-          baseball_2020.stats_pitcher sp
-      WHERE
-        ${pitcherType ? `sp.order ${pitcherType == PT_STARTER ? '=' : '>'} 1 AND ` : ``}
-        game_info_id IN (
-        SELECT 
-          id
-        FROM
-          baseball_2020.game_info
-        WHERE
-          (away_team_initial = '${team}' AND home_team_initial = '${oppo}') OR 
-          (home_team_initial = '${team}' AND away_team_initial = '${oppo}')
-        )
-      GROUP BY
-        p_team
-    `);
+    const results = await manager.query(getQueryOppoEra(pitcherType, team, oppo));
 
     const pitcherTypeClause = pitcherType ? pitcherType == PT_STARTER ? '先発 ': '中継ぎ ' : '';
     const title = format('%s vs %s\n%s投球内容\n', teamNames[teamArg], teamNames[oppoArg], pitcherTypeClause);
@@ -109,4 +75,6 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
   for (const { team1, team2 } of targetTeam) {
     await execute(team1, team2);
   }
+
+  console.log(queries.join('\nUNION\n'));
 })();
