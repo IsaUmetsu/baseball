@@ -46,6 +46,7 @@ import { getQueryOppoEra, getQueryOppoEraForPicture } from '../util/query';
       return;
     }
 
+    // TODO: クエリ表示をどうするか
     queries.push(getQueryOppoEraForPicture(team, oppo));
 
     const manager = await getManager();

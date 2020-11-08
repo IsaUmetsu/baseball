@@ -1555,7 +1555,10 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
     }
 
     if (intPart + 1 < 10) rows.push(format("\n(%s回以降未登板)", intPart + 1));
-    rows.push(format("\n\n直近3登板平均\n投球回 %s\n投球数 %s", ave_inning, ave_np));
+    // null時を除外
+    if (ave_inning != null && ave_np != null) {
+      rows.push(format("\n\n直近3登板平均\n投球回 %s\n投球数 %s", ave_inning, ave_np));
+    }
 
     const footer = format("\n\n%s\n%s", teamHashTags[targetTeam], oppoTeam ? teamHashTags[oppoTeam] : '');
 
