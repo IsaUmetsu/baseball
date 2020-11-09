@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle, DOW_BAT_NPB_BASE, RC5_BAT_NPB_BASE, RC5_OB_NPB_BASE, RC5_OPS_NPB_BASE } from '../constant';
-import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn, getRank, getAscSortedArray, devideTmpRows, getDescSortedArray } from './display';
+import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn, getRank, getAscSortedArray, devideTmpRows, getDescSortedArray, checkArgTitleM } from './display';
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN, SC_DTED, SC_DTE, SC_DLOB, SC_PTS3, SC_PTS6, SC_DRH } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame, isFinishedInningPitchStarterByTeam } from './db';
@@ -1044,7 +1044,7 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
 export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg = '', monthArg = '', scriptName = format('%s_%s', SC_MT, 'pitch')) => {
   let team = teamArg, league = leagueArg, teamsArray = [];
   const prevTeamsArray = checkArgTMLGForTweet(teamArg, leagueArg);
-  const { month, firstDay, lastDay } = checkArgM(monthArg);
+  const { month, firstDay, lastDay } = checkArgTitleM(monthArg);
 
   // check tweetable
   if (isTweet) {
@@ -1171,7 +1171,15 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
       return { bestScore, innerRow: createInnerRow(resultsBestScore) };
     }
 
-    const title = format("%s %s月 %s打撃タイトル\n", getTeamTitle(league, teams, team), month, team ? 'チーム内' : '');
+    let displayMonth = '';
+    if (month == 8 || month == 9) {
+      displayMonth = String(month);
+    } else {
+      if (month == 6 || month == 7) displayMonth = '6、7'
+      if (month == 10 || month == 11) displayMonth = '10、11'
+    }
+
+    const title = format("%s %s月 %s打撃タイトル\n", getTeamTitle(league, teams, team), displayMonth, team ? 'チーム内' : '');
     const rows = [];
 
     // average
@@ -1240,7 +1248,7 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
 
   if (! teamsArray.length) return;
 
-  const { month } = checkArgM(monthArg);
+  const { month, firstDay, lastDay, month2 } = checkArgTitleM(monthArg);
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1259,15 +1267,16 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
         LEFT JOIN (
           SELECT
             team_initial_kana,
-            game_cnt AS team_game_cnt
+            SUM(game_cnt) AS team_game_cnt
           FROM
             baseball_2020.game_cnt_per_month
           WHERE
-            month = ${month}
+            month = ${month} ${month2 > 0 ? `OR month = ${month2}` : `` }
+          GROUP BY team_initial_kana
         ) game ON sp.p_team = game.team_initial_kana
       WHERE
         sp.order = 1
-        AND DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${month}
+        AND (gi.date BETWEEN '${firstDay}' AND '${lastDay}')
         AND p_team IN ('${teams.join("', '")}')
       GROUP BY name, p_team, team_game_cnt
       HAVING inning_int >= game.team_game_cnt
@@ -1292,7 +1301,7 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
         baseball_2020.stats_pitcher sp
         LEFT JOIN game_info gi ON gi.id = sp.game_info_id
       WHERE
-        DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${month}
+        (gi.date BETWEEN '${firstDay}' AND '${lastDay}')
         AND p_team IN ('${teams.join("', '")}')
       GROUP BY name, p_team
     `);
@@ -1313,7 +1322,15 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
       return { bestScore, innerRow };
     }
 
-    const title = format("%s %s月 %s投手タイトル\n", getTeamTitle(league, teams, team), month, team ? 'チーム内' : '');
+    let displayMonth = '';
+    if (month == 8 || month == 9) {
+      displayMonth = String(month);
+    } else {
+      if (month == 6 || month == 7) displayMonth = '6、7'
+      if (month == 10 || month == 11) displayMonth = '10、11'
+    }
+
+    const title = format("%s %s月 %s投手タイトル\n", getTeamTitle(league, teams, team), displayMonth, team ? 'チーム内' : '');
     const rows = [];
 
     // era

@@ -167,6 +167,51 @@ export const checkArgM = (monthArg: string) => {
 }
 
 /**
+ * 月間タイトル用 引数(月)判定
+ */
+export const checkArgTitleM = (monthArg: string) => {
+  let month = Number(monthArg);
+
+  if (! monthArg) {
+    month = Number(moment().format('M'));
+    console.log(format('M=[月] を指定がないため今月(%d月)のデータを出力します', month));
+  } else if (month < 6 || 12 < month) {
+    console.log('M=[月] は6〜12月の間で入力してください');
+    month = 0;
+  }
+  
+  const fmYYYYM = format("2020%d", month);
+  let firstDay = moment(fmYYYYM, "YYYYM").startOf('month').format('YYYYMMDD');
+  let lastDay = moment(fmYYYYM, "YYYYM").endOf('month').format('YYYYMMDD');
+
+  let month2 = 0;
+
+  // case when month = 6 then lastDay = 7/31
+  if (month == 6) {
+    lastDay = moment(format("2020%d", month + 1), "YYYYM").endOf('month').format('YYYYMMDD');
+    month2 = 7;
+  }
+  // case when month = 7 then first = 6/19
+  if (month == 7) {
+    firstDay = '20200619';
+    month2 = 6;
+  }
+
+  // case when month = 10 then lastDay = 11/9
+  if (month == 10) {
+    lastDay = '20201109';
+    month2 = 11;
+  }
+  // case when month = 11 then first = 10/1
+  if (month == 11) {
+    firstDay = moment(format("2020%d", month - 1), "YYYYM").startOf('month').format('YYYYMMDD');
+    month2 = 10;
+  }
+
+  return { month, firstDay, lastDay, month2 }
+}
+
+/**
  * 
  */
 export const checkArgTargetDayOfWeek = (dayArg: string) => {
