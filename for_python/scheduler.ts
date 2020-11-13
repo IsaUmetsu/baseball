@@ -61,21 +61,25 @@ const execAfterLeftMound = async (msg = 'after leave mound') => {
 const execAfterGame = async (msg = 'after game') => {
   outputLogStart(msg);
   await generateConnection();
+
   // per team (only hawks)
-  await execBatRc5Team();     // 12 (1*12)
-  await execPitchRc10Team();  // 12 (1*12)
-  await execDayRbiHit();      // 1~4
+  // await execBatRc5Team();     // 12 (1*12)
+  // await execPitchRc10Team();  // 12 (1*12)
+  // await execDayRbiHit();      // 1~4
+
   // per league
   // await execDayBatTeam();     // 4 (2*2)
   // await execDayTeamEra();     // 4 (2*2)
   // await execDayOfWeekStand();     // 4 (2*2)
+
   // NPB
   // await execDayLostOnBase();  // 1
-  await execBatRc5Npb();      // 1〜3
-  await execOnbaseRc5Npb();   // 1〜3
-  await execOpsRc5Npb();      // 1〜3
-  await execPitchRc10Npb();   // 1〜4
-  await execDayOfWeekBatChampNpb();  // 1〜3
+  // await execBatRc5Npb();      // 1〜3
+  // await execOnbaseRc5Npb();   // 1〜3
+  // await execOpsRc5Npb();      // 1〜3
+  // await execPitchRc10Npb();   // 1〜4
+  // await execDayOfWeekBatChampNpb();  // 1〜3
+
   outputLogEnd(msg);
 }
 
@@ -113,9 +117,10 @@ schedule('*/15 16-18,21-23 * 9-11 0', async () => {
   // per league
   // await execWeekStand();
   // await execWeekBatTeam();
-  await execWeekBatChamp();
+  // await execWeekBatChamp();
   // await execWeekTeamEra();    // 2*2(P,C)
   // await execWeekTeamEraDiv(); // 2*3(total, starter, middle)*2(P,C)
+
   // NPB
   // await execWeekLostOnBase(); // 1
 
