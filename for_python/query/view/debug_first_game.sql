@@ -205,5 +205,6 @@ FROM
         LEFT JOIN
     baseball_2020.stats_scoreboard ss_b ON ss_t.game_info_id = ss_b.game_info_id
         AND ss_t.id = ss_b.id - 1
+        left join game_info gi on gi.id = ss_t.game_info_id
 WHERE
-    ss_b.id IS NOT NULL;
+    ss_b.id IS NOT NULL AND gi.is_cs = 0 and gi.is_js = 0;
