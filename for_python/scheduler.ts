@@ -1,7 +1,7 @@
 import { schedule } from 'node-cron';
 
 import { generateConnection } from './util/db';
-import { execAfterGame, execAfterGameMonthEnd, execAfterGameMonthMiddle, execAfterGameSunday, execAfterLeftMound, execBeforeGame, execDuringGame } from './util/scheduler';
+import { execAfterGame, execAfterGameMonthEnd, execAfterGameMonthMiddle, execAfterGameSunday, execAfterLeftMound, execBeforeGame, execDuringGame, execTest } from './util/scheduler';
 
 const BEFORE_GAME_NIGHT       = '5,35 17-18 * 9-11 *';
 const BEFORE_GAME_DAY_HOLIDAY = '5,35 13-16 * 9-11 0,6';
@@ -12,11 +12,8 @@ const AFTER_LEAVE_MOUND_STARTER_DAY_HOLIDAY = '4,19,34,49 13-17 * 9-11 0,6';
 const DURING_GAME_NIGHT       = '7,22,37,52 18-21 * 9-11 *';
 const DURING_GAME_DAY_HOLIDAY = '7,22,37,52 13-17 * 9-11 0,6';
 
-(async () => {
-  await generateConnection();
-  // await execDayRbiHitJs();      // 1~4
-  // await execBatRc5TeamJs('H', '', false);
-})();
+// for test
+(async () => await execTest())();
 
 // 試合開始直後 (ナイトゲーム)
 schedule(BEFORE_GAME_NIGHT, async () => await execBeforeGame());

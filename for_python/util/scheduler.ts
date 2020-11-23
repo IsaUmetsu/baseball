@@ -13,11 +13,12 @@ const AFTER_LEAVE_MOUND_STARTER_DAY_HOLIDAY = '4,19,34,49 13-17 * 9-11 0,6';
 const DURING_GAME_NIGHT       = '7,22,37,52 18-21 * 9-11 *';
 const DURING_GAME_DAY_HOLIDAY = '7,22,37,52 13-17 * 9-11 0,6';
 
-(async () => {
-  await generateConnection();
-  // await execDayRbiHitJs();      // 1~4
-  // await execBatRc5TeamJs('H', '', false);
-})();
+/**
+ * 
+ */
+export const execTest = async () => {
+  // await generateConnection();
+}
 
 /**
  * 
