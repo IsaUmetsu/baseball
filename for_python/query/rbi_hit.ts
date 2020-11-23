@@ -1,7 +1,7 @@
 
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execDayRbiHit } from "../util/execute";
+import { execDayRbiHit, execDayRbiHitJs } from "../util/execute";
 
 // Execute
 (async () => {
@@ -9,4 +9,5 @@ import { execDayRbiHit } from "../util/execute";
 
   const { TM, LG, D, PR } = process.env;
   if (PR == 'D') await execDayRbiHit(getIsTweet(), D, TM, LG);
+  if (PR == 'J') await execDayRbiHitJs(getIsTweet(), D, TM, LG);
 })();

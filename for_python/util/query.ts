@@ -52,6 +52,70 @@ export const getQueryBatRc5Team = team => `
 /**
  * 
  */
+export const getQueryBatRc5TeamJs = team => `
+  SELECT
+    base.batter,
+    base.pa,
+    base.bat,
+    base.hit,
+    base.average,
+    other.hr,
+    other.rbi
+  FROM (
+    SELECT
+      REPLACE(current_batter_name, ' ', '') AS batter,
+      SUM(is_pa) AS pa,
+      base.b_team,
+      SUM(is_ab) AS bat,
+      SUM(is_hit) AS hit,
+      SUM(is_onbase) AS onbase,
+      ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average,
+      ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase,
+      gm.game_cnt,
+      '' AS eol
+    FROM
+      baseball_2020.debug_base base
+    -- 月間試合数 算出
+    LEFT JOIN (
+      SELECT 
+        b_team, COUNT(date) AS game_cnt
+      FROM
+        (SELECT DISTINCT
+          b_team, date
+        FROM
+          debug_base
+        WHERE
+          date BETWEEN 20201121 AND 20201129 AND
+          CHAR_LENGTH(b_team) > 0) AS game_cnt_base
+      GROUP BY b_team
+    ) gm ON base.b_team = gm.b_team
+    WHERE
+      is_pa = 1 AND
+      base.b_team = '${team}' AND 
+      date BETWEEN 20201121 AND 20201129
+    GROUP BY current_batter_name, base.b_team, gm.game_cnt 
+    HAVING pa >= 3.1 * gm.game_cnt
+  ) AS base
+  LEFT JOIN (
+    SELECT 
+      b_team,
+      name,
+      REPLACE(name, ' ', '') AS batter,
+      SUM(rbi) AS rbi,
+      SUM(hr) AS hr
+    FROM
+      baseball_2020.debug_stats_batter
+    WHERE
+      b_team = '${team}' AND
+      date BETWEEN 20201121 AND 20201129
+    GROUP BY name, b_team
+  ) AS other ON base.batter = other.batter AND base.b_team = other.b_team
+  ORDER BY average DESC
+`;
+
+/**
+ * 
+ */
 export const getQueryBatRc5Npb = (teams, sort, order, base) => `
   SELECT 
     *

@@ -7,7 +7,7 @@ import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTar
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN, SC_DTED, SC_DTE, SC_DLOB, SC_PTS3, SC_PTS6, SC_DRH } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame, isFinishedInningPitchStarterByTeam } from './db';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb, getQueryPitch10TeamNpb, getQueryBatChampNpb, getQueryDayTeamEra, getQueryDayLob } from './query';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb, getQueryPitch10TeamNpb, getQueryBatChampNpb, getQueryDayTeamEra, getQueryDayLob, getQueryBatRc5TeamJs } from './query';
 import { getPitcher } from './fs';
 
 /**
@@ -42,6 +42,51 @@ export const execBatRc5Team = async (teamArg = '', leagueArg = '', isTweet = tru
     const results: BatterResult[] = await manager.query(getQueryBatRc5Team(team));
 
     const title = format('%s打者 最近5試合 打撃成績\n', teamNames[teamIniEn]);
+    const rows = createBatterResultRows(results);
+    const footer = format('\n\n%s', teamHashTags[teamIniEn]);
+
+    if (isTweet) {
+      await tweetMulti(title, rows, footer);
+      await saveTweeted(scriptName, team, genTweetedDay());
+      console.log(format(MSG_S, genTweetedDay(), team, scriptName));
+    } else {
+      displayResult(title, rows, footer);
+    }
+  }
+}
+
+/**
+ * TODO: execBatRc5Team と共通化 (getQuery、titleの文言を部品化すれば対応可能)
+ */
+export const execBatRc5TeamJs = async (teamArg = '', leagueArg = '', isTweet = true, scriptName = SC_RC5T) => {
+  const prevTeams = checkArgTMLG(teamArg, leagueArg);
+  let teams = []
+
+  // check tweetable
+  if (isTweet) {
+    for (const team of prevTeams) {
+      const savedTweeted = await findSavedTweeted(scriptName, team);
+      const isFinished = await isFinishedGame(team, genTweetedDay());
+
+      if (savedTweeted || !isFinished) {
+        const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not complete game' : 'other';
+        console.log(format(MSG_F, genTweetedDay(), team, scriptName, cause));
+      } else {
+        teams.push(team);
+      }
+    }
+  } else {
+    teams = prevTeams;
+  }
+
+  if (! teams.length) return;
+
+  const manager = await getManager();
+  for (const team of teams) {
+    const teamIniEn = getTeamIniEn(team);
+    const results: BatterResult[] = await manager.query(getQueryBatRc5TeamJs(team));
+
+    const title = format('%s打者 日本シリーズ 打撃成績\n', teamNames[teamIniEn]);
     const rows = createBatterResultRows(results);
     const footer = format('\n\n%s', teamHashTags[teamIniEn]);
 
@@ -1967,6 +2012,105 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
       totalResults.push({ team, batter, rbi_hit: 1 });
     }
   }
+
+  if (isTweet) {
+    await tweetMulti(title, rows);
+    await saveTweeted(scriptName, 'ALL', day);
+    console.log(format(MSG_S, day, 'ALL', scriptName));
+  } else {
+    displayResult(title, rows);
+  }
+}
+
+/**
+ * TODO: execDayRbiHit と共通化 (date の開始日、footerの分岐を加えれば可能)
+ */
+export const execDayRbiHitJs = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_DRH) => {
+  const prevTeams = checkArgTMLG(teamArg, leagueArg);
+  const day = checkArgDay(dayArg);
+  const prevDay = moment(day, 'YYYYMMDD').add(-1, 'days').format('YYYYMMDD');
+
+  // check tweetable
+  if (isTweet) {
+    const savedTweeted = await findSavedTweeted(scriptName, 'ALL');
+    const isFinished = await isFinishedAllGame(day);
+
+    if (savedTweeted || !isFinished) {
+      const cause = savedTweeted ? 'done tweet' : !isFinished ? 'not finished game' : 'other';
+      console.log(format(MSG_F, day, 'ALL', scriptName, cause));
+      return;
+    }
+  }
+
+  interface TotalResult { team: string, batter: string, rbi_hit: number };
+  interface TodayResult { team: string, batter: string, inning: string, is_first: boolean, is_tie: boolean, is_win: boolean, is_reversal: boolean };
+  const manager = await getManager();
+
+  const totalResults: TotalResult[] = await manager.query(`
+    SELECT 
+      tm.team_initial_kana AS team, replace(batter, ' ', '') AS batter, SUM(is_rbi_hit) AS rbi_hit
+    FROM
+        baseball_2020.summary_point sp
+    LEFT JOIN game_info gi ON sp.game_info_id = gi.id
+    LEFT JOIN team_master tm ON sp.team = tm.team_name
+    WHERE
+        is_rbi_hit = 1 AND
+        (gi.date BETWEEN 20201121 AND ${prevDay})
+    GROUP BY tm.team_initial_kana, batter
+    ORDER BY rbi_hit DESC
+  `);
+
+  const todayResults: TodayResult[] = await manager.query(`
+    SELECT 
+        inning,
+        tm.team_initial_kana AS team,
+        replace(batter, ' ', '') AS batter,
+        is_first,
+        is_tie,
+        is_win,
+        is_reversal
+    FROM
+        baseball_2020.summary_point sp
+    LEFT JOIN game_info gi ON sp.game_info_id = gi.id
+    LEFT JOIN team_master tm ON sp.team = tm.team_name
+    WHERE
+        is_rbi_hit = 1 AND
+        gi.date = ${day}
+  `);
+
+  const title = format('%s 本日のタイムリーヒット\n', moment(day, 'YYYYMMDD').format('M/D'));
+  const rows: string[] = [];
+  for (const todayResult of todayResults) {
+    const totalResult = totalResults.find(({ batter, team }) => batter == todayResult.batter && team == todayResult.team);    
+    const totalRbiHit = totalResult ? Number(totalResult.rbi_hit) : 0;
+
+    const { inning, team, batter, is_first, is_tie, is_win, is_reversal } = todayResult;
+
+    let flag = '';
+    if (is_first) flag = ' 先制';
+    if (is_tie) flag = ' 同点';
+    if (is_win) flag = ' 勝ち越し';
+    if (is_reversal) flag = ' 逆転';
+
+    const batterPart = format('%s(%s)', batter, team);
+    const rbiPart = format('%s本目 (%s%s)', totalRbiHit + 1, inning, flag);
+
+    const dupRow = rows.find(row => row.indexOf(batterPart) > -1);
+    if (dupRow) {
+      rows[rows.indexOf(dupRow)] = format('%s、%s', dupRow, rbiPart);
+    } else {
+      rows.push(format('\n%s  %s', batterPart, rbiPart));
+    }
+
+    if (totalResult) {
+      const idx = totalResults.indexOf(totalResult);
+      totalResults[idx].rbi_hit = totalRbiHit + 1;
+    } else {
+      totalResults.push({ team, batter, rbi_hit: 1 });
+    }
+  }
+
+  rows.push('\n\n※2020日本シリーズ通算');
 
   if (isTweet) {
     await tweetMulti(title, rows);
