@@ -2120,3 +2120,67 @@ export const execDayRbiHitJs = async (isTweet = true, dayArg = '', teamArg = '',
     displayResult(title, rows);
   }
 }
+
+/**
+ * TODO: Tweet対応
+ */
+export const execLeadBehindScore = async (isTweet = true, typeArg = '', inningArg = 1, scoreArg = 0, teamArg = '', leagueArg = '', scriptName = SC_DRH) => {
+  const prevTeams = checkArgTMLG(teamArg, leagueArg);
+  const manager = await getManager();
+
+  for (const team of prevTeams) {
+    const results = await manager.query(`
+      SELECT
+        SUM(win) AS win,
+        SUM(lose) AS lose,
+        SUM(draw) AS draw,
+        RIGHT(ROUND(SUM(win) / (SUM(win) + SUM(lose)), 3), 4) AS rate
+      FROM
+        (
+          SELECT
+            CASE
+              WHEN away_initial = '${team}' THEN away_score - home_score > 0
+              WHEN home_initial = '${team}' THEN home_score - away_score > 0
+            END AS win,
+            CASE
+              WHEN away_initial = '${team}' THEN home_score - away_score > 0
+              WHEN home_initial = '${team}' THEN away_score - home_score > 0
+            END AS lose,
+            home_score = away_score AS draw
+          FROM
+            baseball_2020.debug_base db
+          WHERE
+            g_id IN (
+              SELECT
+                g_id
+              FROM
+                baseball_2020.debug_base
+              WHERE
+                CASE
+                  ${typeArg == 'L' ? `
+                    WHEN away_initial = '${team}' THEN away_score - home_score
+                    WHEN home_initial = '${team}' THEN home_score - away_score
+                  ` : `
+                    WHEN away_initial = '${team}' THEN home_score - away_score
+                    WHEN home_initial = '${team}' THEN away_score - home_score
+                  `}
+                END >= ${scoreArg}
+                AND ing_num = ${inningArg}
+                AND ing_tb = 2
+                AND after_count_out = 3
+            )
+            AND ing_num = '試合終了'
+        ) AS A
+    `);
+
+    const teamIniEn = getTeamIniEn(team);
+    const title = format('2020シーズン %d回終了時 勝敗\n', inningArg);
+
+    const rows: string[] = [];
+    const { win, lose, draw, rate } = results[0];
+    rows.push(format('\n%s  %s点%s時', teamNames[teamIniEn], scoreArg, typeArg == 'L' ? 'リード': typeArg == 'B' ? 'ビハインド' : ''));
+    rows.push(format('\n%s勝%s敗%s 勝率%s %s \n', win, lose, draw > 0 ? format('%s分', draw) : '', rate, teamHashTags[teamIniEn]));
+
+    displayResult(title, rows);
+  }
+}

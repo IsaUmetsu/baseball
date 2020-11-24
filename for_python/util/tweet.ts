@@ -44,6 +44,7 @@ export const SC_WBT= 'week_bat_team';
 export const SC_WS= 'week_stand';
 export const SC_WTE = 'week_team_era';
 export const SC_WTED = 'week_team_era_div';
+export const SC_LBS = 'lead_behind_score';
 
 /**
  * 

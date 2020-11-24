@@ -108,6 +108,8 @@
     "week:team:era:div:tw": "PR=W ts-node for_python/query/team_era.ts -t -d",
     "week:lob": "PR=W ts-node for_python/query/left_on_base.ts",
     "ratu:stand": "PR=RATU ts-node for_python/query/team_standings.ts",
+    "lead:score": "T=L ts-node for_python/query/lead_behind_score.ts",
+    "behind:score": "T=B ts-node for_python/query/lead_behind_score.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
