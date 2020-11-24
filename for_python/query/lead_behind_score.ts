@@ -1,7 +1,7 @@
 
 import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
-import { execWeekBatChamp, execMonthBatChamp, execDayOfWeekBatChamp, execLeadBehindScore } from '../util/execute';
+import { execLeadBehindScore } from '../util/execute';
 
 // Execute
 (async () => {
