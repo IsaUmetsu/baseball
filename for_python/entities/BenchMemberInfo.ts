@@ -19,6 +19,6 @@ export class BenchMemberInfo extends BaseEntity {
   @Column("varchar", { name: "domain_hand", nullable: true, length: 2 })
   domainHand: string | null;
 
-  @Column("varchar", { name: "average", nullable: true, length: 5 })
+  @Column("varchar", { name: "average", nullable: true, length: 10 })
   average: string | null;
 }
