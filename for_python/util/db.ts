@@ -59,9 +59,23 @@ export const insertGameInfo = async (
 export const insertLiveHeader = async (
   gameInfoId: number, scene: number, liveHeader: LiveHeaderJson
 ) => {
+  // イニング情報取得
+  const getInningInfo = (inning: string) => {
+    const splitInning = inning.split('回');
+
+    let ingNum: number = Number(splitInning[0]);
+    let ingTb: number = 0;
+
+    if (splitInning[0] == '試合終了') ingNum = 99; // 試合終了時は 99 を設定
+    if (splitInning[0] == '試合中止' || splitInning[0] == 'ノーゲーム' || splitInning[0] == '試合前') ingNum = 0; // その他は 0 を設定
+
+    if (splitInning[1] == '表') ingTb = TOP;
+    if (splitInning[1] == '裏') ingTb = BTM;
+
+    return { ingNum, ingTb };
+  }
   
   const liveHeaderRepository = getRepository(LiveHeader);
-
   let savedLiveHeader = await liveHeaderRepository.findOne({ gameInfoId, scene });
 
   if (savedLiveHeader == null) {
@@ -79,8 +93,26 @@ export const insertLiveHeader = async (
     newLiveHader.countStrike = Number(count.s);
     newLiveHader.countOut = Number(count.o);
 
+    const { ingNum, ingTb } = getInningInfo(inning);
+    savedLiveHeader.ingNum = ingNum;
+    savedLiveHeader.ingTb = ingTb;
+
+    savedLiveHeader.pTeam = ingTb == TOP ? home.teamInitial : ingTb == BTM ? away.teamInitial : null;
+    savedLiveHeader.bTeam = ingTb == TOP ? away.teamInitial : ingTb == BTM ? home.teamInitial : null;
+
     await newLiveHader.save();
     savedLiveHeader = await liveHeaderRepository.findOne({ gameInfoId, scene });
+  } else {
+    const { inning, away, home, count } = liveHeader;
+
+    const { ingNum, ingTb } = getInningInfo(inning);
+    savedLiveHeader.ingNum = ingNum;
+    savedLiveHeader.ingTb = ingTb;
+
+    savedLiveHeader.pTeam = ingTb == TOP ? home.teamInitial : ingTb == BTM ? away.teamInitial : null;
+    savedLiveHeader.bTeam = ingTb == TOP ? away.teamInitial : ingTb == BTM ? home.teamInitial : null;
+
+    await savedLiveHeader.save();
   }
 
   let { countBall: b, countStrike: s, countOut: o, inning } = savedLiveHeader;

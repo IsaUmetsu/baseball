@@ -35,4 +35,16 @@ export class LiveHeader extends BaseEntity {
 
   @Column("tinyint", { name: "count_out" })
   countOut: number;
+
+  @Column("tinyint", { name: "ing_num" })
+  ingNum: number;
+
+  @Column("tinyint", { name: "ing_tb", nullable: true })
+  ingTb: number | null;
+
+  @Column("varchar", { name: "p_team", nullable: true, length: 2 })
+  pTeam: string | null;
+
+  @Column("varchar", { name: "b_team", nullable: true, length: 2 })
+  bTeam: string | null;
 }

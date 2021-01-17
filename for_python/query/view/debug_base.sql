@@ -13,11 +13,8 @@ VIEW `debug_base` AS
         `lh`.`home_score` AS `home_score`,
         `lh`.`home_initial` AS `home_initial`,
         `lh`.`inning` AS `inning`,
-        SUBSTRING_INDEX(`lh`.`inning`, '回', 1) AS `ing_num`,
-        (CASE SUBSTRING_INDEX(`lh`.`inning`, '回', -(1))
-            WHEN '表' THEN 1
-            WHEN '裏' THEN 2
-        END) AS `ing_tb`,
+        `lh`.`ing_num` AS `ing_num`,
+        `lh`.`ing_tb` AS `ing_tb`,
         `lb`.`batting_result` AS `batting_result`,
         `go`.`order_no` AS `order_no`,
         `go`.`position` AS `position`,
@@ -60,14 +57,8 @@ VIEW `debug_base` AS
         `lh`.`count_ball` AS `after_count_ball`,
         `lh`.`count_strike` AS `after_count_strike`,
         `lh`.`count_out` AS `after_count_out`,
-        (CASE SUBSTRING_INDEX(`lh`.`inning`, '回', -(1))
-            WHEN '表' THEN `lh`.`away_initial`
-            WHEN '裏' THEN `lh`.`home_initial`
-        END) AS `b_team`,
-        (CASE SUBSTRING_INDEX(`lh`.`inning`, '回', -(1))
-            WHEN '裏' THEN `lh`.`away_initial`
-            WHEN '表' THEN `lh`.`home_initial`
-        END) AS `p_team`,
+        `lh`.`p_team` AS `p_team`,
+        `lh`.`b_team` AS `b_team`,
         `lb`.`id` AS `lb_id`,
         `lb`.`game_info_id` AS `game_info_id`,
         `lh`.`id` AS `lh_id`,
@@ -80,10 +71,7 @@ VIEW `debug_base` AS
         LEFT JOIN `game_info` `gi` ON ((`lb`.`game_info_id` = `gi`.`id`)))
         LEFT JOIN `team_info` `ti` ON (((`lb`.`game_info_id` = `ti`.`game_info_id`)
             AND (`lb`.`scene` = `ti`.`scene`)
-            AND (`ti`.`team_initial_kana` = (CASE SUBSTRING_INDEX(`lh`.`inning`, '回', -(1))
-            WHEN '表' THEN `lh`.`away_initial`
-            WHEN '裏' THEN `lh`.`home_initial`
-        END)))))
+            AND (`ti`.`team_initial_kana` = (`lh`.`b_team`)))))
         LEFT JOIN `game_order` `go` ON (((`ti`.`id` = `go`.`team_info_id`)
             AND (`go`.`name` = `lb`.`current_batter_name`))))
     WHERE
