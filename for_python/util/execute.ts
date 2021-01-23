@@ -7,7 +7,7 @@ import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTar
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN, SC_DTED, SC_DTE, SC_DLOB, SC_PTS3, SC_PTS6, SC_DRH, SC_RBP } from './tweet';
 import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame, isFinishedInningPitchStarterByTeam } from './db';
-import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb, getQueryPitch10TeamNpb, getQueryBatChampNpb, getQueryDayTeamEra, getQueryDayLob, getQueryBatRc5TeamJs, getQueryResultBatPerPitch } from './query';
+import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb, getQueryPitch10TeamNpb, getQueryBatChampNpb, getQueryDayTeamEra, getQueryDayLob, getQueryBatRc5TeamJs, getQueryResultBatPerPitch, getQueryResultPitchPerBat } from './query';
 import { getPitcher } from './fs';
 
 /**
@@ -2188,17 +2188,40 @@ export const execLeadBehindScore = async (isTweet = true, typeArg = '', inningAr
 /**
  * 
  */
-export const execResultBatPerPitch = async (isTweet = true, name = '', pa = 0, average = 0, scriptName = SC_RBP) => {
+export const execResultBatPerPitch = async (isTweet = true, name = '', pa = 0, average = 0, type = 'G', scriptName = SC_RBP) => {
 
   const manager = await getManager();
-  const results = await manager.query(getQueryResultBatPerPitch(name.split(' '), pa, average));
+  const results = await manager.query(getQueryResultBatPerPitch(name.split(' '), pa, average, type));
+
+  const title = '';
+  const rows = [];
+
+  for (const result of results) {
+    const { average, bat, hit, pitcher, p_team, hr } = result;
+    rows.push(format('%s (%s-%s) %s(%s)%s\n', trimRateZero(average), bat, hit, pitcher, p_team, Number(hr) > 0 ? format('%s本', hr) : ''));
+  }
+
+  if (isTweet) {
+    await tweetMulti(title, rows);
+  } else {
+    displayResult(title, rows);
+  }
+}
+
+/**
+ * 
+ */
+export const execResultPitchPerBat = async (isTweet = true, name = '', pa = 0, average = 0, type = 'G', scriptName = SC_RBP) => {
+
+  const manager = await getManager();
+  const results = await manager.query(getQueryResultPitchPerBat(name.split(' '), pa, average, type));
 
   const title = '';
   const rows = [];
 
   for (const result of results) {
     const { average, bat, hit, batter, b_team, hr } = result;
-    rows.push(format('%s (%s-%s) %s(%s)%s\n', average, bat, hit, batter, b_team, Number(hr) > 0 ? format('%s本', hr) : ''));
+    rows.push(format('%s (%s-%s) %s(%s)%s\n', trimRateZero(average), bat, hit, batter, b_team, Number(hr) > 0 ? format('%s本', hr) : ''));
   }
 
   if (isTweet) {

@@ -902,7 +902,7 @@ export const getQueryOppoEraForPicture = (team = '', oppo = '') => `
 /**
  * 
  */
-export const getQueryResultBatPerPitch = (nameArray: string[], pa: number, average: number) => `
+export const getQueryResultPitchPerBat = (nameArray: string[], pa: number, average: number, type: string) => `
   SELECT 
     REPLACE(current_batter_name, ' ', '') AS batter,
         SUM(is_pa) AS pa,
@@ -914,7 +914,7 @@ export const getQueryResultBatPerPitch = (nameArray: string[], pa: number, avera
             OR NULL) AS hr,
         COUNT(batting_result LIKE '%四球%' OR NULL) AS bb,
         COUNT(batting_result LIKE '%死球%' OR NULL) AS hpb,
-        RIGHT(ROUND(SUM(is_hit) / SUM(is_ab), 3),4) AS average,
+        ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average,
         ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase
     FROM
         baseball_2020.debug_base base
@@ -922,6 +922,34 @@ export const getQueryResultBatPerPitch = (nameArray: string[], pa: number, avera
         current_pitcher_name LIKE '%${nameArray.join('%')}%'
         AND CHAR_LENGTH(current_batter_name) > 0
     GROUP BY current_batter_name , base.b_team
-    HAVING pa >= ${pa} AND average >= ${average}
+    HAVING pa >= ${pa} AND average ${type == 'G' ? '>' : '<'}= ${average}
     ORDER BY average DESC, bat DESC
+`;
+
+/**
+ * 
+ */
+export const getQueryResultBatPerPitch = (nameArray: string[], pa: number, average: number, type: string) => `
+
+  SELECT 
+    REPLACE(current_pitcher_name, ' ', '') AS pitcher,
+    SUM(is_pa) AS pa,
+    base.p_team,
+    SUM(is_ab) AS bat,
+    SUM(is_hit) AS hit,
+    SUM(is_onbase) AS onbase,
+    COUNT(batting_result LIKE '%本塁打%'
+        OR NULL) AS hr,
+    COUNT(batting_result LIKE '%四球%' OR NULL) AS bb,
+    COUNT(batting_result LIKE '%死球%' OR NULL) AS hpb,
+    ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average,
+    ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase
+  FROM
+      baseball_2020.debug_base base
+  WHERE
+      current_batter_name LIKE '%${nameArray.join('%')}%'
+          AND CHAR_LENGTH(current_batter_name) > 0
+  GROUP BY current_pitcher_name , base.p_team
+  HAVING pa >= ${pa} AND average ${type == 'G' ? '>' : '<'}= ${average}
+  ORDER BY average DESC, bat DESC
 `;

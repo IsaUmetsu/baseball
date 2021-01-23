@@ -94,6 +94,7 @@
     "pitch:r:ave": "ts-node for_python/query/pitch_reliever_ave_team.ts",
     "pitch:r:ave:tw": "ts-node for_python/query/pitch_reliever_ave_team.ts -t",
     "result:bat:pitch": "ts-node for_python/query/result_bat_per_pitch.ts",
+    "result:pitch:bat": "ts-node for_python/query/result_pitch_per_bat.ts",
     "team:r:ra": "ts-node for_python/query/team_runs_runs_allowed.ts",
     "team:r:ra:tw": "ts-node for_python/query/team_runs_runs_allowed.ts -t",
     "team:situ:ob": "ts-node for_python/query/team_situation_onbase.ts",
