@@ -898,3 +898,30 @@ export const getQueryOppoEraForPicture = (team = '', oppo = '') => `
           LEFT JOIN
       team_master tm ON tm.team_initial_kana = total.p_team
 `;
+
+/**
+ * 
+ */
+export const getQueryResultBatPerPitch = (nameArray: string[], pa: number, average: number) => `
+  SELECT 
+    REPLACE(current_batter_name, ' ', '') AS batter,
+        SUM(is_pa) AS pa,
+        base.b_team,
+        SUM(is_ab) AS bat,
+        SUM(is_hit) AS hit,
+        SUM(is_onbase) AS onbase,
+        COUNT(batting_result LIKE '%本塁打%'
+            OR NULL) AS hr,
+        COUNT(batting_result LIKE '%四球%' OR NULL) AS bb,
+        COUNT(batting_result LIKE '%死球%' OR NULL) AS hpb,
+        RIGHT(ROUND(SUM(is_hit) / SUM(is_ab), 3),4) AS average,
+        ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase
+    FROM
+        baseball_2020.debug_base base
+    WHERE
+        current_pitcher_name LIKE '%${nameArray.join('%')}%'
+        AND CHAR_LENGTH(current_batter_name) > 0
+    GROUP BY current_batter_name , base.b_team
+    HAVING pa >= ${pa} AND average >= ${average}
+    ORDER BY average DESC, bat DESC
+`;
