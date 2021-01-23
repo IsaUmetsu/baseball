@@ -63,6 +63,8 @@ VIEW `debug_base` AS
         `lb`.`game_info_id` AS `game_info_id`,
         `lh`.`id` AS `lh_id`,
         `gi`.`no_game` AS `no_game`,
+        `gi`.`is_cs` AS `is_cs`,
+        `gi`.`is_js` AS `is_js`,
         '' AS `eol`
     FROM
         ((((`live_body` `lb`
