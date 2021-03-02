@@ -94,11 +94,11 @@ export const insertLiveHeader = async (
     newLiveHader.countOut = Number(count.o);
 
     const { ingNum, ingTb } = getInningInfo(inning);
-    savedLiveHeader.ingNum = ingNum;
-    savedLiveHeader.ingTb = ingTb;
+    newLiveHader.ingNum = ingNum;
+    newLiveHader.ingTb = ingTb;
 
-    savedLiveHeader.pTeam = ingTb == TOP ? home.teamInitial : ingTb == BTM ? away.teamInitial : null;
-    savedLiveHeader.bTeam = ingTb == TOP ? away.teamInitial : ingTb == BTM ? home.teamInitial : null;
+    newLiveHader.pTeam = ingTb == TOP ? home.teamInitial : ingTb == BTM ? away.teamInitial : null;
+    newLiveHader.bTeam = ingTb == TOP ? away.teamInitial : ingTb == BTM ? home.teamInitial : null;
 
     await newLiveHader.save();
     savedLiveHeader = await liveHeaderRepository.findOne({ gameInfoId, scene });
