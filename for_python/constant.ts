@@ -1,3 +1,5 @@
+export const TARGET_YEAR = 2021;
+
 export const teamArray = {
   'H': 'ソ',
   'M': 'ロ',
