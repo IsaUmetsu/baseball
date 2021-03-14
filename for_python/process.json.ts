@@ -16,8 +16,9 @@ const startSceneCnt = 1;
 const { D, SE, S, I } = process.env;
 let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
 
-const seasonStart = moment(format("2020%s", targetDay), "YYYYMMDD");
-const seasonEnd = moment(format("2020%s", seasonEndArg), "YYYYMMDD");
+const YEAR = process.env.YEAR ?? moment().format("YYYY");
+const seasonStart = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
+const seasonEnd = moment(format("%s%s", YEAR, seasonEndArg), "YYYYMMDD");
 
 const { importGame, importText, importPitch, importBat } = checkArgI(I);
 
@@ -99,7 +100,7 @@ const doSave = async (gameNo: string, dateStr: string) => {
  *
  */
 const saveGame = async () => {
-  const day = moment(format("2020%s", targetDay), "YYYYMMDD");
+  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -126,7 +127,7 @@ const saveGame = async () => {
 
     if (importGame) {
       await saveGame();
-      await executeUpdatePlusOutCount(format("2020%s", targetDay), format("2020%s", seasonEndArg));
+      await executeUpdatePlusOutCount(format("%s%s", YEAR, targetDay), format("%s%s", YEAR, seasonEndArg));
     }
 
     if (importText) await saveText(targetDay, seasonStart, seasonEnd, specifyArg);

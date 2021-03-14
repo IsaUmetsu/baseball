@@ -9,6 +9,7 @@ import { getRepository } from "typeorm";
 import { GameInfo, StatsPitcher, StatsScoreboard, StatsBatter, SummaryPoint } from "../entities";
 import { isFinishedGameById } from './db';
 
+const YEAR = process.env.YEAR ?? moment().format("YYYY");
 const startGameNo = 1;
 const endGameNo = 6;
 
@@ -105,7 +106,7 @@ export const savePitchData = async (
   seasonEnd: moment.Moment,
   specifyArg: number
 ) => {
-  const day = moment(format("2020%s", targetDay), "YYYYMMDD");
+  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -274,7 +275,7 @@ export const saveBatAndScoreData = async (
   seasonEnd: moment.Moment,
   specifyArg: number
 ) => {
-  const day = moment(format("2020%s", targetDay), "YYYYMMDD");
+  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -368,7 +369,7 @@ const doSaveText = async (gameNo: string, dateStr: string) => {
  *
  */
 export const saveText = async (targetDay, seasonStart, seasonEnd, specifyArg) => {
-  const day = moment(format("2020%s", targetDay), "YYYYMMDD");
+  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
