@@ -1,4 +1,5 @@
-export const TARGET_YEAR = 2021;
+import { format } from "util";
+import { getYear } from "./util/day";
 
 export const teamArray = {
   'H': 'ソ',
@@ -21,7 +22,7 @@ export const teamHashTags = {
   'E': '#RakutenEagles',
   'F': '#lovefigters',
   'L': '#seibulions',
-  'B': '#bs2020',
+  'B': format('#bs%s', getYear()),
   'G': '#giants',
   'T': '#hanshin',
   'De': '#baysters',

@@ -5,6 +5,8 @@ import * as yargs from 'yargs';
 import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM, FORMAT_BATTER_ONBASE, FORMAT_BATTER_BB, FORMAT_BATTER_HBP, FORMAT_BATTER_HIT, sortType, FORMAT_BATTER_OPS, rankCircle } from '../constant';
 import { countFiles, getJson } from './fs';
 import { BatterResult } from '../type/jsonType';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 /**
  * 
@@ -157,7 +159,7 @@ export const checkArgM = (monthArg: string) => {
     month = 0;
   }
 
-  const fmYYYYM = format("2020%d", month);
+  const fmYYYYM = format("%s%d", YEAR, month);
 
   return {
     month,
@@ -180,7 +182,7 @@ export const checkArgTitleM = (monthArg: string) => {
     month = 0;
   }
   
-  const fmYYYYM = format("2020%d", month);
+  const fmYYYYM = format("%s%d", YEAR, month);
   let firstDay = moment(fmYYYYM, "YYYYM").startOf('month').format('YYYYMMDD');
   let lastDay = moment(fmYYYYM, "YYYYM").endOf('month').format('YYYYMMDD');
 
@@ -188,23 +190,23 @@ export const checkArgTitleM = (monthArg: string) => {
 
   // case when month = 6 then lastDay = 7/31
   if (month == 6) {
-    lastDay = moment(format("2020%d", month + 1), "YYYYM").endOf('month').format('YYYYMMDD');
+    lastDay = moment(format("%s%d", YEAR, month + 1), "YYYYM").endOf('month').format('YYYYMMDD');
     month2 = 7;
   }
   // case when month = 7 then first = 6/19
   if (month == 7) {
-    firstDay = '20200619';
+    firstDay = '20200619'; // TODO: 設定ファイル化
     month2 = 6;
   }
 
   // case when month = 10 then lastDay = 11/9
   if (month == 10) {
-    lastDay = '20201109';
+    lastDay = '20201109'; // TODO: 設定ファイル化
     month2 = 11;
   }
   // case when month = 11 then first = 10/1
   if (month == 11) {
-    firstDay = moment(format("2020%d", month - 1), "YYYYM").startOf('month').format('YYYYMMDD');
+    firstDay = moment(format("%s%d", YEAR, month - 1), "YYYYM").startOf('month').format('YYYYMMDD');
     month2 = 10;
   }
 
@@ -220,7 +222,7 @@ export const checkArgTargetDayOfWeek = (dayArg: string) => {
     console.log('D=[日付] の指定がないため実行日を指定します');
     targetDay = moment();
   } else {
-    targetDay = moment(format("2020%s", dayArg), "YYYYMMDD");
+    targetDay = moment(format("%s%s", YEAR, dayArg), "YYYYMMDD");
   }
 
   // [週始] 指定日が日曜なら前の週の月曜を指定、月曜〜土曜ならその週の月曜指定
@@ -343,7 +345,7 @@ export const checkArgTmOp = async (teamArg = '', oppoArg = '', dayArg = '') => {
    * 実行日の対戦カード取得
    */
   const getCards = async (targetTeam: any[], dayArg = '') => {
-    const todayStr = dayArg ? moment(format('2020%s', dayArg)).format('YYYYMMDD') : moment().format('YYYYMMDD');
+    const todayStr = dayArg ? moment(format('%s%s', YEAR, dayArg)).format('YYYYMMDD') : moment().format('YYYYMMDD');
     const totalGameCnt = await countFiles(format(cardsPath, todayStr));
     for (let gameCnt = 1; gameCnt <= totalGameCnt; gameCnt++) {
       const { away, home } = JSON.parse(getJson(format(cardsJsonPath, todayStr, format('0%s', gameCnt))));
@@ -391,7 +393,7 @@ export const checkArgDay = (dayArgument): string => {
     dayArg = moment().format('YYYYMMDD');
     console.log(format('D=[日付(MMDD)] の指定がないため本日(%s)を起点に出力します', moment().format('MM/DD')));
   } else {
-    dayArg = format('2020%s', dayArg)
+    dayArg = format('%s%s', YEAR, dayArg)
   }
   return dayArg;
 }

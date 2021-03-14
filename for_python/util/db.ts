@@ -5,6 +5,8 @@ import { GameInfo, LiveHeader, LiveBody, PitchInfo, PitchCourse, PitchDetails, P
 import { judgePlateAppearance, judgeAtBat, judgeHit, judgeOnbase, judgeError, judgeFc, judgePlayerChange, judgeIsBall, judgeIsStrike, judgePlusScore, judgePlusOutCount, calcTotalBase, indexOfAnd } from './liveBody';
 import { teamNameHalfToIni, TOP, BTM, HM, AW } from '../constant';
 import { createConnection } from 'typeorm';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 /**
  * 
@@ -699,7 +701,7 @@ export const isLeftMoundStarterAllGame = async (day): Promise<boolean> => {
       (SELECT 
           date, COUNT(p_team) AS cnt
       FROM
-          baseball_2020.debug_stats_pitcher sp
+          baseball_${YEAR}.debug_stats_pitcher sp
       WHERE
           date = '${day}'
               AND (sp.order = 2
@@ -725,7 +727,7 @@ export const isFinishedInningPitchStarterByTeam = async (day = '', team = '', ip
     SELECT 
       COUNT(sp.name) AS is_finished
     FROM
-      baseball_2020.debug_stats_pitcher sp
+      baseball_${YEAR}.debug_stats_pitcher sp
     WHERE
       date = '${day}'
       AND ip >= ${ip}
@@ -751,7 +753,7 @@ export const isLeftMoundStarterByTeam = async (day = '', team = ''): Promise<boo
     SELECT 
       COUNT(sp.name) AS is_left
     FROM
-      baseball_2020.debug_stats_pitcher sp
+      baseball_${YEAR}.debug_stats_pitcher sp
     WHERE
       date = '${day}'
     AND (sp.order = 2 OR (sp.order = 1 AND complete = 1))

@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 import { exit } from 'process';
+import { getYear } from './util/day';
 
 const targetDay = Number(process.env.d);
 if (! targetDay || targetDay < 0 || 7 < targetDay) {
@@ -7,7 +8,7 @@ if (! targetDay || targetDay < 0 || 7 < targetDay) {
     exit;
 }
 
-const seasonYear = "2020";
+const seasonYear = getYear();
 const seasonStartDate = "0619";
 const dateFormat = "YYYYMMDD";
 

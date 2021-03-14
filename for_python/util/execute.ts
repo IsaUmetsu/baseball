@@ -9,6 +9,8 @@ import { BatterResult } from '../type/jsonType';
 import { isFinishedGame, isFinishedGameByLeague, isLeftMoundStarterAllGame, isLeftMoundStarterByTeam, isFinishedAllGame, isFinishedInningPitchStarterByTeam } from './db';
 import { getQueryBatRc5Team, getQueryDayBatTeam, getQueryPitch10Team, getQueryBatChamp, getQueryMonthTeamEra, getQueryMonthBatTeam, getQueryBatRc5All, getQueryStarterOtherInfo, getQueryWeekBatTeam, getQueryWeekTeamEra, getQueryStand, getQueryResultTue, getQueryStandTue, getQueryPitchCourse, getQueryBatRc5Npb, getQueryPitch10TeamNpb, getQueryBatChampNpb, getQueryDayTeamEra, getQueryDayLob, getQueryBatRc5TeamJs, getQueryResultBatPerPitch, getQueryResultPitchPerBat } from './query';
 import { getPitcher } from './fs';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 /**
  * 
@@ -409,7 +411,7 @@ export const execPitchStrikeSwMsGame = async (isTweet = true, dayArg = '', strik
         SUM(is_swing) AS swing_cnt,
         SUM(is_missed) AS missed_cnt
       FROM
-        baseball_2020.debug_pitch_base
+        baseball_${YEAR}.debug_pitch_base
       WHERE
         date = '${day}' AND current_pitcher_order = 1
       GROUP BY p_team, current_pitcher_name
@@ -506,7 +508,7 @@ const doExecPitchType = async (isTweet = true, dayArg = '', teamArg = '', league
       SELECT 
         p_team, current_pitcher_name, pitch_cnt, pitch_type
       FROM
-        baseball_2020.debug_pitch_base
+        baseball_${YEAR}.debug_pitch_base
       WHERE
         date = '${day}'
         AND current_pitcher_order = 1
@@ -668,7 +670,7 @@ export const execPitchGroundFlyStart = async (isTweet = true, dayArg = '', batOu
         COUNT((batting_result LIKE '%フライ%' OR batting_result LIKE '%飛%') OR NULL) AS fly_out_cnt,
         COUNT((batting_result LIKE '%ゴロ%' OR batting_result LIKE '%併殺%') OR NULL) AS ground_out_cnt
       FROM
-        baseball_2020.debug_base
+        baseball_${YEAR}.debug_base
       WHERE
         date = '${day}' AND  current_pitcher_order = 1
       GROUP BY current_pitcher_name, p_team
@@ -722,7 +724,7 @@ export const execPitchPerOut = async (isTweet = true, dayArg = '') => {
         REPLACE(name, ' ', '') AS pitcher,
         round(np / outs, 2) AS ball_cnt
     FROM
-        baseball_2020.debug_stats_pitcher sp
+        baseball_${YEAR}.debug_stats_pitcher sp
     WHERE sp.date = '${day}' AND sp.order = 1
     ORDER BY ball_cnt
   `);
@@ -1034,7 +1036,7 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
           SELECT
             p_team AS team,
             COUNT(name) AS reliever_cnt
-          FROM baseball_2020.debug_stats_pitcher sp
+          FROM baseball_${YEAR}.debug_stats_pitcher sp
           WHERE sp.order > 1
           GROUP BY p_team
         ) L
@@ -1043,7 +1045,7 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
             SELECT
               team_initial_kana AS team,
               SUM(game_cnt) AS game_cnt
-            FROM baseball_2020.game_cnt_per_month
+            FROM baseball_${YEAR}.game_cnt_per_month
             GROUP BY team_initial_kana
           ) R
         ON  L.team = R.team
@@ -1130,7 +1132,7 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
         m.rbi,
         '' AS eol
       FROM
-        baseball_2020.debug_base base
+        baseball_${YEAR}.debug_base base
       -- 月間試合数 算出
       LEFT JOIN (
         SELECT 
@@ -1150,7 +1152,7 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
         SELECT 
           b_team, name, SUM(hr) AS hr, SUM(rbi) AS rbi, SUM(sb) AS sb
         FROM
-          baseball_2020.debug_stats_batter
+          baseball_${YEAR}.debug_stats_batter
         WHERE
           (date BETWEEN '${firstDay}' AND '${lastDay}')
         GROUP BY name , b_team
@@ -1171,7 +1173,7 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
         REPLACE(name, ' ', '') AS batter,
         SUM(sb) AS sb
       FROM
-        baseball_2020.debug_stats_batter
+        baseball_${YEAR}.debug_stats_batter
       WHERE
         (date BETWEEN '${firstDay}' AND '${lastDay}')
         AND b_team IN ('${teams.join("', '")}')
@@ -1307,14 +1309,14 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
         SUM(outs) DIV 3 AS inning_int,
         '' AS eol
       FROM
-        baseball_2020.stats_pitcher sp
+        baseball_${YEAR}.stats_pitcher sp
         LEFT JOIN game_info gi ON gi.id = sp.game_info_id
         LEFT JOIN (
           SELECT
             team_initial_kana,
             SUM(game_cnt) AS team_game_cnt
           FROM
-            baseball_2020.game_cnt_per_month
+            baseball_${YEAR}.game_cnt_per_month
           WHERE
             month = ${month} ${month2 > 0 ? `OR month = ${month2}` : `` }
           GROUP BY team_initial_kana
@@ -1343,7 +1345,7 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
         SUM(so) AS so,
         '' AS eol
       FROM
-        baseball_2020.stats_pitcher sp
+        baseball_${YEAR}.stats_pitcher sp
         LEFT JOIN game_info gi ON gi.id = sp.game_info_id
       WHERE
         (gi.date BETWEEN '${firstDay}' AND '${lastDay}')
@@ -1580,7 +1582,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
         ing_num AS inning,
         SUM(debug_base.plus_score) AS ra
       FROM
-        baseball_2020.debug_base
+        baseball_${YEAR}.debug_base
       WHERE
         (away_team_initial = '${team}' OR home_team_initial = '${team}')
         AND CASE
@@ -1690,7 +1692,7 @@ const execTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', t
         ROUND(SUM(er) * 27 / SUM(outs), 2) AS era,
         '' AS eol
       FROM
-        baseball_2020.stats_pitcher sp
+        baseball_${YEAR}.stats_pitcher sp
       LEFT JOIN game_info gi ON sp.game_info_id = gi.id
       WHERE
         ${pitcher == 'A' ? '' : `sp.order ${pitcher == 'S' ? '=' : '>'} 1 AND`}
@@ -1953,7 +1955,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
     SELECT 
       tm.team_initial_kana AS team, replace(batter, ' ', '') AS batter, SUM(is_rbi_hit) AS rbi_hit
     FROM
-        baseball_2020.summary_point sp
+        baseball_${YEAR}.summary_point sp
     LEFT JOIN game_info gi ON sp.game_info_id = gi.id
     LEFT JOIN team_master tm ON sp.team = tm.team_name
     WHERE
@@ -1973,7 +1975,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
         is_win,
         is_reversal
     FROM
-        baseball_2020.summary_point sp
+        baseball_${YEAR}.summary_point sp
     LEFT JOIN game_info gi ON sp.game_info_id = gi.id
     LEFT JOIN team_master tm ON sp.team = tm.team_name
     WHERE
@@ -2050,7 +2052,7 @@ export const execDayRbiHitJs = async (isTweet = true, dayArg = '', teamArg = '',
     SELECT 
       tm.team_initial_kana AS team, replace(batter, ' ', '') AS batter, SUM(is_rbi_hit) AS rbi_hit
     FROM
-        baseball_2020.summary_point sp
+        baseball_${YEAR}.summary_point sp
     LEFT JOIN game_info gi ON sp.game_info_id = gi.id
     LEFT JOIN team_master tm ON sp.team = tm.team_name
     WHERE
@@ -2070,7 +2072,7 @@ export const execDayRbiHitJs = async (isTweet = true, dayArg = '', teamArg = '',
         is_win,
         is_reversal
     FROM
-        baseball_2020.summary_point sp
+        baseball_${YEAR}.summary_point sp
     LEFT JOIN game_info gi ON sp.game_info_id = gi.id
     LEFT JOIN team_master tm ON sp.team = tm.team_name
     WHERE
@@ -2148,13 +2150,13 @@ export const execLeadBehindScore = async (isTweet = true, typeArg = '', inningAr
             END AS lose,
             home_score = away_score AS draw
           FROM
-            baseball_2020.debug_base db
+            baseball_${YEAR}.debug_base db
           WHERE
             g_id IN (
               SELECT
                 g_id
               FROM
-                baseball_2020.debug_base
+                baseball_${YEAR}.debug_base
               WHERE
                 CASE
                   ${typeArg == 'L' ? `

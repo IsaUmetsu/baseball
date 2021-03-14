@@ -1,4 +1,6 @@
 import { PT_STARTER, teamArray } from "../constant";
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 /**
  * 
@@ -24,7 +26,7 @@ export const getQueryBatRc5Team = team => `
       ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase,
       '' AS eol
     FROM
-      baseball_2020.debug_base
+      baseball_${YEAR}.debug_base
     WHERE
       is_pa = 1 AND
       b_team = '${team}' AND 
@@ -40,7 +42,7 @@ export const getQueryBatRc5Team = team => `
       SUM(rbi) AS rbi,
       SUM(hr) AS hr
     FROM
-      baseball_2020.stats_batter
+      baseball_${YEAR}.stats_batter
     WHERE
       b_team = '${team}' AND
       game_info_id IN (SELECT id FROM game_id_recent_5days WHERE team = '${team}')
@@ -74,7 +76,7 @@ export const getQueryBatRc5TeamJs = team => `
       gm.game_cnt,
       '' AS eol
     FROM
-      baseball_2020.debug_base base
+      baseball_${YEAR}.debug_base base
     -- 月間試合数 算出
     LEFT JOIN (
       SELECT 
@@ -104,7 +106,7 @@ export const getQueryBatRc5TeamJs = team => `
       SUM(rbi) AS rbi,
       SUM(hr) AS hr
     FROM
-      baseball_2020.debug_stats_batter
+      baseball_${YEAR}.debug_stats_batter
     WHERE
       b_team = '${team}' AND
       date BETWEEN 20201121 AND 20201129
@@ -120,7 +122,7 @@ export const getQueryBatRc5Npb = (teams, sort, order, base) => `
   SELECT 
     *
   FROM
-    baseball_2020.debug_game_bat_rc5
+    baseball_${YEAR}.debug_game_bat_rc5
   WHERE b_team IN ('${teams.join("', '")}') AND ${sort} >= ${base}
   ORDER BY ${sort} ${order}
   LIMIT 10
@@ -133,7 +135,7 @@ export const getQueryBatRc5All = (teams, sort, order) => `
   SELECT 
     *
   FROM
-    baseball_2020.debug_game_bat_rc5
+    baseball_${YEAR}.debug_game_bat_rc5
   WHERE b_team IN ('${teams.join("', '")}')
   ORDER BY ${sort} ${order}
   LIMIT 10
@@ -173,12 +175,12 @@ export const getQueryResultTue = (team: string, result: string) => `
   SELECT 
     gi.date
   FROM
-    baseball_2020.game_info gi
+    baseball_${YEAR}.game_info gi
   LEFT JOIN
     (SELECT 
       *
     FROM
-      baseball_2020.debug_base
+      baseball_${YEAR}.debug_base
     WHERE
       batting_result = '試合終了') db ON gi.id = db.g_id
   WHERE
@@ -240,13 +242,13 @@ export const getQueryStand = (teams: string[], dateClause: string) => `
         (IFNULL(away.game_cnt, 0) + IFNULL(home.game_cnt, 0)) AS game_cnt
       FROM
       ((
-        baseball_2020.team_master tm
+        baseball_${YEAR}.team_master tm
         LEFT JOIN (
             SELECT
               away_team_initial AS team_initial,
               COUNT(away_team_initial) AS game_cnt
             FROM
-              baseball_2020.game_info
+              baseball_${YEAR}.game_info
             WHERE
               ${dateClause}
               AND no_game = 0
@@ -259,7 +261,7 @@ export const getQueryStand = (teams: string[], dateClause: string) => `
             home_team_initial AS team_initial,
             COUNT(home_team_initial) AS game_cnt
           FROM
-            baseball_2020.game_info
+            baseball_${YEAR}.game_info
           WHERE
             (${dateClause})
             AND no_game = 0
@@ -296,7 +298,7 @@ export const getQueryStand = (teams: string[], dateClause: string) => `
             ) AS draw_count_away,
             eol
         FROM
-            baseball_2020.debug_base
+            baseball_${YEAR}.debug_base
         WHERE
             no_game = 0
             AND batting_result = '試合終了'
@@ -332,7 +334,7 @@ export const getQueryStand = (teams: string[], dateClause: string) => `
             ) AS draw_count_home,
             eol
         FROM
-            baseball_2020.debug_base
+            baseball_${YEAR}.debug_base
         WHERE
             no_game = 0
             AND batting_result = '試合終了'
@@ -363,7 +365,7 @@ export const getQueryBatChamp = (teams: string[], dateClause: string, teamArg: s
     other.rbi,
     '' AS eol
   FROM
-    baseball_2020.debug_base base
+    baseball_${YEAR}.debug_base base
   -- 月間試合数 算出
   LEFT JOIN (
     SELECT 
@@ -387,7 +389,7 @@ export const getQueryBatChamp = (teams: string[], dateClause: string, teamArg: s
 			SUM(sb.bb) AS bb,
 			SUM(sb.hbp) AS hbp
 		FROM
-			baseball_2020.debug_stats_batter sb
+			baseball_${YEAR}.debug_stats_batter sb
 		WHERE
 			sb.b_team IN ('${teams.join("', '")}')
 			AND ${dateClause}
@@ -420,7 +422,7 @@ export const getQueryBatChampNpb = (teams: string[], dateClause: string, base = 
     other.rbi,
     '' AS eol
   FROM
-    baseball_2020.debug_base base
+    baseball_${YEAR}.debug_base base
   -- 月間試合数 算出
   LEFT JOIN (
     SELECT 
@@ -444,7 +446,7 @@ export const getQueryBatChampNpb = (teams: string[], dateClause: string, base = 
 			SUM(sb.bb) AS bb,
 			SUM(sb.hbp) AS hbp
 		FROM
-			baseball_2020.debug_stats_batter sb
+			baseball_${YEAR}.debug_stats_batter sb
 		WHERE
 			sb.b_team IN ('${teams.join("', '")}')
 			AND ${dateClause}
@@ -509,7 +511,7 @@ const getQueryBatTeam = (teams: string[], dateClause: string) => `
         SUM(is_onbase) AS onbase,
         ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS onbase_ave
       FROM
-        baseball_2020.debug_base
+        baseball_${YEAR}.debug_base
       WHERE
         ${dateClause}
         AND CHAR_LENGTH(b_team) > 0
@@ -523,7 +525,7 @@ const getQueryBatTeam = (teams: string[], dateClause: string) => `
         SUM(run) AS run,
         SUM(hr) AS hr
       FROM
-        baseball_2020.debug_stats_batter
+        baseball_${YEAR}.debug_stats_batter
       WHERE
         ${dateClause}
       GROUP BY
@@ -536,7 +538,7 @@ const getQueryBatTeam = (teams: string[], dateClause: string) => `
         SUM(is_hit) AS sp_hit,
         ROUND(SUM(is_hit) / SUM(is_ab), 3) AS sp_ave
       FROM
-        baseball_2020.debug_base
+        baseball_${YEAR}.debug_base
       WHERE
         ${dateClause}
         AND (
@@ -590,7 +592,7 @@ const getQueryTeamEra = (teams: string[], dateClause: string) => `
         SUM(er) AS er,
         ROUND(SUM(er) * 27 / SUM(outs), 2) AS era
       FROM
-        baseball_2020.debug_stats_pitcher sp
+        baseball_${YEAR}.debug_stats_pitcher sp
       WHERE
         ${dateClause}
         AND p_team IN ('${teams.join("', '")}')
@@ -604,7 +606,7 @@ const getQueryTeamEra = (teams: string[], dateClause: string) => `
         SUM(er) AS er,
         ROUND(SUM(er) * 27 / SUM(outs), 2) AS era
       FROM
-        baseball_2020.debug_stats_pitcher sp
+        baseball_${YEAR}.debug_stats_pitcher sp
       WHERE
         sp.order = 1
         AND ${dateClause}
@@ -619,7 +621,7 @@ const getQueryTeamEra = (teams: string[], dateClause: string) => `
         SUM(er) AS er,
         ROUND(SUM(er) * 27 / SUM(outs), 2) AS era
       FROM
-        baseball_2020.debug_stats_pitcher sp
+        baseball_${YEAR}.debug_stats_pitcher sp
       WHERE
         sp.order > 1
         AND ${dateClause}
@@ -643,7 +645,7 @@ export const getQueryStarterOtherInfo = (pitcher, day) => `
         name,
         MAX(ip) AS inning
       FROM
-        baseball_2020.stats_pitcher sp
+        baseball_${YEAR}.stats_pitcher sp
       WHERE
         name LIKE '%${pitcher.split(' ').join('%')}%'
         AND sp.order = 1
@@ -666,7 +668,7 @@ export const getQueryStarterOtherInfo = (pitcher, day) => `
           SELECT
             *
           FROM
-            baseball_2020.debug_stats_pitcher sp
+            baseball_${YEAR}.debug_stats_pitcher sp
           WHERE
             name LIKE '%${pitcher.split(' ').join('%')}%'
             AND sp.order = 1
@@ -703,7 +705,7 @@ export const getQueryPitchCourse = (day: string) => `
       top,
       pb.left
     FROM
-      baseball_2020.debug_pitch_base pb
+      baseball_${YEAR}.debug_pitch_base pb
     WHERE
       date = '${day}'
       AND current_pitcher_order = 1
@@ -731,7 +733,7 @@ export const getQueryDayLob = (dateClause: string) => `
           - CASE WHEN pitching_result LIKE '%牽制%アウト%' THEN 1 ELSE 0 END
         ) AS lob
       FROM
-        baseball_2020.debug_base
+        baseball_${YEAR}.debug_base
       WHERE
         ${dateClause}
         AND after_count_out = 3
@@ -743,7 +745,7 @@ export const getQueryDayLob = (dateClause: string) => `
         b_team,
         SUM(run) AS runs
       FROM
-        baseball_2020.debug_stats_batter
+        baseball_${YEAR}.debug_stats_batter
       WHERE
         ${dateClause}
       GROUP BY
@@ -778,14 +780,14 @@ export const getQueryOppoEra = (pitcherType = 0, team = '', oppo = '') => `
       SUM(ra) AS ra,
       SUM(er) AS er
   FROM
-      baseball_2020.stats_pitcher sp
+      baseball_${YEAR}.stats_pitcher sp
   WHERE
     ${pitcherType ? `sp.order ${pitcherType == PT_STARTER ? '=' : '>'} 1 AND ` : ``}
     game_info_id IN (
     SELECT 
       id
     FROM
-      baseball_2020.game_info
+      baseball_${YEAR}.game_info
     WHERE
       (away_team_initial = '${team}' AND home_team_initial = '${oppo}') OR 
       (home_team_initial = '${team}' AND away_team_initial = '${oppo}')
@@ -819,12 +821,12 @@ export const getQueryOppoEraForPicture = (team = '', oppo = '') => `
               SUM(ra) AS ra,
               SUM(er) AS er
       FROM
-          baseball_2020.stats_pitcher sp
+          baseball_${YEAR}.stats_pitcher sp
       WHERE
           game_info_id IN (SELECT 
                   id
               FROM
-                  baseball_2020.game_info
+                  baseball_${YEAR}.game_info
               WHERE
                   (away_team_initial = '${team}'
                       AND home_team_initial = '${oppo}')
@@ -850,13 +852,13 @@ export const getQueryOppoEraForPicture = (team = '', oppo = '') => `
               SUM(ra) AS ra,
               SUM(er) AS er
       FROM
-          baseball_2020.stats_pitcher sp
+          baseball_${YEAR}.stats_pitcher sp
       WHERE
           sp.order = 1
               AND game_info_id IN (SELECT 
                   id
               FROM
-                  baseball_2020.game_info
+                  baseball_${YEAR}.game_info
               WHERE
                   (away_team_initial = '${team}'
                       AND home_team_initial = '${oppo}')
@@ -882,13 +884,13 @@ export const getQueryOppoEraForPicture = (team = '', oppo = '') => `
               SUM(ra) AS ra,
               SUM(er) AS er
       FROM
-          baseball_2020.stats_pitcher sp
+          baseball_${YEAR}.stats_pitcher sp
       WHERE
           sp.order > 1
               AND game_info_id IN (SELECT 
                   id
               FROM
-                  baseball_2020.game_info
+                  baseball_${YEAR}.game_info
               WHERE
                   (away_team_initial = '${team}'
                       AND home_team_initial = '${oppo}')
@@ -917,7 +919,7 @@ export const getQueryResultPitchPerBat = (nameArray: string[], pa: number, avera
         ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average,
         ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase
     FROM
-        baseball_2020.debug_base base
+        baseball_${YEAR}.debug_base base
     WHERE
         current_pitcher_name LIKE '%${nameArray.join('%')}%'
         AND CHAR_LENGTH(current_batter_name) > 0
@@ -945,7 +947,7 @@ export const getQueryResultBatPerPitch = (nameArray: string[], pa: number, avera
     ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average,
     ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase
   FROM
-      baseball_2020.debug_base base
+      baseball_${YEAR}.debug_base base
   WHERE
       current_batter_name LIKE '%${nameArray.join('%')}%'
           AND CHAR_LENGTH(current_batter_name) > 0

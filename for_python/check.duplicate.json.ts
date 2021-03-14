@@ -1,9 +1,9 @@
-import * as moment from "moment";
 import { format } from 'util';
 
 import { OutputJson } from './type/jsonType';
 import { checkGameDir, getJson, countFiles, checkDateDir } from './util/fs';
 import { checkArgDaySeasonEndSpecify } from "./util/display";
+import { getDayInfo } from "./util/day";
 
 const startGameNo = 1;
 const endGameNo = 6;
@@ -11,10 +11,7 @@ const startSceneCnt = 1;
 
 const { D, SE, S } = process.env;
 let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
-
-const day = moment(format("2020%s", targetDay), "YYYYMMDD");
-const seasonStart = moment(format("2020%s", targetDay), "YYYYMMDD");
-const seasonEnd = moment(format("2020%s", seasonEndArg), "YYYYMMDD");
+const { day, seasonStart, seasonEnd } = getDayInfo(targetDay, seasonEndArg);
 
 const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
 const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";

@@ -8,6 +8,7 @@ import { checkGameDir, getJson, countFiles, checkDateDir } from './util/fs';
 import { checkArgDaySeasonEndSpecify, checkArgI } from "./util/display";
 import { savePitchData, saveBatAndScoreData, saveText } from "./util/process";
 import { teamArray as teams, TOP } from "./constant";
+import { getDayInfo } from "./util/day";
 
 const startGameNo = 1;
 const endGameNo = 6;
@@ -15,10 +16,7 @@ const startSceneCnt = 1;
 
 const { D, SE, S, I } = process.env;
 let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
-
-const YEAR = process.env.YEAR ?? moment().format("YYYY");
-const seasonStart = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
-const seasonEnd = moment(format("%s%s", YEAR, seasonEndArg), "YYYYMMDD");
+const { YEAR, seasonStart, seasonEnd } = getDayInfo(targetDay, seasonEndArg);
 
 const { importGame, importText, importPitch, importBat } = checkArgI(I);
 
