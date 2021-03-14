@@ -3,6 +3,8 @@ import { format } from 'util';
 import { createConnection, getManager } from 'typeorm';
 import { checkArgPitcher, checkArgPitchType, checkArgStrikeType, displayResult } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 interface Result { team: string, pitcher: string, pitch_type: string, swing_cnt: string, missed_cnt: string }
 
@@ -31,7 +33,7 @@ interface Result { team: string, pitcher: string, pitch_type: string, swing_cnt:
             SUM(is_swing) AS swing_cnt,
             SUM(is_missed) AS missed_cnt
           FROM
-            baseball_2020.debug_pitch_base
+            baseball_${YEAR}.debug_pitch_base
           WHERE
             current_pitcher_order ${pitcher == '先発' ? '=' : '>'} 1 AND 
             pitch_type ${pitchType == 'ストレート' ? '' : '!'}= 'ストレート'

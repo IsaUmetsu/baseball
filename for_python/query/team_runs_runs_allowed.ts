@@ -5,6 +5,8 @@ import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constan
 import { RunsRunsAllowed } from '../type/jsonType';
 import { getIsTweet, tweetMulti } from '../util/tweet';
 import { displayResult } from '../util/display';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 // Execute
 (async () => {
@@ -36,7 +38,7 @@ import { displayResult } from '../util/display';
                   ing_num AS inning,
                   SUM(debug_base.plus_score) AS score
               FROM
-                  baseball_2020.debug_base
+                  baseball_${YEAR}.debug_base
               WHERE
                   (
                       away_team_initial = '${team}'
@@ -55,7 +57,7 @@ import { displayResult } from '../util/display';
                   ing_num AS inning,
                   SUM(debug_base.plus_score) AS score
               FROM
-                  baseball_2020.debug_base
+                  baseball_${YEAR}.debug_base
               WHERE
                   (
                       away_team_initial = '${team}'
@@ -80,7 +82,7 @@ import { displayResult } from '../util/display';
       results.push({ inning: 10, runs: 0, runsAllowed: 0 })
     }
 
-    const title = format('2020年%s イニング別得失点\n(順番: 得点 失点)\n', teamNames[targetTeam]);
+    const title = format('%s年%s イニング別得失点\n(順番: 得点 失点)\n', YEAR, teamNames[targetTeam]);
     const rows = [];
     for (const result of results) {
       const { inning, runs, runsAllowed } = result;

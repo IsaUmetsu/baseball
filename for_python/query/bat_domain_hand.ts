@@ -4,6 +4,8 @@ import { createConnection, getManager } from 'typeorm';
 import { leagueList } from '../constant';
 import { checkArgTMLG, displayResult, trimRateZero } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 // Execute
 (async () => {
@@ -50,7 +52,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
               ROUND(SUM(is_hit) / SUM(is_ab), 3) AS ave,
               game.game_cnt
       FROM
-          baseball_2020.debug_base base
+          baseball_${YEAR}.debug_base base
       LEFT JOIN (SELECT 
           tm.team_initial_kana AS team_initial,
               away.game_cnt AS away_game_cnt,
@@ -63,7 +65,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
           away_team_initial AS team_initial,
               COUNT(away_team_initial) AS game_cnt
       FROM
-          baseball_2020.game_info
+          baseball_${YEAR}.game_info
       WHERE
           no_game = 0
       GROUP BY away_team_initial) AS away ON away.team_initial = tm.team_initial_kana
@@ -72,7 +74,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
               home_team_initial AS team_initial,
               COUNT(home_team_initial) AS game_cnt
       FROM
-          baseball_2020.game_info
+          baseball_${YEAR}.game_info
       WHERE
           no_game = 0
       GROUP BY home_team_initial) AS home ON home.team_initial = tm.team_initial_kana) game ON game.team_initial = base.b_team
@@ -89,7 +91,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
               SUM(is_hit) AS r_hit,
               ROUND(SUM(is_hit) / SUM(is_ab), 3) AS r_ave
       FROM
-          baseball_2020.debug_base base
+          baseball_${YEAR}.debug_base base
       WHERE
           CHAR_LENGTH(current_batter_name) > 0
               AND current_pitcher_domain_hand = '右投'
@@ -104,7 +106,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
               SUM(is_hit) AS l_hit,
               ROUND(SUM(is_hit) / SUM(is_ab), 3) AS l_ave
       FROM
-          baseball_2020.debug_base base
+          baseball_${YEAR}.debug_base base
       WHERE
           CHAR_LENGTH(current_batter_name) > 0
               AND current_pitcher_domain_hand = '左投'

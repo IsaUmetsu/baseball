@@ -5,6 +5,8 @@ import { teamArray, teamNames, teamHashTags } from '../constant';
 import { displayResult, checkArgTmOp, createBatterResultRows } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
 import { BatterResult } from '../type/jsonType';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 /**
  * チームごと打者の対戦チームの打率
@@ -52,7 +54,7 @@ import { BatterResult } from '../type/jsonType';
           SUM(is_hit) AS hit,
           ROUND(SUM(is_hit) / sum(is_ab), 3) AS average,
           '' AS eol
-        FROM baseball_2020.debug_base
+        FROM baseball_${YEAR}.debug_base
         WHERE
           is_pa = 1 AND 
           (
@@ -68,7 +70,7 @@ import { BatterResult } from '../type/jsonType';
           SELECT 
             COUNT(id)
           FROM
-            baseball_2020.game_info
+            baseball_${YEAR}.game_info
           WHERE
             (
               (away_team_initial = '${team}' AND home_team_initial = '${oppo}') OR 
@@ -83,12 +85,12 @@ import { BatterResult } from '../type/jsonType';
           SUM(rbi) AS rbi,
           SUM(hr) AS hr
         FROM
-          baseball_2020.stats_batter
+          baseball_${YEAR}.stats_batter
         WHERE
           b_team = '${team}' AND
           game_info_id IN (
             SELECT A.id FROM (
-              SELECT id FROM baseball_2020.game_info
+              SELECT id FROM baseball_${YEAR}.game_info
               WHERE
                 (
                   (away_team_initial = '${team}' AND home_team_initial = '${oppo}') OR 

@@ -4,6 +4,8 @@ import * as moment from 'moment';
 import { createConnection, getManager } from 'typeorm';
 import { teamHashTags, leagueList, teamArray } from '../constant';
 import { checkArgLG, displayResult, trimRateZero } from '../util/display';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 // Execute
 (async () => {
@@ -22,8 +24,8 @@ import { checkArgLG, displayResult, trimRateZero } from '../util/display';
     return;
   }
 
-  const firstDay = moment(format("2020%d", monthArg), "YYYYM").startOf('month').format('YYYYMMDD');
-  const lastDay = moment(format("2020%d", monthArg), "YYYYM").endOf('month').format('YYYYMMDD');
+  const firstDay = moment(format("%s%d", YEAR, monthArg), "YYYYM").startOf('month').format('YYYYMMDD');
+  const lastDay = moment(format("%s%d", YEAR, monthArg), "YYYYM").endOf('month').format('YYYYMMDD');
 
   const manager = await getManager();
   const results = await manager.query(`
@@ -33,7 +35,7 @@ import { checkArgLG, displayResult, trimRateZero } from '../util/display';
       SUM(is_hit) AS hit,
       ROUND(SUM(is_hit) / SUM(is_ab), 3) AS average
     FROM
-      baseball_2020.debug_base
+      baseball_${YEAR}.debug_base
     WHERE
       date BETWEEN '${firstDay}' AND '${lastDay}'
       AND CHAR_LENGTH(b_team) > 0

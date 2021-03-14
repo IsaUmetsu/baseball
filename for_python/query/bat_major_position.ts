@@ -4,6 +4,8 @@ import { createConnection, getManager } from 'typeorm';
 import { leagueList, posFullDic, posArgDic } from '../constant';
 import { checkArgPs, checkArgTMLG, displayResult, trimRateZero } from "../util/display";
 import { getIsTweet, tweetMulti } from '../util/tweet';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 // Execute
 (async () => {
@@ -36,7 +38,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
         SUM(hr) AS hr,
         SUM(rbi) AS rbi
       FROM
-        baseball_2020.stats_batter sb
+        baseball_${YEAR}.stats_batter sb
       WHERE
         (sb.name, b_team) IN (
           SELECT
@@ -47,7 +49,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
               b_team,
               SUM(ab) AS ab
             FROM
-              baseball_2020.stats_batter sb
+              baseball_${YEAR}.stats_batter sb
             WHERE
               position LIKE '%${position}%'
             GROUP BY
@@ -64,7 +66,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
                 b_team,
                 SUM(ab) AS ab
               FROM
-                baseball_2020.stats_batter sb
+                baseball_${YEAR}.stats_batter sb
               WHERE
                 position LIKE '%${position}%'
               GROUP BY

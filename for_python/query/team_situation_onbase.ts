@@ -4,6 +4,8 @@ import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
 import { displayResult } from '../util/display';
 import { getIsScoringPos } from '../util/tweet';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 const isScoringPos = getIsScoringPos();
 
@@ -37,7 +39,7 @@ const isScoringPos = getIsScoringPos();
       CASE LEFT(SUM(is_onbase)/SUM(is_pa), 1) WHEN 1 THEN ROUND(SUM(is_onbase)/SUM(is_pa), 3) ELSE RIGHT(ROUND(SUM(is_onbase)/SUM(is_pa), 3), 4) END AS onbase_ave,
       '' AS eol
     FROM
-      baseball_2020.debug_base
+      baseball_${YEAR}.debug_base
     WHERE
       is_pa = 1
       AND (away_team_initial = '${team}' OR home_team_initial = '${team}')
@@ -73,7 +75,7 @@ const isScoringPos = getIsScoringPos();
       }
 
       displayResult(
-        format("2020年%s 得点圏 打撃成績\n", teamNames[targetTeam]), rows,
+        format("%s年%s 得点圏 打撃成績\n", YEAR, teamNames[targetTeam]), rows,
         format('\n%s', teamHashTags[targetTeam])
       );
     // 得点圏未指定
@@ -136,7 +138,8 @@ const isScoringPos = getIsScoringPos();
           }
 
           displayResult(
-            format('2020年%s %s死%s 打撃成績\n',
+            format('%s年%s %s死%s 打撃成績\n',
+              YEAR,
               teamNames[targetTeam],
               outCount == 0 ? '無' : outCount == 1 ? '一' : '二',
               createOnbaseStr(first, second, third)

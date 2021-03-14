@@ -4,6 +4,8 @@ import { createConnection, getManager } from 'typeorm';
 import { leagueList } from '../constant';
 import { checkArgLG, checkArgM, displayResult } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 // Execute
 (async () => {
@@ -22,7 +24,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
   }
   pitcherArg = 'M';
  
-  const { monthArg } = checkArgM(process.env.M);
+  const { month } = checkArgM(process.env.M);
 
   const manager = await getManager();
   const results = await manager.query(`
@@ -45,11 +47,11 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
       SUM(er) AS er,
       '' AS eol
     FROM
-      baseball_2020.stats_pitcher sp
+      baseball_${YEAR}.stats_pitcher sp
       LEFT JOIN game_info gi ON gi.id = sp.game_info_id
     WHERE
       sp.order > 1
-      AND DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${monthArg}
+      AND DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${month}
       AND p_team IN ('${teams.join("', '")}')
     GROUP BY
       name,
@@ -69,7 +71,7 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
 
   const title = format('%s投手 %s月%s HP数\n',
     league ? leagueList[league] : 'NPB',
-    monthArg,
+    month,
     pitcherArg == 'A' ? '' : pitcherArg == 'S' ? ' 先発' : ' 中継ぎ'
   );
 

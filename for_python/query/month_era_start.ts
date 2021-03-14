@@ -4,6 +4,8 @@ import { createConnection, getManager } from 'typeorm';
 import { leagueList } from '../constant';
 import { checkArgLG, checkArgM, displayResult } from '../util/display';
 import { tweetMulti, getIsTweet } from '../util/tweet';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 // Execute
 (async () => {
@@ -22,7 +24,7 @@ import { tweetMulti, getIsTweet } from '../util/tweet';
   }
   pitcherArg = 'S';
  
-  const { monthArg } = checkArgM(process.env.M);
+  const { month } = checkArgM(process.env.M);
 
   const manager = await getManager();
   const results = await manager.query(`
@@ -44,20 +46,20 @@ import { tweetMulti, getIsTweet } from '../util/tweet';
       SUM(outs) DIV 3 AS inning_int,
       '' AS eol
     FROM
-      baseball_2020.stats_pitcher sp
+      baseball_${YEAR}.stats_pitcher sp
       LEFT JOIN game_info gi ON gi.id = sp.game_info_id
       LEFT JOIN (
           SELECT
               team_initial_kana,
               game_cnt AS team_game_cnt
           FROM
-              baseball_2020.game_cnt_per_month
+              baseball_${YEAR}.game_cnt_per_month
           WHERE
               month = DATE_FORMAT(NOW(), '%c')
       ) game ON sp.p_team = game.team_initial_kana
     WHERE
       sp.order = 1
-      AND DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${monthArg}
+      AND DATE_FORMAT(STR_TO_DATE(gi.date, '%Y%m%d'), '%c') = ${month}
       AND p_team IN ('${teams.join("', '")}')
     GROUP BY
       name,
@@ -77,7 +79,7 @@ import { tweetMulti, getIsTweet } from '../util/tweet';
 
   const title = format('%s投手 %s月%s 防御率\n',
     league ? leagueList[league] : 'NPB',
-    monthArg,
+    month,
     pitcherArg == 'A' ? '' : pitcherArg == 'S' ? ' 先発' : ' 中継ぎ'
   );
 

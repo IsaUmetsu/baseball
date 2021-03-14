@@ -4,6 +4,8 @@ import { createConnection, getManager } from 'typeorm';
 import { teamArray, teamHashTags, dayOfWeekArr, teamNameHalfToIni } from '../constant';
 import { checkArgDow, trimRateZero, displayResult, checkArgTMLG } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
+import { getYear } from '../util/day';
+const YEAR = getYear();
 
 /**
  * 曜日ごとの打率(出力単位: チーム単体)
@@ -33,12 +35,12 @@ import { getIsTweet, tweetMulti } from '../util/tweet';
         ROUND(SUM(is_onbase) / SUM(is_pa), 3) AS average_onbase,
         game.game_cnt
       FROM
-        baseball_2020.debug_base base
+        baseball_${YEAR}.debug_base base
       LEFT JOIN (
         SELECT 
           team_initial_kana, game_cnt
         FROM
-          baseball_2020.game_cnt_per_day
+          baseball_${YEAR}.game_cnt_per_day
         WHERE
           dow = ${dayOfWeek} -- 曜日指定
       ) AS game ON game.team_initial_kana = b_team
