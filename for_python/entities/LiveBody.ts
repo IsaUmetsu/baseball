@@ -1,7 +1,9 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, BaseEntity } from "typeorm";
+import { format } from 'util';
+import { getYear } from "../util/day";
 
 @Index("idx_live_body", ["gameInfoId", "scene"], {})
-@Entity("live_body", { schema: "baseball_2020" })
+@Entity("live_body", { schema: format("baseball_%s", getYear()) })
 export class LiveBody extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

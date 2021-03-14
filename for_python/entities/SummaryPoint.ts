@@ -1,8 +1,10 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, BaseEntity } from "typeorm";
+import { format } from 'util';
+import { getYear } from "../util/day";
 
 @Index("idx_summary_point", ["gameInfoId", "inning", "no"], {})
 @Index("idx_sp_2", ["gameInfoId", "inning", "team", "no"], {})
-@Entity("summary_point", { schema: "baseball_2020" })
+@Entity("summary_point", { schema: format("baseball_%s", getYear()) })
 export class SummaryPoint extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

@@ -1,7 +1,9 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, BaseEntity } from "typeorm";
+import { format } from 'util';
+import { getYear } from "../util/day";
 
 @Index("idx_bench_master", ["gameInfoId", "scene"], {})
-@Entity("bench_master", { schema: "baseball_2020" })
+@Entity("bench_master", { schema: format("baseball_%s", getYear()) })
 export class BenchMaster extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

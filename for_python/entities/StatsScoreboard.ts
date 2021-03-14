@@ -1,6 +1,8 @@
 import { Column, Entity, PrimaryGeneratedColumn, BaseEntity } from "typeorm";
+import { format } from 'util';
+import { getYear } from "../util/day";
 
-@Entity("stats_scoreboard", { schema: "baseball_2020" })
+@Entity("stats_scoreboard", { schema: format("baseball_%s", getYear()) })
 export class StatsScoreboard extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
