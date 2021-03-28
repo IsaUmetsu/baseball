@@ -314,6 +314,14 @@ interface ResultText {
  * 
  */
 const doSaveTextRecord = async (record: SummaryPoint, gameInfoId: number, json: ResultText) => {
+
+  const judgeIsRbiHit = (detail: string): number => Number(
+    detail.indexOf('タイムリー') > -1 ||
+    detail.indexOf('サヨナラヒット') > -1 ||
+    detail.indexOf('サヨナラツーベース') > -1 ||
+    detail.indexOf('サヨナラスリーベース') > -1 ||
+    (detail.indexOf('フルベース') > -1 && detail.indexOf('ヒット') > -1)
+  );
   
   if (record.detail) {
     // 行が保存済み
@@ -322,7 +330,9 @@ const doSaveTextRecord = async (record: SummaryPoint, gameInfoId: number, json: 
       record.detail += json.detail;
       await record.save();
     } else {
-      // 詳細情報が保存済みの場合は何もしない
+      // 詳細情報が保存済みの場合はフラグのみ更新
+      record.isRbiHit = judgeIsRbiHit(record.detail);
+      await record.save();
     }
   } else {
     // 未保存である場合、新規作成する
@@ -333,13 +343,7 @@ const doSaveTextRecord = async (record: SummaryPoint, gameInfoId: number, json: 
     record.order = json.order.replace(/番/g, '');
     record.batter = json.batter;
     record.detail = json.detail;
-    record.isRbiHit = Number(
-      json.detail.indexOf('タイムリー') > -1 ||
-      json.detail.indexOf('サヨナラヒット') > -1 ||
-      json.detail.indexOf('サヨナラツーベース') > -1 ||
-      json.detail.indexOf('サヨナラスリーベース') > -1 ||
-      (json.detail.indexOf('フルベース') > -1 && json.detail.indexOf('ヒット') > -1)
-    );
+    record.isRbiHit = judgeIsRbiHit(json.detail);
     record.isFirst = Number(json.detail.indexOf('先制') > -1);
     record.isTie = Number(json.detail.indexOf('同点') > -1);
     record.isWin = Number(json.detail.indexOf('勝ち越し') > -1);
