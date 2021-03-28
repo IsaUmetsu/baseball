@@ -314,28 +314,40 @@ interface ResultText {
  * 
  */
 const doSaveTextRecord = async (record: SummaryPoint, gameInfoId: number, json: ResultText) => {
-
-  record.gameInfoId = gameInfoId;
-  record.inning = json.inning;
-  record.team = json.team.replace(/の攻撃/g, '');
-  record.no = json.no.replace(/：/g, '');
-  record.order = json.order.replace(/番/g, '');
-  record.batter = json.batter;
-  record.detail = json.detail;
-  record.isRbiHit = Number(
-    json.detail.indexOf('タイムリー') > -1 ||
-    json.detail.indexOf('サヨナラヒット') > -1 ||
-    json.detail.indexOf('サヨナラツーベース') > -1 ||
-    json.detail.indexOf('サヨナラスリーベース') > -1
-  );
-  record.isFirst = Number(json.detail.indexOf('先制') > -1);
-  record.isTie = Number(json.detail.indexOf('同点') > -1);
-  record.isWin = Number(json.detail.indexOf('勝ち越し') > -1);
-  record.isReversal = Number(json.detail.indexOf('逆転') > -1);
-  record.isWalkoff = Number(json.detail.indexOf('サヨナラ') > -1);
-  record.isHr = Number(json.detail.indexOf('ホームラン') > -1);
-
-  await record.save();
+  
+  if (record.detail) {
+    // 行が保存済み
+    if (record.detail.indexOf(json.detail) == -1) {
+      // 未保存の場合、文字列を連結して保存
+      record.detail += json.detail;
+      await record.save();
+    } else {
+      // 詳細情報が保存済みの場合は何もしない
+    }
+  } else {
+    // 未保存である場合、新規作成する
+    record.gameInfoId = gameInfoId;
+    record.inning = json.inning;
+    record.team = json.team.replace(/の攻撃/g, '');
+    record.no = json.no.replace(/：/g, '');
+    record.order = json.order.replace(/番/g, '');
+    record.batter = json.batter;
+    record.detail = json.detail;
+    record.isRbiHit = Number(
+      json.detail.indexOf('タイムリー') > -1 ||
+      json.detail.indexOf('サヨナラヒット') > -1 ||
+      json.detail.indexOf('サヨナラツーベース') > -1 ||
+      json.detail.indexOf('サヨナラスリーベース') > -1 ||
+      (json.detail.indexOf('フルベース') > -1 && json.detail.indexOf('ヒット') > -1)
+    );
+    record.isFirst = Number(json.detail.indexOf('先制') > -1);
+    record.isTie = Number(json.detail.indexOf('同点') > -1);
+    record.isWin = Number(json.detail.indexOf('勝ち越し') > -1);
+    record.isReversal = Number(json.detail.indexOf('逆転') > -1);
+    record.isWalkoff = Number(json.detail.indexOf('サヨナラ') > -1);
+    record.isHr = Number(json.detail.indexOf('ホームラン') > -1);
+    await record.save();
+  }
 }
 
 /**
@@ -359,6 +371,7 @@ const doSaveText = async (gameNo: string, dateStr: string) => {
     const { inning, no } = json;
     const savedSummaryPoint = await getRepository(SummaryPoint).findOne({ gameInfoId, inning, no: no.replace(/：/g, '') });  
     await doSaveTextRecord(savedSummaryPoint ?? new SummaryPoint(), gameInfoId, json);
+    // await doSaveTextRecord(new SummaryPoint(), gameInfoId, json);
   }
 
   console.log(format('----- [text] finished: date: [%s], gameNo: [%s] %s-----', dateStr, targetGameNo, isFinished ? '' : 'but not complete because not complete game '));
