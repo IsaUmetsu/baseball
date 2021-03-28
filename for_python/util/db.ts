@@ -6,6 +6,7 @@ import { judgePlateAppearance, judgeAtBat, judgeHit, judgeOnbase, judgeError, ju
 import { teamNameHalfToIni, TOP, BTM, HM, AW } from '../constant';
 import { createConnection } from 'typeorm';
 import { getYear } from '../util/day';
+import * as moment from 'moment';
 const YEAR = getYear();
 
 /**
@@ -33,7 +34,9 @@ export const insertGameInfo = async (
 
   const gameInfoRepository = getRepository(GameInfo);
 
-  let savedGameInfo = await gameInfoRepository.findOne({ date, awayTeamInitial, homeTeamInitial });
+  const dateObj = moment(date, "YYYYMMDD");
+  const isDuringPeriod = (start: string, end: string): number => Number(dateObj.isSameOrAfter(moment(start)) && dateObj.isSameOrBefore(moment(end)))
+  const savedGameInfo = await gameInfoRepository.findOne({ date, awayTeamInitial, homeTeamInitial });
 
   if (savedGameInfo == null) {
     const gameInfo = new GameInfo();
@@ -41,15 +44,20 @@ export const insertGameInfo = async (
     gameInfo.awayTeamInitial = awayTeamInitial;
     gameInfo.homeTeamInitial = homeTeamInitial;
     gameInfo.gameNo = gameNo;
-    gameInfo.noGame = Number(isNoGame);
-
+    gameInfo.noGame = Number(isNoGame);    
+    gameInfo.isOp = isDuringPeriod('2021-03-02', '2021-03-25');
+    gameInfo.isRg = isDuringPeriod('2021-03-26', '2021-10-21');
+    gameInfo.isIl = isDuringPeriod('2021-05-25', '2021-06-13');
+    gameInfo.isCs = Number(false);
+    gameInfo.isJs = Number(false);
     await gameInfo.save();
-
-    savedGameInfo = await gameInfoRepository.findOne({
-      date, awayTeamInitial, homeTeamInitial
-    });
   } else {
-    // await savedGameInfo.save();
+    savedGameInfo.isOp = isDuringPeriod('2021-03-02', '2021-03-25');
+    savedGameInfo.isRg = isDuringPeriod('2021-03-26', '2021-10-21');
+    savedGameInfo.isIl = isDuringPeriod('2021-05-25', '2021-06-13');
+    savedGameInfo.isCs = Number(false);
+    savedGameInfo.isJs = Number(false);
+    await savedGameInfo.save();
   }
 
   return savedGameInfo.id;
