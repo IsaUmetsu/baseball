@@ -51,6 +51,7 @@ export const insertGameInfo = async (
     gameInfo.isCs = Number(false);
     gameInfo.isJs = Number(false);
     await gameInfo.save();
+    return gameInfo.id;
   } else {
     savedGameInfo.isOp = isDuringPeriod('2021-03-02', '2021-03-25');
     savedGameInfo.isRg = isDuringPeriod('2021-03-26', '2021-10-21');
@@ -58,9 +59,8 @@ export const insertGameInfo = async (
     savedGameInfo.isCs = Number(false);
     savedGameInfo.isJs = Number(false);
     await savedGameInfo.save();
+    return savedGameInfo.id;
   }
-
-  return savedGameInfo.id;
 }
 
 /**

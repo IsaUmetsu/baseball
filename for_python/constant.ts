@@ -20,7 +20,7 @@ export const teamHashTags = {
   'H': '#sbhawks',
   'M': '#chibalotte',
   'E': '#RakutenEagles',
-  'F': '#lovefigters',
+  'F': '#lovefighters',
   'L': '#seibulions',
   'B': format('#bs%s', getYear()),
   'G': '#giants',
