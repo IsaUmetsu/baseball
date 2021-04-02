@@ -1948,7 +1948,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
   }
 
   interface TotalResult { team: string, batter: string, rbi_hit: number };
-  interface TodayResult { team: string, batter: string, inning: string, is_first: boolean, is_tie: boolean, is_win: boolean, is_reversal: boolean };
+  interface TodayResult { team: string, batter: string, inning: string, is_first: boolean, is_tie: boolean, is_win: boolean, is_reversal: boolean, is_walkoff: boolean };
   const manager = await getManager();
 
   const totalResults: TotalResult[] = await manager.query(`
@@ -1960,7 +1960,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
     LEFT JOIN team_master tm ON sp.team = tm.team_name
     WHERE
         is_rbi_hit = 1 AND
-        (gi.date BETWEEN 20200619 AND ${prevDay})
+        (gi.date BETWEEN 20210326 AND ${prevDay})
     GROUP BY tm.team_initial_kana, batter
     ORDER BY rbi_hit DESC
   `);
@@ -1973,7 +1973,8 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
         is_first,
         is_tie,
         is_win,
-        is_reversal
+        is_reversal,
+        is_walkoff
     FROM
         baseball_${YEAR}.summary_point sp
     LEFT JOIN game_info gi ON sp.game_info_id = gi.id
@@ -1989,16 +1990,17 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
     const totalResult = totalResults.find(({ batter, team }) => batter == todayResult.batter && team == todayResult.team);    
     const totalRbiHit = totalResult ? Number(totalResult.rbi_hit) : 0;
 
-    const { inning, team, batter, is_first, is_tie, is_win, is_reversal } = todayResult;
+    const { inning, team, batter, is_first, is_tie, is_win, is_reversal, is_walkoff } = todayResult;
 
     let flag = '';
     if (is_first) flag = ' 先制';
     if (is_tie) flag = ' 同点';
     if (is_win) flag = ' 勝ち越し';
     if (is_reversal) flag = ' 逆転';
+    if (is_walkoff) flag = ' サヨナラ';
 
     const batterPart = format('%s(%s)', batter, team);
-    const rbiPart = format('%s本目 (%s%s)', totalRbiHit + 1, inning, flag);
+    const rbiPart = format('%s本目(%s%s)', totalRbiHit + 1, inning, flag);
 
     const dupRow = rows.find(row => row.indexOf(batterPart) > -1);
     if (dupRow) {
