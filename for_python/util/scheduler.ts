@@ -8,9 +8,9 @@ import { outputLogStart, outputLogEnd } from './tweet';
  * 
  */
 export const execTest = async () => {
-  await generateConnection();
+  // await generateConnection();
   // await execPitchRc10Npb();
-  await execPitchTypeStarter6innings();  // 12
+  // await execPitchTypeStarter6innings();  // 12
   // await execPitchType();    // 12
 }
 

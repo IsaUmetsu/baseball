@@ -1,9 +1,8 @@
 import * as moment from "moment";
 import { format } from 'util';
-import { createConnection } from 'typeorm';
 
 import { OutputJson, TeamInfoJson } from './type/jsonType.d';
-import { insertGameInfo, insertLiveHeader, insertLiveBody, insertPitchInfo, insertAwayTeamInfo, insertHomeTeamInfo, executeUpdatePlusOutCount } from './util/db';
+import { insertGameInfo, insertLiveHeader, insertLiveBody, insertPitchInfo, insertAwayTeamInfo, insertHomeTeamInfo, executeUpdatePlusOutCount, generateConnection } from './util/db';
 import { checkGameDir, getJson, countFiles, checkDateDir } from './util/fs';
 import { checkArgDaySeasonEndSpecify, checkArgI } from "./util/display";
 import { savePitchData, saveBatAndScoreData, saveText } from "./util/process";
@@ -123,7 +122,7 @@ const saveGame = async () => {
  */
 export const execProcessJson = async () => {
   try {
-    await createConnection('default');
+    await generateConnection();
 
     if (importGame) {
       await saveGame();
@@ -137,8 +136,3 @@ export const execProcessJson = async () => {
     console.log(err);
   }
 }
-
-// Execute
-(async () => {
-  await execProcessJson();
-})();
