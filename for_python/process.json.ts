@@ -118,8 +118,10 @@ const saveGame = async () => {
   console.log('----- done!! -----');
 };
 
-// Execute
-(async () => {
+/**
+ * メイン関数
+ */
+export const execProcessJson = async () => {
   try {
     await createConnection('default');
 
@@ -134,4 +136,9 @@ const saveGame = async () => {
   } catch (err) {
     console.log(err);
   }
+}
+
+// Execute
+(async () => {
+  await execProcessJson();
 })();
