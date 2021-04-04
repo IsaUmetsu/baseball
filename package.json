@@ -10,7 +10,7 @@
     "dev:win-mac": "SET NODE_ENV=windows&&SET DB_ENV=mac&&node scheduler/player.js",
     "casper": "casperjs --verbose --log-level=debug process.web.js",
     "check:dup": "ts-node for_python/check.duplicate.json.ts",
-    "import": "ts-node for_python/process.json.ts",
+    "import": "ts-node for_python/process.json.exec.ts",
     "import:pitch:stats": "ts-node for_python/process.pitcher.stats.ts",
     "import:bat:stats": "ts-node for_python/process.batter.stats.ts",
     "import:text": "ts-node for_python/process.text.ts",
