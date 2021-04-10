@@ -13,11 +13,9 @@ const startGameNo = 1;
 const endGameNo = 6;
 const startSceneCnt = 1;
 
-const { D, SE, S, I } = process.env;
-let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
-const { YEAR, seasonStart, seasonEnd } = getDayInfo(targetDay, seasonEndArg);
-
-const { importGame, importText, importPitch, importBat } = checkArgI(I);
+// const { D, SE, S } = process.env;
+// let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
+// const { YEAR, seasonStart, seasonEnd } = getDayInfo(targetDay, seasonEndArg);
 
 const datePath = "/Users/IsamuUmetsu/dev/py_baseball/output";
 const gamePath = "/Users/IsamuUmetsu/dev/py_baseball/output/%s/%s";
@@ -96,8 +94,7 @@ const doSave = async (gameNo: string, dateStr: string) => {
 /**
  *
  */
-const saveGame = async () => {
-  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
+const saveGame = async (day: moment.Moment, seasonStart: moment.Moment, seasonEnd: moment.Moment, specifyArg: number) => {
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -123,15 +120,21 @@ const saveGame = async () => {
 export const execProcessJson = async () => {
   try {
     await generateConnection();
+    const { D, SE, S, I } = process.env;
+    let { targetDay, seasonEndArg, specifyArg } = checkArgDaySeasonEndSpecify(D, SE, S);
+    const { YEAR, seasonStart, seasonEnd } = getDayInfo(targetDay, seasonEndArg);
+    const { importGame, importText, importPitch, importBat } = checkArgI(I);
+
+    const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
 
     if (importGame) {
-      await saveGame();
+      await saveGame(day, seasonStart, seasonEnd, specifyArg);
       await executeUpdatePlusOutCount(format("%s%s", YEAR, targetDay), format("%s%s", YEAR, seasonEndArg));
     }
 
-    if (importText) await saveText(targetDay, seasonStart, seasonEnd, specifyArg);
-    if (importPitch) await savePitchData(targetDay, seasonStart, seasonEnd, specifyArg);
-    if (importBat) await saveBatAndScoreData(targetDay, seasonStart, seasonEnd, specifyArg);
+    if (importText) await saveText(day, seasonStart, seasonEnd, specifyArg);
+    if (importPitch) await savePitchData(day, seasonStart, seasonEnd, specifyArg);
+    if (importBat) await saveBatAndScoreData(day, seasonStart, seasonEnd, specifyArg);
   } catch (err) {
     console.log(err);
   }

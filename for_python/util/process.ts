@@ -101,12 +101,12 @@ const doCheckPitch = async (gameNo, dateStr) => {
  * 
  */
 export const savePitchData = async (
-  targetDay: string,
+  day: moment.Moment,
   seasonStart: moment.Moment,
   seasonEnd: moment.Moment,
   specifyArg: number
 ) => {
-  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
+  // const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -270,12 +270,12 @@ const doCheckBat = async (gameNo, dateStr) => {
  * 
  */
 export const saveBatAndScoreData = async (
-  targetDay: string,
+  day: moment.Moment,
   seasonStart: moment.Moment,
   seasonEnd: moment.Moment,
   specifyArg: number
 ) => {
-  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
+  // const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -385,8 +385,8 @@ const doSaveText = async (gameNo: string, dateStr: string) => {
 /**
  *
  */
-export const saveText = async (targetDay, seasonStart, seasonEnd, specifyArg) => {
-  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
+export const saveText = async (day, seasonStart, seasonEnd, specifyArg) => {
+  // const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
