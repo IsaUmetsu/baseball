@@ -18,8 +18,7 @@ export const generateConnection = async () => {
     conn = await createConnection('default');
   } catch (err) {
     if (err.name == 'AlreadyHasActiveConnectionError') {
-      console.log('err')
-      conn = await getConnection('default');
+      conn = getConnection('default');
     }
   }
   return conn;
@@ -516,7 +515,7 @@ export const executeUpdatePlusOutCount = async (fromDate = '', toDate = '') => {
     `);
   }
 
-  console.log('----- done!! -----');
+  console.log('----- done!! [executeUpdatePlusOutCount] -----');
 }
 
 /**

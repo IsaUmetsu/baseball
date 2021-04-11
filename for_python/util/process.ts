@@ -101,12 +101,13 @@ const doCheckPitch = async (gameNo, dateStr) => {
  * 
  */
 export const savePitchData = async (
-  day: moment.Moment,
+  YEAR: string,
+  targetDay: string,
   seasonStart: moment.Moment,
   seasonEnd: moment.Moment,
   specifyArg: number
 ) => {
-  // const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
+  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -124,7 +125,7 @@ export const savePitchData = async (
 
     day.add(1, "days");
   }
-  console.log('----- done!! -----');
+  console.log('----- done!! [pitch] -----');
 };
 // -------------------- /Pitcher Stats --------------------
 
@@ -270,12 +271,13 @@ const doCheckBat = async (gameNo, dateStr) => {
  * 
  */
 export const saveBatAndScoreData = async (
-  day: moment.Moment,
+  YEAR: string,
+  targetDay: string,
   seasonStart: moment.Moment,
   seasonEnd: moment.Moment,
   specifyArg: number
 ) => {
-  // const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
+  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -293,7 +295,7 @@ export const saveBatAndScoreData = async (
 
     day.add(1, "days");
   }
-  console.log('----- done!! -----');
+  console.log('----- done!! [bat] -----');
 };
 // -------------------- /Batter Stats And ScoreBoard --------------------
 
@@ -385,8 +387,8 @@ const doSaveText = async (gameNo: string, dateStr: string) => {
 /**
  *
  */
-export const saveText = async (day, seasonStart, seasonEnd, specifyArg) => {
-  // const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
+export const saveText = async (YEAR: string, targetDay: string, seasonStart, seasonEnd, specifyArg) => {
+  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -403,6 +405,6 @@ export const saveText = async (day, seasonStart, seasonEnd, specifyArg) => {
     }
     day.add(1, "days");
   }
-  console.log('----- done!! -----');
+  console.log('----- done!! [text] -----');
 };
 // -------------------- /Text --------------------

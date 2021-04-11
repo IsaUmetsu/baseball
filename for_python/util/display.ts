@@ -20,7 +20,7 @@ export const getIsDevide = () => {
  */
 export const checkArgI = (importArg: string) => {
   let importGame = false, importText = false, importPitch = false, importBat = false;
-  if (! importArg) {
+  if (! importArg || importArg == undefined) {
     importGame = true, importText = true, importPitch = true, importBat = true;
   } else {
     const importTypes = importArg.split('');

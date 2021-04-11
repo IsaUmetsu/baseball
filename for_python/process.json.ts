@@ -94,7 +94,14 @@ const doSave = async (gameNo: string, dateStr: string) => {
 /**
  *
  */
-const saveGame = async (day: moment.Moment, seasonStart: moment.Moment, seasonEnd: moment.Moment, specifyArg: number) => {
+const saveGame = async (
+  YEAR: string,
+  targetDay: string,
+  seasonStart: moment.Moment,
+  seasonEnd: moment.Moment,
+  specifyArg: number
+) => {
+  const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
   while (day.isSameOrAfter(seasonStart) && day.isSameOrBefore(seasonEnd)) {
     // define game date
     const dateStr = day.format("YYYYMMDD");
@@ -111,7 +118,7 @@ const saveGame = async (day: moment.Moment, seasonStart: moment.Moment, seasonEn
     }
     day.add(1, "days");
   }
-  console.log('----- done!! -----');
+  console.log('----- done!! [game] -----');
 };
 
 /**
@@ -125,16 +132,14 @@ export const execProcessJson = async () => {
     const { YEAR, seasonStart, seasonEnd } = getDayInfo(targetDay, seasonEndArg);
     const { importGame, importText, importPitch, importBat } = checkArgI(I);
 
-    const day = moment(format("%s%s", YEAR, targetDay), "YYYYMMDD");
-
     if (importGame) {
-      await saveGame(day, seasonStart, seasonEnd, specifyArg);
+      await saveGame(YEAR, targetDay, seasonStart, seasonEnd, specifyArg);
       await executeUpdatePlusOutCount(format("%s%s", YEAR, targetDay), format("%s%s", YEAR, seasonEndArg));
     }
 
-    if (importText) await saveText(day, seasonStart, seasonEnd, specifyArg);
-    if (importPitch) await savePitchData(day, seasonStart, seasonEnd, specifyArg);
-    if (importBat) await saveBatAndScoreData(day, seasonStart, seasonEnd, specifyArg);
+    if (importText) await saveText(YEAR, targetDay, seasonStart, seasonEnd, specifyArg);
+    if (importPitch) await savePitchData(YEAR, targetDay, seasonStart, seasonEnd, specifyArg);
+    if (importBat) await saveBatAndScoreData(YEAR, targetDay, seasonStart, seasonEnd, specifyArg);
   } catch (err) {
     console.log(err);
   }
