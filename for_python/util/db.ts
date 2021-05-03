@@ -400,7 +400,7 @@ const insertTeamInfo = async (
     newRecord.homerunInfoId = homerunInfoId;
 
     await newRecord.save();
-    savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene });
+    savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene, homeAway });
   } else {
     // await savedTeamInfo.save();
   }
