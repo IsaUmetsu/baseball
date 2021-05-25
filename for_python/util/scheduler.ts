@@ -94,7 +94,7 @@ export const execAfterGameSunday = async (msg = 'after game weekend') => {
   await execWeekTeamEraDiv(); // 2*3(total, starter, middle)*2(P,C)
 
   // NPB
-  await execWeekLostOnBase(); // 1
+  // await execWeekLostOnBase(); // 1
 
   outputLogEnd(msg);
 }
