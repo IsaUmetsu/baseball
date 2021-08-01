@@ -38,4 +38,7 @@ export class GameInfo extends BaseEntity {
 
   @Column("tinyint", { name: "is_il", nullable: true })
   isIl: number | null;
+
+  @Column("tinyint", { name: "is_em", nullable: true })
+  isEm: number | null;
 }
