@@ -73,7 +73,7 @@ export const execAfterGame = async (msg = 'after game') => {
   await execBatRc5Npb();      // 1〜3
   await execOnbaseRc5Npb();   // 1〜3
   await execOpsRc5Npb();      // 1〜3
-  await execPitchRc10Npb();   // 1〜4
+  // await execPitchRc10Npb();   // 1〜4
   // await execDayOfWeekBatChampNpb();  // 1〜3
 
   outputLogEnd(msg);
