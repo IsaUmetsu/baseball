@@ -113,7 +113,11 @@ const saveGame = async (
       await doSave(format("0%d", Number(specifyArg)), dateStr);
     } else {
       for (let gameNo = startGameNo; gameNo <= endGameNo; gameNo++) {
-        await doSave(format("0%d", gameNo), dateStr);
+        try {
+          await doSave(format("0%d", gameNo), dateStr);
+        } catch (err) {
+          console.log(err)
+        }
       }
     }
     day.add(1, "days");
