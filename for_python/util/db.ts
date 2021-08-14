@@ -43,7 +43,7 @@ export const insertGameInfo = async (
     gameInfo.awayTeamInitial = awayTeamInitial;
     gameInfo.homeTeamInitial = homeTeamInitial;
     gameInfo.gameNo = gameNo;
-    gameInfo.noGame = Number(isNoGame);    
+    gameInfo.noGame = Number(isNoGame);
     gameInfo.isOp = isDuringPeriod('2021-03-02', '2021-03-25');
     gameInfo.isRg = isDuringPeriod('2021-03-26', '2021-07-14') || isDuringPeriod('2021-08-13', '2021-10-21');
     gameInfo.isIl = isDuringPeriod('2021-05-25', '2021-06-13');
@@ -53,6 +53,7 @@ export const insertGameInfo = async (
     await gameInfo.save();
     return gameInfo.id;
   } else {
+    savedGameInfo.noGame = Number(isNoGame);
     savedGameInfo.isOp = isDuringPeriod('2021-03-02', '2021-03-25');
     savedGameInfo.isRg = isDuringPeriod('2021-03-26', '2021-07-14') || isDuringPeriod('2021-08-13', '2021-10-21');
     savedGameInfo.isIl = isDuringPeriod('2021-05-25', '2021-06-13');
