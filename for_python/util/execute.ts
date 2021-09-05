@@ -1960,7 +1960,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
     LEFT JOIN team_master tm ON sp.team = tm.team_name
     WHERE
         is_rbi_hit = 1 AND
-        (gi.date BETWEEN 20210326 AND ${prevDay})
+        ((gi.date BETWEEN 20210326 AND ${prevDay}) AND NOT (gi.date BETWEEN 20210715 AND 20210812)) -- 中断期間を除外
     GROUP BY tm.team_initial_kana, batter
     ORDER BY rbi_hit DESC
   `);
