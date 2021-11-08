@@ -77,5 +77,5 @@ VIEW `debug_base` AS
         LEFT JOIN `game_order` `go` ON (((`ti`.`id` = `go`.`team_info_id`)
             AND (`go`.`name` = `lb`.`current_batter_name`))))
     WHERE
-        (`gi`.`no_game` = 0)
+        (`gi`.`no_game` = 0) AND is_rg = 1
     ORDER BY `gi`.`date` , `gi`.`game_no` , `lb`.`id`;
