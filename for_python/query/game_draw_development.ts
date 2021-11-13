@@ -5,8 +5,8 @@ import { GameInfo } from '../entities/GameInfo';
 
 // Execute
 (async () => {
-  const targetTeam = 'ソ';
   await createConnection('default');
+
   const manager = getManager();
   // TODO: これもEntityクラスで表せないか確認
   let results = await manager.query(`
@@ -17,7 +17,8 @@ import { GameInfo } from '../entities/GameInfo';
     WHERE
       no_game = 0
       AND batting_result = '試合終了'
-      AND (away_initial = '${targetTeam}' OR home_initial = '${targetTeam}')
+      AND (away_initial = 'ソ' OR home_initial = 'ソ')
+      AND (away_score = home_score)
     ORDER BY date ASC
   `);
 
@@ -26,14 +27,10 @@ import { GameInfo } from '../entities/GameInfo';
     .where("ss.game_info_id IN (:ids)", { ids: results.map(result => result.g_id) })
     .getMany();
 
-  let winCnt = 0;
-  let loseCnt = 0;
   let drawCnt = 0;
   let openingScoredCnt = 0;
-  let winOppoCnt = 0;
-  let loseOppoCnt = 0;
-  let drawOppoCnt = 0;
-  let openingScoredOppoCnt = 0;
+  let catchesUpWithCnt = 0;
+  let catchedUpWithCnt = 0;
   let scorelessDraw = 0;
 
   let idx = 0;
@@ -42,8 +39,6 @@ import { GameInfo } from '../entities/GameInfo';
     let homeInfo = statsScoreboards[idx + 1];
     let awayTeam = awayInfo.bTeam;
     let homeTeam = homeInfo.bTeam;
-    const isAway = awayTeam == targetTeam;
-    const isHome = homeTeam == targetTeam;
 
     let openingScored = false;
     let openingScoredTeam = '';
@@ -54,18 +49,24 @@ import { GameInfo } from '../entities/GameInfo';
     let leadHome = false;
 
     let catchesUpWithInfo = [];
-    let openingScoredInfo = [];
+
+    if (Number(awayInfo.total) == 0 && Number(homeInfo.total) == 0) 
+      scorelessDraw++;
 
     // イニングごとに確認
     for (let ing = 1; ing <= 9; ing++) {
       let awayScore = Number(awayInfo[`ing${ing}`]);
       // 先制したか
-      if (!openingScored && awayScore > 0) openingScoredTeam = awayTeam;
+      if (!openingScored && awayScore > 0) 
+        openingScoredTeam = awayTeam;
+
       awayTmpScore = awayTmpScore + awayScore;
 
       let homeScore = Number(homeInfo[`ing${ing}`]);
       // 先制したか
-      if (!openingScored && homeScore > 0) openingScoredTeam = homeTeam;
+      if (!openingScored && homeScore > 0) 
+        openingScoredTeam = homeTeam;
+
       homeTmpScore = homeTmpScore + homeScore;
 
       if (awayTmpScore > homeTmpScore) {
@@ -73,7 +74,6 @@ import { GameInfo } from '../entities/GameInfo';
           leadAway = true;
           if (!openingScored) {
             openingScored = true;
-            openingScoredInfo.push({ team: awayTeam, inning: ing });
             console.log(`opening scored ${awayTeam}, inning: ${ing}`);
           } else {
             leadHome = false;
@@ -86,7 +86,6 @@ import { GameInfo } from '../entities/GameInfo';
           leadHome = true;
           if (!openingScored) {
             openingScored = true;
-            openingScoredInfo.push({ team: homeTeam, inning: ing });
             console.log(`opening scored ${homeTeam}, inning: ${ing}`);
           } else {
             leadAway = false;
@@ -108,33 +107,24 @@ import { GameInfo } from '../entities/GameInfo';
       }
     }
 
-    if (openingScoredInfo.length > 0) {
-      let { team, inning } = openingScoredInfo.slice(-1)[0];
-      if (team == targetTeam) {
-        openingScoredCnt++;
-        if (isAway && (Number(awayInfo.total) > Number(homeInfo.total))) winCnt++;
-        if (isAway && (Number(awayInfo.total) < Number(homeInfo.total))) loseCnt++;
-        if (isHome && (Number(awayInfo.total) < Number(homeInfo.total))) winCnt++;
-        if (isHome && (Number(awayInfo.total) > Number(homeInfo.total))) loseCnt++;
-        if (Number(awayInfo.total) == Number(homeInfo.total)) drawCnt++;
-      } else {
-        openingScoredOppoCnt++;
-        if (isAway && (Number(awayInfo.total) > Number(homeInfo.total))) winOppoCnt++;
-        if (isAway && (Number(awayInfo.total) < Number(homeInfo.total))) loseOppoCnt++;
-        if (isHome && (Number(awayInfo.total) < Number(homeInfo.total))) winOppoCnt++;
-        if (isHome && (Number(awayInfo.total) > Number(homeInfo.total))) loseOppoCnt++;
-        if (Number(awayInfo.total) == Number(homeInfo.total)) drawOppoCnt++;
+    if (catchesUpWithInfo.length > 0) {
+      let { catches, catched, inning } = catchesUpWithInfo.slice(-1)[0];
+      
+      if (catches == 'ソ') {
+        catchesUpWithCnt++;
       }
-    } else {
-      scorelessDraw++;
+      if (catched == 'ソ') {
+        catchedUpWithCnt++;
+      }
     }
 
     const gameInfo = await getRepository(GameInfo).findOne(awayInfo.gameInfoId);
+
     console.log(`date: ${gameInfo.date}, gameInfoId: ${gameInfo.id}\n`);
+
+    drawCnt++;
     idx = idx + 2;
   } while (idx < Object.keys(statsScoreboards).length);
 
-  console.log(`openingScored: ${openingScoredCnt}, win: ${winCnt}, lose: ${loseCnt}, draw: ${drawCnt}`);
-  console.log(`openingScoredOppo: ${openingScoredOppoCnt}, win: ${winOppoCnt}, lose: ${loseOppoCnt}, draw: ${drawOppoCnt}`);
-  console.log(`scorelessDraw: ${scorelessDraw}`);
+  console.log(`total draw: ${drawCnt}, catches: ${catchesUpWithCnt}, catched: ${catchedUpWithCnt}, scoreless: ${scorelessDraw}\n`);
 })();
