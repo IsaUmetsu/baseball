@@ -1,6 +1,6 @@
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = `root`@`%` 
+    DEFINER = `root`@`localhost` 
     SQL SECURITY DEFINER
 VIEW `debug_stats_batter` AS
     SELECT 
@@ -51,6 +51,7 @@ VIEW `debug_stats_batter` AS
         END) AS `is_home`,
         `gi`.`away_team_initial` AS `away_team_initial`,
         `gi`.`home_team_initial` AS `home_team_initial`,
+        `gi`.`is_rg` AS `is_rg`,
         `gi`.`id` AS `game_info_id`
     FROM
         (`stats_batter` `sb`
