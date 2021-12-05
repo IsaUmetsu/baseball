@@ -55,7 +55,7 @@ export const insertGameInfo = async (
   } else {
     savedGameInfo.noGame = Number(isNoGame);
     savedGameInfo.isOp = isDuringPeriod('2021-03-02', '2021-03-25');
-    savedGameInfo.isRg = isDuringPeriod('2021-03-26', '2021-07-14') || isDuringPeriod('2021-08-13', '2021-10-21');
+    savedGameInfo.isRg = isDuringPeriod('2021-03-26', '2021-07-14') || isDuringPeriod('2021-08-13', '2021-11-01');
     savedGameInfo.isIl = isDuringPeriod('2021-05-25', '2021-06-13');
     savedGameInfo.isCs = isDuringPeriod('2021-11-06', '2021-11-19');
     savedGameInfo.isJs = isDuringPeriod('2021-11-20', '2021-11-28');
