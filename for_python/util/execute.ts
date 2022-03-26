@@ -1960,7 +1960,8 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
     LEFT JOIN team_master tm ON sp.team = tm.team_name
     WHERE
         is_rbi_hit = 1 AND
-        ((gi.date BETWEEN 20210326 AND ${prevDay}) AND NOT (gi.date BETWEEN 20210715 AND 20210812)) -- 中断期間を除外
+        -- ((gi.date BETWEEN 20210326 AND ${prevDay}) AND NOT (gi.date BETWEEN 20210715 AND 20210812)) -- 中断期間を除外
+        gi.date BETWEEN 20220325 AND ${prevDay}
     GROUP BY tm.team_initial_kana, batter
     ORDER BY rbi_hit DESC
   `);
@@ -1982,6 +1983,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
     WHERE
         is_rbi_hit = 1 AND
         gi.date = ${day}
+    ORDER BY sp.game_info_id ASC, inning ASC
   `);
 
   const title = format('%s 本日のタイムリーヒット\n', moment(day, 'YYYYMMDD').format('M/D'));

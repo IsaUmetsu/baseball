@@ -44,22 +44,26 @@ export const insertGameInfo = async (
     gameInfo.homeTeamInitial = homeTeamInitial;
     gameInfo.gameNo = gameNo;
     gameInfo.noGame = Number(isNoGame);
-    gameInfo.isOp = isDuringPeriod('2021-03-02', '2021-03-25');
-    gameInfo.isRg = isDuringPeriod('2021-03-26', '2021-07-14') || isDuringPeriod('2021-08-13', '2021-11-01');
-    gameInfo.isIl = isDuringPeriod('2021-05-25', '2021-06-13');
-    gameInfo.isCs = isDuringPeriod('2021-11-06', '2021-11-19');
-    gameInfo.isJs = isDuringPeriod('2021-11-20', '2021-11-28');
-    gameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12');
+    // gameInfo.isOp = isDuringPeriod('2021-03-02', '2021-03-25');
+    // gameInfo.isRg = isDuringPeriod('2021-03-26', '2021-07-14') || isDuringPeriod('2021-08-13', '2021-11-01');
+    // gameInfo.isIl = isDuringPeriod('2021-05-25', '2021-06-13');
+    // gameInfo.isCs = isDuringPeriod('2021-11-06', '2021-11-19');
+    // gameInfo.isJs = isDuringPeriod('2021-11-20', '2021-11-28');
+    // gameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12');
+    gameInfo.isOp = isDuringPeriod('2022-02-23', '2022-03-21');
+    gameInfo.isRg = isDuringPeriod('2022-03-25', '2022-10-31');
     await gameInfo.save();
     return gameInfo.id;
   } else {
     savedGameInfo.noGame = Number(isNoGame);
-    savedGameInfo.isOp = isDuringPeriod('2021-03-02', '2021-03-25');
-    savedGameInfo.isRg = isDuringPeriod('2021-03-26', '2021-07-14') || isDuringPeriod('2021-08-13', '2021-11-01');
-    savedGameInfo.isIl = isDuringPeriod('2021-05-25', '2021-06-13');
-    savedGameInfo.isCs = isDuringPeriod('2021-11-06', '2021-11-19');
-    savedGameInfo.isJs = isDuringPeriod('2021-11-20', '2021-11-28');
-    savedGameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12');
+    // savedGameInfo.isOp = isDuringPeriod('2021-03-02', '2021-03-25');
+    // savedGameInfo.isRg = isDuringPeriod('2021-03-26', '2021-07-14') || isDuringPeriod('2021-08-13', '2021-11-01');
+    // savedGameInfo.isIl = isDuringPeriod('2021-05-25', '2021-06-13');
+    // savedGameInfo.isCs = isDuringPeriod('2021-11-06', '2021-11-19');
+    // savedGameInfo.isJs = isDuringPeriod('2021-11-20', '2021-11-28');
+    // savedGameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12');
+    savedGameInfo.isOp = isDuringPeriod('2022-02-23', '2022-03-21');
+    savedGameInfo.isRg = isDuringPeriod('2022-03-25', '2022-10-31');
     await savedGameInfo.save();
     return savedGameInfo.id;
   }
