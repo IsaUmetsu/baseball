@@ -52,6 +52,7 @@ export const insertGameInfo = async (
     // gameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12');
     gameInfo.isOp = isDuringPeriod('2022-02-23', '2022-03-21');
     gameInfo.isRg = isDuringPeriod('2022-03-25', '2022-10-31');
+    gameInfo.isIl = isDuringPeriod('2022-05-24', '2021-06-12');
     await gameInfo.save();
     return gameInfo.id;
   } else {
@@ -64,6 +65,7 @@ export const insertGameInfo = async (
     // savedGameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12');
     savedGameInfo.isOp = isDuringPeriod('2022-02-23', '2022-03-21');
     savedGameInfo.isRg = isDuringPeriod('2022-03-25', '2022-10-31');
+    savedGameInfo.isRg = isDuringPeriod('2022-05-24', '2021-06-12');
     await savedGameInfo.save();
     return savedGameInfo.id;
   }
