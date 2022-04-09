@@ -65,7 +65,7 @@ export const insertGameInfo = async (
     // savedGameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12');
     savedGameInfo.isOp = isDuringPeriod('2022-02-23', '2022-03-21');
     savedGameInfo.isRg = isDuringPeriod('2022-03-25', '2022-10-31');
-    savedGameInfo.isRg = isDuringPeriod('2022-05-24', '2021-06-12');
+    savedGameInfo.isIl = isDuringPeriod('2022-05-24', '2021-06-12');
     await savedGameInfo.save();
     return savedGameInfo.id;
   }
