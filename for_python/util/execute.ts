@@ -36,7 +36,7 @@ export const execBatRc5Team = async (teamArg = '', leagueArg = '', isTweet = tru
     teams = prevTeams;
   }
 
-  if (! teams.length) return;
+  if (!teams.length) return;
 
   const manager = await getManager();
   for (const team of teams) {
@@ -81,7 +81,7 @@ export const execBatRc5TeamJs = async (teamArg = '', leagueArg = '', isTweet = t
     teams = prevTeams;
   }
 
-  if (! teams.length) return;
+  if (!teams.length) return;
 
   const manager = await getManager();
   for (const team of teams) {
@@ -137,7 +137,7 @@ export const execOpsRc5Npb = async (isTweet = true, teamArg = '', leagueArg = ''
  */
 const execRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', titlePart = '', col = '', createRows: (results: BatterResult[]) => string[], scriptName = '', base = '', titleOption = '') => {
   const teams = checkArgTMLG(teamArg, leagueArg);
-  let dispTargets = [], sorts = checkArgSort(sortArg);  
+  let dispTargets = [], sorts = checkArgSort(sortArg);
 
   // check tweetable
   for (const sort of sorts) {
@@ -158,7 +158,7 @@ const execRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg 
     }
   }
 
-  if (! dispTargets.length) return;
+  if (!dispTargets.length) return;
 
   const manager = await getManager();
   for (const { sort } of dispTargets) {
@@ -214,7 +214,7 @@ export const execOpsRc5All = async (isTweet = true, teamArg = '', leagueArg = ''
  */
 const execRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg = '', titlePart = '', col = '', createRows: (results: BatterResult[]) => string[], scriptName = '', titleOption = '') => {
   const teams = checkArgTMLGForTweet(teamArg, leagueArg);
-  let dispTargets = [], sorts = checkArgSort(sortArg);  
+  let dispTargets = [], sorts = checkArgSort(sortArg);
 
   // check tweetable
   for (const team of teams) {
@@ -237,7 +237,7 @@ const execRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg 
     }
   }
 
-  if (! dispTargets.length) return;
+  if (!dispTargets.length) return;
 
   const manager = await getManager();
   for (const { team, sort } of dispTargets) {
@@ -283,7 +283,7 @@ export const execPitchRc10Team = async (teamArg = '', leagueArg = '', isTweet = 
     teams = prevTeams;
   }
 
-  if (! teams.length) return;
+  if (!teams.length) return;
 
   const manager = await getManager();
   for (const team of teams) {
@@ -397,10 +397,10 @@ export const execPitchStrikeSwMsGame = async (isTweet = true, dayArg = '', strik
       }
     }
   } else {
-    strikes = prevStrikes; 
+    strikes = prevStrikes;
   }
 
-  if (! strikes.length) return;
+  if (!strikes.length) return;
 
   const manager = await getManager();
   for (const strike of strikes) {
@@ -439,7 +439,7 @@ export const execPitchStrikeSwMsGame = async (isTweet = true, dayArg = '', strik
  * 
  */
 export const execPitchTypeStarter3innings = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PTS3) => {
-  
+
   const isGetFinished = async (day = '', team = '') => await isFinishedInningPitchStarterByTeam(day, team, 3);
   const whereIngNum = 'AND ing_num BETWEEN 1 AND 3';
   await doExecPitchType(isTweet, dayArg, teamArg, leagueArg, scriptName, isGetFinished, 'not finished 3innings starter', ' (3回終了時点)', whereIngNum);
@@ -449,7 +449,7 @@ export const execPitchTypeStarter3innings = async (isTweet = true, dayArg = '', 
  * 
  */
 export const execPitchTypeStarter6innings = async (isTweet = true, dayArg = '', teamArg = '', leagueArg = '', scriptName = SC_PTS6) => {
-  
+
   const isGetFinished = async (day = '', team = '') => await isFinishedInningPitchStarterByTeam(day, team, 6);
   const whereIngNum = 'AND ing_num BETWEEN 1 AND 6';
   await doExecPitchType(isTweet, dayArg, teamArg, leagueArg, scriptName, isGetFinished, 'not finished 6innings starter', ' (6回終了時点)', whereIngNum);
@@ -490,7 +490,7 @@ const doExecPitchType = async (isTweet = true, dayArg = '', teamArg = '', league
     teams = prevTeams;
   }
 
-  if (! teams.length) return;
+  if (!teams.length) return;
 
   interface Result { team: string, pitcher: string, pitch_type: string, pitch_type_cnt: string }
   interface PitchType { type: string, cnt: number }
@@ -522,7 +522,7 @@ const doExecPitchType = async (isTweet = true, dayArg = '', teamArg = '', league
 
   // total info TODO
 
-  if (! results.length) console.log('出力対象のデータがありません');
+  if (!results.length) console.log('出力対象のデータがありません');
 
   const newResults: PitcherPitchType[] = [];
   // 投手単位 球種別投球数リスト作成
@@ -597,7 +597,7 @@ export const execPitchCourse = async (isTweet = true, dayArg = '', scriptName = 
     courses = prevCourses;
   }
 
-  if (! courses.length) return;
+  if (!courses.length) return;
 
   const manager = await getManager();
   for (const course of courses) {
@@ -659,7 +659,7 @@ export const execPitchGroundFlyStart = async (isTweet = true, dayArg = '', batOu
     batOuts = prevBatOuts;
   }
 
-  if (! batOuts.length) return;
+  if (!batOuts.length) return;
 
   const manager = await getManager();
   for (const batOut of batOuts) {
@@ -800,13 +800,13 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
   } else {
     teamsArray = prevTeamsArray;
   }
-  
-  if (! teamsArray.length) return;
+
+  if (!teamsArray.length) return;
 
   const manager = await getManager();
   for (const teams of teamsArray) {
     const results: any[] = await manager.query(getQueryStand(teams, dateClause));
-    
+
     let prevTeamSavings = 0;
     const title = format('%s %s 成績\n', getTeamTitle(league, teams), periodClause);
     const rows = [];
@@ -824,7 +824,7 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
         rankCircle[winRateArray.indexOf(Number(win_rate)) + 1], teamFullNames[teamIniEn], teamHashTags[team_initial], win_count, lose_count,
         draw_count > 0 ? format('%s分', draw_count) : '', trimRateZero(win_rate),
         Number(idx) > 0 ? (prevTeamSavings - nowTeamSavings) / 2 : '-'
-      ));  
+      ));
 
       prevTeamSavings = nowTeamSavings;
     }
@@ -848,8 +848,8 @@ export const execDayOfWeekStandPerResultTue = async (team = '', league = '', day
   const dayOfWeek = checkArgDow(Number(dayOfWeekArg));
   const periodClause = format('%s', dayOfWeekArr[dayOfWeek]);
   let teamsArray = checkArgTMLGForTweet(team, league);
-  
-  if (! teamsArray.length) return;
+
+  if (!teamsArray.length) return;
   const manager = await getManager();
 
   for (const res of ['win', 'lose']) {
@@ -868,7 +868,7 @@ export const execDayOfWeekStandPerResultTue = async (team = '', league = '', day
 
           return dateClauses.join(' OR ');
         }
-        
+
         const result: any[] = await manager.query(getQueryStandTue(team, await getDateClause()));
         if (result.length) for (const row of result) { results.push(row); }
       }
@@ -885,7 +885,7 @@ export const execDayOfWeekStandPerResultTue = async (team = '', league = '', day
           team_initial_kana, game_cnt, win_count, lose_count,
           draw_count > 0 ? format("%s分", draw_count) : '',
           trimRateZero(win_rate), teamHashTags[team_initial]
-        ));  
+        ));
       }
 
       displayResult(title, rows);
@@ -994,7 +994,7 @@ const execBatChamp = async (isTweet = true, team = '', league = '', dateClause =
     teamsArray = prevTeamsArray;
   }
 
-  if (! teamsArray.length) return;
+  if (!teamsArray.length) return;
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1020,7 +1020,7 @@ const execBatChamp = async (isTweet = true, team = '', league = '', dateClause =
 export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
   let league = leagueArg;
   const teamsArray = checkArgTMLGForTweet('', leagueArg);
-  if (! teamsArray.length) return;
+  if (!teamsArray.length) return;
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1063,7 +1063,7 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
       rows.push(format(
         "\n%s  %s (%s登板 %s試合) %s",
         team, ave, reliever_cnt, game_cnt, teamHashTags[teamIniEn]
-      ));  
+      ));
 
     }
 
@@ -1072,7 +1072,7 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
       //  const savedTweeted = await findSavedTweeted(SC_WS, league);
       //  const isFinished = await isFinishedGameByLeague(teams, tweetedDay);
       //  if (! savedTweeted && isFinished) {
-        await tweetMulti(title, rows);
+      await tweetMulti(title, rows);
       //    await saveTweeted(SC_WS, league, tweetedDay);
       //    console.log(format(MSG_S, tweetedDay, league, SC_WS));
       //  } else {
@@ -1113,7 +1113,7 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
     teamsArray = prevTeamsArray;
   }
 
-  if (! teamsArray.length) return;
+  if (!teamsArray.length) return;
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1293,7 +1293,7 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
     teamsArray = prevTeamsArray;
   }
 
-  if (! teamsArray.length) return;
+  if (!teamsArray.length) return;
 
   const { month, firstDay, lastDay, month2 } = checkArgTitleM(monthArg);
 
@@ -1318,7 +1318,7 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
           FROM
             baseball_${YEAR}.game_cnt_per_month
           WHERE
-            month = ${month} ${month2 > 0 ? `OR month = ${month2}` : `` }
+            month = ${month} ${month2 > 0 ? `OR month = ${month2}` : ``}
           GROUP BY team_initial_kana
         ) game ON sp.p_team = game.team_initial_kana
       WHERE
@@ -1495,7 +1495,7 @@ const execBatTeam = async (isTweet = true, leagueArg = '', getQuery: (teams: str
     teamsArray = prevTeamsArray;
   }
 
-  if (! teamsArray.length) return;
+  if (!teamsArray.length) return;
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1545,7 +1545,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
   if (!teamArg && !nameArg) {
     console.log('NM=[名前] TM=[チームイニシャル] の指定がないため本日の先発投手を指定します');
     targetPitchers = await getPitcher(pitcherPath, jsonPath);
-    if (! targetPitchers.length) {
+    if (!targetPitchers.length) {
       console.log('本日の予告先発がいない または ツイート対象の投手がいません');
       return;
     }
@@ -1558,13 +1558,13 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
   const manager = await getManager();
   for (const { team: targetTeam, pitcher, oppoTeam, isStartGame } of targetPitchers) {
     const team = teamArray[targetTeam];
-    if (! team) {
+    if (!team) {
       console.log('正しいチームイニシャル を指定してください');
       continue;
     }
 
     // 雨天中止 or ノーゲーム時
-    if (! pitcher) continue;
+    if (!pitcher) continue;
 
     // check tweetable
     if (isTweet) {
@@ -1598,18 +1598,18 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
     interface OtherInfo { inning, ave_inning, ave_np };
     const otherInfo: OtherInfo[] = await manager.query(getQueryStarterOtherInfo(pitcher, moment().format('YYYYMMDD')));
 
-    if (! otherInfo.length) {
+    if (!otherInfo.length) {
       console.log(format("表示可能なデータがありません TM:[%s] NM:[%s]", team, pitcher));
       continue;
     }
 
     const { inning, ave_inning, ave_np } = otherInfo[0];
-    let [ intPart, decimalPart ] = inning.split('.');
+    let [intPart, decimalPart] = inning.split('.');
     intPart = decimalPart ? Number(intPart) + 1 : Number(intPart)
-    
+
     const title = format("2020年 %s\n%s投手 イニング別失点数\n", teamFullNames[getTeamIniEn(team)], pitcher.split(' ').join(''));
     const rows = [];
-    
+
     for (let ingNum = 1; ingNum <= intPart; ingNum++) {
       const targetInning = results.find(result => Number(result.inning) == ingNum);
 
@@ -1640,11 +1640,11 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
  * 
  */
 const execTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', titlePart = '', scriptName = '', firstDay = '', lastDay = '') => {
-  
+
   const teamsArray = checkArgTMLGForTweet('', leagueArg);
 
   let pitchersArray: string[] = [];
-  if (! pitcherArg) {
+  if (!pitcherArg) {
     pitchersArray = ['A', 'S', 'M'];
     console.log('P=[投手種別(A/S/M)] の指定がないため、全体・先発・中継ぎのデータを出力します');
   } else if (pitcherArg != 'S' && pitcherArg != 'M') {
@@ -1654,7 +1654,7 @@ const execTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', t
     pitchersArray = [pitcherArg];
   }
 
-  let targets: {teams: string[], pitcher: string}[] = [];
+  let targets: { teams: string[], pitcher: string }[] = [];
 
   // check tweetable
   for (const teams of teamsArray) {
@@ -1676,7 +1676,7 @@ const execTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', t
     }
   }
 
-  if (! targets.length) return;
+  if (!targets.length) return;
 
   const manager = await getManager();
   for (const { teams, pitcher } of targets) {
@@ -1715,7 +1715,7 @@ const execTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', t
         '\n%s %s\n%s%s  %s回 %s失点 自責%s\n',
         teamFullNames[teamIniEn], teamHashTags[teamIniEn],
         era, getRank(eraArr, era), inning, ra, er
-      ));  
+      ));
     }
 
     const rows = devideTmpRows(tmpRows);
@@ -1816,7 +1816,7 @@ const execTeamEra = async (isTweet = true, leagueArg = '', getQuery: (teams: str
     teamsArray = prevTeamsArray;
   }
 
-  if (! teamsArray.length) return;
+  if (!teamsArray.length) return;
 
   const manager = await getManager();
   for (const teams of teamsArray) {
@@ -1989,7 +1989,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
   const title = format('%s 本日のタイムリーヒット\n', moment(day, 'YYYYMMDD').format('M/D'));
   const rows: string[] = [];
   for (const todayResult of todayResults) {
-    const totalResult = totalResults.find(({ batter, team }) => batter == todayResult.batter && team == todayResult.team);    
+    const totalResult = totalResults.find(({ batter, team }) => batter == todayResult.batter && team == todayResult.team);
     const totalRbiHit = totalResult ? Number(totalResult.rbi_hit) : 0;
 
     const { inning, team, batter, is_first, is_tie, is_win, is_reversal, is_walkoff } = todayResult;
@@ -2087,7 +2087,7 @@ export const execDayRbiHitJs = async (isTweet = true, dayArg = '', teamArg = '',
   const title = format('%s 本日のタイムリーヒット\n', moment(day, 'YYYYMMDD').format('M/D'));
   const rows: string[] = [];
   for (const todayResult of todayResults) {
-    const totalResult = totalResults.find(({ batter, team }) => batter == todayResult.batter && team == todayResult.team);    
+    const totalResult = totalResults.find(({ batter, team }) => batter == todayResult.batter && team == todayResult.team);
     const totalRbiHit = totalResult ? Number(totalResult.rbi_hit) : 0;
 
     const { inning, team, batter, is_first, is_tie, is_win, is_reversal } = todayResult;
@@ -2184,7 +2184,7 @@ export const execLeadBehindScore = async (isTweet = true, typeArg = '', inningAr
 
     const rows: string[] = [];
     const { win, lose, draw, rate } = results[0];
-    rows.push(format('\n%s  %s点%s時', teamNames[teamIniEn], scoreArg, typeArg == 'L' ? 'リード': typeArg == 'B' ? 'ビハインド' : ''));
+    rows.push(format('\n%s  %s点%s時', teamNames[teamIniEn], scoreArg, typeArg == 'L' ? 'リード' : typeArg == 'B' ? 'ビハインド' : ''));
     rows.push(format('\n%s勝%s敗%s 勝率%s %s \n', win, lose, draw > 0 ? format('%s分', draw) : '', rate, teamHashTags[teamIniEn]));
 
     displayResult(title, rows);

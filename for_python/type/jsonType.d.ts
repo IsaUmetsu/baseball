@@ -227,6 +227,7 @@ export interface BatterResult {
     hr: string,
     rbi: string,
     average_onbase?: string,
+    average_slugging?: string,
     bat_onbase?: string,
     pa?: string,
     onbase?: string,
