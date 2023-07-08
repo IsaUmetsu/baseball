@@ -12,7 +12,9 @@ const YEAR = getYear();
  * 
  */
 export const getIsDevide = () => {
-  return yargs.count('devide').alias('d', 'devide').argv.devide > 0;
+  // TODO: fix
+  // return yargs.count('devide').alias('d', 'devide').argv;
+  return false;
 }
 
 /**
@@ -500,7 +502,7 @@ export const createBatterResultRows = (results: BatterResult[]): string[] => {
 export const createBatterOnbaseResultRows = (results: BatterResult[]): string[] => {
   const rows = [];
   for (const result of results) {
-    const { b_team, batter, onbase, average_onbase, bat_onbase, hit, bb, hbp } = result;
+    const { b_team, batter, pa, onbase, average_onbase, hit, bb, hbp } = result;
     const teamClause = b_team ? format(FORMAT_BATTER_TEAM, b_team) : '';
 
     const hitClause = Number(hit) ? format(FORMAT_BATTER_HIT, hit) : '';
@@ -509,7 +511,7 @@ export const createBatterOnbaseResultRows = (results: BatterResult[]): string[] 
   
     rows.push(format(
       FORMAT_BATTER_ONBASE,
-      trimRateZero(average_onbase), bat_onbase, onbase, batter, teamClause, hitClause, bbClause, hbpClause
+      trimRateZero(average_onbase), pa, onbase, batter, teamClause, hitClause, bbClause, hbpClause
     ));
   }
   return rows;
@@ -521,12 +523,12 @@ export const createBatterOnbaseResultRows = (results: BatterResult[]): string[] 
 export const createBatterOpsResultRows = (results: BatterResult[]): string[] => {
   const rows = [];
   for (const result of results) {
-    const { b_team, batter, average_onbase, slugging, ops } = result;
+    const { b_team, batter, average_onbase, average_slugging, ops } = result;
     const teamClause = b_team ? format(FORMAT_BATTER_TEAM, b_team) : '';
   
     rows.push(format(
       FORMAT_BATTER_OPS,
-      trimRateZero(ops), batter, teamClause, trimRateZero(average_onbase), trimRateZero(slugging)
+      trimRateZero(ops), batter, teamClause, trimRateZero(average_onbase), trimRateZero(average_slugging)
     ));
   }
   return rows;

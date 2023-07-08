@@ -8,10 +8,16 @@ import { outputLogStart, outputLogEnd } from './tweet';
  * 
  */
 export const execTest = async () => {
-  // await generateConnection();
+  await generateConnection();
   // await execPitchRc10Npb();
   // await execPitchTypeStarter6innings();  // 12
   // await execPitchType();    // 12
+  // await execPitchRaPerInningStart(false);  // 12
+  // await execDayRbiHit();      // 1~4
+  // await execPitchTypeStarter3innings(false);  // 12
+  // await execPitchTypeStarter6innings();  // 12
+  // await execBatRc5Npb(false);      // 1〜3
+  // await execPitchType(false);
 }
 
 /**
@@ -61,7 +67,7 @@ export const execAfterGame = async (msg = 'after game') => {
   // per team (only hawks)
   // await execBatRc5Team();     // 12 (1*12)
   // await execPitchRc10Team();  // 12 (1*12)
-  await execDayRbiHit();      // 1~4
+  // await execDayRbiHit();      // 1~4
 
   // per league
   // await execDayBatTeam();     // 4 (2*2)
@@ -70,9 +76,11 @@ export const execAfterGame = async (msg = 'after game') => {
 
   // NPB
   await execDayLostOnBase();  // 1
-  await execBatRc5Npb();      // 1〜3
-  await execOnbaseRc5Npb();   // 1〜3
-  await execOpsRc5Npb();      // 1〜3
+  // CS・日本シリーズはOFF
+  // await execBatRc5Npb();      // 1〜3
+  // await execOnbaseRc5Npb();   // 1〜3
+  // await execOpsRc5Npb();      // 1〜3
+
   // await execPitchRc10Npb();   // 1〜4
   // await execDayOfWeekBatChampNpb();  // 1〜3
 
@@ -87,10 +95,10 @@ export const execAfterGameSunday = async (msg = 'after game weekend') => {
   await generateConnection();
 
   // per league
-  await execWeekStand();
-  await execWeekBatTeam();
-  await execWeekBatChamp();
-  await execWeekTeamEra();    // 2*2(P,C)
+  // await execWeekStand();
+  // await execWeekBatTeam();
+  // await execWeekBatChamp();
+  // await execWeekTeamEra();    // 2*2(P,C)
   // await execWeekTeamEraDiv(); // 2*3(total, starter, middle)*2(P,C)
 
   // NPB

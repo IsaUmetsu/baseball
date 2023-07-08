@@ -13,7 +13,7 @@ const AFTER_GAME_DAY_HOLIDAY  = '7-57/10 16-19 * 2-11 0-3,6';
 const AFTER_LEAVE_MOUND_STARTER_NIGHT       = '8-58/10 19-23 * 2-11 *';
 const AFTER_LEAVE_MOUND_STARTER_DAY_HOLIDAY = '8-58/10 13-18 * 2-11 0-3,6';
 const DURING_GAME_NIGHT       = '8-58/10 18-21 * 2-11 *';
-const DURING_GAME_DAY_HOLIDAY = '8-58/10 13-17 * 2-11 0-3,6';
+const DURING_GAME_DAY_HOLIDAY = '8-58/10 13-17 * 2-11 0,6';
 
 // for test
 (async () => await execTest())();

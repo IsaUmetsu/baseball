@@ -77,14 +77,16 @@ export const saveTweeted = async (scriptName, team, tweetedDay) => {
  * 
  */
 export const getIsTweet = () => {
-  return yargs.count('team').alias('t', 'tweet').argv.tweet > 0;
+  // return yargs.options({tweet: {type: 'count', alias: 't'}}).argv.t > 0;
+  return false;
 }
 
 /**
  * 
  */
 export const getIsScoringPos = () => {
-  return yargs.count('scoring').alias('s', 'scoring').argv.scoring > 0;
+  // return yargs.count('scoring').alias('s', 'scoring').argv.scoring > 0;
+  return false;
 }
 
 /**
