@@ -134,13 +134,13 @@
     "mysql": "^2.18.1",
     "mysql2": "^2.3.0",
     "n": "^7.3.1",
-    "nightmare": "^3.0.2",
+    "nightmare": "^2.8.0",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.6.5",
     "sequelize-auto": "^0.8.4",
     "twitter-text": "^3.1.0",
-    "typeorm": "^0.2.37",
-    "vo": "^4.0.2",
+    "typeorm": "^0.3.17",
+    "vo": "^4.0.0",
     "winser": "^1.0.3",
     "yargs": "^17.1.1"
   },
@@ -154,9 +154,9 @@
     "log4js": "^6.3.0",
     "moment": "^2.29.1",
     "node-cron": "^3.0.0",
-    "nodemon": "^2.0.12",
+    "nodemon": "^3.0.1",
     "ts-node": "^10.2.0",
-    "twitter": "^1.7.1",
-    "typeorm-model-generator": "^0.4.5"
+    "twitter": "^1.1.0",
+    "typeorm-model-generator": "^0.2.1"
   }
 }
