@@ -18,7 +18,7 @@
     "forever": "forever start -v -c ts-node for_python/scheduler.ts",
     "forever:stop": "forever stop -v -c ts-node for_python/scheduler.ts",
     "update:poc": "ts-node for_python/query/update_plus_out_count.ts",
-    "gen:model": "typeorm-model-generator -h localhost -d baseball_2022 -p 3306 -u root -e mysql -o ./for_python/.",
+    "gen:model": "typeorm-model-generator -h localhost -d baseball_2023 -p 3306 -u root -e mysql -o ./for_python/.",
     "gen:query": "ts-node for_python/query/createQuery.ts > ./gen_query.sql",
     "bat:rc5:team": "K=bat T=team ts-node for_python/query/recent_5days.ts",
     "bat:rc5:team:tw": "K=bat T=team ts-node for_python/query/recent_5days.ts -t",

@@ -6,7 +6,7 @@ module.exports = [
     port: 3306,
     username: 'root',
     password: '',
-    database: 'baseball_2022',
+    database: 'baseball_2023',
     synchronize: false,
     logging: false,
     connectTimeout: 30 * 1000,
