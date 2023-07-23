@@ -5,9 +5,9 @@ import { BatStats, PitchStats, ScoreBoard, TotalPitchStats } from '../type/jsonT
 import { getJson, checkDateDir, checkGameJson } from './fs';
 import { TeamPitchStats, TeamBatStats, TotalBatStats } from '../type/jsonType';
 import { teamArray, posArgDic } from '../constant';
-import { getRepository } from "typeorm";
 import { GameInfo, StatsPitcher, StatsScoreboard, StatsBatter, SummaryPoint } from "../entities";
 import { isFinishedGameById } from './db';
+import { AppDataSource } from "./datasource";
 
 const YEAR = process.env.YEAR ?? moment().format("YYYY");
 const startGameNo = 1;
@@ -28,7 +28,7 @@ const doCheckPitch = async (gameNo, dateStr) => {
   const existGameJson = await checkGameJson(pitchDatePath, dateStr, targetGameNo);
   if (! existGameJson) return;
 
-  const savedGameInfo = await getRepository(GameInfo).findOne({ date: dateStr, gameNo });
+  const savedGameInfo = await AppDataSource.getRepository(GameInfo).findOne({ where: {date: dateStr, gameNo} });
   if (! savedGameInfo) return;
 
   const { id: gameInfoId } = savedGameInfo;
@@ -81,7 +81,7 @@ const doCheckPitch = async (gameNo, dateStr) => {
 
     for (let idx in stats) {
       const order = Number(idx) + 1;
-      let savedRecord = await getRepository(StatsPitcher).findOne({ gameInfoId, pTeam, order });
+      let savedRecord = await AppDataSource.getRepository(StatsPitcher).findOne({ where: {gameInfoId, pTeam, order} });
 
       if (! savedRecord) {
         await doSaveStatsPitcher(new StatsPitcher(), stats[idx], order, stats.length);
@@ -150,7 +150,7 @@ const doCheckBat = async (gameNo, dateStr) => {
   const existGameJson = await checkGameJson(batDatePath, dateStr, targetGameNo);
   if (! existGameJson) return;
 
-  const savedGameInfo = await getRepository(GameInfo).findOne({ date: dateStr, gameNo });
+  const savedGameInfo = await AppDataSource.getRepository(GameInfo).findOne({ where: {date: dateStr, gameNo} });
   if (! savedGameInfo) return;
 
   const { id: gameInfoId } = savedGameInfo;
@@ -242,7 +242,7 @@ const doCheckBat = async (gameNo, dateStr) => {
 
     for (let idx in stats) {
       const batStats = stats[idx];
-      let savedBatRecord = await getRepository(StatsBatter).findOne({ gameInfoId, bTeam, name: batStats.name });
+      let savedBatRecord = await AppDataSource.getRepository(StatsBatter).findOne({ where: {gameInfoId, bTeam, name: batStats.name} });
 
       if (! savedBatRecord) {
         await doSaveStatsBatter(new StatsBatter(), batStats);
@@ -251,7 +251,7 @@ const doCheckBat = async (gameNo, dateStr) => {
       }
     }
 
-    let savedScoreRecord = await getRepository(StatsScoreboard).findOne({ gameInfoId, bTeam });
+    let savedScoreRecord = await AppDataSource.getRepository(StatsScoreboard).findOne({ where: {gameInfoId, bTeam} });
     if (! savedScoreRecord) {
       await doSaveScoreBoard(new StatsScoreboard(), scoreBoard);
     } else {
@@ -366,7 +366,7 @@ const doSaveText = async (gameNo: string, dateStr: string) => {
   const existGameJson = await checkGameJson(textDatePath, dateStr, targetGameNo);
   if (! existGameJson) return;
 
-  const savedGameInfo = await getRepository(GameInfo).findOne({ date: dateStr, gameNo });
+  const savedGameInfo = await AppDataSource.getRepository(GameInfo).findOne({ where: {date: dateStr, gameNo} });
   if (! savedGameInfo) return;
 
   const { id: gameInfoId } = savedGameInfo;
@@ -375,7 +375,7 @@ const doSaveText = async (gameNo: string, dateStr: string) => {
 
   for (const json of jsonArray) {
     const { inning, no } = json;
-    const savedSummaryPoint = await getRepository(SummaryPoint).findOne({ gameInfoId, inning, no: no.replace(/：/g, '') });  
+    const savedSummaryPoint = await AppDataSource.getRepository(SummaryPoint).findOne({ where: {gameInfoId, inning, no: no.replace(/：/g, '')} });  
     await doSaveTextRecord(savedSummaryPoint ?? new SummaryPoint(), gameInfoId, json);
     // await doSaveTextRecord(new SummaryPoint(), gameInfoId, json);
   }

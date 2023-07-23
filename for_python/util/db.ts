@@ -1,28 +1,11 @@
-import { getRepository, getManager, getConnection, Connection } from 'typeorm';
-
 import { LiveHeaderJson, LiveBodyJson, PitchInfoJson, TeamInfoJson, BenchMemberInfoType, SavedBallCount } from '../type/jsonType';
 import { GameInfo, LiveHeader, LiveBody, PitchInfo, PitchCourse, PitchDetails, PitcherBatter, TeamInfo, GameOrder, BenchMemberInfo, BenchMaster, BatteryInfo, HomerunInfo } from '../entities';
 import { judgePlateAppearance, judgeAtBat, judgeHit, judgeOnbase, judgeError, judgeFc, judgePlayerChange, judgeIsBall, judgeIsStrike, judgePlusScore, judgePlusOutCount, calcTotalBase, indexOfAnd } from './liveBody';
 import { teamNameHalfToIni, TOP, BTM, HM, AW } from '../constant';
-import { createConnection } from 'typeorm';
 import { getYear } from '../util/day';
 import * as moment from 'moment';
+import { AppDataSource } from './datasource';
 const YEAR = getYear();
-
-/**
- * 
- */
-export const generateConnection = async () => {
-  let conn: Connection;
-  try {
-    conn = await createConnection('default');
-  } catch (err) {
-    if (err.name == 'AlreadyHasActiveConnectionError') {
-      conn = getConnection('default');
-    }
-  }
-  return conn;
-}
 
 /**
  * 試合情報保存
@@ -31,11 +14,11 @@ export const insertGameInfo = async (
   date: string, awayTeamInitial: string, homeTeamInitial: string, gameNo: string, isNoGame: boolean
 ): Promise<number> => {
 
-  const gameInfoRepository = getRepository(GameInfo);
+  const gameInfoRepository = AppDataSource.getRepository(GameInfo);
 
   const dateObj = moment(date, "YYYYMMDD");
   const isDuringPeriod = (start: string, end: string): number => Number(dateObj.isSameOrAfter(moment(start)) && dateObj.isSameOrBefore(moment(end)))
-  const savedGameInfo = await gameInfoRepository.findOne({ date, awayTeamInitial, homeTeamInitial });
+  const savedGameInfo = await gameInfoRepository.findOne({ where: {date, awayTeamInitial, homeTeamInitial} });
 
   if (savedGameInfo == null) {
     const gameInfo = new GameInfo();
@@ -87,8 +70,8 @@ export const insertLiveHeader = async (
     return { ingNum, ingTb };
   }
   
-  const liveHeaderRepository = getRepository(LiveHeader);
-  let savedLiveHeader = await liveHeaderRepository.findOne({ gameInfoId, scene });
+  const liveHeaderRepository = AppDataSource.getRepository(LiveHeader);
+  let savedLiveHeader = await liveHeaderRepository.findOne({ where: {gameInfoId, scene} });
 
   if (savedLiveHeader == null) {
     const { inning, away, home, count } = liveHeader;
@@ -113,7 +96,7 @@ export const insertLiveHeader = async (
     newLiveHader.bTeam = ingTb == TOP ? away.teamInitial : ingTb == BTM ? home.teamInitial : null;
 
     await newLiveHader.save();
-    savedLiveHeader = await liveHeaderRepository.findOne({ gameInfoId, scene });
+    savedLiveHeader = await liveHeaderRepository.findOne({ where: {gameInfoId, scene} });
   } else {
     const { inning, away, home, count } = liveHeader;
 
@@ -144,8 +127,8 @@ export const insertLiveBody = async (
   batteryInfo: string
 ): Promise<void> => {
 
-  const liveBodyRepository = getRepository(LiveBody);
-  const savedLiveBody = await liveBodyRepository.findOne({ gameInfoId, scene });
+  const liveBodyRepository = AppDataSource.getRepository(LiveBody);
+  const savedLiveBody = await liveBodyRepository.findOne({ where: {gameInfoId, scene} });
 
   if (savedLiveBody == null) {
     const newLiveBody = new LiveBody();
@@ -238,8 +221,8 @@ export const insertPitchInfo = async (
   if (! pitchInfo) return;
 
   // about `pitch_info`
-  const pitchInfoRepository = getRepository(PitchInfo);
-  let savedPitchInfo = await pitchInfoRepository.findOne({ gameInfoId, scene });
+  const pitchInfoRepository = AppDataSource.getRepository(PitchInfo);
+  let savedPitchInfo = await pitchInfoRepository.findOne({ where: {gameInfoId, scene} });
 
   if (savedPitchInfo == null) {
     const newPitchInfo = new PitchInfo();
@@ -248,14 +231,14 @@ export const insertPitchInfo = async (
     newPitchInfo.scene = scene;
 
     await newPitchInfo.save();
-    savedPitchInfo = await pitchInfoRepository.findOne({ gameInfoId, scene });
+    savedPitchInfo = await pitchInfoRepository.findOne({ where: {gameInfoId, scene} });
   }
 
   const pitchInfoId = savedPitchInfo.id;
 
   // about `pitcher_batter`
-  const pbRepo = getRepository(PitcherBatter);
-  let savedPitcherBatter = await pbRepo.findOne({ pitchInfoId });
+  const pbRepo = AppDataSource.getRepository(PitcherBatter);
+  let savedPitcherBatter = await pbRepo.findOne({ where: {pitchInfoId} });
 
   if (savedPitcherBatter == null) {
     const { left, right } = pitchInfo.gameResult;
@@ -273,8 +256,8 @@ export const insertPitchInfo = async (
   }
 
   // about `pitch_details`
-  const pdRepo = getRepository(PitchDetails);
-  let savedPitcherDetails = await pdRepo.find({ pitchInfoId });
+  const pdRepo = AppDataSource.getRepository(PitchDetails);
+  let savedPitcherDetails = await pdRepo.find({ where: {pitchInfoId} });
   let pitchCnts = [];
 
   if (savedPitcherDetails == null || savedPitcherDetails.length == 0) {
@@ -306,8 +289,8 @@ export const insertPitchInfo = async (
   }
 
   // about `pitch_course`
-  const pcRepo = getRepository(PitchCourse);
-  let savedPitchCourses = await pcRepo.find({ pitchInfoId });
+  const pcRepo = AppDataSource.getRepository(PitchCourse);
+  let savedPitchCourses = await pcRepo.find({ where: {pitchInfoId} });
 
   if (savedPitchCourses == null || savedPitchCourses.length == 0) {
     for (const idx in pitchInfo.allPitchCourse) {
@@ -350,8 +333,8 @@ const insertTeamInfo = async (
   let batteryInfoId = null;
   if (batteryInfo) {
     const [ pitcher, catcher ] = batteryInfo.split(" - ");
-    const batteryInfoRepo = getRepository(BatteryInfo);
-    let savedBatteryInfo = await batteryInfoRepo.findOne({ gameInfoId, pitcher, catcher });
+    const batteryInfoRepo = AppDataSource.getRepository(BatteryInfo);
+    let savedBatteryInfo = await batteryInfoRepo.findOne({ where: {gameInfoId, pitcher, catcher} });
 
     if (savedBatteryInfo == null) {
       const newRecord = new BatteryInfo();
@@ -362,7 +345,7 @@ const insertTeamInfo = async (
       newRecord.pitcher = pitcher;
       newRecord.catcher = catcher;
       await newRecord.save();
-      savedBatteryInfo = await batteryInfoRepo.findOne({ gameInfoId, pitcher, catcher });
+      savedBatteryInfo = await batteryInfoRepo.findOne({ where: {gameInfoId, pitcher, catcher} });
     } else {
       // savedBatteryInfo.currentP = getCurrentPlayer(pitcher);
       // savedBatteryInfo.currentC = getCurrentPlayer(catcher);
@@ -374,8 +357,8 @@ const insertTeamInfo = async (
   // about `homerun_info`
   let homerunInfoId = null;
   if (homerunInfo) {
-    const homerunInfoRepo = getRepository(HomerunInfo);
-    let savedHomerunInfo = await homerunInfoRepo.findOne({ gameInfoId, homerun: homerunInfo });
+    const homerunInfoRepo = AppDataSource.getRepository(HomerunInfo);
+    let savedHomerunInfo = await homerunInfoRepo.findOne({ where: {gameInfoId, homerun: homerunInfo} });
 
     if (savedHomerunInfo == null) {
       const newRecord = new HomerunInfo();
@@ -383,14 +366,14 @@ const insertTeamInfo = async (
       newRecord.scene = scene;
       newRecord.homerun = homerunInfo;
       await newRecord.save();
-      savedHomerunInfo = await homerunInfoRepo.findOne({ gameInfoId, homerun: homerunInfo });
+      savedHomerunInfo = await homerunInfoRepo.findOne({ where: {gameInfoId, homerun: homerunInfo} });
     }
 
     homerunInfoId = savedHomerunInfo.id;
   }
   // about `team_info`
-  const teamInfoRepository = getRepository(TeamInfo);
-  let savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene, homeAway });
+  const teamInfoRepository = AppDataSource.getRepository(TeamInfo);
+  let savedTeamInfo = await teamInfoRepository.findOne({ where: {gameInfoId, scene, homeAway} });
   if (savedTeamInfo == null) {
 
     const newRecord = new TeamInfo();
@@ -403,15 +386,15 @@ const insertTeamInfo = async (
     newRecord.homerunInfoId = homerunInfoId;
 
     await newRecord.save();
-    savedTeamInfo = await teamInfoRepository.findOne({ gameInfoId, scene, homeAway });
+    savedTeamInfo = await teamInfoRepository.findOne({ where: {gameInfoId, scene, homeAway} });
   } else {
     // await savedTeamInfo.save();
   }
 
   const teamInfoId = savedTeamInfo.id;
   // about `game_order`
-  const gameOrderRepo = getRepository(GameOrder);
-  const savedGameOrder = await gameOrderRepo.find({ teamInfoId });
+  const gameOrderRepo = AppDataSource.getRepository(GameOrder);
+  const savedGameOrder = await gameOrderRepo.find({ where: {teamInfoId} });
   if (savedGameOrder.length == 0) {
     for (const order of teamInfo.order) {
       const { no, position, name, domainHand, average } = order;
@@ -441,8 +424,8 @@ const insertTeamInfo = async (
 
   // abount `bench_menber_info`
   // 直前のベンチ入り情報
-  const benchMasterRepo = getRepository(BenchMaster);
-  const prevBenchMaster = await benchMasterRepo.findOne({ gameInfoId, scene: scene - 1, teamName: name });
+  const benchMasterRepo = AppDataSource.getRepository(BenchMaster);
+  const prevBenchMaster = await benchMasterRepo.findOne({ where: {gameInfoId, scene: scene - 1, teamName: name} });
   // 初期保存 or ベンチ入り人数に変更があった場合のみ保存
   if (prevBenchMaster == null || currentMemberCount < prevBenchMaster.memberCount) {    
     const saveBenchMember = async (position: string, benchMember: BenchMemberInfoType) => {
@@ -488,8 +471,7 @@ export const insertAwayTeamInfo = async (
  */
 export const executeUpdatePlusOutCount = async (fromDate = '', toDate = '') => {
 
-  const manager = await getManager();
-  const results: any[] = await manager.query(`
+  const results: any[] = await AppDataSource.manager.query(`
     SELECT 
       lb_id,
       prev_count_out,
@@ -507,7 +489,7 @@ export const executeUpdatePlusOutCount = async (fromDate = '', toDate = '') => {
   for (const result of results) {
     const { lb_id, plus_out_count_new, prev_count_out_new } = result;
 
-    await manager.query(`
+    await AppDataSource.manager.query(`
       UPDATE
         live_body
       SET
@@ -526,8 +508,7 @@ export const executeUpdatePlusOutCount = async (fromDate = '', toDate = '') => {
  */
 export const isFinishedAllGame = async (day = ''): Promise<boolean> => {
 
-  const manager = await getManager();
-  const results: {is_finished: string}[] = await manager.query(`
+  const results: {is_finished: string}[] = await AppDataSource.manager.query(`
     SELECT
       L.game_cnt = R.game_cnt AS is_finished
     FROM
@@ -572,8 +553,7 @@ export const isFinishedAllGame = async (day = ''): Promise<boolean> => {
  */
 export const isFinishedGame = async (team, day): Promise<boolean> => {
 
-  const manager = await getManager();
-  const results: {is_finished: string}[] = await manager.query(`
+  const results: {is_finished: string}[] = await AppDataSource.manager.query(`
     SELECT 
       COUNT(id) > 0 AS is_finished
     FROM
@@ -607,8 +587,7 @@ export const isFinishedGame = async (team, day): Promise<boolean> => {
  */
 export const isFinishedGameByLeague = async (teams, day): Promise<boolean> => {
 
-  const manager = await getManager();
-  const results: {is_finished: string}[] = await manager.query(`
+  const results: {is_finished: string}[] = await AppDataSource.manager.query(`
     SELECT
       L.game_cnt = R.game_cnt AS is_finished
     FROM
@@ -667,8 +646,7 @@ export const isFinishedGameByLeague = async (teams, day): Promise<boolean> => {
  */
 export const isFinishedGameById = async (gameInfoId): Promise<boolean> => {
 
-  const manager = await getManager();
-  const results: {is_finished: string}[] = await manager.query(`
+  const results: {is_finished: string}[] = await AppDataSource.manager.query(`
     SELECT 
       COUNT(id) > 0 AS is_finished
     FROM
@@ -695,8 +673,7 @@ export const isFinishedGameById = async (gameInfoId): Promise<boolean> => {
  */
 export const isLeftMoundStarterAllGame = async (day): Promise<boolean> => {
 
-  const manager = await getManager();
-  const results: { is_left: string }[] = await manager.query(`
+  const results: { is_left: string }[] = await AppDataSource.manager.query(`
     SELECT 
       L.cnt = R.cnt AS is_left
     FROM
@@ -732,8 +709,7 @@ export const isLeftMoundStarterAllGame = async (day): Promise<boolean> => {
  */
 export const isFinishedInningPitchStarterByTeam = async (day = '', team = '', ip = 0): Promise<boolean> => {
 
-  const manager = await getManager();
-  const results: { is_finished: string }[] = await manager.query(`
+  const results: { is_finished: string }[] = await AppDataSource.manager.query(`
     SELECT 
       COUNT(sp.name) AS is_finished
     FROM
@@ -758,8 +734,7 @@ export const isFinishedInningPitchStarterByTeam = async (day = '', team = '', ip
  */
 export const isLeftMoundStarterByTeam = async (day = '', team = ''): Promise<boolean> => {
 
-  const manager = await getManager();
-  const results: { is_left: string }[] = await manager.query(`
+  const results: { is_left: string }[] = await AppDataSource.manager.query(`
     SELECT 
       COUNT(sp.name) AS is_left
     FROM
