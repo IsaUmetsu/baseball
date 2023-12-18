@@ -1,14 +1,14 @@
 import * as moment from 'moment';
 
 import { execMonthStand, execPitchPerOut, execPitchRc10Team, execPitchStrikeSwMsGame, execPitchType, execWeekBatChamp, execWeekStand, execMonthBatChamp, execDayBatTeam, execPitchRaPerInningStart, execMonthTeamEra, execMonthBatTitle, execMonthPitchTitle, execMonthBatTeam, execWeekBatTeam, execWeekTeamEra, execWeekTeamEraDiv, execMonthTeamEraDiv, execPitchCourse, execBatRc5Team, execBatRc5Npb, execOnbaseRc5Npb, execOpsRc5Npb, execPitchRc10Npb, execDayOfWeekBatChampNpb, execDayTeamEra, execDayLostOnBase, execWeekLostOnBase, execMonthLostOnBase, execPitchTypeStarter3innings, execPitchTypeStarter6innings, execDayRbiHit, execDayRbiHitJs, execBatRc5TeamJs } from './execute';
-import { generateConnection } from './db';
 import { outputLogStart, outputLogEnd } from './tweet';
+import { AppDataSource } from './datasource';
 
 /**
  * 
  */
 export const execTest = async () => {
-  await generateConnection();
+  await AppDataSource.initialize();
   // await execPitchRc10Npb();
   // await execPitchTypeStarter6innings();  // 12
   // await execPitchType();    // 12
@@ -25,7 +25,7 @@ export const execTest = async () => {
  */
 export const execBeforeGame = async (msg = 'before game') => {
   outputLogStart(msg);
-  await generateConnection();
+  await AppDataSource.initialize();
   await execPitchRaPerInningStart();  // 12
   outputLogEnd(msg);
 }
@@ -35,7 +35,7 @@ export const execBeforeGame = async (msg = 'before game') => {
  */
 export const execDuringGame = async (msg = 'during game') => {
   outputLogStart(msg);
-  await generateConnection();
+  await AppDataSource.initialize();
   await execPitchTypeStarter3innings();  // 12
   await execPitchTypeStarter6innings();  // 12
   outputLogEnd(msg);
@@ -46,7 +46,7 @@ export const execDuringGame = async (msg = 'during game') => {
  */
 export const execAfterLeftMound = async (msg = 'after leave mound') => {
   outputLogStart(msg);
-  await generateConnection();
+  await AppDataSource.initialize();
   // per team
   await execPitchType();    // 12
   // all pitchers
@@ -62,7 +62,7 @@ export const execAfterLeftMound = async (msg = 'after leave mound') => {
  */
 export const execAfterGame = async (msg = 'after game') => {
   outputLogStart(msg);
-  await generateConnection();
+  await AppDataSource.initialize();
 
   // per team (only hawks)
   // await execBatRc5Team();     // 12 (1*12)
@@ -92,7 +92,7 @@ export const execAfterGame = async (msg = 'after game') => {
  */
 export const execAfterGameSunday = async (msg = 'after game weekend') => {
   outputLogStart(msg);
-  await generateConnection();
+  await AppDataSource.initialize();
 
   // per league
   // await execWeekStand();
