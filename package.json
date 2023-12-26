@@ -116,6 +116,7 @@
     "ratu:stand": "PR=RATU ts-node for_python/query/team_standings.ts",
     "lead:score": "T=L ts-node for_python/query/lead_behind_score.ts",
     "behind:score": "T=B ts-node for_python/query/lead_behind_score.ts",
+    "test:line": "ts-node for_python/util/line.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -127,6 +128,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@line/bot-sdk": "^8.0.2",
     "axios": "^0.21.1",
     "jquery": "^3.6.0",
     "jsdom": "^17.0.0",
