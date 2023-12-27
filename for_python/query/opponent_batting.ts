@@ -1,6 +1,6 @@
 import { format } from 'util';
 
-import { createConnection, getManager } from 'typeorm';
+import { AppDataSource } from '../util/datasource';
 import { teamArray, teamNames, teamHashTags } from '../constant';
 import { displayResult, checkArgTmOp, createBatterResultRows } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
@@ -12,8 +12,7 @@ const YEAR = getYear();
  * チームごと打者の対戦チームの打率
  */
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   const teamArg = process.env.TM;
   const oppoArg = process.env.OP;
 
@@ -39,7 +38,7 @@ const YEAR = getYear();
       return;
     }
 
-    const manager = await getManager();
+    const manager = await AppDataSource.manager;
     const results: BatterResult[] = await manager.query(`
       SELECT
         base.*,

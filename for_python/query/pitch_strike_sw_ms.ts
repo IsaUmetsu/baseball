@@ -1,17 +1,16 @@
 import { format } from 'util';
 
-import { createConnection, getManager } from 'typeorm';
 import { checkArgPitcher, checkArgPitchType, checkArgStrikeType, displayResult } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
 import { getYear } from '../util/day';
+import { AppDataSource } from '../util/datasource';
 const YEAR = getYear();
 
 interface Result { team: string, pitcher: string, pitch_type: string, swing_cnt: string, missed_cnt: string }
 
 // Execute
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   const pitchers = checkArgPitcher(process.env.PR);
   if (! pitchers.length) return;
 
@@ -21,7 +20,7 @@ interface Result { team: string, pitcher: string, pitch_type: string, swing_cnt:
   const strikes = checkArgStrikeType(process.env.ST);
   if (! strikes.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const pitcher of pitchers) {
     for (const pitchType of pitchTypes) {
       for (const strike of strikes) {

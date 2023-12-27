@@ -1,6 +1,6 @@
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = `root`@`%` 
+    DEFINER = `root`@`localhost`
     SQL SECURITY DEFINER
 VIEW `debug_game_pitch_mid_rc10` AS
     SELECT 

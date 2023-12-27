@@ -1,13 +1,12 @@
-import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
 import { execBatRc5All, execBatRc5Npb, execBatRc5Team, execOnbaseRc5All, execOpsRc5All, execOnbaseRc5Npb, execOpsRc5Npb, execBatRc5TeamJs } from '../util/execute';
+import { AppDataSource } from '../util/datasource';
 
 /**
  * Per team
  */
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   const { K, T, TM, LG, S } = process.env;
   // average
   if (K == 'bat') {

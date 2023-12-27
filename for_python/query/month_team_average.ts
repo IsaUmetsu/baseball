@@ -1,7 +1,7 @@
 import { format } from 'util';
 import * as moment from 'moment';
 
-import { createConnection, getManager } from 'typeorm';
+import { AppDataSource } from '../util/datasource';
 import { teamHashTags, leagueList, teamArray } from '../constant';
 import { checkArgLG, displayResult, trimRateZero } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
@@ -10,8 +10,7 @@ const YEAR = getYear();
 
 // Execute
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   const league = process.env.LG;
   const teams = checkArgLG(league);
   if (! teams.length) return;
@@ -28,7 +27,7 @@ const YEAR = getYear();
   const firstDay = moment(format("%s%d", YEAR, monthArg), "YYYYM").startOf('month').format('YYYYMMDD');
   const lastDay = moment(format("%s%d", YEAR, monthArg), "YYYYM").endOf('month').format('YYYYMMDD');
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   const results = await manager.query(`
     SELECT 
       b_team AS tm,

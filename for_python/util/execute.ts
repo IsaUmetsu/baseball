@@ -1,7 +1,7 @@
 import { format } from 'util';
 import * as moment from 'moment';
 
-import { getManager } from 'typeorm';
+import { AppDataSource } from './datasource';
 import { teamArray, teamNames, teamHashTags, dayOfWeekArr, courseTypes, teamFullNames, rankCircle, DOW_BAT_NPB_BASE, RC5_BAT_NPB_BASE, RC5_OB_NPB_BASE, RC5_OPS_NPB_BASE } from '../constant';
 import { checkArgBatOut, checkArgDay, checkArgM, checkArgStrikeType, checkArgTargetDayOfWeek, checkArgTMLG, checkArgTMLGForTweet, checkLeague, createBatterResultRows, displayResult, trimRateZero, getTeamTitle, createBatterOnbaseResultRows, checkArgSort, createBatterOpsResultRows, checkArgDow, getTeamIniEn, getRank, getAscSortedArray, devideTmpRows, getDescSortedArray, checkArgTitleM } from './display';
 import { findSavedTweeted, genTweetedDay, saveTweeted, tweetMulti, MSG_S, MSG_F, SC_RC5T, SC_RC10, SC_PSG, SC_PT, SC_GFS, SC_POS, SC_WS, SC_MS, SC_MBC, SC_WBC, SC_DBT, tweet, SC_PRS, SC_MTE, SC_MTED, SC_MT, SC_RC5A, SC_BRC5A, SC_ORC5A, SC_WBT, SC_WTE, SC_WTED, SC_DBC, SC_DS, SC_PC, SC_RC5N, SC_BRC5N, SC_ORC5N, SC_RC10N, SC_DBCN, SC_DTED, SC_DTE, SC_DLOB, SC_PTS3, SC_PTS6, SC_DRH, SC_RBP } from './tweet';
@@ -38,7 +38,7 @@ export const execBatRc5Team = async (teamArg = '', leagueArg = '', isTweet = tru
 
   if (!teams.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const team of teams) {
     const teamIniEn = getTeamIniEn(team);
     const results: BatterResult[] = await manager.query(getQueryBatRc5Team(team));
@@ -83,7 +83,7 @@ export const execBatRc5TeamJs = async (teamArg = '', leagueArg = '', isTweet = t
 
   if (!teams.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const team of teams) {
     const teamIniEn = getTeamIniEn(team);
     const results: BatterResult[] = await manager.query(getQueryBatRc5TeamJs(team));
@@ -160,7 +160,7 @@ const execRc5Npb = async (isTweet = true, teamArg = '', leagueArg = '', sortArg 
 
   if (!dispTargets.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const { sort } of dispTargets) {
     const results: BatterResult[] = await manager.query(getQueryBatRc5Npb(teams, col, sort, base));
 
@@ -239,7 +239,7 @@ const execRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg 
 
   if (!dispTargets.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const { team, sort } of dispTargets) {
     const results: BatterResult[] = await manager.query(getQueryBatRc5All(team, col, sort));
 
@@ -285,7 +285,7 @@ export const execPitchRc10Team = async (teamArg = '', leagueArg = '', isTweet = 
 
   if (!teams.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const team of teams) {
     const teamIniEn = getTeamIniEn(team);
     const results = await manager.query(getQueryPitch10Team(team));
@@ -341,7 +341,7 @@ export const execPitchRc10Npb = async (isTweet = true, teamArg = '', leagueArg =
     }
   }
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   const results = await manager.query(getQueryPitch10TeamNpb(teams, baseGameCnt));
 
   const title = format('NPB 最近10試合 優秀中継ぎ投手\n(%s登板以上連続無失点)\n', baseGameCnt);
@@ -402,7 +402,7 @@ export const execPitchStrikeSwMsGame = async (isTweet = true, dayArg = '', strik
 
   if (!strikes.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const strike of strikes) {
     const results: Result[] = await manager.query(`
       SELECT 
@@ -496,7 +496,7 @@ const doExecPitchType = async (isTweet = true, dayArg = '', teamArg = '', league
   interface PitchType { type: string, cnt: number }
   interface PitcherPitchType { team: string, pitcher: string, types: PitchType[] }
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   // target day info
   const results: Result[] = await manager.query(`
     SELECT 
@@ -599,7 +599,7 @@ export const execPitchCourse = async (isTweet = true, dayArg = '', scriptName = 
 
   if (!courses.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const course of courses) {
     // target day info
     const results: Result[] = await manager.query(getQueryPitchCourse(day));
@@ -661,7 +661,7 @@ export const execPitchGroundFlyStart = async (isTweet = true, dayArg = '', batOu
 
   if (!batOuts.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const batOut of batOuts) {
     const results: Result[] = await manager.query(`
       SELECT 
@@ -717,7 +717,7 @@ export const execPitchPerOut = async (isTweet = true, dayArg = '') => {
     }
   }
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   const results: Result[] = await manager.query(`
     SELECT 
         p_team AS team,
@@ -803,7 +803,7 @@ const execStand = async (isTweet: boolean, league: string, periodClause: string,
 
   if (!teamsArray.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const teams of teamsArray) {
     const results: any[] = await manager.query(getQueryStand(teams, dateClause));
 
@@ -850,7 +850,7 @@ export const execDayOfWeekStandPerResultTue = async (team = '', league = '', day
   let teamsArray = checkArgTMLGForTweet(team, league);
 
   if (!teamsArray.length) return;
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
 
   for (const res of ['win', 'lose']) {
     for (const teams of teamsArray) {
@@ -922,7 +922,7 @@ const execBatChampNpb = async (isTweet = true, teams: string[] = [], dateClause 
     }
   }
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
 
   const results: BatterResult[] = await manager.query(getQueryBatChampNpb(teams, dateClause, base));
   const title = format('NPB %s 優秀打率打者\n(打率%s以上)\n', periodClause, trimRateZero(base));
@@ -996,7 +996,7 @@ const execBatChamp = async (isTweet = true, team = '', league = '', dateClause =
 
   if (!teamsArray.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const teams of teamsArray) {
     const results: BatterResult[] = await manager.query(getQueryBatChamp(teams, dateClause, team));
 
@@ -1022,7 +1022,7 @@ export const execRelieverAve = async (isTweet = true, leagueArg = '') => {
   const teamsArray = checkArgTMLGForTweet('', leagueArg);
   if (!teamsArray.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const teams of teamsArray) {
     const results = await manager.query(`
       SELECT
@@ -1115,7 +1115,7 @@ export const execMonthBatTitle = async (isTweet = true, teamArg = '', leagueArg 
 
   if (!teamsArray.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const teams of teamsArray) {
     // except `steam base`
     const regResults = await manager.query(`
@@ -1297,7 +1297,7 @@ export const execMonthPitchTitle = async (isTweet = true, teamArg = '', leagueAr
 
   const { month, firstDay, lastDay, month2 } = checkArgTitleM(monthArg);
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const teams of teamsArray) {
     // about starter era
     const regResults: any[] = await manager.query(`
@@ -1497,7 +1497,7 @@ const execBatTeam = async (isTweet = true, leagueArg = '', getQuery: (teams: str
 
   if (!teamsArray.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const teams of teamsArray) {
     const results = await manager.query(getQuery(teams));
 
@@ -1555,7 +1555,7 @@ export const execPitchRaPerInningStart = async (isTweet = true, teamArg = '', na
     targetPitchers.push({ team: teamArg, pitcher: nameArg, oppoTeam: '' });
   }
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const { team: targetTeam, pitcher, oppoTeam, isStartGame } of targetPitchers) {
     const team = teamArray[targetTeam];
     if (!team) {
@@ -1678,7 +1678,7 @@ const execTeamEraDiv = async (isTweet = true, leagueArg = '', pitcherArg = '', t
 
   if (!targets.length) return;
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   for (const { teams, pitcher } of targets) {
     const results = await manager.query(`
       SELECT 
@@ -1818,7 +1818,7 @@ const execTeamEra = async (isTweet = true, leagueArg = '', getQuery: (teams: str
 
   if (!teamsArray.length) return;
 
-  const manager = await getManager();
+  const manager = AppDataSource.manager;
   for (const teams of teamsArray) {
     const results: any[] = await manager.query(getQuery(teams));
 
@@ -1905,7 +1905,7 @@ const execLostOnBase = async (isTweet = true, day = '', dateClause = '', periodC
     }
   }
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   const results: any[] = await manager.query(getQueryDayLob(dateClause));
 
   const title = format('%s チーム別 残塁数 (得点)\n', periodClause);
@@ -1949,7 +1949,7 @@ export const execDayRbiHit = async (isTweet = true, dayArg = '', teamArg = '', l
 
   interface TotalResult { team: string, batter: string, rbi_hit: number };
   interface TodayResult { team: string, batter: string, inning: string, is_first: boolean, is_tie: boolean, is_win: boolean, is_reversal: boolean, is_walkoff: boolean };
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
 
   const totalResults: TotalResult[] = await manager.query(`
     SELECT 
@@ -2049,7 +2049,7 @@ export const execDayRbiHitJs = async (isTweet = true, dayArg = '', teamArg = '',
 
   interface TotalResult { team: string, batter: string, rbi_hit: number };
   interface TodayResult { team: string, batter: string, inning: string, is_first: boolean, is_tie: boolean, is_win: boolean, is_reversal: boolean };
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
 
   const totalResults: TotalResult[] = await manager.query(`
     SELECT 
@@ -2131,7 +2131,7 @@ export const execDayRbiHitJs = async (isTweet = true, dayArg = '', teamArg = '',
  */
 export const execLeadBehindScore = async (isTweet = true, typeArg = '', inningArg = 1, scoreArg = 0, teamArg = '', leagueArg = '', scriptName = SC_DRH) => {
   const prevTeams = checkArgTMLG(teamArg, leagueArg);
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
 
   for (const team of prevTeams) {
     const results = await manager.query(`
@@ -2195,7 +2195,7 @@ export const execLeadBehindScore = async (isTweet = true, typeArg = '', inningAr
  */
 export const execResultBatPerPitch = async (isTweet = true, name = '', pa = 0, average = 0, type = 'G', scriptName = SC_RBP) => {
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   const results = await manager.query(getQueryResultBatPerPitch(name.split(' '), pa, average, type));
 
   const title = '';
@@ -2218,7 +2218,7 @@ export const execResultBatPerPitch = async (isTweet = true, name = '', pa = 0, a
  */
 export const execResultPitchPerBat = async (isTweet = true, name = '', pa = 0, average = 0, type = 'G', scriptName = SC_RBP) => {
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   const results = await manager.query(getQueryResultPitchPerBat(name.split(' '), pa, average, type));
 
   const title = '';

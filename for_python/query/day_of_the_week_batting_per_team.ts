@@ -1,6 +1,6 @@
 import { format } from 'util';
 
-import { createConnection, getManager } from 'typeorm';
+import { AppDataSource } from '../util/datasource';
 import { teamArray, teamHashTags, dayOfWeekArr, teamNameHalfToIni } from '../constant';
 import { checkArgDow, trimRateZero, displayResult, checkArgTMLG } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
@@ -11,8 +11,7 @@ const YEAR = getYear();
  * 曜日ごとの打率(出力単位: チーム単体)
  */
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   const teamArg = process.env.TM;
   const league = process.env.LG;
 
@@ -23,7 +22,7 @@ const YEAR = getYear();
 
   for (const targetTeam of teams) {
 
-    const manager = await getManager();
+    const manager = await AppDataSource.manager;
     const results = await manager.query(`
       SELECT
         REPLACE(current_batter_name, ' ', '') AS batter,

@@ -1,12 +1,11 @@
 
-import { createConnection } from 'typeorm';
 import { getIsTweet } from '../util/tweet';
 import { execMonthBatTitle, execMonthPitchTitle } from "../util/execute";
+import { AppDataSource } from '../util/datasource';
 
 // Execute
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   const { TM, LG, M, T } = process.env;
 
   let execBat = false, execPitch = false;
