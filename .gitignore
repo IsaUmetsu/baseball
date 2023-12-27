@@ -22,4 +22,5 @@ tweet/twitter.js
 for_python/query/sql/*.sql
 for_python/tweet/twitter.ts
 for_python/query/createQuery.ts
+for_python/lineconfig.json
 gen_query.sql
