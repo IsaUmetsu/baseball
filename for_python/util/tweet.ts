@@ -3,7 +3,7 @@ import { client } from '../tweet/twitter';
 import * as yargs from 'yargs';
 import * as moment from 'moment';
 import { Tweet } from '../entities';
-import { getRepository } from 'typeorm';
+import { AppDataSource } from './datasource';
 import { format } from 'util';
 
 export const MSG_S = '----- [done] date: [%s], team: [%s], script: [%s] -----';
@@ -58,7 +58,8 @@ export const genTweetedDay = () => {
  * 
  */
 export const findSavedTweeted = async (scriptName, team, tweetedDay = genTweetedDay()) => {
-  return await getRepository(Tweet).findOne({ scriptName, team, tweetedDay });
+  const tweetRepository = AppDataSource.getRepository(Tweet);
+  return await tweetRepository.findOne({ where: {scriptName, team, tweetedDay} });
 }
 
 /**

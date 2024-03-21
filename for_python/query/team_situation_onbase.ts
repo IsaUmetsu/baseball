@@ -1,6 +1,6 @@
 import { format } from 'util';
 
-import { createConnection, getManager } from 'typeorm';
+import { AppDataSource } from '../util/datasource';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
 import { displayResult } from '../util/display';
 import { getIsScoringPos } from '../util/tweet';
@@ -11,8 +11,7 @@ const isScoringPos = getIsScoringPos();
 
 // Execute
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   let teams = [];
   const teamArg = process.env.TM;
   if (teamArg) {
@@ -56,7 +55,7 @@ const isScoringPos = getIsScoringPos();
       return;
     }
 
-    const manager = await getManager();
+    const manager = await AppDataSource.manager;
     // 得点圏指定
     if (isScoringPos) {
       const results = await manager.query(`

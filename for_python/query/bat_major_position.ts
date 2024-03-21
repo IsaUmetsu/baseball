@@ -1,6 +1,6 @@
 import { format } from "util";
 
-import { createConnection, getManager } from 'typeorm';
+import { AppDataSource } from "../util/datasource";
 import { leagueList, posFullDic, posArgDic } from '../constant';
 import { checkArgPs, checkArgTMLG, displayResult, trimRateZero } from "../util/display";
 import { getIsTweet, tweetMulti } from '../util/tweet';
@@ -9,8 +9,7 @@ const YEAR = getYear();
 
 // Execute
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   const teamArg = process.env.TM;
   const leagueArg = process.env.LG;
 
@@ -25,7 +24,7 @@ const YEAR = getYear();
     positions.push(pos);
   }
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
 
   for (const position of positions) {
     const results = await manager.query(`

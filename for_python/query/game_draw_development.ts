@@ -1,13 +1,11 @@
-import { createConnection, getManager } from 'typeorm';
-import { getRepository } from 'typeorm';
+import { AppDataSource } from '../util/datasource';
 import { StatsScoreboard } from '../entities/StatsScoreboard';
 import { GameInfo } from '../entities/GameInfo';
 
 // Execute
 (async () => {
-  await createConnection('default');
-
-  const manager = getManager();
+  await AppDataSource.initialize();
+  const manager = await AppDataSource.manager;
   // TODO: これもEntityクラスで表せないか確認
   let results = await manager.query(`
     SELECT 
@@ -22,7 +20,8 @@ import { GameInfo } from '../entities/GameInfo';
     ORDER BY date ASC
   `);
 
-  let statsScoreboards = await getRepository(StatsScoreboard)
+  const statsScoreboardRepo = AppDataSource.getRepository(StatsScoreboard);
+  let statsScoreboards = statsScoreboardRepo
     .createQueryBuilder("ss")
     .where("ss.game_info_id IN (:ids)", { ids: results.map(result => result.g_id) })
     .getMany();
@@ -118,7 +117,8 @@ import { GameInfo } from '../entities/GameInfo';
       }
     }
 
-    const gameInfo = await getRepository(GameInfo).findOne(awayInfo.gameInfoId);
+    const gameInfoRepo = AppDataSource.getRepository(GameInfo);
+    const gameInfo = await gameInfoRepo.findOne({where: {id: awayInfo.gameInfoId}});
 
     console.log(`date: ${gameInfo.date}, gameInfoId: ${gameInfo.id}\n`);
 
