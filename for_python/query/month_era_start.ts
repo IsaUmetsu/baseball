@@ -1,6 +1,6 @@
 import { format } from 'util';
 
-import { createConnection, getManager } from 'typeorm';
+import { AppDataSource } from '../util/datasource';
 import { leagueList } from '../constant';
 import { checkArgLG, checkArgM, displayResult } from '../util/display';
 import { tweetMulti, getIsTweet } from '../util/tweet';
@@ -9,8 +9,7 @@ const YEAR = getYear();
 
 // Execute
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   const league = process.env.LG;
   const teams = checkArgLG(league);
   if (! teams.length) return;
@@ -26,7 +25,7 @@ const YEAR = getYear();
  
   const { month } = checkArgM(process.env.M);
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   const results = await manager.query(`
     SELECT
       p_team AS tm,

@@ -1,6 +1,6 @@
 import { format } from 'util';
 
-import { createConnection, getManager } from 'typeorm';
+import { AppDataSource } from '../util/datasource';
 import { teamArray, teamNames, teamHashTags, PT_STARTER, pitcherTypeArgArr } from '../constant';
 import { checkArgTmOp, displayResult } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
@@ -10,7 +10,7 @@ import { getQueryOppoEra, getQueryOppoEraForPicture } from '../util/query';
  * 対戦チームにおける先発・中継ぎ陣の防御率
  */
 (async () => {
-  await createConnection('default');
+  await AppDataSource.initialize();
   const { TM: teamArg, OP: oppoArg, D: dayArg, P: pitcherTypeArg } = process.env;
 
   const targetTeam = await checkArgTmOp(teamArg, oppoArg, dayArg);
@@ -49,7 +49,7 @@ import { getQueryOppoEra, getQueryOppoEraForPicture } from '../util/query';
     // TODO: クエリ表示をどうするか
     queries.push(getQueryOppoEraForPicture(team, oppo));
 
-    const manager = await getManager();
+    const manager = AppDataSource.manager;
     const results = await manager.query(getQueryOppoEra(pitcherType, team, oppo));
 
     const pitcherTypeClause = pitcherType ? pitcherType == PT_STARTER ? '先発 ': '中継ぎ ' : '';

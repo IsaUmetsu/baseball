@@ -1,6 +1,6 @@
 import { format } from 'util';
 
-import { createConnection, getManager } from 'typeorm';
+import { AppDataSource } from '../util/datasource';
 import { teamArray, teamNames, teamHashTags, leagueP, leagueC } from '../constant';
 import { RunsRunsAllowed } from '../type/jsonType';
 import { getIsTweet, tweetMulti } from '../util/tweet';
@@ -10,8 +10,7 @@ const YEAR = getYear();
 
 // Execute
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   const teamArg = process.env.TM;
   if (! teamArg) {
     console.log('TM=[チームイニシャル] を指定がないため12球団分出力します');
@@ -26,7 +25,7 @@ const YEAR = getYear();
       return;
     }
 
-    const manager = await getManager();
+    const manager = await AppDataSource.manager;
     const results: RunsRunsAllowed[] = await manager.query(`
       SELECT
           R.inning,

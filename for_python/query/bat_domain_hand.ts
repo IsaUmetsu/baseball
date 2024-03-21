@@ -1,6 +1,6 @@
 import { format } from 'util';
 
-import { createConnection, getManager } from 'typeorm';
+import { AppDataSource } from '../util/datasource';
 import { leagueList } from '../constant';
 import { checkArgTMLG, displayResult, trimRateZero } from '../util/display';
 import { getIsTweet, tweetMulti } from '../util/tweet';
@@ -9,8 +9,7 @@ const YEAR = getYear();
 
 // Execute
 (async () => {
-  await createConnection('default');
-
+await AppDataSource.initialize();
   const teamArg = process.env.TM;
   const league = process.env.LG;
   const teams = checkArgTMLG(teamArg, league);
@@ -28,7 +27,7 @@ const YEAR = getYear();
   const domainHandList = { 'L': '左', 'R': '右' };
   const dh = domainHandArg.toLowerCase();
 
-  const manager = await getManager();
+  const manager = await AppDataSource.manager;
   const results = await manager.query(`
     SELECT 
       REPLACE(total.current_batter_name, ' ', '') AS current_batter_name,

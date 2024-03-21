@@ -1,8 +1,8 @@
-import { createConnection } from 'typeorm';
+import { AppDataSource } from './util/datasource';
 import { executeUpdatePlusOutCount } from './util/db';
 
 // Execute
 (async () => {
-  await createConnection('default');
+  await AppDataSource.initialize();
   await executeUpdatePlusOutCount();
 })();

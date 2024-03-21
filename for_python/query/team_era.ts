@@ -1,13 +1,16 @@
-
-import { createConnection } from 'typeorm';
+import { AppDataSource } from '../util/datasource';
 import { getIsTweet } from '../util/tweet';
 import { execDayTeamEra, execMonthTeamEra, execWeekTeamEra } from '../util/execute';
 import { getIsDevide } from '../util/display';
 
-// Execute
+/**
+ * Execute
+ * 
+ * (リーグ) M月 防御率
+ * 全体 先発 中継ぎ
+ */
 (async () => {
-  await createConnection('default');
-
+  await AppDataSource.initialize();
   const { PR, LG, P, M, D } = process.env;
 
   if (PR == 'D') await execDayTeamEra(getIsTweet(), getIsDevide(), LG, P, D);
