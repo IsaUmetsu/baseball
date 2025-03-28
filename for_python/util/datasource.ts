@@ -8,7 +8,7 @@ export const AppDataSource = new DataSource({
     port: 3306,
     username: "root",
     password: "",
-    database: "baseball_2024",
+    database: "baseball_" + process.env.YEAR,
     synchronize: false,
     entities: [GameInfo, LiveHeader, LiveBody, PitchInfo, PitchCourse, PitchDetails, PitcherBatter, TeamInfo, GameOrder, BenchMemberInfo, BenchMaster, BatteryInfo, HomerunInfo, SummaryPoint, StatsPitcher, StatsBatter, StatsScoreboard]
 });

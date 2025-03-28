@@ -6,7 +6,7 @@
     "port": 3306,
     "username": "root",
     "password": "",
-    "database": "baseball_2024",
+    "database": "baseball_2025",
     "schema": "",
     "synchronize": false,
     "entities": ["entities/*.js"]
