@@ -129,19 +129,19 @@
   "license": "ISC",
   "dependencies": {
     "@line/bot-sdk": "^8.0.2",
-    "axios": "^0.21.1",
+    "axios": "^1.11.0",
     "jquery": "^3.6.0",
     "jsdom": "^17.0.0",
     "mem": "^9.0.1",
     "mysql": "^2.18.1",
-    "mysql2": "^2.3.0",
+    "mysql2": "^3.14.3",
     "n": "^7.3.1",
-    "nightmare": "^2.8.0",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.6.5",
     "sequelize-auto": "^0.8.4",
+    "twitter": "^1.1.0",
     "twitter-text": "^3.1.0",
-    "typeorm": "^0.3.17",
+    "typeorm": "^0.3.26",
     "vo": "^4.0.0",
     "winser": "^1.0.3",
     "yargs": "^17.1.1"
@@ -157,8 +157,6 @@
     "moment": "^2.29.1",
     "node-cron": "^3.0.0",
     "nodemon": "^3.0.1",
-    "ts-node": "^10.2.0",
-    "twitter": "^1.1.0",
-    "typeorm-model-generator": "^0.2.1"
+    "ts-node": "^10.9.2"
   }
 }

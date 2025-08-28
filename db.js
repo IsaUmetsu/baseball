@@ -7,16 +7,16 @@ let dbInfo;
 
 if (process.env.NODE_ENV == 'mac') {
   dbInfo = {
-    host: "localhost",
-    username: "root",
-    password: ""
+    host: "127.0.0.1",
+    username: "baseball",
+    password: "baseball"
   }
 } else if (process.env.NODE_ENV == 'windows') {
   if (process.env.DB_ENV == 'windows') {
     dbInfo = {
       host: "localhost",
-      username: "root",
-      password: "",
+      username: "baseball",
+      password: "baseball",
     }
   } else if (process.env.DB_ENV == 'mac') {
     dbInfo = {

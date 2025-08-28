@@ -7,9 +7,9 @@ const { debug } = yargs.options({
 
 const isMac: boolean = process.cwd() == "/";
 const dbinfo = isMac ? {
-  host: "localhost",
-  username: "root",
-  password: "",
+  host: "127.0.0.1",
+  username: "baseball",
+  password: "baseball",
 } : {
   host: "192.168.26.184",
   username: "baseball",
