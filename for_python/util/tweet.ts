@@ -1,6 +1,4 @@
-import * as twitterText from 'twitter-text';
 import { client } from '../tweet/twitter';
-import * as yargs from 'yargs';
 import * as moment from 'moment';
 import { Tweet } from '../entities';
 import { AppDataSource } from './datasource';
@@ -46,6 +44,11 @@ export const SC_WTE = 'week_team_era';
 export const SC_WTED = 'week_team_era_div';
 export const SC_LBS = 'lead_behind_score';
 export const SC_RBP = 'result_bat_per_p';
+
+function isTweetValid(text: string): boolean {
+  const length = text.length;
+  return length <= 140;
+}
 
 /**
  * 
@@ -99,7 +102,7 @@ export const tweet = async (title: string, rows: string[], footer?: string) => {
   mainContent += title;
  
   for (const row of rows) {
-    if (twitterText.parseTweet(mainContent + row).valid) {
+    if (isTweetValid(mainContent + row).valid) {
       mainContent += row;
     } else {
       await doTweet(mainContent);
@@ -108,7 +111,7 @@ export const tweet = async (title: string, rows: string[], footer?: string) => {
   }
 
   if (footer) {
-    if (twitterText.parseTweet(mainContent + footer).valid) {
+    if (isTweetValid(mainContent + footer).valid) {
       await doTweet(mainContent + footer);
     } else {
       await doTweet(mainContent);
@@ -149,7 +152,7 @@ export const tweetMulti = async (title: string, rows: string[], footer?: string)
  
   for (let idx in rows) {
     const row = rows[idx];
-    if (twitterText.parseTweet(mainContent + row).valid) {
+    if (isTweetValid(mainContent + row).valid) {
       mainContent += row;
     } else {
       in_reply_to_status_id = await doTweetMulti(mainContent, in_reply_to_status_id);
@@ -158,7 +161,7 @@ export const tweetMulti = async (title: string, rows: string[], footer?: string)
   }
 
   if (footer) {
-    if (twitterText.parseTweet(mainContent + footer).valid) {
+    if (isTweetValid(mainContent + footer).valid) {
       await doTweetMulti(mainContent + footer, in_reply_to_status_id);
     } else {
       in_reply_to_status_id = await doTweetMulti(mainContent, in_reply_to_status_id);

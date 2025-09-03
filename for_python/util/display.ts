@@ -1,12 +1,16 @@
 import { format } from 'util';
 import * as moment from 'moment';
-import * as twitter from "twitter-text";
 import * as yargs from 'yargs';
 import { batOuts, dayOfWeekArr, FORMAT_BATTER, FORMAT_BATTER_HR, FORMAT_BATTER_RBI, leagueList, posArgDic, strikeTypes, teamArray, teamList, pitcherRoles, pitchTypes, teamNames, FORMAT_BATTER_TEAM, FORMAT_BATTER_ONBASE, FORMAT_BATTER_BB, FORMAT_BATTER_HBP, FORMAT_BATTER_HIT, sortType, FORMAT_BATTER_OPS, rankCircle } from '../constant';
 import { countFiles, getJson } from './fs';
 import { BatterResult } from '../type/jsonType';
 import { getYear } from '../util/day';
 const YEAR = getYear();
+
+function isTweetValid(text: string): boolean {
+  const length = text.length;
+  return length <= 140;
+}
 
 /**
  * 
@@ -281,7 +285,7 @@ export const displayResult = (title: string, rows: string[], footer?: string) =>
   mainContent += title;
   
   for (const row of rows) {
-    if (twitter.parseTweet(mainContent + row).valid) {
+    if (isTweetValid(mainContent + row)) {
       mainContent += row;
     } else {
       mainContents.push(mainContent);
@@ -290,7 +294,7 @@ export const displayResult = (title: string, rows: string[], footer?: string) =>
   }
 
   if (footer) {
-    if (twitter.parseTweet(mainContent + footer).valid) {
+    if (isTweetValid(mainContent + footer)) {
       mainContents.push(mainContent + footer);
     } else {
       mainContents.push(mainContent);
