@@ -102,7 +102,7 @@ export const tweet = async (title: string, rows: string[], footer?: string) => {
   mainContent += title;
  
   for (const row of rows) {
-    if (isTweetValid(mainContent + row).valid) {
+    if (isTweetValid(mainContent + row)) {
       mainContent += row;
     } else {
       await doTweet(mainContent);
@@ -111,7 +111,7 @@ export const tweet = async (title: string, rows: string[], footer?: string) => {
   }
 
   if (footer) {
-    if (isTweetValid(mainContent + footer).valid) {
+    if (isTweetValid(mainContent + footer)) {
       await doTweet(mainContent + footer);
     } else {
       await doTweet(mainContent);
@@ -152,7 +152,7 @@ export const tweetMulti = async (title: string, rows: string[], footer?: string)
  
   for (let idx in rows) {
     const row = rows[idx];
-    if (isTweetValid(mainContent + row).valid) {
+    if (isTweetValid(mainContent + row)) {
       mainContent += row;
     } else {
       in_reply_to_status_id = await doTweetMulti(mainContent, in_reply_to_status_id);
@@ -161,7 +161,7 @@ export const tweetMulti = async (title: string, rows: string[], footer?: string)
   }
 
   if (footer) {
-    if (isTweetValid(mainContent + footer).valid) {
+    if (isTweetValid(mainContent + footer)) {
       await doTweetMulti(mainContent + footer, in_reply_to_status_id);
     } else {
       in_reply_to_status_id = await doTweetMulti(mainContent, in_reply_to_status_id);
