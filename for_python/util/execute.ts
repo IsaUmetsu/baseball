@@ -257,6 +257,8 @@ const execRc5All = async (isTweet = true, teamArg = '', leagueArg = '', sortArg 
       displayResult(title, rows);
     }
   }
+
+  return dispTargets;
 }
 
 /**
