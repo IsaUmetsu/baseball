@@ -27,22 +27,22 @@ export const insertGameInfo = async (
     gameInfo.homeTeamInitial = homeTeamInitial;
     gameInfo.gameNo = gameNo;
     gameInfo.noGame = Number(isNoGame);
-    // gameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12');
-    gameInfo.isOp = isDuringPeriod('2023-02-23', '2023-03-26'); // 2021-03-02..2021-03-25, 2022-02-23..2022-03-21
-    gameInfo.isRg = isDuringPeriod('2023-03-30', '2023-07-17') || isDuringPeriod('2023-07-22', '2023-10-06'); // 2021-03-26..2021-07-14||2021-08-13..2021-11-01, 2022-03-25..2022-10-31
-    gameInfo.isIl = isDuringPeriod('2023-05-30', '2023-06-21'); // 2021-05-25..2021-06-13, 2022-05-24..2022-06-12
-    gameInfo.isCs = isDuringPeriod('2023-10-08', '2023-10-17'); // 2021-11-06..2021-11-19, 2022-10-08..2022-10-17 TODO: 暫定値
-    gameInfo.isJs = isDuringPeriod('2023-10-22', '2023-10-30'); // 2021-11-20..2021-11-28, 2022-10-22..2022-10-30 TODO: 暫定値
+    // gameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12'); // エキシビジョンマッチ
+    gameInfo.isOp = isDuringPeriod('2024-02-23', '2024-03-24'); // 2021-03-02..2021-03-25, 2022-02-23..2022-03-21, 2023-02-23..2023-03-26
+    gameInfo.isRg = isDuringPeriod('2024-03-29', '2024-07-22') || isDuringPeriod('2024-07-26', '2024-10-06'); // 2021-03-26..2021-07-14||2021-08-13..2021-11-01, 2022-03-25..2022-10-31, 2023-03-30-2023-07-17||2023-07-22..2023-10-06
+    gameInfo.isIl = isDuringPeriod('2024-05-28', '2024-06-16'); // 2021-05-25..2021-06-13, 2022-05-24..2022-06-12, 2023-05-30..2023-06-21
+    gameInfo.isCs = isDuringPeriod('2024-10-12', '2024-10-21'); // 2021-11-06..2021-11-19, 2022-10-08..2022-10-17, 2023-10-08..2023-10-17
+    gameInfo.isJs = isDuringPeriod('2024-10-26', '2024-11-03'); // 2021-11-20..2021-11-28, 2022-10-22..2022-10-30, 2023-10-22..2023-10-30
     await gameInfo.save();
     return gameInfo.id;
   } else {
     savedGameInfo.noGame = Number(isNoGame);
-    // savedGameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12');
-    savedGameInfo.isOp = isDuringPeriod('2023-02-23', '2023-03-26'); // 2021-03-02 .. 2021-03-25, 2022-02-23 .. 2022-03-21
-    savedGameInfo.isRg = isDuringPeriod('2023-03-30', '2023-07-17') || isDuringPeriod('2023-07-22', '2023-10-06'); // 2021-03-26..2021-07-14||2021-08-13..2021-11-01, 2022-03-25..2022-10-31
-    savedGameInfo.isIl = isDuringPeriod('2023-05-30', '2023-06-21'); // 2021-05-25..2021-06-13, 2022-05-24..2022-06-12
-    savedGameInfo.isCs = isDuringPeriod('2023-10-08', '2023-10-17'); // 2021-11-06..2021-11-19, 2022-10-08..2022-10-17 TODO: 暫定値
-    savedGameInfo.isJs = isDuringPeriod('2023-10-22', '2023-10-30'); // 2021-11-20..2021-11-28, 2022-10-22..2022-10-30 TODO: 暫定値
+    // savedGameInfo.isEm = isDuringPeriod('2021-07-15', '2021-08-12'); // エキシビジョンマッチ
+    savedGameInfo.isOp = isDuringPeriod('2024-02-23', '2024-03-24'); // 2021-03-02 .. 2021-03-25, 2022-02-23 .. 2022-03-21
+    savedGameInfo.isRg = isDuringPeriod('2024-03-29', '2024-07-22') || isDuringPeriod('2024-07-26', '2024-10-06'); // 2021-03-26..2021-07-14||2021-08-13..2021-11-01, 2022-03-25..2022-10-31
+    savedGameInfo.isIl = isDuringPeriod('2024-05-28', '2024-06-16'); // 2021-05-25..2021-06-13, 2022-05-24..2022-06-12
+    savedGameInfo.isCs = isDuringPeriod('2024-10-12', '2024-10-21'); // 2021-11-06..2021-11-19, 2022-10-08..2022-10-17
+    savedGameInfo.isJs = isDuringPeriod('2024-10-26', '2024-11-03'); // 2021-11-20..2021-11-28, 2022-10-22..2022-10-30
     await savedGameInfo.save();
     return savedGameInfo.id;
   }

@@ -11,7 +11,7 @@ import { GameInfo } from '../entities/GameInfo';
     SELECT 
       g_id
     FROM
-      baseball_2023.debug_base
+      baseball_2024.debug_base
     WHERE
       no_game = 0
       AND batting_result = '試合終了'
